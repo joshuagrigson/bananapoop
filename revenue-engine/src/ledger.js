@@ -39,7 +39,7 @@ export function validate(input) {
       break;
     case 'post':
       if (!isText(ev.path)) fail('post needs a path id');
-      if (!isText(ev.platform)) fail('post needs a platform (youtube, tiktok, x, linkedin, instagram, blog, ...)');
+      if (!isText(ev.platform)) fail('post needs a platform (youtube, x, linkedin, instagram, blog, ...)');
       if (!isUrl(ev.url)) fail('post needs the live http(s) URL of the published post. Drafts are not posts.');
       if (!isText(ev.title)) fail('post needs a title or first line');
       if (!['user', 'agent'].includes(ev.by)) fail('post.by must be "user" or "agent"');

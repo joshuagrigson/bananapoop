@@ -78,7 +78,7 @@ You never send anything. If there are no prospects logged, say so and stop.`,
 Create 3 ready-to-post content packages. Each one is a separate file written with write_note("post-<short-slug>.md").
 
 Each package contains, in this order:
-1. Platform (pick the best fit: LinkedIn, X, TikTok/Reels script, YouTube Short script, or blog) and why.
+1. Platform (pick the best fit: LinkedIn, X, Instagram Reels script, YouTube Short script, or blog. Never TikTok: the operator does not use it) and why.
 2. Hook: the first line or first 2 seconds.
 3. The full post text or full script, ready to paste or read.
 4. Caption and up to 5 hashtags where the platform uses them.

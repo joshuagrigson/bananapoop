@@ -19,14 +19,14 @@ test('a post needs a live URL; drafts are not posts', () => {
 test('money attributed to a post rolls up by post and platform, even if logged before the post line', () => {
   const events = [
     ev({ kind: 'money.in', usd: 30, path: 'gamma', source: 'Affiliate', evidence: 'payout 1', postId: 'p1', ts: '2026-01-01T00:00:00Z' }),
-    ev({ kind: 'post', id: 'p1', path: 'gamma', platform: 'TikTok', url: 'https://t/1', title: 'a', by: 'user', ts: '2026-01-02T00:00:00Z' }),
+    ev({ kind: 'post', id: 'p1', path: 'gamma', platform: 'YouTube', url: 'https://y/1', title: 'a', by: 'user', ts: '2026-01-02T00:00:00Z' }),
     ev({ kind: 'post', id: 'p2', path: 'gamma', platform: 'x', url: 'https://x/2', title: 'b', by: 'user', ts: '2026-01-03T00:00:00Z' }),
     ev({ kind: 'money.in', usd: 5, path: 'gamma', source: 'Client', evidence: 'inv 9' }),
     ev({ kind: 'money.in', usd: 7, path: 'gamma', source: 'Ghost', evidence: 'inv 10', postId: 'nope' }),
   ];
   const st = reduce(events, CAT);
   assert.equal(st.posts.find((p) => p.id === 'p1').earnedUsd, 30);
-  assert.deepEqual(st.byPlatform.tiktok, { posts: 1, earnedUsd: 30 });
+  assert.deepEqual(st.byPlatform.youtube, { posts: 1, earnedUsd: 30 });
   assert.equal(st.byPlatform.x.earnedUsd, 0);
   assert.equal(st.unattributedUsd, 12);
   assert.equal(st.earnedUsd, 42);

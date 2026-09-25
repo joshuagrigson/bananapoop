@@ -29,7 +29,7 @@ export function seedDemo(ledger, dataDir, now = Date.now()) {
   });
   const posts = [
     { id: 'post_demo_1', platform: 'linkedin', title: 'Missed calls cost salons more than rent', url: 'https://example.com/demo/post/1' },
-    { id: 'post_demo_2', platform: 'tiktok', title: 'I scored 100 sales calls with AI in an hour', url: 'https://example.com/demo/post/2' },
+    { id: 'post_demo_2', platform: 'youtube', title: 'I scored 100 sales calls with AI in an hour', url: 'https://example.com/demo/post/2' },
     { id: 'post_demo_3', platform: 'x', title: 'Build-in-public: day 1 of the revenue station', url: 'https://example.com/demo/post/3' },
     { id: 'post_demo_4', platform: 'linkedin', title: 'The one confirmation call that saves 9% of tours', url: 'https://example.com/demo/post/4' },
   ];
