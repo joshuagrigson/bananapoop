@@ -15,7 +15,7 @@ It is a small, honest machine for driving one operator from $0 to a first dollar
 
 Live preview on demo data, buttons switched off: https://revenue-station-preview.netlify.app (station), `/terminal/` (production terminal), `/ledger/` (money dashboard). Rebuild it with `npm run preview`, which writes a static copy to `preview/`.
 
-Click anywhere on a room (floor, walls or its label) to open its stats, the vault for the station roster, or the outbox dock for drafts.
+Click anywhere on a room (floor, walls or its label) to open its stats, the vault for the station roster, or the outbox dock for drafts. Drag to pan, scroll or pinch to zoom, double-click a room to fly in, `1`-`8` jump to a room, `Esc` returns to the overview, `?` opens the field guide that says which objects are bound to the ledger and which are scenery.
 
 ## One-paste start (Windows)
 
@@ -148,7 +148,7 @@ src/harvest.js    free Texas new-permit feed (data.texas.gov jrea-zgmq) into the
 src/clients.js    client roster with monthly pack due dates
 src/demo.js       labeled demo data (refuses a real ledger)
 src/server.js     localhost HTTP: station, /ledger, /api/state, /api/events, /api/run, /api/runs, /api/jobs, /api/outbox
-src/station.html  the pixel-art station (canvas, no assets, every object bound to ledger state)
+src/station.html  the pixel-art station: canvas renderer (lighting, bloom, depth-aware crew, pathfinding, camera) and game HUD; no assets, scenery labelled as scenery
 src/dashboard.html  the money dashboard
 src/cli.js
 test/             node:test, zero spend
