@@ -57,6 +57,22 @@ export function quests(state, catalog = CATALOG) {
     }
   }
 
+  // 2b) Publishing: a post counts only once its live URL is on the ledger. Drafts in the outbox do not count.
+  for (const spec of catalog) {
+    const p = state.paths[spec.id];
+    if (!p || !spec.postTarget) continue;
+    const n = p.posts.length;
+    const done = n >= spec.postTarget;
+    if (!done && p.status !== 'active') continue;
+    stages.push({
+      id: `posts:${spec.id}`, kind: 'posts', path: spec.id,
+      title: `${spec.name}: publish ${spec.postTarget} posts`,
+      desc: `${n}/${spec.postTarget} live posts logged${p.posts.length ? `, ${fmt(p.posts.reduce((s, x) => s + x.earnedUsd, 0))} attributed` : ''}`,
+      reward: 'an audience the paid paths can sell to', status: done ? 'done' : 'open',
+      progress: { n, target: spec.postTarget }, cites: p.posts.map((x) => x.id),
+    });
+  }
+
   // 3) The money ladder: $1 -> $1K -> $10K -> $100K -> $1M, each citing the payment that crossed it.
   const lvl = commanderLevel(state);
   for (const rung of LADDER.slice(1)) {

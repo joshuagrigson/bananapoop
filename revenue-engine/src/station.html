@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revenue Station</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --bg: #07080c; --panel: #11141b; --line: #232835; --ink: #e6e8ee; --muted: #8b93a7;
+    --good: #3ddc97; --warn: #f5a623; --bad: #ff5c5c; --accent: #7aa2ff; --gold: #ffcf5a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  a { color: var(--accent); }
+  .hud { display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+  .hud .brand { font-size: 14px; letter-spacing: .14em; text-transform: uppercase; margin-right: auto; align-self: center; }
+  .hud .brand small { display: block; color: var(--muted); letter-spacing: .04em; text-transform: none; font-size: 11px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; min-width: 110px; }
+  .stat .k { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
+  .stat .v { font-size: 18px; }
+  .stat .v.gold { color: var(--gold); }
+  .stat .bar { height: 4px; background: var(--line); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+  .stat .bar i { display: block; height: 100%; background: var(--gold); }
+  .demo { background: #3a0f14; color: #ffb3b8; border-bottom: 1px solid #6a1d25; padding: 6px 16px; font-size: 12px; display: none; }
+  .wrap { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 0; }
+  @media (max-width: 900px) { .wrap { grid-template-columns: 1fr; } }
+  .stage { position: relative; overflow: hidden; background: #05060a; display: flex; justify-content: center; align-items: flex-start; }
+  canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: crosshair; }
+  .labels { position: absolute; inset: 0; pointer-events: none; }
+  .lbl { position: absolute; transform: translate(-50%, -100%); white-space: nowrap; font-size: 10px; text-align: center; line-height: 1.25; color: #cfd6e6; text-shadow: 0 0 6px #000, 0 0 2px #000; letter-spacing: .04em; }
+  .lbl b { color: #fff; font-weight: 600; }
+  .lbl .tag { display: inline-block; margin-left: 4px; padding: 0 4px; border-radius: 3px; font-size: 9px; border: 1px solid currentColor; }
+  .lbl.gated .tag { color: var(--warn); } .lbl.killed .tag { color: var(--bad); } .lbl.paused .tag { color: var(--muted); }
+  .float { position: absolute; transform: translate(-50%, -100%); font-size: 12px; font-weight: 700; text-shadow: 0 0 6px #000; pointer-events: none; animation: rise 2.2s ease-out forwards; }
+  @keyframes rise { from { opacity: 1; margin-top: 0; } to { opacity: 0; margin-top: -40px; } }
+  .tip { position: absolute; pointer-events: none; background: #0c0f16ee; border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font-size: 11px; display: none; white-space: nowrap; z-index: 3; }
+  aside { background: var(--panel); border-left: 1px solid var(--line); padding: 14px 16px; min-height: 420px; }
+  @media (max-width: 900px) { aside { border-left: 0; border-top: 1px solid var(--line); } }
+  aside h2 { margin: 0 0 4px; font-size: 14px; }
+  aside h3 { margin: 14px 0 6px; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  aside .muted { color: var(--muted); font-size: 12px; }
+  .stg { display: grid; grid-template-columns: 90px 1fr 54px; gap: 6px; align-items: center; font-size: 12px; margin: 3px 0; }
+  .stg .b { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+  .stg .b i { display: block; height: 100%; background: var(--accent); }
+  .stg.done .b i { background: var(--good); }
+  .stg.done { color: var(--good); }
+  form { display: grid; gap: 6px; margin-top: 6px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  input, select, button { font: inherit; background: #0b0d13; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 5px 7px; width: 100%; }
+  button { cursor: pointer; background: #1a2130; }
+  button:hover { border-color: var(--accent); }
+  button.spend { border-color: #6a4d1a; }
+  .msg { font-size: 11px; min-height: 14px; color: var(--muted); }
+  .msg.err { color: var(--bad); } .msg.ok { color: var(--good); }
+  .quest { padding: 5px 0; border-top: 1px solid var(--line); font-size: 12px; }
+  .quest:first-child { border-top: 0; }
+  .quest .d { color: var(--muted); font-size: 11px; }
+  .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--line); }
+  @media (max-width: 900px) { .bottom { grid-template-columns: 1fr; } }
+  .bottom section { padding: 12px 16px; }
+  .bottom section + section { border-left: 1px solid var(--line); }
+  @media (max-width: 900px) { .bottom section + section { border-left: 0; border-top: 1px solid var(--line); } }
+  .bottom h3 { margin: 0 0 8px; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  .feed div { font-size: 11px; padding: 2px 0; color: #b8c0d4; }
+  .feed .t { color: var(--muted); margin-right: 6px; }
+  .legend { display: grid; grid-template-columns: 1fr; gap: 3px; font-size: 11px; color: #b8c0d4; }
+  .legend b { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="demo" id="demo">DEMO LEDGER. Everything on this station is fictional preview data. Point REVENUE_ENGINE_DATA at your real ledger to see the truth.</div>
+<div class="hud" id="hud">
+  <div class="brand">Revenue Station<small>every object on the floor is a ledger line &middot; <a href="/ledger">ledger view</a></small></div>
+</div>
+<div class="wrap">
+  <div class="stage" id="stage">
+    <canvas id="cv" width="560" height="340"></canvas>
+    <div class="labels" id="labels"></div>
+    <div class="tip" id="tip"></div>
+  </div>
+  <aside id="panel"><h2>Select a room</h2><div class="muted">Each room is one money path. Click it to see its stages, send an agent, or log what happened.</div></aside>
+</div>
+<div class="bottom">
+  <section><h3>Ledger feed</h3><div class="feed" id="feed"></div></section>
+  <section><h3>What you are looking at</h3>
+    <div class="legend">
+      <div><b>Room</b> = one money path. Lit means active. Amber hazard means gated. Red and dark means killed.</div>
+      <div><b>Six desks</b> = the six stages. A green screen means the stage target is met. A blinking blue screen marks the next stage.</div>
+      <div><b>Crates</b> = evidenced outcomes logged on that path, one crate each (display capped at 16).</div>
+      <div><b>Reactor tube</b> = spend against the path budget. It glows red past 80%.</div>
+      <div><b>Crew</b> = a real agent run. No run, no crew member. Walking in is a run start; walking out is a run end, carrying a crate if the run logged outcomes.</div>
+      <div><b>Vault</b> = evidenced revenue. One gold bar per ladder rung crossed: $1, $1K, $10K, $100K, $1M.</div>
+      <div><b>Posters</b> = posts you published, logged with their live URL. A gold corner means that post has earned money.</div>
+      <div><b>Outbox dock</b> = one sheet per draft an agent wrote. Nothing is sent without you.</div>
+      <div><b>Gold figure</b> = you, the Commander.</div>
+    </div>
+  </section>
+</div>
+<script>
+(() => {
+  'use strict';
+  // ---------- constants ----------
+  const W = 560, H = 340, OX = 280, OY = 58, WH = 16;   // canvas size, iso origin, wall height
+  const CELL = 10, ROOM = 7;
+  const PATH_CELLS = [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [1, 2], [2, 2]];
+  const HUB = [1, 1], DOCK = [0, 2];
+  const PLATFORM_COLOR = { linkedin: '#4a8fe0', x: '#d8dde8', tiktok: '#ff4f8b', youtube: '#ff4d4d', instagram: '#c86bff', blog: '#3ddc97' };
+  const DESKS = [[1, 1], [3, 1], [5, 1], [1, 4], [3, 4], [5, 4]];   // room-local, one per stage
+  const STAGES = ['prospect', 'conversation', 'demo', 'pilot', 'paid', 'retained'];
+  const ROLE_COLOR = { prospector: '#5fd4ff', outreach: '#b48cff', pricing: '#ffb347', commander: '#ffcf5a' };
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const usd = (n) => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+
+  const iso = (x, y) => [OX + (x - y) * 8, OY + (x + y) * 4];
+  const cellOrigin = (c, r) => [c * CELL + 1, r * CELL + 1];
+  const cellCenter = (c, r) => [c * CELL + 1 + 3.5, r * CELL + 1 + 3.5];
+
+  // ---------- seeded rng for static scenery ----------
+  let seed = 1337;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  const STARS = Array.from({ length: 160 }, () => ({ x: Math.floor(rnd() * W), y: Math.floor(rnd() * H), b: rnd(), p: rnd() * 6.28 }));
+
+  // ---------- pixel sprite bakers ----------
+  const bake = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); fn(g); return c; };
+  const px = (g, x, y, col) => { g.fillStyle = col; g.fillRect(x, y, 1, 1); };
+  const cache = new Map();
+  const cached = (key, fn) => { if (!cache.has(key)) cache.set(key, fn()); return cache.get(key); };
+
+  function tileSprite(fill, edge, stripe) {
+    return cached('t' + fill + edge + (stripe || ''), () => bake(16, 8, (g) => {
+      for (let y = 0; y < 8; y++) for (let x = 0; x < 16; x++) {
+        const d = Math.abs(x + 0.5 - 8) / 8 + Math.abs(y + 0.5 - 4) / 4;
+        if (d > 1) continue;
+        let col = d > 0.8 ? edge : fill;
+        if (stripe && d <= 0.8 && ((x + y * 2) % 6) < 3) col = stripe;
+        px(g, x, y, col);
+      }
+    }));
+  }
+
+  function boxSprite(h, top, left, right, key) {
+    return cached('b' + key, () => bake(16, 8 + h, (g) => {
+      for (let x = 0; x < 16; x++) {
+        const yb = 4 + 4 * (1 - Math.abs(x + 0.5 - 8) / 8);
+        for (let y = Math.floor(yb); y < Math.floor(yb) + h; y++) px(g, x, y + h - 4 < 0 ? 0 : y + h - 4 + 4 - 4, x < 8 ? left : right);
+      }
+      // faces were drawn relative to a top at y=0; draw the top diamond over them
+      for (let y = 0; y < 8; y++) for (let x = 0; x < 16; x++) {
+        const d = Math.abs(x + 0.5 - 8) / 8 + Math.abs(y + 0.5 - 4) / 4;
+        if (d <= 1) px(g, x, y, d > 0.85 ? shade(top, 18) : top);
+      }
+    }));
+  }
+
+  function shade(hex, amt) {
+    const n = parseInt(hex.slice(1), 16);
+    const cl = (v) => Math.max(0, Math.min(255, v));
+    const r = cl((n >> 16) + amt), g = cl(((n >> 8) & 255) + amt), b = cl((n & 255) + amt);
+    return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+  }
+
+  // Crew bitmap, 5x9. W body, V visor, A accent.
+  const BODY = {
+    stand: ['.WWW.', 'WVVVW', '.WWW.', 'AWWWA', 'WWAWW', '.WWW.', '.W.W.', '.W.W.', '.W.W.'],
+    walkA: ['.WWW.', 'WVVVW', '.WWW.', 'AWWWA', 'WWAWW', '.WWW.', '.W.W.', 'W...W', 'W...W'],
+    walkB: ['.WWW.', 'WVVVW', '.WWW.', 'AWWWA', 'WWAWW', '.WWW.', '.W.W.', '.W.W.', '..W..'],
+    typeA: ['.WWW.', 'WVVVW', '.WWW.', 'WWWWA', 'WWAWA', '.WWW.', '.W.W.', '.W.W.', '.W.W.'],
+    typeB: ['.WWW.', 'WVVVW', '.WWW.', 'AWWWW', 'AWAWW', '.WWW.', '.W.W.', '.W.W.', '.W.W.'],
+  };
+  function crewSprite(frame, accent, body) {
+    return cached('c' + frame + accent + body, () => bake(5, 9, (g) => {
+      BODY[frame].forEach((row, y) => [...row].forEach((ch, x) => {
+        if (ch === 'W') px(g, x, y, x === 0 ? shade(body, -40) : body);
+        else if (ch === 'V') px(g, x, y, '#1b2230');
+        else if (ch === 'A') px(g, x, y, accent);
+      }));
+    }));
+  }
+
+  // ---------- world model built from ledger snapshot ----------
+  let snap = null, prev = null, first = true;
+  const rooms = [];        // {id, spec, c, r, x0, y0, status, gated, ...}
+  const cells = new Map(); // "c,r" -> kind
+  const agents = new Map();
+  const particles = [];
+  const deskFlash = new Map(); // "pathId:stage" -> until ms
+
+  function buildRooms() {
+    rooms.length = 0; cells.clear();
+    cells.set(HUB.join(','), 'hub'); cells.set(DOCK.join(','), 'dock');
+    snap.catalog.slice(0, PATH_CELLS.length).forEach((spec, i) => {
+      const [c, r] = PATH_CELLS[i];
+      const [x0, y0] = cellOrigin(c, r);
+      cells.set(c + ',' + r, 'path');
+      rooms.push({ id: spec.id, spec, c, r, x0, y0 });
+    });
+  }
+
+  const pathState = (id) => snap.state.paths[id];
+  const isGated = (spec) => Boolean(spec.gate && !(snap.state.gates[spec.gate] && snap.state.gates[spec.gate].cleared));
+  function stageCount(p, st) { return st === 'paid' ? Math.max(p.outcomes.paid, p.moneyIn.length) : p.outcomes[st]; }
+  function stageInfo(room) {
+    const p = pathState(room.id);
+    let nextSeen = false;
+    return room.spec.stageList.map((s, i) => {
+      const n = stageCount(p, s.id), done = n >= s.target;
+      const next = !done && !nextSeen && p.status === 'active';
+      if (next) nextSeen = true;
+      return { ...s, i, n, done, next };
+    });
+  }
+  function roomLook(room) {
+    const p = pathState(room.id);
+    if (p.status === 'killed') return { fill: '#2a171a', edge: '#3d2226', wall: '#3a1e22', lit: false, look: 'killed' };
+    if (p.status === 'paused') return { fill: '#20232b', edge: '#2a2e37', wall: '#2a2e38', lit: false, look: 'paused' };
+    if (isGated(room.spec)) return { fill: '#2b2820', edge: '#433a24', wall: '#3a3426', lit: 'amber', look: 'gated' };
+    return { fill: '#28303f', edge: '#384257', wall: '#343c4e', lit: true, look: 'active' };
+  }
+
+  // Grid neighbours among occupied cells, for walking routes.
+  function neighbours(c, r) {
+    return [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dc, dr]) => [c + dc, r + dr]).filter(([a, b]) => cells.has(a + ',' + b));
+  }
+  function route(from, to) {
+    const key = (p) => p.join(',');
+    const q = [from], seen = new Map([[key(from), null]]);
+    while (q.length) {
+      const cur = q.shift();
+      if (key(cur) === key(to)) break;
+      for (const n of neighbours(...cur)) if (!seen.has(key(n))) { seen.set(key(n), cur); q.push(n); }
+    }
+    const out = []; let cur = to;
+    while (cur) { out.unshift(cur); cur = seen.get(key(cur)); }
+    return out.map(([c, r]) => cellCenter(c, r));
+  }
+  function deskStand(room, idx) { const [dx, dy] = DESKS[idx]; return [room.x0 + dx + 0.5, room.y0 + dy + 1.5]; }
+
+  // ---------- diffing snapshots into crew movement and celebrations ----------
+  function outcomesForRun(runId) {
+    let n = 0;
+    for (const p of Object.values(snap.state.paths)) for (const list of Object.values(p.refs)) for (const r of list) if (r.runId === runId) n++;
+    return n;
+  }
+  function screenOf(x, y) { const [sx, sy] = iso(x, y); return [sx, sy]; }
+
+  function sync() {
+    const running = new Map(snap.state.running.map((r) => [r.runId, r]));
+    for (const [runId, r] of running) {
+      if (agents.has(runId)) continue;
+      const room = rooms.find((m) => m.id === r.path);
+      if (!room) continue;
+      const info = stageInfo(room);
+      const idx = Math.max(0, info.findIndex((s) => s.next));
+      const target = deskStand(room, idx);
+      const hub = cellCenter(...HUB);
+      const way = route(HUB, [room.c, room.r]);
+      const a = { id: runId, role: r.role, path: r.path, x: hub[0], y: hub[1], queue: [...way.slice(1), target], state: 'enter', carry: 0, t: Math.random() * 10 };
+      if (first) { a.x = target[0]; a.y = target[1]; a.queue = []; a.state = 'work'; }
+      agents.set(runId, a);
+      if (!first) floatAt(...screenOf(hub[0], hub[1]), `${r.role} dispatched`, ROLE_COLOR[r.role] || '#fff');
+    }
+    for (const a of agents.values()) {
+      if (a.id === 'commander' || running.has(a.id) || a.state === 'leave') continue;
+      const ended = snap.state.runs.find((r) => r.runId === a.id);
+      const room = rooms.find((m) => m.id === a.path);
+      a.state = 'leave';
+      a.carry = outcomesForRun(a.id);
+      const back = route([room.c, room.r], HUB);
+      a.queue = [cellCenter(room.c, room.r), ...back.slice(1)];
+      if (ended) floatAt(...screenOf(a.x, a.y), `${ended.reason} · ${usd(ended.usd)}${a.carry ? ' · ' + a.carry + ' logged' : ''}`, ended.reason === 'done' ? '#3ddc97' : '#f5a623');
+    }
+    if (prev && !first) {
+      const gained = snap.state.earnedUsd - prev.state.earnedUsd;
+      if (gained > 0) {
+        const [vx, vy] = cellCenter(...HUB);
+        const [sx, sy] = screenOf(vx, vy);
+        floatAt(sx, sy - 18, '+' + usd(gained), '#ffcf5a');
+        for (let i = 0; i < 40; i++) particles.push({ x: sx, y: sy - 10, vx: (Math.random() - 0.5) * 60, vy: -40 - Math.random() * 60, life: 1.6, col: i % 3 ? '#ffcf5a' : '#fff3b0' });
+      }
+      if (snap.level.level > prev.level.level) { const [sx, sy] = screenOf(...cellCenter(...HUB)); floatAt(sx, sy - 34, 'LEVEL ' + snap.level.level + ' · ' + snap.level.title, '#ffcf5a'); }
+      for (const room of rooms) {
+        const before = prev.state.paths[room.id], after = pathState(room.id);
+        STAGES.forEach((st, i) => {
+          const target = room.spec.stageList[i].target;
+          const wasDone = (st === 'paid' ? Math.max(before.outcomes.paid, before.moneyIn.length) : before.outcomes[st]) >= target;
+          if (!wasDone && stageCount(after, st) >= target) {
+            deskFlash.set(room.id + ':' + st, performance.now() + 4000);
+            const [dx, dy] = DESKS[i];
+            floatAt(...screenOf(room.x0 + dx + 0.5, room.y0 + dy + 0.5), 'STAGE CLEAR: ' + st, '#3ddc97');
+          }
+        });
+        if (before.status !== after.status) floatAt(...screenOf(...cellCenter(room.c, room.r)), after.status.toUpperCase(), after.status === 'killed' ? '#ff5c5c' : '#cfd6e6');
+      }
+    }
+    if (!agents.has('commander')) { const [x, y] = cellCenter(...HUB); agents.set('commander', { id: 'commander', role: 'commander', x: x + 1.2, y: y + 1.4, queue: [], state: 'idle', carry: 0, t: 0 }); }
+    first = false;
+  }
+
+  // ---------- drawing ----------
+  let T = 0;
+  function drawSpace() {
+    ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, W, H);
+    for (const s of STARS) {
+      const tw = 0.55 + 0.45 * Math.sin(T * 1.3 + s.p);
+      const v = Math.floor(80 + 150 * s.b * tw);
+      ctx.fillStyle = `rgb(${v},${v},${Math.min(255, v + 25)})`;
+      ctx.fillRect(s.x, s.y, 1, 1);
+    }
+    // planet limb, top-left, banded like the gas giants station art tends to sit next to
+    const cx = -30, cy = -10, R = 120;
+    for (let y = 0; y < 110; y++) {
+      const dy = y - cy; if (Math.abs(dy) > R) continue;
+      const half = Math.sqrt(R * R - dy * dy);
+      const band = Math.floor((y + 4 * Math.sin(y / 9)) / 7) % 3;
+      ctx.fillStyle = ['#16233f', '#1b2b4d', '#122039'][band];
+      ctx.fillRect(Math.max(0, Math.floor(cx - half)), y, Math.floor(cx + half) - Math.max(0, Math.floor(cx - half)), 1);
+      ctx.fillStyle = '#3b5f9e';
+      ctx.fillRect(Math.floor(cx + half), y, 1, 1);
+    }
+  }
+
+  function floorTile(x, y, fill, edge, stripe) { const [sx, sy] = iso(x, y); ctx.drawImage(tileSprite(fill, edge, stripe), sx - 8, sy); }
+
+  // A wall segment along the north edge (dir 'n') or west edge (dir 'w') of tile x,y.
+  function wallSeg(x, y, dir, h, col, lit, windowOn) {
+    const [sx, sy] = iso(x, y);
+    const face = dir === 'n' ? shade(col, 8) : shade(col, -6);
+    for (let i = 0; i < 8; i++) {
+      const X = dir === 'n' ? sx + i : sx - 1 - i;
+      const yb = Math.round(sy + (dir === 'n' ? i : i + 1) * 0.5);
+      ctx.fillStyle = face; ctx.fillRect(X, yb - h, 1, h);
+      ctx.fillStyle = shade(col, 30); ctx.fillRect(X, yb - h, 1, 1);
+      if (h >= 10 && windowOn && i >= 2 && i <= 5) {
+        const on = lit === true ? '#ffd27a' : lit === 'amber' ? '#c98a2a' : '#1a1d24';
+        ctx.fillStyle = on; ctx.fillRect(X, yb - h + 4, 1, 3);
+      }
+    }
+  }
+
+  function drawBox(x, y, h, top, left, right, key) {
+    const [sx, sy] = iso(x, y);
+    const spr = boxSprite(h, top, left, right, key);
+    ctx.drawImage(spr, sx - 8, sy - h);
+    return [sx, sy - h];
+  }
+
+  const drawList = [];
+  const push = (depth, fn) => drawList.push({ depth, fn });
+
+  function roomWalls(x0, y0, look, doors) {
+    for (let i = 0; i < ROOM; i++) {
+      const tx = x0 + i;
+      if (!(doors.n && i === 3)) push(tx + y0 - 0.9, () => wallSeg(tx, y0, 'n', WH, look.wall, look.lit, i % 2 === 1));
+      const ty = y0 + i;
+      if (!(doors.w && i === 3)) push(x0 + ty - 0.9, () => wallSeg(x0, ty, 'w', WH, look.wall, look.lit, i % 2 === 1));
+    }
+  }
+
+  function scene() {
+    drawList.length = 0;
+    const now = performance.now();
+    // ---- hallways ----
+    for (const key of cells.keys()) {
+      const [c, r] = key.split(',').map(Number);
+      if (cells.has((c + 1) + ',' + r)) for (let x = c * CELL + 8; x <= c * CELL + 10; x++) {
+        const y = r * CELL + 4;
+        floorTile(x, y, '#1c212b', '#2a303c');
+        push(x + y - 0.9, () => wallSeg(x, y, 'n', 5, '#2a303c', false, false));
+      }
+      if (cells.has(c + ',' + (r + 1))) for (let y = r * CELL + 8; y <= r * CELL + 10; y++) {
+        const x = c * CELL + 4;
+        floorTile(x, y, '#1c212b', '#2a303c');
+        push(x + y - 0.9, () => wallSeg(x, y, 'w', 5, '#2a303c', false, false));
+      }
+    }
+    const doorsOf = (c, r) => ({ n: cells.has(c + ',' + (r - 1)), w: cells.has((c - 1) + ',' + r) });
+    // ---- hub ----
+    {
+      const [x0, y0] = cellOrigin(...HUB);
+      for (let i = 0; i < ROOM; i++) for (let j = 0; j < ROOM; j++) floorTile(x0 + i, y0 + j, (i + j) % 2 ? '#2a3246' : '#2e374d', '#44506a');
+      roomWalls(x0, y0, { wall: '#39435a', lit: true }, doorsOf(...HUB));
+      // vault: one gold bar per ladder rung crossed
+      const vx = x0 + 3, vy = y0 + 3;
+      push(vx + vy, () => {
+        const [tx, ty] = drawBox(vx, vy, 9, '#4a4030', '#3a3223', '#2c261a', 'vault');
+        const bars = snap.level.level;
+        for (let b = 0; b < bars; b++) {
+          const bx = tx - 4 + (b % 3) * 3, by = ty + 1 - Math.floor(b / 3) * 2 - (b % 3 === 1 ? 1 : 0);
+          ctx.fillStyle = '#ffcf5a'; ctx.fillRect(bx, by, 3, 2);
+          ctx.fillStyle = '#fff3b0'; ctx.fillRect(bx, by, 3, 1);
+        }
+        if (snap.state.earnedUsd > 0) { const a = 0.35 + 0.25 * Math.sin(T * 2); ctx.fillStyle = `rgba(255,207,90,${a})`; ctx.fillRect(tx - 6, ty + 5, 12, 1); }
+      });
+      // ledger terminal: flickers once per event count change
+      push(x0 + 1 + y0 + 1, () => {
+        const [tx, ty] = drawBox(x0 + 1, y0 + 1, 5, '#3a4458', '#2a3142', '#222837', 'term');
+        ctx.fillStyle = (Math.floor(T * 3) % 2) ? '#7aa2ff' : '#5a7fd6'; ctx.fillRect(tx - 2, ty - 3, 5, 3);
+      });
+    }
+    // ---- outbox dock ----
+    {
+      const [x0, y0] = cellOrigin(...DOCK);
+      for (let i = 0; i < ROOM; i++) for (let j = 0; j < ROOM; j++) floorTile(x0 + i, y0 + j, '#242a36', '#323a4a');
+      roomWalls(x0, y0, { wall: '#303848', lit: true }, doorsOf(...DOCK));
+      const total = Object.values(snap.outbox || {}).reduce((s, n) => s + n, 0);
+      for (let s = 0; s < 3; s++) {
+        const x = x0 + 1 + s * 2, y = y0 + 1;
+        push(x + y, () => {
+          const [tx, ty] = drawBox(x, y, 7, '#3d4556', '#2c3342', '#232937', 'shelf');
+          const here = Math.max(0, Math.min(8, total - s * 8));
+          for (let k = 0; k < here; k++) { ctx.fillStyle = k % 2 ? '#e8ecf5' : '#cfd6e6'; ctx.fillRect(tx - 4 + k, ty + 2 - (k % 2), 1, 3); }
+        });
+      }
+    }
+    // ---- path rooms ----
+    for (const room of rooms) {
+      const look = roomLook(room);
+      const { x0, y0 } = room;
+      const doors = doorsOf(room.c, room.r);
+      for (let i = 0; i < ROOM; i++) for (let j = 0; j < ROOM; j++) {
+        const entry = look.look === 'gated' && ((i === 3 && (j === 6 || j === 0)) || (j === 3 && (i === 6 || i === 0)));
+        floorTile(x0 + i, y0 + j, (i + j) % 2 ? look.fill : shade(look.fill, 4), look.edge, entry ? '#8a6414' : null);
+      }
+      roomWalls(x0, y0, look, doors);
+      // posters on the north wall = live posts logged on this path, colored by platform
+      const posts = pathState(room.id).posts || [];
+      posts.slice(-12).forEach((post, k) => {
+        const tile = [0, 1, 2, 4, 5, 6][k % 6], row = Math.floor(k / 6);
+        push(x0 + tile + y0 - 0.85, () => {
+          const [sx, sy] = iso(x0 + tile, y0);
+          const X = sx + 2, Y = Math.round(sy + 1) - WH + 3 + row * 6;
+          ctx.fillStyle = '#0d1016'; ctx.fillRect(X, Y, 5, 5);
+          ctx.fillStyle = PLATFORM_COLOR[post.platform] || '#cfd6e6'; ctx.fillRect(X + 1, Y + 1, 3, 3);
+          if (post.earnedUsd > 0) { ctx.fillStyle = '#ffcf5a'; ctx.fillRect(X + 4, Y, 1, 1); }
+        });
+      });
+      const info = stageInfo(room);
+      const p = pathState(room.id);
+      const gated = look.look === 'gated';
+      // desks = stages
+      info.forEach((s, i) => {
+        const [dx, dy] = DESKS[i];
+        const x = x0 + dx, y = y0 + dy;
+        push(x + y, () => {
+          const [tx, ty] = drawBox(x, y, 5, '#465068', '#343c50', '#2a3141', 'desk');
+          const flash = (deskFlash.get(room.id + ':' + s.id) || 0) > now;
+          let col = '#1a1e27';
+          if (s.done) col = flash && Math.floor(T * 8) % 2 ? '#ffffff' : '#3ddc97';
+          else if (s.next && !gated) col = Math.floor(T * 2) % 2 ? '#7aa2ff' : '#3d5fb0';
+          else if (s.next && gated) col = '#8a6414';
+          ctx.fillStyle = '#10131a'; ctx.fillRect(tx - 3, ty - 4, 7, 5);
+          ctx.fillStyle = col; ctx.fillRect(tx - 2, ty - 3, 5, 3);
+          // progress pips on the desk top: n of target, up to 6 pips
+          const pips = Math.min(6, s.target), lit = Math.min(pips, Math.round(pips * Math.min(1, s.n / s.target)));
+          for (let k = 0; k < pips; k++) { ctx.fillStyle = k < lit ? (s.done ? '#3ddc97' : '#7aa2ff') : '#2a3040'; ctx.fillRect(tx - 3 + k, ty + 3, 1, 1); }
+        });
+      });
+      // reactor: spend vs budget
+      push(x0 + y0 + 0.1, () => {
+        const [sx, sy] = iso(x0 + 0.5, y0 + 0.5);
+        const ratio = room.spec.budgetUsd > 0 ? Math.min(1, p.spentUsd / room.spec.budgetUsd) : 0;
+        ctx.fillStyle = '#1a1f2a'; ctx.fillRect(sx - 3, sy - 18, 6, 18);
+        ctx.fillStyle = '#2d3445'; ctx.fillRect(sx - 3, sy - 18, 1, 18); ctx.fillRect(sx + 2, sy - 18, 1, 18);
+        const fh = Math.round(15 * ratio);
+        ctx.fillStyle = ratio > 0.8 ? '#ff5c5c' : ratio > 0.5 ? '#f5a623' : '#3ddc97';
+        if (fh > 0) ctx.fillRect(sx - 2, sy - 2 - fh, 4, fh);
+        ctx.fillStyle = '#4a5368'; ctx.fillRect(sx - 4, sy - 19, 8, 1); ctx.fillRect(sx - 4, sy - 1, 8, 1);
+      });
+      // crates = evidenced outcomes
+      const nOut = Math.min(16, STAGES.reduce((s, st) => s + p.refs[st].length, 0));
+      push(x0 + 6 + y0 + 0.2, () => {
+        const [sx, sy] = iso(x0 + 6.5, y0 + 0.5);
+        for (let k = 0; k < nOut; k++) {
+          const col = k % 4, lvl = Math.floor(k / 4);
+          const bx = sx - 6 + col * 3, by = sy - 2 - lvl * 3 + (col % 2);
+          ctx.fillStyle = '#7a5a34'; ctx.fillRect(bx, by, 3, 3);
+          ctx.fillStyle = '#a07a48'; ctx.fillRect(bx, by, 3, 1);
+          ctx.fillStyle = '#4e3a22'; ctx.fillRect(bx + 2, by + 1, 1, 2);
+        }
+      });
+      if (look.look === 'killed') push(x0 + y0 + 7, () => {
+        const [sx, sy] = iso(x0 + 3.5, y0 + 3.5);
+        ctx.fillStyle = '#ff5c5c';
+        for (let k = -5; k <= 5; k++) { ctx.fillRect(sx + k, sy + Math.round(k / 2), 1, 1); ctx.fillRect(sx + k, sy - Math.round(k / 2), 1, 1); }
+      });
+    }
+    // ---- crew ----
+    for (const a of agents.values()) {
+      push(a.x + a.y - 0.4, () => {
+        const [sx, sy] = iso(a.x, a.y);
+        const moving = a.queue.length > 0;
+        const frame = moving ? (Math.floor(a.t * 6) % 2 ? 'walkA' : 'walkB') : a.state === 'work' ? (Math.floor(a.t * 5) % 2 ? 'typeA' : 'typeB') : 'stand';
+        const body = a.role === 'commander' ? '#e9d9a8' : '#e8e8f0';
+        const bob = a.role === 'commander' && !moving ? (Math.floor(a.t * 1.5) % 2) : 0;
+        ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(sx - 3, sy - 1, 6, 2);
+        ctx.drawImage(crewSprite(frame, ROLE_COLOR[a.role] || '#fff', body), sx - 2, sy - 9 - bob);
+        if (a.carry > 0) { ctx.fillStyle = '#a07a48'; ctx.fillRect(sx - 2, sy - 13, 4, 3); ctx.fillStyle = '#7a5a34'; ctx.fillRect(sx - 2, sy - 11, 4, 1); }
+      });
+    }
+    drawList.sort((a, b) => a.depth - b.depth);
+    for (const d of drawList) d.fn();
+    // particles
+    for (const p of particles) { ctx.fillStyle = p.col; ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); }
+  }
+
+  // ---------- simulation of crew movement between snapshots ----------
+  function step(dt) {
+    T += dt;
+    for (const [id, a] of agents) {
+      a.t += dt;
+      if (a.queue.length) {
+        const [tx, ty] = a.queue[0];
+        const dx = tx - a.x, dy = ty - a.y, dist = Math.hypot(dx, dy), sp = 3.2 * dt;
+        if (dist <= sp) { a.x = tx; a.y = ty; a.queue.shift(); } else { a.x += dx / dist * sp; a.y += dy / dist * sp; }
+        if (!a.queue.length) {
+          if (a.state === 'enter') a.state = 'work';
+          else if (a.state === 'leave') agents.delete(id);
+        }
+      }
+    }
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i]; p.life -= dt; p.vy += 90 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+
+  // ---------- DOM overlay: labels, floaters, tooltip ----------
+  let scale = 1;
+  function layout() {
+    const avail = $('#stage').clientWidth;
+    const tall = Math.max(300, window.innerHeight - 190);
+    scale = Math.max(0.5, Math.min(avail / W, tall / H, 3));
+    cv.style.width = Math.round(W * scale) + 'px';
+    cv.style.height = Math.round(H * scale) + 'px';
+    placeLabels();
+  }
+  const offsetX = () => cv.offsetLeft;
+  function toScreen(sx, sy) { return [offsetX() + sx * scale, sy * scale]; }
+
+  function placeLabels() {
+    if (!snap) return;
+    const box = $('#labels');
+    const html = [];
+    for (const room of rooms) {
+      const look = roomLook(room);
+      const p = pathState(room.id);
+      const [sx, sy] = iso(room.x0 + 3.5, room.y0);
+      const [X, Y] = toScreen(sx, sy - WH - 4);
+      const tag = look.look === 'active' ? '' : `<span class="tag">${look.look.toUpperCase()}</span>`;
+      html.push(`<div class="lbl ${look.look}" style="left:${X}px;top:${Y}px"><b>#${room.spec.rank}</b> ${esc(shortName(room.spec.name))}${tag}<br><span style="color:#9aa3b8">${usd(p.earnedUsd)} earned</span></div>`);
+    }
+    const [hx, hy] = iso(cellOrigin(...HUB)[0] + 3.5, cellOrigin(...HUB)[1]);
+    const [HX, HY] = toScreen(hx, hy - WH - 4);
+    html.push(`<div class="lbl" style="left:${HX}px;top:${HY}px"><b>COMMAND</b> · vault ${usd(snap.state.earnedUsd)}</div>`);
+    const [dx, dy] = iso(cellOrigin(...DOCK)[0] + 3.5, cellOrigin(...DOCK)[1]);
+    const [DX, DY] = toScreen(dx, dy - WH - 4);
+    const drafts = Object.values(snap.outbox || {}).reduce((s, n) => s + n, 0);
+    html.push(`<div class="lbl" style="left:${DX}px;top:${DY}px"><b>OUTBOX</b> · ${drafts} draft${drafts === 1 ? '' : 's'}</div>`);
+    box.innerHTML = html.join('');
+  }
+  const shortName = (n) => (snap && (snap.catalog.find((c) => c.name === n) || {}).short) || n.replace(/,.*$/, '').replace(/ for Square-based.*$/, '').replace(/ with weekly.*$/, '').replace(/: ship real.*$/, '').replace(/ that sells.*$/, '').slice(0, 30);
+
+  function floatAt(sx, sy, text, color) {
+    const [X, Y] = toScreen(sx, sy);
+    const el = document.createElement('div');
+    el.className = 'float'; el.textContent = text; el.style.left = X + 'px'; el.style.top = Y + 'px'; el.style.color = color;
+    $('#labels').appendChild(el);
+    setTimeout(() => el.remove(), 2300);
+  }
+
+  function worldAt(ev) {
+    const r = cv.getBoundingClientRect();
+    const mx = (ev.clientX - r.left) / (r.width / W), my = (ev.clientY - r.top) / (r.height / H);
+    const a = (mx - OX) / 8, b = (my - OY) / 4;
+    return [(a + b) / 2, (b - a) / 2];
+  }
+  function roomAt(ev) {
+    const [x, y] = worldAt(ev);
+    return rooms.find((m) => x >= m.x0 && x < m.x0 + ROOM && y >= m.y0 && y < m.y0 + ROOM) || null;
+  }
+  cv.addEventListener('mousemove', (ev) => {
+    const tip = $('#tip');
+    const room = snap && roomAt(ev);
+    if (!room) { tip.style.display = 'none'; cv.style.cursor = 'crosshair'; return; }
+    cv.style.cursor = 'pointer';
+    const info = stageInfo(room), next = info.find((s) => s.next);
+    const look = roomLook(room).look;
+    tip.innerHTML = `#${room.spec.rank} ${esc(shortName(room.spec.name))} · ${look}${next ? ` · next: ${next.id} ${next.n}/${next.target}` : ''}`;
+    const r = $('#stage').getBoundingClientRect();
+    tip.style.left = (ev.clientX - r.left + 12) + 'px'; tip.style.top = (ev.clientY - r.top + 12) + 'px'; tip.style.display = 'block';
+  });
+  cv.addEventListener('mouseleave', () => { $('#tip').style.display = 'none'; });
+  let selected = null;
+  cv.addEventListener('click', (ev) => { const room = snap && roomAt(ev); if (room) { selected = room.id; renderPanel(); } });
+
+  // ---------- side panel ----------
+  function renderPanel() {
+    if (!snap || !selected) return;
+    const room = rooms.find((m) => m.id === selected);
+    if (!room) return;
+    const spec = room.spec, p = pathState(room.id), look = roomLook(room).look, info = stageInfo(room);
+    const qs = snap.quests.filter((q) => q.path === spec.id || (q.kind === 'gate' && spec.gate && q.id === 'gate:' + spec.gate));
+    const runs = snap.state.runs.filter((r) => r.path === spec.id).slice(-4).reverse();
+    const roleOpts = Object.entries(snap.roles).map(([k, r]) => `<option value="${k}">${esc(r.title)}${r.logs.length ? '' : ' (drafts)'}</option>`).join('');
+    const stageOpts = STAGES.map((s) => `<option>${s}</option>`).join('');
+    $('#panel').innerHTML = `
+      <h2>#${spec.rank} ${esc(spec.name)}</h2>
+      <div class="muted">${esc(spec.bucket)} · status <b>${look}</b> · earned ${usd(p.earnedUsd)} · spent ${usd(p.spentUsd)} of ${usd(spec.budgetUsd)}</div>
+      <h3>Stages</h3>
+      ${info.map((s) => `<div class="stg ${s.done ? 'done' : ''}"><span>${s.next ? '&#9656; ' : ''}${s.id}</span><div class="b"><i style="width:${Math.min(100, 100 * s.n / s.target)}%"></i></div><span>${s.n}/${s.target}</span></div>`).join('')}
+      <div class="muted" style="margin-top:6px">kill test: ${esc(spec.killTest)}</div>
+      ${qs.length ? `<h3>Quests here</h3>${qs.map((q) => `<div class="quest">${q.status === 'done' ? '&#10003;' : '&#9675;'} ${esc(q.title)}<div class="d">${esc(q.desc)}</div></div>`).join('')}` : ''}
+      <h3>Send an agent (spends real money)</h3>
+      <form id="f-run">
+        <div class="row"><select name="role">${roleOpts}</select><input name="maxUsd" type="number" step="0.25" min="0.25" value="2" title="max USD"></div>
+        <button class="spend">Dispatch to ${esc(shortName(spec.name))}</button><div class="msg"></div>
+      </form>
+      <h3>Log what happened</h3>
+      <form id="f-out">
+        <div class="row"><select name="stage">${stageOpts}</select><input name="ref" placeholder="business or person" required></div>
+        <input name="evidence" placeholder="evidence: URL, email subject, calendar link" required>
+        <button>Log outcome</button><div class="msg"></div>
+      </form>
+      <form id="f-money">
+        <div class="row"><input name="usd" type="number" step="0.01" min="0.01" placeholder="USD received" required><input name="source" placeholder="who paid" required></div>
+        <input name="evidence" placeholder="invoice #, Stripe charge, bank line" required>
+        <button>Log revenue</button><div class="msg"></div>
+      </form>
+      ${runs.length ? `<h3>Recent runs</h3>${runs.map((r) => `<div class="quest">${esc(r.role)} · ${esc(r.reason)} · ${usd(r.usd)} · ${r.iterations} iters<div class="d">${esc(r.runId)}</div></div>`).join('')}` : ''}`;
+    wire('#f-run', (d) => post('/api/run', { role: d.role, path: spec.id, maxUsd: Number(d.maxUsd) }).then((j) => 'dispatched ' + j.runId));
+    wire('#f-out', (d) => post('/api/events', { kind: 'outcome', path: spec.id, stage: d.stage, ref: d.ref, evidence: d.evidence, by: 'user' }).then((j) => 'logged ' + j.event.id));
+    wire('#f-money', (d) => post('/api/events', { kind: 'money.in', path: spec.id, usd: Number(d.usd), source: d.source, evidence: d.evidence }).then((j) => 'logged ' + j.event.id));
+  }
+  async function post(url, body) {
+    const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const j = await r.json();
+    if (!r.ok || j.ok === false) throw new Error(j.error || 'HTTP ' + r.status);
+    return j;
+  }
+  function wire(sel, fn) {
+    const f = $(sel); if (!f) return;
+    const msg = f.querySelector('.msg');
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.className = 'msg'; msg.textContent = 'working…';
+      try { msg.textContent = await fn(Object.fromEntries(new FormData(f).entries())); msg.className = 'msg ok'; poll(); }
+      catch (err) { msg.className = 'msg err'; msg.textContent = err.message; }
+    });
+  }
+
+  // ---------- HUD + feed ----------
+  function renderHud() {
+    const st = snap.state, lv = snap.level;
+    const y = st.spentUsd > 0 ? st.yieldRatio.toFixed(2) : 'n/a';
+    const pct = lv.next ? Math.min(100, 100 * (st.earnedUsd - (lv.level ? lv.citations[lv.citations.length - 1].usd : 0)) / (lv.next.usd - (lv.level ? lv.citations[lv.citations.length - 1].usd : 0))) : 100;
+    const stats = [
+      ['Earned', usd(st.earnedUsd), 'gold'],
+      ['Spent', usd(st.spentUsd), ''],
+      ['Yield', y, ''],
+      ['Crew out', String(st.running.length), ''],
+      ['Posts live', String(st.posts.length), ''],
+      ['Quests', `${snap.questSummary.open} open`, ''],
+    ];
+    const hud = $('#hud');
+    hud.querySelectorAll('.stat').forEach((e) => e.remove());
+    for (const [k, v, c] of stats) hud.insertAdjacentHTML('beforeend', `<div class="stat"><div class="k">${k}</div><div class="v ${c}">${esc(v)}</div></div>`);
+    hud.insertAdjacentHTML('beforeend', `<div class="stat" style="min-width:170px"><div class="k">Commander L${lv.level}</div><div class="v gold" style="font-size:13px">${esc(lv.next ? usd(lv.next.remainingUsd) + ' to ' + lv.next.title : lv.title)}</div><div class="bar"><i style="width:${pct}%"></i></div></div>`);
+    $('#demo').style.display = st.demo ? 'block' : 'none';
+    const line = (e) => {
+      const t = (e.ts || '').slice(5, 16).replace('T', ' ');
+      switch (e.kind) {
+        case 'money.in': return [t, `+${usd(e.usd)} from ${e.source} on ${e.path}`];
+        case 'money.out': return [t, `-${usd(e.usd)} ${e.category} on ${e.path}`];
+        case 'outcome': return [t, `${e.stage}: ${e.ref} (${e.path}, by ${e.by})`];
+        case 'agent.run.start': return [t, `${e.role} dispatched to ${e.path}`];
+        case 'post': return [t, `posted on ${e.platform}: ${e.title}`];
+        case 'job': return [t, `job ${e.jobId} ${e.enabled ? 'on' : 'off'}: ${e.role} -> ${e.path} every ${e.everyHours}h`];
+        case 'agent.run.end': return [t, `${e.role} back from ${e.path}: ${e.reason}, ${usd(e.usd)}`];
+        case 'gate': return [t, `gate ${e.gate} ${e.cleared ? 'CLEARED' : 'BLOCKED'}`];
+        case 'path.status': return [t, `${e.path} -> ${e.status}: ${e.reason}`];
+        default: return [t, e.text || e.kind];
+      }
+    };
+    const rows = st.tail.filter((e) => e.kind !== 'money.out').slice(-12).reverse().map(line);
+    $('#feed').innerHTML = rows.length ? rows.map(([t, s]) => `<div><span class="t">${esc(t)}</span>${esc(s)}</div>`).join('') : '<div>ledger is empty. The first line you log appears here.</div>';
+  }
+
+  // ---------- loop ----------
+  async function poll() {
+    try {
+      const r = await fetch('/api/state', { cache: 'no-store' });
+      const next = await r.json();
+      prev = snap; snap = next;
+      if (!rooms.length || (prev && prev.catalog.length !== snap.catalog.length)) buildRooms();
+      sync(); renderHud(); placeLabels();
+      if (selected) { const active = document.activeElement; if (!active || !$('#panel').contains(active)) renderPanel(); }
+    } catch (e) { /* server down: keep drawing the last truthful frame */ }
+  }
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    if (snap) { step(dt); drawSpace(); scene(); }
+    requestAnimationFrame(frame);
+  }
+  window.addEventListener('resize', layout);
+  poll().then(layout);
+  setInterval(poll, 2000);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

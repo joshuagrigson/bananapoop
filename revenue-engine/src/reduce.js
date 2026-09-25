@@ -18,6 +18,7 @@ function emptyPath(id, spec) {
     refs: Object.fromEntries(STAGES.map((s) => [s, []])),
     moneyIn: [],
     runs: [],
+    posts: [],
     lastRunAt: null,
   };
 }
@@ -36,7 +37,13 @@ export function reduce(events, catalog = CATALOG) {
     gates: {},
     runs: [],
     running: [],
+    posts: [],
+    jobs: {},
+    byPlatform: {},
+    unattributedUsd: 0,
     notes: [],
+    demo: false,
+    tail: sorted.slice(-30),
     eventCount: sorted.length,
     lastEventAt: sorted.length ? sorted[sorted.length - 1].ts : null,
   };
@@ -46,6 +53,7 @@ export function reduce(events, catalog = CATALOG) {
     return st.paths[id];
   };
   const seenOutcome = new Set();
+  const pendingAttrib = [];
   const openRuns = new Map();
 
   for (const ev of sorted) {
@@ -56,6 +64,18 @@ export function reduce(events, catalog = CATALOG) {
         p.moneyIn.push(ev.id);
         st.earnedUsd += ev.usd;
         st.moneyIn.push(ev);
+        if (ev.postId) pendingAttrib.push(ev); else st.unattributedUsd += ev.usd;
+        break;
+      }
+      case 'post': {
+        const post = { id: ev.id, path: ev.path, platform: String(ev.platform).toLowerCase(), url: ev.url, title: ev.title, by: ev.by, ts: ev.ts, runId: ev.runId || null, earnedUsd: 0 };
+        st.posts.push(post);
+        pathOf(ev.path).posts.push(post);
+        break;
+      }
+      case 'job': {
+        const prevJob = st.jobs[ev.jobId];
+        st.jobs[ev.jobId] = { jobId: ev.jobId, role: ev.role, path: ev.path, everyHours: ev.everyHours, maxUsd: ev.maxUsd, enabled: ev.enabled, note: ev.note || null, createdAt: prevJob ? prevJob.createdAt : ev.ts, updatedAt: ev.ts, lastRunAt: prevJob ? prevJob.lastRunAt : null, runs: prevJob ? prevJob.runs : 0 };
         break;
       }
       case 'money.out': {
@@ -71,12 +91,13 @@ export function reduce(events, catalog = CATALOG) {
         seenOutcome.add(key);
         const p = pathOf(ev.path);
         p.outcomes[ev.stage] += 1;
-        p.refs[ev.stage].push({ id: ev.id, ref: ev.ref, evidence: ev.evidence, by: ev.by, ts: ev.ts, note: ev.note || null });
+        p.refs[ev.stage].push({ id: ev.id, ref: ev.ref, evidence: ev.evidence, by: ev.by, ts: ev.ts, note: ev.note || null, runId: ev.runId || null });
         break;
       }
       case 'agent.run.start': {
+        if (ev.jobId && st.jobs[ev.jobId]) { st.jobs[ev.jobId].lastRunAt = ev.ts; st.jobs[ev.jobId].runs += 1; }
         openRuns.set(ev.runId, {
-          runId: ev.runId, path: ev.path, role: ev.role, model: ev.model, maxUsd: ev.maxUsd,
+          runId: ev.runId, path: ev.path, role: ev.role, model: ev.model, maxUsd: ev.maxUsd, jobId: ev.jobId || null,
           startedAt: ev.ts, endedAt: null, usd: 0, iterations: 0, reason: 'running', tokens: null,
         });
         break;
@@ -104,10 +125,22 @@ export function reduce(events, catalog = CATALOG) {
         break;
       case 'note':
         st.notes.push(ev);
+        if (ev.demo === true) st.demo = true;
         break;
       default:
         break;
     }
+  }
+  // Attribute money to posts after all posts are known, so order of lines never loses a payout.
+  const postById = new Map(st.posts.map((x) => [x.id, x]));
+  for (const ev of pendingAttrib) {
+    const post = postById.get(ev.postId);
+    if (post) post.earnedUsd += ev.usd; else st.unattributedUsd += ev.usd;
+  }
+  for (const post of st.posts) {
+    const b = st.byPlatform[post.platform] || (st.byPlatform[post.platform] = { posts: 0, earnedUsd: 0 });
+    b.posts += 1;
+    b.earnedUsd += post.earnedUsd;
   }
   st.running = [...openRuns.values()];
   st.yieldRatio = st.spentUsd > 0 ? st.earnedUsd / st.spentUsd : null;

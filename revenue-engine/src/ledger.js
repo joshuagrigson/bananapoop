@@ -6,7 +6,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 
 export const KINDS = Object.freeze([
-  'money.in', 'money.out', 'outcome', 'agent.run.start', 'agent.run.end', 'path.status', 'gate', 'note',
+  'money.in', 'money.out', 'outcome', 'post', 'job', 'agent.run.start', 'agent.run.end', 'path.status', 'gate', 'note',
 ]);
 export const STAGES = Object.freeze(['prospect', 'conversation', 'demo', 'pilot', 'paid', 'retained']);
 export const OUT_CATEGORIES = Object.freeze(['api', 'tool', 'ads', 'capital', 'other']);
@@ -15,6 +15,7 @@ export const PATH_STATUSES = Object.freeze(['active', 'paused', 'killed']);
 
 const isText = (v, min = 1) => typeof v === 'string' && v.trim().length >= min;
 const isUsd = (v) => typeof v === 'number' && Number.isFinite(v);
+const isUrl = (v) => typeof v === 'string' && /^https?:\/\/\S+$/i.test(v.trim());
 
 export class LedgerError extends Error {}
 const fail = (msg) => { throw new LedgerError(msg); };
@@ -34,6 +35,21 @@ export function validate(input) {
       if (!isText(ev.path)) fail('money.in needs a path id');
       if (!isText(ev.source)) fail('money.in needs a source (who paid)');
       if (!isText(ev.evidence, 3)) fail('money.in needs evidence (invoice id, Stripe charge, bank line). No evidence, no revenue.');
+      if (ev.postId !== undefined && !isText(ev.postId)) fail('money.in postId must be a post event id');
+      break;
+    case 'post':
+      if (!isText(ev.path)) fail('post needs a path id');
+      if (!isText(ev.platform)) fail('post needs a platform (youtube, tiktok, x, linkedin, instagram, blog, ...)');
+      if (!isUrl(ev.url)) fail('post needs the live http(s) URL of the published post. Drafts are not posts.');
+      if (!isText(ev.title)) fail('post needs a title or first line');
+      if (!['user', 'agent'].includes(ev.by)) fail('post.by must be "user" or "agent"');
+      break;
+    case 'job':
+      if (!isText(ev.jobId)) fail('job needs a jobId');
+      if (!isText(ev.role) || !isText(ev.path)) fail('job needs role and path');
+      if (typeof ev.everyHours !== 'number' || !(ev.everyHours >= 1)) fail('job.everyHours must be >= 1');
+      if (!isUsd(ev.maxUsd) || ev.maxUsd <= 0) fail('job.maxUsd must be > 0');
+      if (typeof ev.enabled !== 'boolean') fail('job.enabled must be true or false');
       break;
     case 'money.out':
       if (!isUsd(ev.usd) || ev.usd < 0) fail('money.out needs usd >= 0');

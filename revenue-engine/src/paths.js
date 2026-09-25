@@ -26,6 +26,7 @@ export const GATES = Object.freeze({
 export const CATALOG = Object.freeze([
   {
     id: 'ops-consulting',
+    short: 'Ops consulting',
     rank: 1,
     name: 'Fractional contact-center ops consulting',
     bucket: 'expertise service',
@@ -51,6 +52,7 @@ export const CATALOG = Object.freeze([
   },
   {
     id: 'show-rate-engine',
+    short: 'Show-rate engine',
     rank: 2,
     name: 'Show-rate engine, priced per show recovered',
     bucket: 'B2B outcome-priced',
@@ -78,6 +80,7 @@ export const CATALOG = Object.freeze([
   },
   {
     id: 'managed-call-qa',
+    short: 'Call QA',
     rank: 3,
     name: 'Managed AI call QA with weekly coaching packets',
     bucket: 'productized service',
@@ -103,6 +106,7 @@ export const CATALOG = Object.freeze([
   },
   {
     id: 'local-growth-bundle',
+    short: 'Salon bundle',
     rank: 4,
     name: 'Local growth bundle for Square-based salons, med-spas and groomers',
     bucket: 'recurring agency',
@@ -128,6 +132,7 @@ export const CATALOG = Object.freeze([
   },
   {
     id: 'coparent-hq',
+    short: 'CoParentHQ',
     rank: 5,
     name: 'CoParentHQ at per-family pricing',
     bucket: 'consumer subscription',
@@ -153,6 +158,7 @@ export const CATALOG = Object.freeze([
   },
   {
     id: 'cohort-course',
+    short: 'Cohort course',
     rank: 6,
     name: 'Cohort course: ship real apps with Claude as an operator',
     bucket: 'info product',
@@ -173,6 +179,35 @@ export const CATALOG = Object.freeze([
       pilot: { target: 5, label: 'presale purchases' },
       paid: { target: 10, label: 'cohort 1 seats paid' },
       retained: { target: 1, label: 'cohort 2 filled' },
+    },
+  },
+  {
+    id: 'content-channel',
+    short: 'Content studio',
+    rank: 7,
+    name: 'Content channel that sells the paid paths',
+    bucket: 'content / audience',
+    thesis: 'Agents draft posts; you review and publish under your own name. Posts earn two ways: directly '
+      + '(affiliate links, sponsorships, platform payouts) and as a funnel that feeds leads into the salon bundle '
+      + 'and the cohort course. Every post carries one call to action, and every dollar can be attributed to the post that earned it.',
+    month12Usd: [0, 2000],
+    firstDollarWeeks: [8, 26],
+    budgetUsd: 15,
+    postTarget: 30,
+    constraints: [
+      'Posted by a human under your real name. No faceless, mass-produced video: YouTube terminated AI channels in Jan 2026 under its inauthentic-content policy.',
+      'Every post has exactly one call to action: the email list, the free site audit, or the course waitlist.',
+      'No employer data, call recordings, or anything that identifies a customer.',
+      'Any trend or statistic in a post carries its source URL in the draft.',
+    ],
+    killTest: '30 posts published in 30 days. Fewer than 50 email signups and zero inbound leads = kill or change format.',
+    stages: {
+      prospect: { target: 10, label: 'inbound replies or DMs from a post' },
+      conversation: { target: 50, label: 'email list signups' },
+      demo: { target: 5, label: 'leads handed to a paid path' },
+      pilot: { target: 1, label: 'first sponsor or affiliate deal' },
+      paid: { target: 1, label: 'first content payout' },
+      retained: { target: 3, label: 'months with a content payout' },
     },
   },
 ]);

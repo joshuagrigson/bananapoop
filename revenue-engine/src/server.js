@@ -12,13 +12,43 @@ import { LedgerError } from './ledger.js';
 import { ROLES, DEFAULT_MODEL } from './agent.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const HTML = fs.readFileSync(path.join(here, 'dashboard.html'), 'utf8');
+const LEDGER_HTML = fs.readFileSync(path.join(here, 'dashboard.html'), 'utf8');
+const STATION_HTML = fs.readFileSync(path.join(here, 'station.html'), 'utf8');
 
-export function snapshot(ledger, catalog = CATALOG) {
+// Count real files an agent wrote to each path's outbox. The station's dock draws exactly this many papers.
+function outboxCounts(dataDir, catalog) {
+  const out = {};
+  for (const p of catalog) {
+    let n = 0;
+    try { n = fs.readdirSync(path.join(dataDir, 'outbox', p.id)).filter((f) => f.endsWith('.md')).length; } catch { n = 0; }
+    out[p.id] = n;
+  }
+  return out;
+}
+
+// Drafts waiting for a human to publish or send. Newest first, content capped at 8 KB each.
+export function listOutbox(dataDir, catalog = CATALOG) {
+  const out = [];
+  if (!dataDir) return out;
+  for (const p of catalog) {
+    const dir = path.join(dataDir, 'outbox', p.id);
+    let files = [];
+    try { files = fs.readdirSync(dir).filter((f) => f.endsWith('.md')); } catch { continue; }
+    for (const f of files) {
+      const full = path.join(dir, f);
+      const st = fs.statSync(full);
+      out.push({ path: p.id, file: f, mtime: st.mtime.toISOString(), content: fs.readFileSync(full, 'utf8').slice(0, 8192) });
+    }
+  }
+  return out.sort((a, b) => (a.mtime < b.mtime ? 1 : -1));
+}
+
+export function snapshot(ledger, catalog = CATALOG, dataDir = null) {
   const state = reduce(ledger.readAll(), catalog);
   const q = quests(state, catalog);
   return {
     generatedAt: new Date().toISOString(),
+    outbox: dataDir ? outboxCounts(dataDir, catalog) : {},
     state,
     level: commanderLevel(state),
     quests: q,
@@ -58,9 +88,27 @@ export function createServer({ ledger, catalog = CATALOG, dataDir, runAgent, mak
   return http.createServer(async (req, res) => {
     const url = new URL(req.url, 'http://localhost');
     try {
-      if (req.method === 'GET' && url.pathname === '/') return send(res, 200, HTML, 'text/html');
-      if (req.method === 'GET' && url.pathname === '/api/state') return send(res, 200, snapshot(ledger, catalog));
+      if (req.method === 'GET' && url.pathname === '/') return send(res, 200, STATION_HTML, 'text/html');
+      if (req.method === 'GET' && url.pathname === '/ledger') return send(res, 200, LEDGER_HTML, 'text/html');
+      if (req.method === 'GET' && url.pathname === '/api/state') return send(res, 200, snapshot(ledger, catalog, dataDir));
       if (req.method === 'GET' && url.pathname === '/api/runs') return send(res, 200, [...runs.values()]);
+      if (req.method === 'GET' && url.pathname === '/api/outbox') return send(res, 200, listOutbox(dataDir, catalog));
+
+      if (req.method === 'POST' && url.pathname === '/api/jobs') {
+        const body = await readJson(req);
+        if (!ROLES[body.role]) return send(res, 400, { ok: false, error: `unknown role "${body.role}"` });
+        if (!catalog.some((p) => p.id === body.path)) return send(res, 400, { ok: false, error: `unknown path "${body.path}"` });
+        try {
+          const ev = ledger.append({
+            kind: 'job', jobId: body.jobId || `job_${Date.now().toString(36)}`, role: body.role, path: body.path,
+            everyHours: Number(body.everyHours), maxUsd: Number(body.maxUsd), enabled: body.enabled !== false, note: body.note,
+          });
+          return send(res, 201, { ok: true, event: ev });
+        } catch (e) {
+          if (e instanceof LedgerError) return send(res, 400, { ok: false, error: e.message });
+          throw e;
+        }
+      }
 
       if (req.method === 'POST' && url.pathname === '/api/events') {
         const body = await readJson(req);
@@ -82,7 +130,7 @@ export function createServer({ ledger, catalog = CATALOG, dataDir, runAgent, mak
         const entry = { runId, role: body.role, path: body.path, status: 'running', started: new Date().toISOString() };
         runs.set(runId, entry);
         runAgent({
-          runId, role: body.role, pathId: body.path, ledger, dataDir, provider, catalog,
+          runId, role: body.role, pathId: body.path, ledger, dataDir, provider, catalog, jobId: body.jobId,
           model: body.model || undefined, maxUsd: Number.isFinite(body.maxUsd) ? body.maxUsd : undefined,
         }).then((result) => Object.assign(entry, { status: 'ended', result }))
           .catch((e) => Object.assign(entry, { status: 'failed', error: e.message }));

@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Revenue Engine</title>
+<title>Money Dashboard</title>
+<link rel="icon" href="data:,">
 <style>
   :root {
     --bg: #0f1115; --panel: #171a21; --line: #262b36; --ink: #e6e8ee; --muted: #8b93a7;
@@ -65,11 +66,55 @@
 </head>
 <body>
 <header>
-  <h1>Revenue Engine</h1>
-  <span class="law">Nothing on this page is simulated. Every number cites a ledger line.</span>
+  <h1>Money Dashboard</h1>
+  <span class="law"><a href="/" style="color:var(--accent)">&larr; station</a> · Nothing on this page is simulated. Every number cites a ledger line.</span>
 </header>
 <main>
   <div class="tiles" id="tiles"></div>
+  <div class="grid2">
+    <section><h2>Money by path</h2><div id="m-path"></div></section>
+    <section><h2>Money by month</h2><div id="m-month"></div></section>
+  </div>
+  <div class="grid2">
+    <section><h2>Money by platform</h2><div id="m-platform"></div></section>
+    <section><h2>Posts, best earners first</h2><div id="m-posts"></div></section>
+  </div>
+  <section>
+    <h2>Outbox: drafts waiting for you to publish or send</h2>
+    <div class="empty" style="margin-bottom:8px">Agents write here and never send anything. Copy a draft, publish or send it yourself, then log the live URL so money can be tied to it.</div>
+    <div id="outbox"></div>
+  </section>
+  <div class="grid2">
+    <section>
+      <h2>Jobs (standing orders the scheduler runs)</h2>
+      <div id="jobs"></div>
+      <form id="f-job" style="margin-top:10px">
+        <div class="row">
+          <label>Role <select name="role" data-roles></select></label>
+          <label>Path <select name="path" data-paths></select></label>
+        </div>
+        <div class="row">
+          <label>Every N hours <input name="everyHours" type="number" min="1" value="24"></label>
+          <label>Max USD per run <input name="maxUsd" type="number" step="0.25" min="0.25" value="1"></label>
+        </div>
+        <button>Add job</button>
+        <div class="msg"></div>
+      </form>
+    </section>
+    <section>
+      <h2>Log a post you published</h2>
+      <form id="f-post">
+        <div class="row">
+          <label>Path <select name="path" data-paths></select></label>
+          <label>Platform <select name="platform"><option>linkedin</option><option>x</option><option>tiktok</option><option>youtube</option><option>instagram</option><option>blog</option><option>other</option></select></label>
+        </div>
+        <label>Live URL <input name="url" required placeholder="https://..."></label>
+        <label>Title or first line <input name="title" required></label>
+        <button>Append post</button>
+        <div class="msg"></div>
+      </form>
+    </section>
+  </div>
   <div class="grid2">
     <section><h2>Open quests</h2><div id="quests-open"></div></section>
     <section><h2>Paths</h2><div id="paths"></div></section>
@@ -84,6 +129,7 @@
         </div>
         <label>Who paid <input name="source" required placeholder="Acme Dental, Stripe customer cus_..."></label>
         <label>Evidence <input name="evidence" required placeholder="invoice #, Stripe charge id, bank line"></label>
+        <label>Earned by post (optional) <select name="postId" data-posts></select></label>
         <button>Append money.in</button>
         <div class="msg"></div>
       </form>
@@ -214,14 +260,44 @@
     document.querySelectorAll('[data-stages]').forEach((el) => { if (!el.options.length) el.innerHTML = ['prospect', 'conversation', 'demo', 'pilot', 'paid', 'retained'].map((x) => opt(x, x)).join(''); });
     document.querySelectorAll('[data-gates]').forEach((el) => { if (!el.options.length) el.innerHTML = Object.entries(s.gates).map(([k, g]) => opt(k, g.title)).join(''); });
     document.querySelectorAll('[data-roles]').forEach((el) => { if (!el.options.length) el.innerHTML = Object.entries(s.roles).map(([k, r]) => opt(k, r.title + (r.logs.length ? ' (logs ' + r.logs.join(',') + ')' : ' (drafts only)'))).join(''); });
-    document.querySelectorAll('[data-model]').forEach((el) => { if (!el.value) el.value = s.defaultModel; });
+    document.querySelectorAll('[data-model]').forEach((el) => { el.placeholder = 'role default (cheapest that fits)'; });
+  }
+
+  const table = (head, rows) => rows.length ? `<table><tr>${head.map((h) => `<th>${esc(h)}</th>`).join('')}</tr>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</table>` : '<div class="empty">nothing yet</div>';
+  function money(s) {
+    const st = s.state;
+    const byPath = s.catalog.map((c) => { const p = st.paths[c.id]; return [p, c]; }).filter(([p]) => p.earnedUsd || p.spentUsd || p.posts.length);
+    $('#m-path').innerHTML = table(['path', 'earned', 'spent', 'net', 'yield'], byPath.map(([p, c]) => [esc('#' + c.rank + ' ' + c.name), usd(p.earnedUsd), usd(p.spentUsd), usd(p.earnedUsd - p.spentUsd), p.spentUsd > 0 ? (p.earnedUsd / p.spentUsd).toFixed(2) : 'n/a']));
+    const months = {};
+    for (const e of st.moneyIn) { const m = e.ts.slice(0, 7); (months[m] = months[m] || { in: 0, out: 0 }).in += e.usd; }
+    for (const e of st.moneyOut) { const m = e.ts.slice(0, 7); (months[m] = months[m] || { in: 0, out: 0 }).out += e.usd; }
+    $('#m-month').innerHTML = table(['month', 'earned', 'spent', 'net'], Object.entries(months).sort((a, b) => (a[0] < b[0] ? 1 : -1)).map(([m, v]) => [m, usd(v.in), usd(v.out), usd(v.in - v.out)]));
+    const plats = Object.entries(st.byPlatform).sort((a, b) => b[1].earnedUsd - a[1].earnedUsd);
+    $('#m-platform').innerHTML = table(['platform', 'posts', 'earned', 'per post'], plats.map(([k, v]) => [esc(k), v.posts, usd(v.earnedUsd), usd(v.posts ? v.earnedUsd / v.posts : 0)]))
+      + (st.unattributedUsd > 0 ? `<div class="empty" style="margin-top:6px">${usd(st.unattributedUsd)} earned is not tied to any post.</div>` : '');
+    const posts = [...st.posts].sort((a, b) => b.earnedUsd - a.earnedUsd || (a.ts < b.ts ? 1 : -1)).slice(0, 15);
+    $('#m-posts').innerHTML = table(['post', 'platform', 'earned', 'id'], posts.map((p) => [`<a href="${esc(p.url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(p.title)}</a>`, esc(p.platform), usd(p.earnedUsd), `<span class="cite">${esc(p.id)}</span>`]));
+    const jobs = Object.values(st.jobs);
+    $('#jobs').innerHTML = table(['job', 'role', 'path', 'every', 'max', 'runs', 'last', ''], jobs.map((j) => [esc(j.jobId), esc(j.role), esc(j.path), j.everyHours + 'h', usd(j.maxUsd), j.runs, esc((j.lastRunAt || 'never').slice(0, 16).replace('T', ' ')), `<button data-job="${esc(j.jobId)}" data-on="${j.enabled ? '0' : '1'}">${j.enabled ? 'turn off' : 'turn on'}</button>`]));
+    $('#jobs').querySelectorAll('button[data-job]').forEach((b) => b.onclick = async () => { const j = st.jobs[b.dataset.job]; await post('/api/jobs', { jobId: j.jobId, role: j.role, path: j.path, everyHours: j.everyHours, maxUsd: j.maxUsd, enabled: b.dataset.on === '1' }); refresh(); });
+    document.querySelectorAll('[data-posts]').forEach((el) => { const cur = el.value; el.innerHTML = '<option value="">not from a post</option>' + st.posts.map((p) => `<option value="${esc(p.id)}">${esc(p.platform + ': ' + p.title)}</option>`).join(''); el.value = cur; });
+  }
+  let outboxSig = '';
+  async function outbox() {
+    const r = await fetch('/api/outbox', { cache: 'no-store' });
+    const items = await r.json();
+    const sig = items.map((i) => i.path + i.file + i.mtime).join('|');
+    if (sig === outboxSig) return;
+    outboxSig = sig;
+    $('#outbox').innerHTML = items.length ? items.slice(0, 30).map((it, i) => `<details style="border-top:1px solid var(--line);padding:6px 0"><summary>${esc(it.path)} / ${esc(it.file)} <span class="cite">${esc(it.mtime.slice(0, 16).replace('T', ' '))}</span></summary><pre style="white-space:pre-wrap;font-size:12px;background:var(--bg);padding:8px;border-radius:6px;max-height:320px;overflow:auto">${esc(it.content)}</pre><button data-copy="${i}">Copy text</button></details>`).join('') : '<div class="empty">no drafts yet. Run the creator or outreach role, or add a job.</div>';
+    $('#outbox').querySelectorAll('button[data-copy]').forEach((b) => b.onclick = async () => { try { await navigator.clipboard.writeText(items[Number(b.dataset.copy)].content); b.textContent = 'Copied'; } catch { b.textContent = 'Copy blocked; select the text'; } });
   }
 
   async function refresh() {
     try {
       const r = await fetch('/api/state', { cache: 'no-store' });
       snap = await r.json();
-      fillSelects(snap); tiles(snap); quests(snap); paths(snap); tail(snap);
+      fillSelects(snap); tiles(snap); money(snap); quests(snap); paths(snap); tail(snap); outbox();
     } catch (e) { $('#tiles').innerHTML = `<div class="tile"><div class="k">error</div><div class="s">${esc(e.message)}</div></div>`; }
   }
 
@@ -247,7 +323,9 @@
     });
   }
 
-  wire('#f-money', async (d) => { const j = await post('/api/events', { kind: 'money.in', usd: Number(d.usd), path: d.path, source: d.source, evidence: d.evidence }); return 'appended ' + j.event.id; });
+  wire('#f-money', async (d) => { const j = await post('/api/events', { kind: 'money.in', usd: Number(d.usd), path: d.path, source: d.source, evidence: d.evidence, ...(d.postId ? { postId: d.postId } : {}) }); return 'appended ' + j.event.id; });
+  wire('#f-post', async (d) => { const j = await post('/api/events', { kind: 'post', path: d.path, platform: d.platform, url: d.url, title: d.title, by: 'user' }); return 'appended post ' + j.event.id; });
+  wire('#f-job', async (d) => { const j = await post('/api/jobs', { role: d.role, path: d.path, everyHours: Number(d.everyHours), maxUsd: Number(d.maxUsd) }); return 'job ' + j.event.jobId + ' added; it runs while serve is up'; });
   wire('#f-outcome', async (d) => { const j = await post('/api/events', { kind: 'outcome', path: d.path, stage: d.stage, ref: d.ref, evidence: d.evidence, by: 'user' }); return 'appended ' + j.event.id; });
   wire('#f-gate', async (d) => { const j = await post('/api/events', { kind: 'gate', gate: d.gate, cleared: d.cleared === 'true', evidence: d.evidence }); return 'appended ' + j.event.id; });
   wire('#f-status', async (d) => { const j = await post('/api/events', { kind: 'path.status', path: d.path, status: d.status, reason: d.reason }); return 'appended ' + j.event.id; });

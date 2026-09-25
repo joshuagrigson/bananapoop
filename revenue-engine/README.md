@@ -1,6 +1,8 @@
-# Revenue Engine
+# Revenue Station
 
-A small, honest machine for driving one operator from $0 to a first dollar, then $1K, $10K, $100K, $1M. It borrows StarNet's best law (the interface never asserts anything the ledger cannot prove) and points it at revenue instead of deliverables.
+A pixel-art station where AI agents take jobs, make things (prospect lists, outreach, posts, offer sheets), and every dollar they help earn lands on a ledger you can audit. Open `http://127.0.0.1:8790` for the station and `/ledger` for the money dashboard.
+
+It is a small, honest machine for driving one operator from $0 to a first dollar, then $1K, $10K, $100K, $1M. It borrows StarNet's best law (the interface never asserts anything the ledger cannot prove) and points it at revenue instead of deliverables.
 
 - **One append-only ledger** (`data/ledger.jsonl`). Money in, money out, outcomes, agent runs, gates, path status. Nothing else is state.
 - **No simulated money.** `money.in` is rejected without evidence (an invoice id, a Stripe charge, a bank line).
@@ -16,10 +18,11 @@ Requirements: Node 22+. One dependency (`@anthropic-ai/sdk`).
 ```bash
 cd revenue-engine
 npm install
-npm test                       # 31 tests, zero spend (replay provider)
+npm test                       # 38 tests, zero spend (replay provider)
+REVENUE_ENGINE_DATA=./demo node src/cli.js seed-demo   # optional: labeled fake data to preview the station
 node src/cli.js status         # headline numbers, level, open quests
 node src/cli.js paths          # the catalog
-node src/cli.js serve          # dashboard at http://127.0.0.1:8790
+node src/cli.js serve          # station at http://127.0.0.1:8790, money at /ledger, scheduler on
 ```
 
 Set `ANTHROPIC_API_KEY` (or log in with `ant auth login`) before a live run:
@@ -46,6 +49,28 @@ node src/cli.js run prospector --path local-growth-bundle --provider replay --sc
 4. Watch the stage advance. When a path fails its kill test, kill it with a reason. The budget it had goes back into the pool.
 5. Money in moves the Commander level. Every rung cites the payment that crossed it.
 
+## Jobs (the agents working while you're away)
+
+```bash
+node src/cli.js job add creator    --path content-channel     --every 24 --max-usd 1
+node src/cli.js job add prospector --path local-growth-bundle --every 72 --max-usd 1
+node src/cli.js jobs
+```
+
+`serve` runs a scheduler that checks jobs every minute. It never runs a job twice at once, stops dispatching after `--daily-cap` dollars in a day (default $5), and every gate, kill switch and path budget still applies.
+
+## The money loop
+
+1. Jobs put drafts in the outbox. The dashboard lists them with a copy button.
+2. You publish or send. Agents never post or email anyone.
+3. Log the live URL: `node src/cli.js post content-channel --platform linkedin --url https://... --title "..."`
+4. When money arrives, log it with evidence and, if a post earned it, the post id: `log-in 42.50 --path content-channel --source "Affiliate" --evidence "payout 77" --post <id>`
+5. The dashboard shows earned, spent, net and yield by path, month, platform and post.
+
+## Token efficiency
+
+Routine roles run on the cheapest model that does them well: Sonnet 5 at medium effort for prospecting, content and offers, Haiku 4.5 for outreach drafts. Defaults are $1 per run and 8 loop iterations. Web searches are capped per role, and the system prompt is cached. Pass `--model claude-opus-5` for a run that needs more judgment.
+
 ## Roles
 
 | Role | Logs | Web search | Writes |
@@ -53,8 +78,9 @@ node src/cli.js run prospector --path local-growth-bundle --provider replay --sc
 | `prospector` | `prospect` outcomes with a live URL each | yes | `outbox/<path>/prospects.md` |
 | `outreach` | nothing | no | one draft per logged prospect plus an index |
 | `pricing` | nothing | yes | `outbox/<path>/offer-sheet.md` |
+| `creator` | nothing | yes (2) | three `post-*.md` packages: platform, hook, full text or script, caption, visual brief, one CTA, sources |
 
-Default model is `claude-opus-5`. Pricing lives in `src/cost.js` and is marked volatile; an unpriced model is refused rather than recorded as $0.
+Default model is `claude-sonnet-5`. Pricing lives in `src/cost.js` and is marked volatile; an unpriced model is refused rather than recorded as $0.
 
 ## Files
 
@@ -66,8 +92,11 @@ src/quests.js     pure projection: gates, stages, ladder, yield
 src/level.js      Commander ladder with citations
 src/cost.js       model prices (volatile) and cost reconciliation
 src/agent.js      roles, tools, the budgeted run loop, replay provider
-src/server.js     localhost HTTP: dashboard + /api/state, /api/events, /api/run, /api/runs
-src/dashboard.html
+src/scheduler.js  jobs: due logic, daily cap, one-at-a-time dispatch
+src/demo.js       labeled demo data (refuses a real ledger)
+src/server.js     localhost HTTP: station, /ledger, /api/state, /api/events, /api/run, /api/runs, /api/jobs, /api/outbox
+src/station.html  the pixel-art station (canvas, no assets, every object bound to ledger state)
+src/dashboard.html  the money dashboard
 src/cli.js
 test/             node:test, zero spend
 replay/           scripted runs for tests and dry runs
@@ -75,7 +104,6 @@ replay/           scripted runs for tests and dry runs
 
 ## What is deliberately missing
 
-- No pixel-art station, no sprites, no game world. StarNet's world is a retention device for many consumers; for one operator it is overhead. The mechanics stay, the theater goes.
+- No auto-posting or auto-emailing. Sending to real people under your name stays your action until you decide otherwise.
 - No XP, no streaks, no levels for agents. The only level is the operator's, and it is denominated in dollars.
 - No automatic sending. Outreach drafts sit in the outbox until a human sends them.
-- No recurring schedules yet. Run roles by hand until a path has earned its first dollar; automation before revenue is how the last attempt at this went wrong.

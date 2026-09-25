@@ -18,7 +18,14 @@ test('dashboard, state, event validation and a replayed run over HTTP', async ()
   try {
     const page = await fetch(base + '/');
     assert.equal(page.status, 200);
-    assert.match(await page.text(), /Revenue Engine/);
+    assert.match(await page.text(), /Revenue Station/);
+    const money = await fetch(base + '/ledger');
+    assert.equal(money.status, 200);
+    assert.match(await money.text(), /Money Dashboard/);
+    const job = await fetch(base + '/api/jobs', { method: 'POST', body: JSON.stringify({ role: 'creator', path: 'beta', everyHours: 24, maxUsd: 1 }) });
+    assert.equal(job.status, 201);
+    const badJob = await fetch(base + '/api/jobs', { method: 'POST', body: JSON.stringify({ role: 'wizard', path: 'beta', everyHours: 24, maxUsd: 1 }) });
+    assert.equal(badJob.status, 400);
 
     let s = await (await fetch(base + '/api/state')).json();
     assert.equal(s.state.earnedUsd, 0);
@@ -50,6 +57,10 @@ test('dashboard, state, event validation and a replayed run over HTTP', async ()
     assert.equal(s.level.level, 1);
     assert.equal(s.state.paths.beta.outcomes.prospect, 2);
     assert.equal(s.state.runs.length, 1);
+    assert.equal(Object.keys(s.state.jobs).length, 1);
+    assert.equal(s.outbox.beta, 1);
+    const ob = await (await fetch(base + '/api/outbox')).json();
+    assert.equal(ob[0].file, 'prospects.md');
     assert.ok(s.quests.some((q) => q.id === 'ladder:1' && q.status === 'done'));
 
     const nf = await fetch(base + '/nope');

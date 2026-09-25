@@ -10,7 +10,11 @@ import { CATALOG, getPath, stagesFor } from './paths.js';
 import { costUsd, priceFor } from './cost.js';
 import { LedgerError, STAGES } from './ledger.js';
 
-export const DEFAULT_MODEL = 'claude-opus-5';
+// Token efficiency: routine work runs on the cheapest model that does it well, at modest effort.
+// Pass --model claude-opus-5 for a run that needs more judgment. Opus/Fable get server-side refusal fallbacks.
+export const DEFAULT_MODEL = 'claude-sonnet-5';
+const NO_EFFORT = new Set(['claude-haiku-4-5']);
+const FALLBACK_MODELS = new Set(['claude-opus-5', 'claude-fable-5-1']);
 
 // Kept stable so the prompt cache holds across runs. Nothing volatile goes in here.
 const SYSTEM = `You are a worker on a small, honest revenue engine. One operator, real money, real evidence.
@@ -30,7 +34,9 @@ export const ROLES = {
   prospector: {
     title: 'Prospector',
     logs: ['prospect'],
-    webSearch: 8,
+    webSearch: 5,
+    model: 'claude-sonnet-5',
+    effort: 'medium',
     directive: (spec, p, stages) => {
       const s = stages.find((x) => x.id === 'prospect');
       const have = p.outcomes.prospect;
@@ -53,6 +59,7 @@ For each prospect: exact business name, city and state, one line on why it fits 
     title: 'Outreach drafter',
     logs: [],
     webSearch: 0,
+    model: 'claude-haiku-4-5',
     directive: (spec, p) => `Path: ${spec.name} (${spec.id}).
 Read the path. For each prospect already logged (${p.refs.prospect.length} of them, listed by read_path), draft a first-touch message: 90 to 140 words, plain, specific to what the prospect's evidence URL shows, one concrete offer drawn from the path thesis, one question, no hype. Save one file per prospect with write_note("outreach-<short-slug>.md") and an index as write_note("outreach-index.md") listing file, prospect, channel, and the one-line angle.
 
@@ -61,10 +68,40 @@ ${list(spec.constraints)}
 
 You never send anything. If there are no prospects logged, say so and stop.`,
   },
+  creator: {
+    title: 'Content creator',
+    logs: [],
+    webSearch: 2,
+    model: 'claude-sonnet-5',
+    effort: 'medium',
+    directive: (spec, p) => `Path: ${spec.name} (${spec.id}).
+Create 3 ready-to-post content packages. Each one is a separate file written with write_note("post-<short-slug>.md").
+
+Each package contains, in this order:
+1. Platform (pick the best fit: LinkedIn, X, TikTok/Reels script, YouTube Short script, or blog) and why.
+2. Hook: the first line or first 2 seconds.
+3. The full post text or full script, ready to paste or read.
+4. Caption and up to 5 hashtags where the platform uses them.
+5. Visual brief: what to film, screenshot or design, in 2-3 lines.
+6. One call to action, pointing at a paid path or the email list.
+7. Sources: a URL for every statistic or trend you cite. Claims you cannot source get cut.
+
+Write from the operator's real experience: running call-center ops, building AI tools as a non-developer, local small-business growth. Do not invent a personal story, a client, a result or a number. Where a real example is needed, leave a bracketed placeholder like [your real example here].
+
+Already published on this path, do not repeat:
+${list(p.posts.map((x) => `${x.platform}: ${x.title}`))}
+
+Constraints (hard limits):
+${list(spec.constraints)}
+
+Finish with write_note("post-index.md") listing each file, platform, hook and CTA. You never publish anything. The operator posts, then logs the live URL.`,
+  },
   pricing: {
     title: 'Offer designer',
     logs: [],
-    webSearch: 4,
+    webSearch: 3,
+    model: 'claude-sonnet-5',
+    effort: 'medium',
     directive: (spec) => `Path: ${spec.name} (${spec.id}).
 Draft an outcome-priced offer sheet: the promise in one sentence, how the outcome is measured, the price mechanics with a worked example at realistic numbers (month-12 range on file: $${spec.month12Usd[0]}-${spec.month12Usd[1]}/mo), what is excluded, pilot terms, and the three objections you expect with short answers. Any market price you cite must carry its URL (use web_search); label anything you could not verify as unverified. Save as write_note("offer-sheet.md").
 
@@ -92,7 +129,7 @@ export function buildTools({ spec, ledger, runId, dataDir, allowedStages, log = 
       return JSON.stringify({
         path: spec,
         stages: stagesFor(spec),
-        progress: p ? { status: p.status, outcomes: p.outcomes, refs: p.refs, spentUsd: p.spentUsd, budgetUsd: p.budgetUsd } : null,
+        progress: p ? { status: p.status, outcomes: p.outcomes, refs: p.refs, spentUsd: p.spentUsd, budgetUsd: p.budgetUsd, posts: p.posts.map((x) => ({ platform: x.platform, title: x.title, url: x.url, earnedUsd: x.earnedUsd })) } : null,
       }, null, 2);
     },
   });
@@ -156,7 +193,7 @@ export function buildTools({ spec, ledger, runId, dataDir, allowedStages, log = 
 
 // Provider adapters. Both expose { iterate(): AsyncIterable<message>, pushMessages(...) }.
 function anthropicRunner(provider, params) {
-  const extra = provider.noFallback ? {} : { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' };
+  const extra = provider.noFallback || !FALLBACK_MODELS.has(params.model) ? {} : { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' };
   const runner = provider.client.beta.messages.toolRunner({ ...params, ...extra });
   return { iterate: () => runner, pushMessages: (...m) => runner.pushMessages(...m) };
 }
@@ -188,13 +225,13 @@ function replayRunner(provider, params, toolList) {
 
 export async function runAgent(opts) {
   const { role: roleId, pathId, ledger, dataDir, provider, log = () => {} } = opts;
-  const model = opts.model || DEFAULT_MODEL;
-  const maxUsd = opts.maxUsd ?? 2;
-  const maxIterations = opts.maxIterations ?? 12;
+  const maxUsd = opts.maxUsd ?? 1;
+  const maxIterations = opts.maxIterations ?? 8;
   const catalog = opts.catalog || CATALOG;
 
   const role = ROLES[roleId];
   if (!role) throw new Error(`unknown role "${roleId}" (${Object.keys(ROLES).join(', ')})`);
+  const model = opts.model || role.model || DEFAULT_MODEL;
   const spec = getPath(pathId, catalog);
   if (!spec) throw new Error(`unknown path "${pathId}" (${catalog.map((p) => p.id).join(', ')})`);
   if (!provider || !['anthropic', 'replay'].includes(provider.kind)) throw new Error('provider must be { kind: "anthropic", client } or { kind: "replay", script }');
@@ -222,12 +259,13 @@ export async function runAgent(opts) {
   }
   const directive = role.directive(spec, p, stagesFor(spec));
 
-  ledger.append({ kind: 'agent.run.start', runId, path: spec.id, role: roleId, model, maxUsd: cap });
+  ledger.append({ kind: 'agent.run.start', runId, path: spec.id, role: roleId, model, maxUsd: cap, ...(opts.jobId ? { jobId: opts.jobId } : {}) });
   log({ type: 'start', runId, path: spec.id, role: roleId, model, maxUsd: cap });
 
   const params = {
     model,
-    max_tokens: 16000,
+    max_tokens: 8000,
+    ...(role.effort && !NO_EFFORT.has(model) ? { output_config: { effort: role.effort } } : {}),
     system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
     messages: [{ role: 'user', content: directive }],
     tools: toolList,
