@@ -14,6 +14,8 @@ import { createServer } from './server.js';
 import { createScheduler } from './scheduler.js';
 import { seedDemo } from './demo.js';
 import { addItem, listItems } from './inbox.js';
+import { addClient, listClients, updateClient, isDue } from './clients.js';
+import { harvest, DEFAULT_COUNTIES } from './harvest.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(here, '..');
@@ -31,14 +33,18 @@ const HELP = `revenue-engine
   gate <name> --cleared|--blocked --evidence E        e.g. gate employment-agreement --cleared --evidence "read 2026-09-26, no non-compete"
   path-status <path> <active|paused|killed> --reason R
   post <path> --platform X --url U --title T          a post you published (live URL required)
-  inbox add <path> --type post|job --file F [--url U]   hand a job post (to score) or a won job (to do) to the agents
+  harvest [--days 30] [--counties 019,034]             pull newly permitted local businesses from free Texas records into the GBP inbox ($0)
+  client add <path> --name N --city C [--category X] [--website U] [--monthly 200]   a paying client for monthly packs
+  client notes <path> <clientId> --notes "new reviews, promos, hours..."        what changed this month
+  clients [path]                                       list clients and whose pack is due
+  inbox add <path> --type post|job|lead --file F [--url U]   hand work to the agents
   inbox <path>                                         list pending and handled inbox items
   job add <role> --path P --every HOURS --max-usd N    a standing order the scheduler runs
   job off <jobId>                                      disable a job
   jobs                                                 list jobs
   seed-demo                                            fill an EMPTY data dir with labeled demo data
   run <role> --path P [--max-usd 2] [--model ${DEFAULT_MODEL}] [--provider anthropic|replay --script file.json]
-  serve [--port 8790] [--host 127.0.0.1] [--daily-cap 5] [--no-scheduler]
+  serve [--port 8790] [--host 127.0.0.1] [--daily-cap 5] [--no-scheduler] [--harvest-daily]
   paths                                    the catalog
   help
 
@@ -87,7 +93,9 @@ async function main(argv) {
       'max-usd': { type: 'string' }, model: { type: 'string' }, provider: { type: 'string' }, script: { type: 'string' },
       port: { type: 'string' }, host: { type: 'string' }, 'max-iterations': { type: 'string' },
       platform: { type: 'string' }, url: { type: 'string' }, title: { type: 'string' }, post: { type: 'string' },
-      every: { type: 'string' }, type: { type: 'string' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
+      every: { type: 'string' }, type: { type: 'string' }, days: { type: 'string' }, counties: { type: 'string' },
+      name: { type: 'string' }, city: { type: 'string' }, category: { type: 'string' }, website: { type: 'string' },
+      monthly: { type: 'string' }, notes: { type: 'string' }, services: { type: 'string' }, 'harvest-daily': { type: 'boolean' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
     },
   });
   const [cmd, ...rest] = pos;
@@ -152,6 +160,39 @@ async function main(argv) {
       for (const j of jobs) console.log(`${j.jobId} ${j.enabled ? 'ON ' : 'off'} ${j.role} -> ${j.path} every ${j.everyHours}h max $${j.maxUsd} · runs ${j.runs} · last ${j.lastRunAt || 'never'}`);
       return;
     }
+    case 'harvest': {
+      const counties = v.counties ? v.counties.split(',').map((c) => c.trim()) : DEFAULT_COUNTIES;
+      const r = await harvest({ dataDir: DATA_DIR, counties, sinceDays: Number(v.days || 30) });
+      console.log(`data.texas.gov: ${r.fetched} new permits in counties ${counties.join(',')}, ${r.matched} local-service types, ${r.skippedSeen} already seen, ${r.added} added to the gbp-management inbox.`);
+      for (const i of r.items) console.log(`  + ${i.name} (${i.city}) NAICS ${i.naics}`);
+      if (r.added) console.log('Next: node src/cli.js run auditor --path gbp-management');
+      return;
+    }
+    case 'client': {
+      const pid = rest[1];
+      if (!CATALOG.some((p) => p.id === pid)) throw new LedgerError('client needs a known path, e.g. gbp-management');
+      if (rest[0] === 'add') {
+        const c = addClient(DATA_DIR, pid, { name: v.name, city: v.city, category: v.category, website: v.website, services: v.services, notes: v.notes, monthlyUsd: v.monthly });
+        console.log(`added client ${c.id}: ${c.name} (${c.city}). The manager writes their first pack on its next run.`); return;
+      }
+      if (rest[0] === 'notes') {
+        const c = updateClient(DATA_DIR, pid, rest[2], { notes: v.notes });
+        console.log(`updated notes for ${c.name}`); return;
+      }
+      throw new LedgerError('client needs "add" or "notes"');
+    }
+    case 'clients': {
+      const ids = rest[0] ? [rest[0]] : CATALOG.map((p) => p.id);
+      let any = false;
+      for (const pid of ids) {
+        for (const c of listClients(DATA_DIR, pid)) {
+          any = true;
+          console.log(`${c.id} ${c.name} (${c.city}) ${c.monthlyUsd ? '$' + c.monthlyUsd + '/mo' : ''} · last pack ${c.lastPackAt ? c.lastPackAt.slice(0, 10) : 'never'} · ${isDue(c) ? 'DUE' : 'not due'}`);
+        }
+      }
+      if (!any) console.log('no clients yet. Add one: client add gbp-management --name "..." --city Texarkana --category "hair salon" --monthly 200');
+      return;
+    }
     case 'inbox': {
       if (rest[0] === 'add') {
         if (!CATALOG.some((p) => p.id === rest[1])) throw new LedgerError('inbox add needs a known path, e.g. freelance-desk');
@@ -198,6 +239,12 @@ async function main(argv) {
           ledger, runAgent, dataDir: DATA_DIR, dailyCapUsd, makeProvider: makeAnthropicProvider,
           log: (e) => console.error(`[scheduler] ${JSON.stringify(e)}`),
         }).start(60e3);
+        if (v['harvest-daily']) {
+          const tick = () => harvest({ dataDir: DATA_DIR }).then((r) => console.error(`[harvest] ${r.added} new local businesses added`)).catch((e) => console.error(`[harvest] ${e.message}`));
+          tick();
+          setInterval(tick, 24 * 3600e3).unref();
+          console.log('harvest on: pulls new Texas permits once a day into the gbp-management inbox ($0)');
+        }
         console.log(`scheduler on: checks jobs every minute, stops dispatching after $${dailyCapUsd} spent in a day (--daily-cap to change, --no-scheduler to turn off)`);
       }
       return;

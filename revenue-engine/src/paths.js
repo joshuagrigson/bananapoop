@@ -105,29 +105,40 @@ export const CATALOG = Object.freeze([
     },
   },
   {
-    id: 'local-growth-bundle',
-    short: 'Salon bundle',
+    id: 'gbp-management',
+    short: 'GBP management',
     rank: 4,
-    name: 'Local growth bundle for Square-based salons, med-spas and groomers',
-    bucket: 'recurring agency',
-    thesis: 'Site + booking + missed-call text-back + reviews + optional AI receptionist at $150-250/mo. Square '
-      + 'has no native voice receptionist. The salon site already built is the portfolio piece; a free site audit '
-      + 'is the lead magnet.',
-    month12Usd: [1500, 5000],
-    firstDollarWeeks: [0, 2],
-    budgetUsd: 20,
-    constraints: [
-      'Skip home services: Jobber, ServiceTitan and Housecall Pro ship receptionists already.',
-      'A2P 10DLC registration must be done before any SMS goes out.',
+    name: 'Google Business Profile management for local businesses',
+    bucket: 'recurring local service',
+    thesis: 'Local businesses live or die on Google Maps. The harvester pulls every newly permitted Texas business '
+      + 'in your counties for free; the auditor checks each one\'s public Google presence against the top competitors '
+      + 'and writes a 2-minute video audit script; you record and send it. Clients add you as a Manager on their '
+      + 'profile and the monthly manager drafts their posts, Q&A, review replies and report. Website, booking and '
+      + 'missed-call text-back are the upsell. Market: about $125-285/mo freelance, $300-700 agency.',
+    month12Usd: [2000, 6000],
+    firstDollarWeeks: [2, 6],
+    budgetUsd: 25,
+    offers: [
+      'Setup and fix: categories, services, hours, photos, description, first posts ($300 one-time, a guess to test)',
+      'Monthly management: 4-8 posts, Q&A, review replies, photo shot list, monthly report ($150-250 for the first 5 clients, then $300)',
+      'Upsell: website with online booking and missed-call text-back (the old salon bundle)',
     ],
-    killTest: '20 free site audits delivered in 30 days. Fewer than 2 paying shops = kill.',
+    constraints: [
+      'No fake, bought or incentivized reviews and no review gating (asking only happy customers). The FTC bans both.',
+      'No keyword stuffing in business names, no fake addresses, and no profiles for businesses the client does not actually run.',
+      'Never promise rankings. Sell the work done and the calls and direction requests the client can see.',
+      'Clients add the operator as a Manager on their profile. Never ask for a client\'s Google password.',
+      'Audits use public information only. Never claim a number, view count or ranking you did not actually see.',
+      'Agents never message business owners. The operator sends every audit, text and email.',
+    ],
+    killTest: '30 video audits sent in 30 days. Fewer than 2 paying clients = reprice or kill.',
     stages: {
-      prospect: { target: 30, label: 'local Square-based shops with a weak site or no online booking' },
-      conversation: { target: 8, label: 'owners who replied to a free audit' },
-      demo: { target: 5, label: 'free audits delivered' },
-      pilot: { target: 2, label: 'first months paid' },
-      paid: { target: 2, label: 'invoices paid' },
-      retained: { target: 5, label: 'shops past month 2' },
+      prospect: { target: 60, label: 'local businesses with a weak Google profile, found and checked' },
+      conversation: { target: 30, label: 'video audits sent' },
+      demo: { target: 5, label: 'owners who replied or took a call' },
+      pilot: { target: 2, label: 'first month paid' },
+      paid: { target: 2, label: 'monthly invoices paid' },
+      retained: { target: 5, label: 'clients past month 2' },
     },
   },
   {
@@ -188,7 +199,7 @@ export const CATALOG = Object.freeze([
     name: 'Content channel that sells the paid paths',
     bucket: 'content / audience',
     thesis: 'Agents draft posts; you review and publish under your own name. Posts earn two ways: directly '
-      + '(affiliate links, sponsorships, platform payouts) and as a funnel that feeds leads into the salon bundle '
+      + '(affiliate links, sponsorships, platform payouts) and as a funnel that feeds leads into GBP management '
       + 'and the cohort course. Every post carries one call to action, and every dollar can be attributed to the post that earned it.',
     month12Usd: [0, 2000],
     firstDollarWeeks: [8, 26],
@@ -196,7 +207,7 @@ export const CATALOG = Object.freeze([
     postTarget: 30,
     constraints: [
       'Posted by a human under your real name. No faceless, mass-produced video: YouTube terminated AI channels in Jan 2026 under its inauthentic-content policy.',
-      'Every post has exactly one call to action: the email list, the free site audit, or the course waitlist.',
+      'Every post has exactly one call to action: the email list, the free Google profile audit, or the course waitlist.',
       'No employer data, call recordings, or anything that identifies a customer.',
       'Any trend or statistic in a post carries its source URL in the draft.',
     ],

@@ -85,7 +85,7 @@
       <div class="empty" style="margin-bottom:8px">Paste a job post to score (the Job scout drafts a proposal if it fits), or a job you won (the Deliverable drafter does the work). Agents never touch Upwork or Fiverr; you copy posts in and send everything out.</div>
       <form id="f-inbox">
         <div class="row">
-          <label>Kind <select name="type"><option value="post">job post to score</option><option value="job">job I won: do the work</option></select></label>
+          <label>Kind <select name="type"><option value="post">job post to score</option><option value="job">job I won: do the work</option><option value="lead">local business to audit</option></select></label>
           <label>Path <select name="path" data-paths data-default="freelance-desk"></select></label>
         </div>
         <label>Post URL (optional, needed to count it on the ledger) <input name="url" placeholder="https://www.upwork.com/jobs/..."></label>
@@ -96,6 +96,32 @@
       <div id="inbox" style="margin-top:10px"></div>
     </section>
     <section><h2>Money by gig type</h2><div id="m-tag"></div></section>
+  </div>
+  <div class="grid2">
+    <section>
+      <h2>GBP clients (monthly packs)</h2>
+      <div class="empty" style="margin-bottom:8px">Paying clients get a monthly pack: 6 posts, Q&amp;A, review replies, a photo list and a report. Paste new reviews and this month's promos into their notes before the pack is due.</div>
+      <div id="clients"></div>
+      <form id="f-client" style="margin-top:10px">
+        <div class="row">
+          <label>Business <input name="name" required></label>
+          <label>City <input name="city" required value="Texarkana"></label>
+        </div>
+        <div class="row">
+          <label>Category <input name="category" placeholder="hair salon"></label>
+          <label>$ per month <input name="monthlyUsd" type="number" min="0" step="25" value="200"></label>
+        </div>
+        <label>Website <input name="website" placeholder="https://..."></label>
+        <label>Services and notes <textarea name="notes" rows="3" placeholder="services, hours, this month's offer, new reviews to answer"></textarea></label>
+        <button>Add client</button>
+        <div class="msg"></div>
+      </form>
+    </section>
+    <section>
+      <h2>Find new local businesses (free Texas records)</h2>
+      <div class="empty" style="margin-bottom:8px">Pulls businesses that got a Texas sales-tax permit in the last 30 days in Bowie and Cass counties, keeps salons, spas, groomers, repair shops, restaurants, gyms, trades and florists, and drops them in the audit inbox. Plain code, no AI, $0.</div>
+      <form id="f-harvest"><button>Harvest new businesses now</button><div class="msg"></div></form>
+    </section>
   </div>
   <section>
     <h2>Outbox: drafts waiting for you to publish or send</h2>
@@ -307,6 +333,23 @@
     $('#jobs').querySelectorAll('button[data-job]').forEach((b) => b.onclick = async () => { const j = st.jobs[b.dataset.job]; await post('/api/jobs', { jobId: j.jobId, role: j.role, path: j.path, everyHours: j.everyHours, maxUsd: j.maxUsd, enabled: b.dataset.on === '1' }); refresh(); });
     document.querySelectorAll('[data-posts]').forEach((el) => { const cur = el.value; el.innerHTML = '<option value="">not from a post</option>' + st.posts.map((p) => `<option value="${esc(p.id)}">${esc(p.platform + ': ' + p.title)}</option>`).join(''); el.value = cur; });
   }
+  let clientSig = '';
+  async function clients() {
+    const data = await (await fetch('/api/clients', { cache: 'no-store' })).json();
+    const sig = JSON.stringify(data);
+    if (sig === clientSig) return;
+    clientSig = sig;
+    const rows = [];
+    for (const [pid, list] of Object.entries(data)) for (const c of list) rows.push([esc(c.name), esc(c.city), c.monthlyUsd ? usd(c.monthlyUsd) : '', esc(c.lastPackAt ? c.lastPackAt.slice(0, 10) : 'never'), c.due ? '<b style="color:var(--warn)">due</b>' : 'done', `<button data-notes="${esc(pid)}|${esc(c.id)}">notes</button>`]);
+    $('#clients').innerHTML = rows.length ? table(['client', 'city', 'monthly', 'last pack', 'pack', ''], rows) : '<div class="empty">no clients yet</div>';
+    $('#clients').querySelectorAll('button[data-notes]').forEach((b) => b.onclick = async () => {
+      const [pid, id] = b.dataset.notes.split('|');
+      const c = data[pid].find((x) => x.id === id);
+      const notes = window.prompt('Notes for ' + c.name + ' (new reviews, promos, hours):', c.notes || '');
+      if (notes === null) return;
+      await post('/api/clients', { path: pid, id, notes }); clientSig = ''; clients();
+    });
+  }
   let inboxSig = '';
   async function inbox() {
     const data = await (await fetch('/api/inbox', { cache: 'no-store' })).json();
@@ -315,8 +358,8 @@
     inboxSig = sig;
     const rows = [];
     for (const [pid, v] of Object.entries(data)) {
-      for (const it of v.pending) rows.push([esc(pid), it.type === 'post' ? 'score' : 'do the work', esc(it.title), '<span class="cite">waiting</span>']);
-      for (const it of v.done.slice().reverse().slice(0, 8)) rows.push([esc(pid), it.type === 'post' ? 'score' : 'do the work', esc(it.title), esc(it.verdict || 'done')]);
+      for (const it of v.pending) rows.push([esc(pid), it.type === 'post' ? 'score' : it.type === 'lead' ? 'audit' : 'do the work', esc(it.title), '<span class="cite">waiting</span>']);
+      for (const it of v.done.slice().reverse().slice(0, 8)) rows.push([esc(pid), it.type === 'post' ? 'score' : it.type === 'lead' ? 'audit' : 'do the work', esc(it.title), esc(it.verdict || 'done')]);
     }
     $('#inbox').innerHTML = rows.length ? table(['path', 'kind', 'item', 'verdict'], rows) : '<div class="empty">inbox is empty</div>';
   }
@@ -335,7 +378,7 @@
     try {
       const r = await fetch('/api/state', { cache: 'no-store' });
       snap = await r.json();
-      fillSelects(snap); tiles(snap); money(snap); quests(snap); paths(snap); tail(snap); outbox(); inbox();
+      fillSelects(snap); tiles(snap); money(snap); quests(snap); paths(snap); tail(snap); outbox(); inbox(); clients();
     } catch (e) { $('#tiles').innerHTML = `<div class="tile"><div class="k">error</div><div class="s">${esc(e.message)}</div></div>`; }
   }
 
@@ -362,7 +405,9 @@
   }
 
   wire('#f-money', async (d) => { const j = await post('/api/events', { kind: 'money.in', usd: Number(d.usd), path: d.path, source: d.source, evidence: d.evidence, ...(d.postId ? { postId: d.postId } : {}), ...(d.tag ? { tag: d.tag } : {}), ...(d.hours ? { hours: Number(d.hours) } : {}) }); return 'appended ' + j.event.id; });
-  wire('#f-inbox', async (d) => { const j = await post('/api/inbox', { type: d.type, path: d.path, url: d.url || undefined, text: d.text }); inboxSig = ''; return 'added ' + j.item.id + '. Run the ' + (d.type === 'post' ? 'Job scout' : 'Deliverable drafter') + ' or let its job pick it up.'; });
+  wire('#f-inbox', async (d) => { const j = await post('/api/inbox', { type: d.type, path: d.path, url: d.url || undefined, text: d.text }); inboxSig = ''; return 'added ' + j.item.id + '. Run the ' + ({ post: 'Job scout', job: 'Deliverable drafter', lead: 'Google profile auditor' })[d.type] + ' or let its job pick it up.'; });
+  wire('#f-client', async (d) => { const j = await post('/api/clients', { path: 'gbp-management', name: d.name, city: d.city, category: d.category, website: d.website || undefined, notes: d.notes, monthlyUsd: Number(d.monthlyUsd) }); clientSig = ''; return 'added ' + j.client.name + '. The manager writes their first pack on its next run.'; });
+  wire('#f-harvest', async () => { const j = await post('/api/harvest', {}); inboxSig = ''; return `${j.fetched} new permits, ${j.matched} local-service businesses, ${j.added} new added to the audit inbox`; });
   wire('#f-post', async (d) => { const j = await post('/api/events', { kind: 'post', path: d.path, platform: d.platform, url: d.url, title: d.title, by: 'user' }); return 'appended post ' + j.event.id; });
   wire('#f-job', async (d) => { const j = await post('/api/jobs', { role: d.role, path: d.path, everyHours: Number(d.everyHours), maxUsd: Number(d.maxUsd) }); return 'job ' + j.event.jobId + ' added; it runs while serve is up'; });
   wire('#f-outcome', async (d) => { const j = await post('/api/events', { kind: 'outcome', path: d.path, stage: d.stage, ref: d.ref, evidence: d.evidence, by: 'user' }); return 'appended ' + j.event.id; });

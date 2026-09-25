@@ -1,6 +1,7 @@
-// The job inbox: work the operator hands to agents. Two kinds of item:
+// The job inbox: work the operator hands to agents. Three kinds of item:
 //   post: a job post or buyer request to score and, if it fits, draft a proposal for
 //   job:  a job the operator WON, with the client's brief, to draft the deliverable for
+//   lead: a local business to audit (the harvester adds these from public Texas permit records)
 // Items are JSON files under <dataDir>/inbox/<pathId>/, moved to done/ once an agent handles them.
 // Agents never fetch from Upwork or Fiverr themselves: automated scraping and bidding break both platforms' terms.
 import fs from 'node:fs';
@@ -8,7 +9,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { LedgerError } from './ledger.js';
 
-export const INBOX_TYPES = Object.freeze(['post', 'job']);
+export const INBOX_TYPES = Object.freeze(['post', 'job', 'lead']);
 const ID_RE = /^in_[a-z0-9]{6,32}$/;
 const PATH_RE = /^[a-z0-9-]{1,60}$/;
 

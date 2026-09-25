@@ -65,6 +65,13 @@ test('dashboard, state, event validation and a replayed run over HTTP', async ()
     assert.equal(ob[0].file, 'prospects.md');
     assert.ok(s.quests.some((q) => q.id === 'ladder:1' && q.status === 'done'));
 
+    const cl = await fetch(base + '/api/clients', { method: 'POST', body: JSON.stringify({ path: 'beta', name: 'Demo Salon', city: 'Texarkana' }) });
+    assert.equal(cl.status, 201);
+    const cls = await (await fetch(base + '/api/clients')).json();
+    assert.equal(cls.beta[0].due, true);
+    const badCl = await fetch(base + '/api/clients', { method: 'POST', body: JSON.stringify({ path: 'beta', name: 'x' }) });
+    assert.equal(badCl.status, 400);
+
     const nf = await fetch(base + '/nope');
     assert.equal(nf.status, 404);
   } finally {

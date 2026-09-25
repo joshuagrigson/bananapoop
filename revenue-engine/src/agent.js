@@ -10,6 +10,7 @@ import { CATALOG, getPath, stagesFor } from './paths.js';
 import { costUsd, priceFor } from './cost.js';
 import { LedgerError, STAGES } from './ledger.js';
 import { listItems, markDone } from './inbox.js';
+import { dueClients, markPacked } from './clients.js';
 
 // Token efficiency: routine work runs on the cheapest model that does it well, at modest effort.
 // Pass --model claude-opus-5 for a run that needs more judgment. Opus/Fable get server-side refusal fallbacks.
@@ -96,6 +97,54 @@ Constraints (hard limits):
 ${list(spec.constraints)}
 
 Finish with write_note("post-index.md") listing each file, platform, hook and CTA. You never publish anything. The operator posts, then logs the live URL.`,
+  },
+  auditor: {
+    title: 'Google profile auditor',
+    logs: ['prospect'],
+    inbox: 'lead',
+    webSearch: 8,
+    model: 'claude-sonnet-5',
+    effort: 'low',
+    directive: (spec) => `Path: ${spec.name} (${spec.id}).
+Call read_inbox. Each item is a local business, usually a new one from public Texas permit records. Audit at most 4 this run.
+
+For EACH business:
+1. web_search the business name + city. Find its website, its Google Business Profile or Maps listing, and its review count and rating where the results show them. Then web_search "<its category> in <city>" to see who shows up first. Use at most 2 searches per business.
+2. Score how WEAK its Google presence is, 0-10. 10 = no profile found at all. 0 = strong profile with lots of recent reviews.
+   Things that make it weak: no profile found, few or no reviews, a missing website link, no hours, no photos or services visible, and competitors clearly ahead.
+3. If the weakness score is 6 or more, write_note("audit-<short-slug>.md") with these parts:
+   a. What you found, as a small table: profile found?, reviews/rating, website, hours, and the 3 competitors that show first. Every cell you did not actually see says "not seen", never a guess.
+   b. The 3 fixes that matter most, in plain words an owner understands.
+   c. A 2-minute video script for the operator to read while screen-sharing their Google search. Open by naming their business and street. Walk the 3 fixes. End with one low-pressure question.
+   d. A 2-sentence text or email the operator can send with the video link.
+   Then log_outcome(stage="prospect", ref="<business name> (<city>)", evidence=<the lead's url, or their listing or website URL>).
+4. mark_done(id, verdict) for every business with the score and a one-line reason, even ones you skip.
+Finish with write_note("audit-report.md"): every business audited, its score, and the verdict, weakest first.
+
+Constraints (hard limits):
+${list(spec.constraints)}`,
+  },
+  manager: {
+    title: 'Monthly GBP manager',
+    logs: [],
+    clients: true,
+    webSearch: 2,
+    maxIterations: 12,
+    model: 'claude-sonnet-5',
+    effort: 'medium',
+    directive: (spec) => `Path: ${spec.name} (${spec.id}).
+Call read_clients. Each is a paying client whose monthly pack is due. For EACH client, write_note("pack-<client-slug>-<yyyy-mm>.md") containing:
+1. 6 Google Business Profile posts, each 80-150 words: an update, an offer or an event, with a call-to-action button suggestion (Book, Call, Learn more) and a one-line photo brief. Tie them to this month's season, local events you can verify with a quick search, and the client's notes.
+2. 5 Q&A pairs customers actually ask about this kind of business, answered in the client's voice.
+3. A reply draft for every review pasted in the client's notes. Thank them by name, be specific, never argue, and keep it under 60 words. Negative reviews get a calm reply that offers to fix it offline.
+4. A photo shot list: 6 shots the owner can take on a phone this month.
+5. A short monthly report, written to the owner: what was posted and why. Leave [calls], [direction requests] and [website clicks] as blanks for the operator to fill from the profile's performance screen. Never invent those numbers.
+Then mark_packed(id, summary) for each client.
+
+Voice: plain, local, specific to the business. No hype, no keyword stuffing, no made-up promotions: an offer only appears if it is in the client's notes.
+
+Constraints (hard limits):
+${list(spec.constraints)}`,
   },
   lister: {
     title: 'Gig lister',
@@ -280,7 +329,39 @@ export function buildTools({ spec, ledger, runId, dataDir, allowedStages, inboxT
     },
   });
 
-  return { readPath, logOutcome, writeNote, readInbox, markDone: markDoneTool, outboxDir };
+  const readClients = betaTool({
+    name: 'read_clients',
+    description: 'Read the clients on this path whose monthly pack is due: business, city, category, services, website, and the operator\'s notes for this month.',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    run: async () => {
+      const due = dueClients(dataDir, spec.id).slice(0, 5);
+      if (!due.length) return 'no clients are due';
+      return JSON.stringify(due.map((c) => ({ id: c.id, name: c.name, city: c.city, category: c.category, website: c.website, services: c.services, notes: c.notes, lastPackAt: c.lastPackAt })), null, 2);
+    },
+  });
+
+  const markPackedTool = betaTool({
+    name: 'mark_packed',
+    description: 'Mark one client\'s monthly pack as written, with a one-line summary.',
+    inputSchema: {
+      type: 'object',
+      properties: { id: { type: 'string' }, summary: { type: 'string' } },
+      required: ['id', 'summary'],
+      additionalProperties: false,
+    },
+    run: async (input) => {
+      try {
+        const c = markPacked(dataDir, spec.id, input.id, input.summary);
+        log({ type: 'packed', id: c.id, name: c.name });
+        return `marked ${c.name} packed`;
+      } catch (e) {
+        if (e instanceof LedgerError) return `error: ${e.message}`;
+        throw e;
+      }
+    },
+  });
+
+  return { readPath, logOutcome, writeNote, readInbox, markDone: markDoneTool, readClients, markPacked: markPackedTool, outboxDir };
 }
 
 // Provider adapters. Both expose { iterate(): AsyncIterable<message>, pushMessages(...) }.
@@ -315,6 +396,13 @@ function replayRunner(provider, params, toolList) {
   return { iterate: gen, pushMessages: () => {} };
 }
 
+// Why a role has nothing to do on this path right now, or null if it has work.
+export function idleReason(role, dataDir, pathId) {
+  if (role.inbox && !listItems(dataDir, pathId, { type: role.inbox }).length) return `inbox has no pending ${role.inbox} items`;
+  if (role.clients && !dueClients(dataDir, pathId).length) return 'no client packs are due';
+  return null;
+}
+
 export async function runAgent(opts) {
   const { role: roleId, pathId, ledger, dataDir, provider, log = () => {} } = opts;
   const maxUsd = opts.maxUsd ?? 1;
@@ -342,18 +430,20 @@ export async function runAgent(opts) {
     throw new Error(`no price on file for model "${model}". Pass price {in,out} in USD per 1M tokens so spend is never recorded as $0.`);
   }
 
-  // Inbox roles with nothing to do skip before any model call: a scheduled scout on an empty inbox costs $0.
-  if (role.inbox && !listItems(dataDir, spec.id, { type: role.inbox }).length) {
-    log({ type: 'skipped', reason: `inbox has no pending ${role.inbox} items` });
-    return { skipped: true, reason: `inbox has no pending ${role.inbox} items`, usd: 0, iterations: 0 };
+  // Roles with nothing to do skip before any model call: a scheduled scout or manager with no work costs $0.
+  const idle = idleReason(role, dataDir, spec.id);
+  if (idle) {
+    log({ type: 'skipped', reason: idle });
+    return { skipped: true, reason: idle, usd: 0, iterations: 0 };
   }
 
   const cap = Math.min(maxUsd, remaining);
   const runId = opts.runId || crypto.randomBytes(6).toString('hex');
   const tools = buildTools({ spec, ledger, runId, dataDir, allowedStages: role.logs, inboxType: role.inbox || null, log });
-  const toolList = [tools.readPath, tools.logOutcome, tools.writeNote, ...(role.inbox ? [tools.readInbox, tools.markDone] : [])];
+  const toolList = [tools.readPath, tools.logOutcome, tools.writeNote, ...(role.inbox ? [tools.readInbox, tools.markDone] : []), ...(role.clients ? [tools.readClients, tools.markPacked] : [])];
   if (role.webSearch > 0 && provider.kind === 'anthropic') {
-    toolList.push({ type: 'web_search_20260209', name: 'web_search', max_uses: role.webSearch });
+    // The dynamic-filtering search tool needs a newer model; Haiku gets the basic version.
+    toolList.push({ type: NO_EFFORT.has(model) ? 'web_search_20250305' : 'web_search_20260209', name: 'web_search', max_uses: role.webSearch });
   }
   const directive = role.directive(spec, p, stagesFor(spec));
 

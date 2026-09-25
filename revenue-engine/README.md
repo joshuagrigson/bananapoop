@@ -18,7 +18,7 @@ Requirements: Node 22+. One dependency (`@anthropic-ai/sdk`).
 ```bash
 cd revenue-engine
 npm install
-npm test                       # 44 tests, zero spend (replay provider)
+npm test                       # 51 tests, zero spend (replay provider)
 REVENUE_ENGINE_DATA=./demo node src/cli.js seed-demo   # optional: labeled fake data to preview the station
 node src/cli.js status         # headline numbers, level, open quests
 node src/cli.js paths          # the catalog
@@ -29,16 +29,16 @@ Set `ANTHROPIC_API_KEY` (or log in with `ant auth login`) before a live run:
 
 ```bash
 node src/cli.js gate employment-agreement --cleared --evidence "read 2026-09-26; no non-compete, moonlighting allowed"
-node src/cli.js run prospector --path local-growth-bundle --max-usd 2
-node src/cli.js run outreach   --path local-growth-bundle --max-usd 1
+node src/cli.js harvest                                    # free: new local businesses from Texas records
+node src/cli.js run auditor    --path gbp-management --max-usd 1
 node src/cli.js run pricing    --path show-rate-engine    --max-usd 1
-node src/cli.js log-in 250 --path local-growth-bundle --source "Example Salon" --evidence "Square invoice 0001"
+node src/cli.js log-in 200 --path gbp-management --source "Example Salon" --evidence "Square invoice 0001"
 ```
 
 A dry run with no key and no spend:
 
 ```bash
-node src/cli.js run prospector --path local-growth-bundle --provider replay --script replay/prospector-demo.json
+node src/cli.js run prospector --path cohort-course --provider replay --script replay/prospector-demo.json
 ```
 
 ## The loop
@@ -53,7 +53,8 @@ node src/cli.js run prospector --path local-growth-bundle --provider replay --sc
 
 ```bash
 node src/cli.js job add creator    --path content-channel     --every 24 --max-usd 1
-node src/cli.js job add prospector --path local-growth-bundle --every 72 --max-usd 1
+node src/cli.js job add auditor    --path gbp-management      --every 24 --max-usd 1
+node src/cli.js job add manager    --path gbp-management      --every 24 --max-usd 2
 node src/cli.js jobs
 ```
 
@@ -66,6 +67,18 @@ node src/cli.js jobs
 3. Log the live URL: `node src/cli.js post content-channel --platform linkedin --url https://... --title "..."`
 4. When money arrives, log it with evidence and, if a post earned it, the post id: `log-in 42.50 --path content-channel --source "Affiliate" --evidence "payout 77" --post <id>`
 5. The dashboard shows earned, spent, net and yield by path, month, platform and post.
+
+## GBP management (room #4, the lead offer)
+
+Local businesses live or die on Google Maps. Market price: about $125-285/mo freelance, $300-700 agency.
+
+1. **Find** (`harvest`, or the dashboard button): pulls every business that got a Texas sales-tax permit in the last 30 days in Bowie (019) and Cass (034) counties from the Comptroller's free dataset, keeps salons, spas, groomers, repair shops, restaurants, gyms, trades and florists, and drops them in the audit inbox. Plain code, $0. `serve --harvest-daily` runs it once a day.
+2. **Audit** (`auditor`, Sonnet 5 at low effort, 2 searches per business, 4 per run): checks each one's public Google presence against the first 3 competitors, scores how weak it is, and for 6+ writes a findings table, 3 fixes, a 2-minute video script and a 2-sentence text. Cells it did not see say "not seen".
+3. **You** record the screen video from the script and send it with the text. Log it: `outcome gbp-management conversation --ref "Business" --evidence "sent 9/26"`.
+4. **Client** says yes: they add you as a Manager on their profile (never their password). `client add gbp-management --name "..." --city Texarkana --category "hair salon" --monthly 200`.
+5. **Monthly** (`manager`): for each client whose pack is due, writes 6 posts with photo briefs, 5 Q&A pairs, replies to the reviews you pasted into their notes, a photo shot list and a report with blanks for calls and direction requests. Update notes with `client notes gbp-management <id> --notes "..."`. You paste it in.
+
+Hard lines: no fake, bought or incentivized reviews and no review gating (FTC); no keyword-stuffed names, fake addresses or profiles for businesses the client doesn't run; never promise rankings. Kill test: 30 video audits in 30 days, fewer than 2 paying clients = reprice or kill.
 
 ## The Freelance desk (agent-staffed gigs)
 
@@ -96,6 +109,8 @@ Routine roles run on the cheapest model that does them well: Sonnet 5 at medium 
 | `prospector` | `prospect` outcomes with a live URL each | yes | `outbox/<path>/prospects.md` |
 | `outreach` | nothing | no | one draft per logged prospect plus an index |
 | `pricing` | nothing | yes | `outbox/<path>/offer-sheet.md` |
+| `auditor` | `prospect` (lead or listing URL) | yes (8) | `audit-*.md` with findings, 3 fixes, a video script and a text, plus `audit-report.md`; reads the lead inbox |
+| `manager` | nothing | yes (2) | `pack-<client>-<month>.md`: posts, Q&A, review replies, shot list, report; reads due clients |
 | `lister` | nothing | yes (3) | three `gig-*.md` Fiverr listings and `upwork-profile.md` |
 | `scout` | `prospect` (the job post URL) | no | `proposal-*.md` for posts scoring 7+, plus `scout-report.md`; reads the inbox |
 | `fulfiller` | nothing | yes (4) | `deliverable-*.md` with a review checklist and `delivery-note-*.md`; reads the inbox |
@@ -114,7 +129,9 @@ src/level.js      Commander ladder with citations
 src/cost.js       model prices (volatile) and cost reconciliation
 src/agent.js      roles, tools, the budgeted run loop, replay provider
 src/scheduler.js  jobs: due logic, daily cap, one-at-a-time dispatch, skips inbox jobs with no work
-src/inbox.js      the job inbox: posts to score and won jobs to fulfill
+src/inbox.js      the job inbox: posts to score, won jobs to fulfill, local leads to audit
+src/harvest.js    free Texas new-permit feed (data.texas.gov jrea-zgmq) into the GBP inbox
+src/clients.js    client roster with monthly pack due dates
 src/demo.js       labeled demo data (refuses a real ledger)
 src/server.js     localhost HTTP: station, /ledger, /api/state, /api/events, /api/run, /api/runs, /api/jobs, /api/outbox
 src/station.html  the pixel-art station (canvas, no assets, every object bound to ledger state)

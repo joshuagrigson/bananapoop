@@ -11,6 +11,8 @@ import { CATALOG, GATES, stagesFor } from './paths.js';
 import { LedgerError } from './ledger.js';
 import { ROLES, DEFAULT_MODEL } from './agent.js';
 import { addItem, listItems } from './inbox.js';
+import { addClient, listClients, updateClient, isDue } from './clients.js';
+import { harvest as runHarvest } from './harvest.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const LEDGER_HTML = fs.readFileSync(path.join(here, 'dashboard.html'), 'utf8');
@@ -84,7 +86,7 @@ const send = (res, code, body, type = 'application/json') => {
 };
 
 // opts.runAgent(args) -> Promise<result>; opts.makeProvider() -> provider for live runs (may throw if no credentials)
-export function createServer({ ledger, catalog = CATALOG, dataDir, runAgent, makeProvider }) {
+export function createServer({ ledger, catalog = CATALOG, dataDir, runAgent, makeProvider, harvestImpl = null }) {
   const runs = new Map(); // runId -> { status, started, result?, error? }
 
   return http.createServer(async (req, res) => {
@@ -104,6 +106,35 @@ export function createServer({ ledger, catalog = CATALOG, dataDir, runAgent, mak
           if (pending.length || done.length) out[p.id] = { pending, done };
         }
         return send(res, 200, out);
+      }
+      if (req.method === 'GET' && url.pathname === '/api/clients') {
+        const out = {};
+        for (const p of catalog) {
+          const list = dataDir ? listClients(dataDir, p.id) : [];
+          if (list.length) out[p.id] = list.map((c) => ({ ...c, due: isDue(c) }));
+        }
+        return send(res, 200, out);
+      }
+      if (req.method === 'POST' && url.pathname === '/api/clients') {
+        const body = await readJson(req);
+        if (!catalog.some((p) => p.id === body.path)) return send(res, 400, { ok: false, error: `unknown path "${body.path}"` });
+        try {
+          const c = body.id ? updateClient(dataDir, body.path, body.id, body) : addClient(dataDir, body.path, body);
+          return send(res, 201, { ok: true, client: c });
+        } catch (e) {
+          if (e instanceof LedgerError) return send(res, 400, { ok: false, error: e.message });
+          throw e;
+        }
+      }
+      if (req.method === 'POST' && url.pathname === '/api/harvest') {
+        if (!dataDir) return send(res, 501, { ok: false, error: 'no data dir' });
+        const body = await readJson(req);
+        try {
+          const r = await (harvestImpl || runHarvest)({ dataDir, sinceDays: Number(body.sinceDays) || 30, ...(Array.isArray(body.counties) ? { counties: body.counties } : {}) });
+          return send(res, 200, { ok: true, ...r });
+        } catch (e) {
+          return send(res, 502, { ok: false, error: e.message });
+        }
       }
       if (req.method === 'POST' && url.pathname === '/api/inbox') {
         const body = await readJson(req);

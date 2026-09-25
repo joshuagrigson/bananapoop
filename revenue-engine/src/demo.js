@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { LedgerError } from './ledger.js';
 import { addItem, markDone } from './inbox.js';
+import { addClient, markPacked } from './clients.js';
 
 export function seedDemo(ledger, dataDir, now = Date.now()) {
   const existing = ledger.readAll();
@@ -16,15 +17,15 @@ export function seedDemo(ledger, dataDir, now = Date.now()) {
     { kind: 'note', demo: true, text: 'DEMO LEDGER: fictional preview data. Every business, URL and dollar here is made up.', ts: at(20) },
     { kind: 'path.status', path: 'coparent-hq', status: 'killed', reason: 'demo: kill test failed, 0 of 5 practices', ts: at(19) },
     { kind: 'job', jobId: 'job_demo_creator', role: 'creator', path: 'content-channel', everyHours: 24, maxUsd: 1, enabled: true, ts: at(18) },
-    { kind: 'job', jobId: 'job_demo_prospect', role: 'prospector', path: 'local-growth-bundle', everyHours: 72, maxUsd: 2, enabled: true, ts: at(18) },
+    { kind: 'job', jobId: 'job_demo_audit', role: 'auditor', path: 'gbp-management', everyHours: 24, maxUsd: 1, enabled: true, ts: at(18) },
   ];
   const shops = ['Demo Salon One', 'Demo Med Spa', 'Demo Groomers', 'Demo Barber Co', 'Demo Nail Bar', 'Demo Lash Studio', 'Demo Brow House', 'Demo Day Spa', 'Demo Skin Clinic', 'Demo Hair Loft', 'Demo Pet Spa', 'Demo Wax Bar'];
-  shops.forEach((s, i) => lines.push({ kind: 'outcome', path: 'local-growth-bundle', stage: 'prospect', ref: s, evidence: `https://example.com/demo/${i}`, by: 'agent', ts: at(15, i) }));
-  shops.slice(0, 8).forEach((s, i) => lines.push({ kind: 'outcome', path: 'local-growth-bundle', stage: 'conversation', ref: s, evidence: 'demo: email reply', by: 'user', ts: at(12, i) }));
-  shops.slice(0, 5).forEach((s, i) => lines.push({ kind: 'outcome', path: 'local-growth-bundle', stage: 'demo', ref: s, evidence: 'demo: audit delivered', by: 'user', ts: at(9, i) }));
-  shops.slice(0, 2).forEach((s, i) => lines.push({ kind: 'outcome', path: 'local-growth-bundle', stage: 'pilot', ref: s, evidence: 'demo: first month paid', by: 'user', ts: at(6, i) }));
-  lines.push({ kind: 'money.in', usd: 199, path: 'local-growth-bundle', source: 'Demo Salon One', evidence: 'demo invoice 0001', ts: at(6) });
-  lines.push({ kind: 'money.in', usd: 249, path: 'local-growth-bundle', source: 'Demo Med Spa', evidence: 'demo invoice 0002', ts: at(5) });
+  shops.forEach((s, i) => lines.push({ kind: 'outcome', path: 'gbp-management', stage: 'prospect', ref: s, evidence: `https://example.com/demo/${i}`, by: 'agent', ts: at(15, i) }));
+  shops.slice(0, 8).forEach((s, i) => lines.push({ kind: 'outcome', path: 'gbp-management', stage: 'conversation', ref: s, evidence: 'demo: video audit sent', by: 'user', ts: at(12, i) }));
+  shops.slice(0, 5).forEach((s, i) => lines.push({ kind: 'outcome', path: 'gbp-management', stage: 'demo', ref: s, evidence: 'demo: owner replied', by: 'user', ts: at(9, i) }));
+  shops.slice(0, 2).forEach((s, i) => lines.push({ kind: 'outcome', path: 'gbp-management', stage: 'pilot', ref: s, evidence: 'demo: first month paid', by: 'user', ts: at(6, i) }));
+  lines.push({ kind: 'money.in', usd: 199, path: 'gbp-management', source: 'Demo Salon One', evidence: 'demo invoice 0001', ts: at(6) });
+  lines.push({ kind: 'money.in', usd: 249, path: 'gbp-management', source: 'Demo Med Spa', evidence: 'demo invoice 0002', ts: at(5) });
   ['Operator course waitlist opens', 'How I built a QA scorer without code', 'Missed calls cost salons more than rent'].forEach((t, i) => {
     lines.push({ kind: 'outcome', path: 'cohort-course', stage: 'prospect', ref: `demo waitlist ${i}`, evidence: 'demo: form signup', by: 'user', ts: at(10, i) });
   });
@@ -43,10 +44,10 @@ export function seedDemo(ledger, dataDir, now = Date.now()) {
     lines.push({ kind: 'money.out', usd, category: 'api', path: pathId, runId: id, evidence: 'demo iteration', ts: at(d, 0.1) });
     if (!open) lines.push({ kind: 'agent.run.end', runId: id, path: pathId, role, model: 'claude-opus-5', usd, iterations: 4, reason, ts: at(d, 0.2) });
   };
-  run('run_demo_1', 'prospector', 'local-growth-bundle', 15, 0.41, 'done');
+  run('run_demo_1', 'auditor', 'gbp-management', 15, 0.41, 'done');
   run('run_demo_2', 'creator', 'content-channel', 2, 0.18, 'done');
   run('run_demo_3', 'creator', 'content-channel', 0, 0.06, 'done', true);
-  lines.push({ kind: 'money.out', usd: 12, category: 'tool', path: 'local-growth-bundle', evidence: 'demo domain + hosting', ts: at(14) });
+  lines.push({ kind: 'money.out', usd: 12, category: 'tool', path: 'gbp-management', evidence: 'demo domain + hosting', ts: at(14) });
   // freelance desk: scored posts, sent proposals, one won and paid job with the operator's hours
   ['Demo client: lead list for HVAC', 'Demo client: GBP posts for a dentist', 'Demo client: Zapier missed-call flow', 'Demo client: dedupe 4k leads'].forEach((ref, i) => {
     lines.push({ kind: 'outcome', path: 'freelance-desk', stage: 'prospect', ref, evidence: `https://example.com/demo/job/${i}`, by: 'agent', ts: at(7, i) });
@@ -64,6 +65,14 @@ export function seedDemo(ledger, dataDir, now = Date.now()) {
   const fo = path.join(dataDir, 'outbox', 'freelance-desk');
   fs.mkdirSync(fo, { recursive: true });
   fs.writeFileSync(path.join(fo, 'proposal-demo-hvac.md'), '# DEMO proposal\n\nFictional preview content.\n');
+  const c1 = addClient(dataDir, 'gbp-management', { name: 'Demo Salon One', city: 'Texarkana', category: 'hair salon', monthlyUsd: 199, notes: 'DEMO. New 5-star review from "Kim": loved the balayage. Fall color special 15% off in October.' });
+  addClient(dataDir, 'gbp-management', { name: 'Demo Med Spa', city: 'Texarkana', category: 'med spa', monthlyUsd: 249, notes: 'DEMO. Open Saturdays starting October.' });
+  markPacked(dataDir, 'gbp-management', c1.id, 'demo: September pack', new Date(now - 5 * day));
+  addItem(dataDir, 'gbp-management', { type: 'lead', url: 'https://example.com/demo/permit/1', text: 'DEMO LEAD. Business: Demo Skin Studio. Address: Summerhill Rd, Texarkana, TX. Type: personal care (NAICS 812199).' });
+  addItem(dataDir, 'gbp-management', { type: 'lead', url: 'https://example.com/demo/permit/2', text: 'DEMO LEAD. Business: Demo Crawfish Shack. Address: New Boston Rd, Nash, TX. Type: restaurants (NAICS 722513).' });
+  const ga = path.join(dataDir, 'outbox', 'gbp-management');
+  fs.mkdirSync(ga, { recursive: true });
+  fs.writeFileSync(path.join(ga, 'audit-demo-skin-studio.md'), '# DEMO audit\n\nFictional preview content.\n');
   const out = path.join(dataDir, 'outbox', 'content-channel');
   fs.mkdirSync(out, { recursive: true });
   for (let i = 1; i <= 3; i++) fs.writeFileSync(path.join(out, `post-demo-${i}.md`), `# DEMO draft ${i}\n\nFictional preview content.\n`);
