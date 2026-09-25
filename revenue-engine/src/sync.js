@@ -1,6 +1,6 @@
 // Income sync: pull payments from the places you actually get paid and append them to the ledger as evidenced money.in.
 // Two ways in:
-//   1. API links (Stripe, Square, PayPal, Gumroad): a read-only key, polled by the server every few minutes.
+//   1. API links (Stripe, Square, PayPal, Gumroad): a key the station only ever reads with, polled every few minutes.
 //   2. Statement import (Upwork, Fiverr, Etsy, Amazon Associates, PayPal, Venmo, any bank): the platform's own CSV export.
 // Every imported line carries the platform's transaction id in `ext`, so syncing or importing twice never counts a
 // dollar twice. Keys live only in <data>/connections.json on this computer, are never written to the ledger, and are
@@ -78,7 +78,7 @@ export const CONNECTORS = {
       'Open the Square Developer Console and sign in with your Square account.',
       'Create an application (any name), then open it.',
       'Switch the toggle at the top to Production and copy the Production access token.',
-      'Paste it here. The station only reads payments and the items on each ticket.',
+      'Paste it here. The station only reads payments and the items on each ticket, but this token can do more than read, so treat it like a password: it stays on this computer only.',
     ],
     link: 'https://developer.squareup.com/apps',
     check: (s) => (String(s.token || '').trim().length >= 20 ? null : 'That token looks too short. Copy the Production access token.'),

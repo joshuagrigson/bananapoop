@@ -29,7 +29,7 @@ cd $HOME; if (Test-Path bananapoop) { git -C bananapoop pull } else { git clone 
 
 Open **Sync** in the top bar (or press `I`, or click the comm mast). Two ways to get your real income in:
 
-- **Link an account**: Stripe, Square, PayPal, Gumroad. Paste a read-only key (the panel shows exactly where to get it), pick which money path it counts toward, done. The station pulls new payments every 15 minutes while it is open, net of the platform's fees.
+- **Link an account**: Stripe, Square, PayPal, Gumroad. Paste a key (the panel shows exactly where to get it; Stripe's is truly read-only, Square's and PayPal's can do more, so they stay on your computer and the station only ever reads with them), pick which money path it counts toward, done. The station pulls new payments every 15 minutes while it is open, net of the platform's fees.
 - **Import a statement**: Upwork, Fiverr, Etsy, Amazon Associates, PayPal, Venmo, any bank. Download the CSV from the site, drop it in, check the preview (new, already there, skipped and why), press Import.
 
 Every payment is stored with the platform's own transaction id, so syncing or importing the same thing twice never counts a dollar twice. Withdrawals, fees, transfers, refunds, pending and non-USD lines are skipped. Keys live only in `data/connections.json` on your computer; they never go into the ledger and the station only ever shows their last 4 characters. The same thing from the command line:
