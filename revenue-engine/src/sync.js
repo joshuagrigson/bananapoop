@@ -72,36 +72,67 @@ export const CONNECTORS = {
   },
   square: {
     title: 'Square',
-    blurb: 'Invoices and card payments taken with Square. Net of Square fees and refunds.',
+    blurb: 'Services, products, invoices and tips taken with Square, split by what was sold. Net of fees and refunds.',
     fields: [{ key: 'token', label: 'Production access token', placeholder: 'EAAA…', secret: true }],
     steps: [
       'Open the Square Developer Console and sign in with your Square account.',
       'Create an application (any name), then open it.',
       'Switch the toggle at the top to Production and copy the Production access token.',
-      'Paste it here. The station only reads payments.',
+      'Paste it here. The station only reads payments and the items on each ticket.',
     ],
     link: 'https://developer.squareup.com/apps',
     check: (s) => (String(s.token || '').trim().length >= 20 ? null : 'That token looks too short. Copy the Production access token.'),
+    // Each completed payment becomes one line per service or product on its ticket (from the Orders API), so a cut
+    // plus a beard trim lands in two rooms. Tips, fees and refunds are shared across the lines by their price.
     async pull({ secret, since, fetchImpl, maxPages = 20 }) {
-      const out = [];
+      const auth = { authorization: 'Bearer ' + String(secret.token).trim(), accept: 'application/json' };
+      const payments = [];
       let cursor = null;
       for (let page = 0; page < maxPages; page++) {
         const q = new URLSearchParams({ limit: '100', sort_order: 'ASC' });
         if (since) q.set('begin_time', new Date(since).toISOString());
         if (cursor) q.set('cursor', cursor);
-        const r = await fetchImpl('https://connect.squareup.com/v2/payments?' + q, { headers: { authorization: 'Bearer ' + String(secret.token).trim(), accept: 'application/json' } });
+        const r = await fetchImpl('https://connect.squareup.com/v2/payments?' + q, { headers: auth });
         const j = await readJsonResponse(r, 'Square');
-        for (const p of j.payments || []) {
-          if (p.status !== 'COMPLETED' || !p.amount_money) continue;
-          const fees = (p.processing_fee || []).reduce((s, f) => s + ((f.amount_money && f.amount_money.amount) || 0), 0);
-          const refunded = (p.refunded_money && p.refunded_money.amount) || 0;
-          out.push({
-            ext: 'square:' + p.id, at: p.created_at, usd: (p.amount_money.amount - fees - refunded) / 100, currency: p.amount_money.currency,
-            who: p.buyer_email_address || 'Square customer', what: p.note || 'Square payment', ref: p.receipt_number || p.id,
-          });
-        }
+        for (const p of j.payments || []) if (p.status === 'COMPLETED' && (p.total_money || p.amount_money)) payments.push(p);
         cursor = j.cursor;
         if (!cursor) break;
+      }
+      const orders = new Map();
+      const ids = [...new Set(payments.map((p) => p.order_id).filter(Boolean))];
+      for (let i = 0; i < ids.length; i += 100) {
+        const r = await fetchImpl('https://connect.squareup.com/v2/orders/batch-retrieve', {
+          method: 'POST', headers: { ...auth, 'content-type': 'application/json' }, body: JSON.stringify({ order_ids: ids.slice(i, i + 100) }),
+        });
+        const j = await readJsonResponse(r, 'Square (orders)');
+        for (const o of j.orders || []) orders.set(o.id, o);
+      }
+      const amt = (m) => (m && Number.isFinite(m.amount) ? m.amount : 0);
+      const out = [];
+      for (const p of payments) {
+        const total = p.total_money ? amt(p.total_money) : amt(p.amount_money) + amt(p.tip_money);
+        const fees = (p.processing_fee || []).reduce((s, f) => s + amt(f.amount_money), 0);
+        const net = total - fees - amt(p.refunded_money);
+        const tip = Math.min(amt(p.tip_money), Math.max(0, net));
+        const currency = (p.total_money || p.amount_money).currency;
+        const who = p.buyer_email_address || 'Square customer';
+        const base = { at: p.created_at, currency, who, ref: p.receipt_number || p.id };
+        const order = orders.get(p.order_id);
+        const lines = ((order && order.line_items) || []).filter((li) => amt(li.total_money) > 0);
+        if (!lines.length) {
+          out.push({ ...base, ext: 'square:' + p.id, usd: net / 100, tip: tip / 100, item: p.note ? String(p.note).slice(0, 120) : undefined, what: p.note || 'Square payment' });
+          continue;
+        }
+        const sum = lines.reduce((s, li) => s + amt(li.total_money), 0);
+        let givenNet = 0, givenTip = 0;
+        lines.forEach((li, k) => {
+          const last = k === lines.length - 1, share = amt(li.total_money) / sum;
+          const n = last ? net - givenNet : Math.round(net * share), t = last ? tip - givenTip : Math.round(tip * share);
+          givenNet += n; givenTip += t;
+          const variation = li.variation_name && !/^regular$/i.test(li.variation_name) ? li.variation_name : '';
+          const item = `${li.name || 'Item'}${variation ? ' · ' + variation : ''}`.slice(0, 120);
+          out.push({ ...base, ext: `square:${p.id}:${li.uid || k}`, grp: 'square:' + p.id, usd: n / 100, tip: Math.max(0, Math.min(t, n)) / 100, item, qty: Number(li.quantity) > 0 ? Number(li.quantity) : 1, what: item });
+        });
       }
       return out;
     },
@@ -274,9 +305,11 @@ function patchConnection(dataDir, id, patch) {
 }
 
 // ---------------------------------------------------------------------------------------------- importing records
+// Every transaction id already on the ledger, including the parent id of payments that were split into lines,
+// so a split sale and the same sale unsplit can never both count.
 export function knownExt(ledger) {
   const s = new Set();
-  for (const e of ledger.readAll()) if (e.kind === 'money.in' && e.ext) s.add(e.ext);
+  for (const e of ledger.readAll()) if (e.kind === 'money.in') { if (e.ext) s.add(e.ext); if (e.grp) s.add(e.grp); }
   return s;
 }
 // Classify normalized records against the ledger without writing anything.
@@ -288,7 +321,7 @@ export function classify(records, seen) {
     else if (!(r.usd > 0)) { status = 'skip'; reason = r.reason || 'not money in'; }
     else if (r.currency && String(r.currency).toUpperCase() !== 'USD') { status = 'skip'; reason = `${r.currency}, not USD`; }
     else if (r.skip) { status = 'skip'; reason = r.skip; }
-    else if (seen.has(r.ext) || batch.has(r.ext)) { status = 'duplicate'; reason = 'already on the ledger'; }
+    else if (seen.has(r.ext) || (r.grp && seen.has(r.grp)) || batch.has(r.ext)) { status = 'duplicate'; reason = 'already on the ledger'; }
     if (status === 'new') batch.add(r.ext);
     return { ...r, usd: round2(Number(r.usd) || 0), status, reason };
   });
@@ -301,6 +334,10 @@ export function importRecords(ledger, records, { path: pathId, via, sourceTitle,
     const ev = ledger.append({
       kind: 'money.in', usd: r.usd, path: pathId, source: String(r.who || sourceTitle).slice(0, 120),
       evidence: `${sourceTitle} ${r.ref || r.ext.split(':').slice(1).join(':')} (${verb})`.slice(0, 240), ext: r.ext, via, ts: new Date(r.at).toISOString(),
+      ...(r.item ? { item: String(r.item).trim().slice(0, 120) } : {}),
+      ...(r.qty > 0 && r.qty < 10000 ? { qty: r.qty } : {}),
+      ...(r.tip > 0 ? { tip: Math.min(round2(r.tip), round2(r.usd)) } : {}),
+      ...(r.grp ? { grp: r.grp } : {}),
     });
     added.push(ev);
   }
@@ -455,7 +492,7 @@ export function csvRecords(text, { source = 'csv', mapping } = {}) {
     if (map.amount < 0) skip = 'no amount column';
     else if (type && SKIP_TYPE.test(type)) skip = `type "${type}"`;
     else if (status && SKIP_STATUS.test(status)) skip = `status "${status}"`;
-    return { ext, at, usd: amount, currency: get(row, 'currency') || '', who: who || what || source, what: what || who || '', ref: idv || '', skip, reason: amount < 0 ? 'money out' : amount === 0 ? 'zero' : Number.isNaN(amount) ? 'no amount' : '' };
+    return { ext, at, usd: amount, currency: get(row, 'currency') || '', who: who || what || source, what: what || who || '', item: what ? what.slice(0, 120) : undefined, ref: idv || '', skip, reason: amount < 0 ? 'money out' : amount === 0 ? 'zero' : Number.isNaN(amount) ? 'no amount' : '' };
   });
   return { headers, mapping: map, fields: FIELDS, records };
 }

@@ -29,7 +29,7 @@ export function quests(state, catalog = CATALOG) {
   // 2) Stage quests: only the NEXT open stage per active path is actionable (the arc pattern).
   for (const spec of catalog) {
     const p = state.paths[spec.id];
-    if (!p) continue;
+    if (!p || spec.kind === 'service') continue;
     const gated = Boolean(spec.gate && !(state.gates[spec.gate] && state.gates[spec.gate].cleared));
     let nextShown = false;
     for (const s of stagesFor(spec)) {

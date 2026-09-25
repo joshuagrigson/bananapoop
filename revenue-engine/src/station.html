@@ -220,6 +220,37 @@
   .card .sub .s-active { color: var(--good); } .card .sub .s-gated { color: var(--warn); } .card .sub .s-killed { color: var(--bad); } .card .sub .s-paused { color: var(--muted); }
   .card .sub .crew { color: var(--cyan); }
   .muted { color: var(--muted); } .small { font-size: 11.5px; }
+  /* service rooms: stats, rankings, chart */
+  .seg { display: flex; gap: 3px; padding: 3px; border-radius: 9px; background: #0a0e18; border: 1px solid #1c2338; }
+  .seg button { flex: 1; border: 0; background: none; cursor: pointer; padding: 6px 4px; border-radius: 6px; font: 600 9.5px/1 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); transition: .15s; white-space: nowrap; }
+  .seg button:hover { color: #fff; } .seg button.on { color: #06080f; background: var(--c); }
+  .segs { display: grid; gap: 6px; margin-bottom: 9px; }
+  .chart { padding: 9px 10px 7px; border-radius: 10px; border: 1px solid #1e2640; background: linear-gradient(180deg, rgba(20, 26, 44, .6), rgba(10, 13, 23, .6)); }
+  .chart svg { display: block; width: 100%; height: 76px; }
+  .chart .cap { display: flex; justify-content: space-between; font: 10px/1.4 var(--f-num); color: var(--muted); }
+  .goal { padding: 10px 11px; border-radius: 10px; border: 1px solid #1e2640; background: linear-gradient(180deg, rgba(20, 26, 44, .6), rgba(10, 13, 23, .6)); }
+  .goal .t { display: flex; justify-content: space-between; align-items: baseline; font: 600 12px/1.3 var(--f-num); color: #fff; }
+  .goal .t small { color: var(--muted); font-weight: 500; }
+  .goal .bar { height: 7px; border-radius: 4px; background: #141a2a; overflow: hidden; margin-top: 7px; }
+  .goal .bar i { display: block; height: 100%; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 45%, #000), var(--c)); box-shadow: 0 0 10px var(--c); }
+  .goal.met .bar i { background: linear-gradient(90deg, #c9982a, #ffe08a); box-shadow: 0 0 12px rgba(255, 207, 90, .7); }
+  .items .it { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: baseline; padding: 6px 0 5px; border-top: 1px solid #161c2e; font-size: 12px; position: relative; }
+  .items .it:first-child { border-top: 0; }
+  .items .it .n { color: var(--muted); font: 11px/1 var(--f-num); } .items .it .u { color: var(--gold); font: 600 12px/1 var(--f-num); }
+  .items .it .sh { grid-column: 1 / -1; height: 3px; border-radius: 2px; background: #141a2a; overflow: hidden; } .items .it .sh i { display: block; height: 100%; background: var(--c); opacity: .75; }
+  .kw { display: flex; flex-wrap: wrap; gap: 5px; }
+  .kw span { font: 500 11px/1 var(--f-num); padding: 5px 7px; border-radius: 6px; background: color-mix(in srgb, var(--c) 12%, #0b101c); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); color: var(--ink); }
+  .rank { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; align-items: center; padding: 7px 9px; margin-bottom: 5px; border-radius: 9px; border: 1px solid #1c2440; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 10%, rgba(12,16,28,.7)), rgba(10,13,23,.6) 70%); cursor: pointer; transition: .15s; position: relative; overflow: hidden; }
+  .rank:hover { border-color: var(--c); }
+  .rank .no { font: 700 11px/1 var(--f-num); color: var(--muted); text-align: center; }
+  .rank.top .no { color: var(--gold); } .rank .no .i { width: 16px; height: 16px; color: var(--gold); filter: drop-shadow(0 0 5px rgba(255, 207, 90, .7)); }
+  .rank .nm { font: 600 12px/1.2 var(--f-ui); color: #fff; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rank .nm small { display: block; font: 10px/1.3 var(--f-num); color: var(--muted); }
+  .rank .v { font: 600 13px/1 var(--f-num); color: var(--gold); text-align: right; }
+  .rank .bg { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--c); opacity: .8; box-shadow: 0 0 8px var(--c); }
+  .pill.gold { color: var(--gold); } .pill .i { width: 11px; height: 11px; }
+  .plate .crown { display: inline-flex; color: var(--gold); margin: -2px -2px 0 -3px; } .plate .crown .i { width: 14px; height: 14px; filter: drop-shadow(0 0 5px rgba(255, 207, 90, .8)); }
+  .btn.wide { width: 100%; }
 
   #comms { position: absolute; left: 14px; bottom: 14px; width: 372px; max-height: min(30%, 214px); z-index: 3; display: flex; flex-direction: column; --c: #5fd4ff; transition: max-height .35s; }
   #comms .hd { display: flex; align-items: center; gap: 8px; padding: 9px 12px; cursor: pointer; font: 600 10px/1 var(--f-ui); letter-spacing: .2em; text-transform: uppercase; color: var(--ink2); border: 0; background: none; text-align: left; width: 100%; }
@@ -343,6 +374,51 @@
   .stb.new { background: rgba(61, 220, 151, .16); color: var(--good); } .stb.duplicate { background: rgba(122, 162, 255, .12); color: #9fb6ff; } .stb.skip { background: rgba(255, 255, 255, .05); color: var(--dim); }
   .btn[disabled] { opacity: .45; cursor: not-allowed; }
   @media (max-width: 900px) { #syncbox { position: fixed; } .sy-grid { grid-template-columns: 1fr; } .tiles.small { grid-template-columns: repeat(2, 1fr); } .map { grid-template-columns: 1fr 1fr; } .sy-head { flex-wrap: wrap; } }
+  /* room designer */
+  #roomsbox { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: rgba(2, 3, 8, .62); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  #roomsbox[hidden] { display: none; }
+  #roomsbox .box { position: relative; width: min(1100px, 95vw); max-height: 90vh; overflow: auto; padding: 22px 24px; --c: #ffcf5a; animation: tin .4s cubic-bezier(.2,.9,.3,1.2) both; scrollbar-width: thin; scrollbar-color: #2a3350 transparent; }
+  #roomsbox .x { position: absolute; right: 14px; top: 14px; }
+  #roomsbox h2 { margin: 0 0 4px; font: 700 18px/1.2 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; }
+  #roomsbox h3 { font: 600 10px/1 var(--f-ui); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin: 16px 0 9px; }
+  #roomsbox .lead { color: var(--ink2); margin: 0; max-width: 760px; }
+  .rd-ic { width: 54px; height: 54px; flex: none; border-radius: 14px; display: grid; place-items: center; color: var(--gold); background: radial-gradient(circle at 50% 70%, rgba(255, 207, 90, .25), rgba(10,14,24,.8)); box-shadow: inset 0 0 0 1px rgba(255, 207, 90, .45), 0 0 22px rgba(255, 207, 90, .25); }
+  .rd-ic .i { width: 26px; height: 26px; }
+  .rd-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.3fr); gap: 24px; }
+  .rrow { display: grid; grid-template-columns: 12px 1fr auto; gap: 9px; align-items: center; padding: 7px 8px 7px 10px; border-radius: 10px; border: 1px solid #1f2742; background: #0b101c; margin-bottom: 5px; cursor: pointer; transition: .15s; }
+  .rrow:hover { border-color: color-mix(in srgb, var(--rc) 55%, transparent); }
+  .rrow.on { border-color: var(--rc); background: color-mix(in srgb, var(--rc) 12%, #0b101c); box-shadow: 0 0 14px color-mix(in srgb, var(--rc) 20%, transparent); }
+  .rrow .sw { width: 12px; height: 12px; border-radius: 4px; background: var(--rc); box-shadow: 0 0 8px var(--rc); }
+  .rrow b { display: block; font-size: 12.5px; color: #fff; font-weight: 600; }
+  .rrow small { display: block; font: 10.5px/1.3 var(--f-num); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rrow .ac { display: flex; gap: 1px; }
+  .rrow .ac button { width: 25px; height: 25px; display: grid; place-items: center; border: 1px solid transparent; background: none; color: var(--muted); border-radius: 6px; cursor: pointer; padding: 0; }
+  .rrow .ac button:hover:not([disabled]) { color: #fff; border-color: #2a3452; } .rrow .ac button[disabled] { opacity: .25; cursor: default; }
+  .rrow .ac .i { width: 13px; height: 13px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+  .swatches button { width: 26px; height: 26px; border-radius: 8px; border: 2px solid transparent; background: var(--sc); cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0,0,0,.35); transition: .12s; padding: 0; }
+  .swatches button:hover { transform: translateY(-1px); } .swatches button.on { border-color: #fff; box-shadow: 0 0 12px var(--sc); }
+  .styles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .styles .tile { flex-direction: column; align-items: flex-start; gap: 4px; padding: 8px 9px; }
+  .styles .tile .i { width: 16px; height: 16px; color: var(--c); }
+  .chipin { display: flex; flex-wrap: wrap; gap: 5px; padding: 6px; border-radius: 8px; border: 1px solid #232b45; background: #080b14; cursor: text; }
+  .chipin:focus-within { border-color: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 18%, transparent); }
+  .chipin span { display: inline-flex; align-items: center; gap: 3px; font: 500 11.5px/1 var(--f-num); padding: 5px 3px 5px 8px; border-radius: 6px; background: color-mix(in srgb, var(--c) 14%, #0b101c); border: 1px solid color-mix(in srgb, var(--c) 42%, transparent); color: #fff; }
+  .chipin span button { border: 0; background: none; color: var(--muted); cursor: pointer; padding: 0 4px; font-size: 14px; line-height: 1; }
+  .chipin span button:hover { color: var(--bad); }
+  .chipin input { flex: 1; min-width: 130px; width: auto; border: 0; background: none; padding: 4px 5px; box-shadow: none !important; }
+  .sugg { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .sugg button { font: 500 11px/1 var(--f-num); padding: 6px 8px; border-radius: 6px; border: 1px dashed #33406a; background: none; color: var(--ink2); cursor: pointer; transition: .12s; }
+  .sugg button:hover { border-color: var(--cyan); color: #fff; background: rgba(95, 212, 255, .06); }
+  .claims { font-size: 11.5px; color: var(--muted); margin-top: 7px; line-height: 1.55; } .claims b { color: var(--good); font-weight: 600; }
+  .row4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .rd-form { padding: 14px 16px 16px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--c) 35%, #1c2440); background: linear-gradient(180deg, color-mix(in srgb, var(--c) 7%, rgba(12,16,28,.8)), rgba(10,13,23,.6)); }
+  .rd-form > h3:first-child { margin-top: 0; }
+  .rd-foot { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid #1c2338; }
+  .rd-foot .msg { flex: 1; min-width: 160px; }
+  .wel .tiles { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .wel .tile { padding: 12px; } .wel .tile .t-ic { width: 40px; height: 40px; }
+  @media (max-width: 900px) { #roomsbox { position: fixed; } .rd-grid { grid-template-columns: 1fr; } .row4, .styles { grid-template-columns: 1fr 1fr; } }
   #boot { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; background: radial-gradient(60% 60% at 50% 45%, #0d1224, #03040a); transition: opacity .7s ease, visibility .7s; }
   #boot.gone { opacity: 0; visibility: hidden; }
   #boot .in { text-align: center; }
@@ -382,7 +458,7 @@
     <div id="labels"></div>
     <div id="floats"></div>
     <div id="controls">
-      <div class="keys"><b>drag</b> pan · <b>scroll</b> zoom · <b>1–8</b> rooms · <b>esc</b> overview</div>
+      <div class="keys"><b>drag</b> pan · <b>scroll</b> zoom · <b>1–9</b> rooms · <b>esc</b> overview</div>
       <button class="cbtn glass" id="zin" title="Zoom in (+)"></button>
       <button class="cbtn glass" id="zout" title="Zoom out (−)"></button>
       <button class="cbtn glass" id="zhome" title="Whole station (F)"></button>
@@ -396,7 +472,7 @@
       <div style="min-width:0">
         <h1>REVENUE STATION</h1>
         <div class="sub">Every lit screen, crate, crew member and gold bar is a ledger line.</div>
-        <nav><a href="#" id="navSync" title="Income sync: link where you get paid (I)"></a><a href="/terminal" id="navTerm"></a><a href="/ledger" id="navLedger"></a><a href="#" id="navGuide"></a></nav>
+        <nav><a href="#" id="navSync" title="Income sync: link where you get paid (I)"></a><a href="#" id="navRooms" title="Customize rooms (C)"></a><a href="/terminal" id="navTerm"></a><a href="/ledger" id="navLedger"></a><a href="#" id="navGuide"></a></nav>
       </div>
     </div>
     <div class="res" id="res"></div>
@@ -408,6 +484,7 @@
   <div id="toasts" aria-live="polite"></div>
   <div id="guide" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Field guide"></div></div>
   <div id="syncbox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Income sync"></div></div>
+  <div id="roomsbox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Customize rooms"></div></div>
   <div id="boot"><div class="in">
     <svg class="logo" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 1.5l17.5 10v21L20 42.5 2.5 32.5v-21z" fill="#ffcf5a"/><path d="M20 7.5l12.3 7v14.6L20 36.3 7.7 29.1V14.5z" fill="#1c1204"/><path d="M23.6 16.4c-.8-1-2-1.5-3.3-1.5-2 0-3.5 1.1-3.5 2.6 0 3.6 7 1.8 7 5.3 0 1.5-1.6 2.6-3.7 2.6-1.4 0-2.7-.6-3.5-1.7M20.3 13v18" stroke="#ffcf5a" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
     <h1>REVENUE STATION</h1><div class="ln" id="bootLn">establishing ledger uplink</div><div class="bar"><i id="bootBar"></i></div>
@@ -419,7 +496,7 @@
   // ======================================================================= utilities
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const usd = (n) => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+  const usd = (n) => { const v = Number(n || 0); return (v < 0 ? '−$' : '$') + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: Math.abs(v) % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
   const usd2 = (n) => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
@@ -480,13 +557,20 @@
     warn: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
     book: '<path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5z"/><path d="M4 20.5A2.5 2.5 0 016.5 18H20v3H6.5"/>',
     bolt: '<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>',
+    scissors: '<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4L20 17M8.6 15.6L20 7"/>',
+    crown: '<path d="M4 19h16M5 16L3.5 7l5 4L12 4.5l3.5 6.5 5-4L19 16z"/>',
+    sliders: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    chevU: '<path d="M6 15l6-6 6 6"/>',
+    trash: '<path d="M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13"/>',
+    rooms: '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>',
   };
   const ic = (name) => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name] || ''}</svg>`;
 
   // ======================================================================= world constants
   const W = 960, H = 600, OX = 480, OY = 120, HW = 12, HH = 6, WH = 26, SLAB = 12;
   const CELL = 10, ROOM = 7;
-  const PATH_CELLS = [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [1, 2], [2, 2], [3, 1]];
+  const PATH_CELLS = [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [1, 2], [2, 2], [3, 1], [3, 0], [3, 2]];   // up to 10 rooms
   const HUB = [1, 1], DOCK = [0, 2];
   const DESKS = [[1, 1], [3, 1], [5, 1], [1, 4], [3, 4], [5, 4]];   // room-local, one per stage
   const STAGES = ['prospect', 'conversation', 'demo', 'pilot', 'paid', 'retained'];
@@ -503,7 +587,15 @@
     'content-channel': { accent: '#f472b6', screen: 'play', prop: 'camera' },
     'freelance-desk': { accent: '#22d3ee', screen: 'jobs', prop: 'coffee' },
   };
-  const themeOf = (id) => THEME[id] || { accent: '#7aa2ff', screen: 'bars', prop: 'plant' };
+  // A room's look: what its designer chose (colour, furniture style, wall screen, prop), else the built-in theme.
+  const themeOf = (id) => {
+    const t = THEME[id] || { accent: '#7aa2ff', screen: 'bars', prop: 'plant' };
+    const r = rooms.find((m) => m.id === id);
+    const sp = r && r.spec;
+    if (!sp) return { ...t, style: 'office' };
+    return { accent: sp.accent || t.accent, screen: sp.screen || t.screen, prop: sp.prop || t.prop, style: sp.style || (sp.kind === 'service' ? 'barber' : 'office') };
+  };
+  const isService = (room) => Boolean(room && room.spec && room.spec.kind === 'service');
   const roleCol = (r) => ROLE_COLOR[r] || '#9aa6c0';
   const roleTitle = (r) => (snap && snap.roles && snap.roles[r] ? snap.roles[r].title : r);
 
@@ -583,6 +675,10 @@
     hub: { key: 'hub', base: '#2d3550', dark: '#283048', light: '#36405e', seam: '#20273c', grate: '#232a40', rivet: '#56638a', hi: '#46527a', lo: '#1b2134' },
     dock: { key: 'dock', base: '#272d3a', dark: '#232834', light: '#2e3544', seam: '#1b2029', grate: '#1f242e', rivet: '#434d63', hi: '#394155', lo: '#181c25' },
     hall: { key: 'hall', base: '#1e232e', dark: '#1b1f29', light: '#242a36', seam: '#161a22', grate: '#171b24', rivet: '#353d4f', hi: '#2c3342', lo: '#12151c' },
+    // barbershop checkerboard and shop planks (room styles)
+    checkA: { key: 'checkA', base: '#c7cad3', dark: '#bdc0c9', light: '#d2d5dd', seam: '#b3b6bf', grate: '#c7cad3', rivet: '#c7cad3', hi: '#dde0e6', lo: '#a4a7b0' },
+    checkB: { key: 'checkB', base: '#22252d', dark: '#1e2128', light: '#292d36', seam: '#1a1c22', grate: '#22252d', rivet: '#22252d', hi: '#343944', lo: '#16181d' },
+    wood: { key: 'wood', base: '#5b4130', dark: '#51392a', light: '#684b37', seam: '#3c2a1e', grate: '#533b2b', rivet: '#6e503a', hi: '#735540', lo: '#3a291d' },
   };
   function tile(pal, v, hazard) {
     return cached('t' + pal.key + v + (hazard ? 'h' : ''), () => {
@@ -603,7 +699,7 @@
       return c;
     });
   }
-  const floorTile = (g, pal, x, y, hazard) => { const [sx, sy] = iso(x, y); const v = [0, 0, 1, 0, 1, 3, 2, 0][(hash2(x * 3, y * 5) * 8) | 0]; g.drawImage(tile(pal, v, hazard), sx - 12, sy); };
+  const floorTile = (g, pal, x, y, hazard, variant) => { const [sx, sy] = iso(x, y); const v = variant ?? [0, 0, 1, 0, 1, 3, 2, 0][(hash2(x * 3, y * 5) * 8) | 0]; g.drawImage(tile(pal, v, hazard), sx - 12, sy); };
 
   const C = {
     slab: { top: '#1a1f2c', left: '#161b27', right: '#10131c', rim: '#2a3142', edge: '#262d3d' },
@@ -622,6 +718,13 @@
     gold: { top: '#ffd766', rim: '#fff4bf', left: '#c9982a', right: '#a57a1c', edge: '#e6b848' },
     white: { top: '#e9ecf2', left: '#c9cfda', right: '#a9b0bf', rim: '#ffffff' },
     paper: { top: '#f2f5fb', left: '#cfd6e6', right: '#aab3c6', rim: '#ffffff' },
+    // barbershop and shop furniture
+    towel: { top: '#f3f5f9', left: '#d4d9e3', right: '#b3bac8', rim: '#ffffff' },
+    chrome: { top: '#c9d2e0', rim: '#f2f6ff', left: '#8e99ad', right: '#6f7a8e', edge: '#aab4c6' },
+    counter: { top: '#e6e2da', rim: '#fbf8f2', left: '#5a4436', right: '#47362b', edge: '#6b5242' },
+    frame: { top: '#3a3026', rim: '#c9a86a', left: '#2a221b', right: '#221b15', edge: '#8a7040' },
+    plank: { top: '#8a6446', rim: '#a57a58', left: '#5e4330', right: '#4b3526', edge: '#6e503a' },
+    blue: { top: '#56c3f0', rim: '#bfeaff', left: '#2f9bd8', right: '#1f78b0' },
   };
 
   function plantSprite(v) {
@@ -685,6 +788,7 @@
     4: ['101', '101', '111', '001', '001'], 5: ['111', '100', '111', '001', '111'], 6: ['111', '100', '111', '101', '111'], 7: ['111', '001', '010', '010', '010'],
     8: ['111', '101', '111', '101', '111'], 9: ['111', '101', '111', '001', '111'], L: ['100', '100', '100', '100', '111'],
     O: ['111', '101', '101', '101', '111'], U: ['101', '101', '101', '101', '111'], T: ['111', '010', '010', '010', '010'], B: ['110', '101', '110', '101', '110'], X: ['101', '101', '010', '101', '101'],
+    P: ['110', '101', '110', '100', '100'], E: ['111', '100', '110', '100', '111'], N: ['101', '111', '111', '101', '101'],
   };
   function glyphs(g, text, x, y, col, s = 1) {
     g.fillStyle = col;
@@ -1106,14 +1210,44 @@
   let baked = { surf: [], free: [], lights: [] }, bakedSig = '';
 
   function signature() {
-    const parts = [snap.level.level, JSON.stringify(snap.outbox || {})];
+    const parts = [snap.level.level, JSON.stringify(snap.outbox || {}), catSig(snap.catalog)];
     for (const r of rooms) {
       const p = pathState(r.id);
+      if (isService(r)) { const sv = svcStats(r); parts.push(r.id, roomLook(r), Math.min(6, sv.today), Math.min(16, sv.monthCount), sv.goal ? Math.round(Math.min(1.2, sv.monthUsd / sv.goal) * 40) : -1); continue; }
       parts.push(r.id, roomLook(r), stageInfo(r).map((s) => s.n + (s.next ? 'n' : '')).join(','), p.posts.map((x) => x.platform + (x.earnedUsd > 0 ? '$' : '')).join(','),
         Math.round(Math.min(1, p.spentUsd / (r.spec.budgetUsd || 1)) * 40), STAGES.reduce((s, st) => s + p.refs[st].length, 0));
     }
     return parts.join('|');
   }
+  const catSig = (cat) => JSON.stringify((cat || []).map((p) => [p.id, p.name, p.short, p.kind, p.accent, p.style, p.screen, p.prop, p.rank]));
+
+  // ---- service rooms: what sold, what it earned, what it cost in supplies and time. All read from the ledger.
+  const DAY = 86400e3;
+  function svcStats(room, days = 30) {
+    const sp = room.spec, now = Date.now(), from = days ? now - days * DAY : 0;
+    const all = snap.state.moneyIn.filter((e) => e.path === room.id);
+    const inP = all.filter((e) => Date.parse(e.ts) >= from);
+    const count = inP.reduce((a, e) => a + (e.qty || 1), 0);
+    const revenue = inP.reduce((a, e) => a + e.usd, 0);
+    const tips = inP.reduce((a, e) => a + (e.tip || 0), 0);
+    const cost = count * (sp.costUsd || 0), profit = revenue - cost;
+    const hours = count * (sp.minutes || 0) / 60;
+    const d0 = new Date(); d0.setHours(0, 0, 0, 0);
+    const m0 = new Date(d0.getFullYear(), d0.getMonth(), 1).getTime();
+    const today = all.filter((e) => Date.parse(e.ts) >= d0.getTime()).reduce((a, e) => a + (e.qty || 1), 0);
+    const month = all.filter((e) => Date.parse(e.ts) >= m0);
+    return {
+      count, revenue, tips, cost, profit, hours, perHour: hours > 0 ? profit / hours : null, avg: count ? revenue / count : 0, today,
+      monthUsd: month.reduce((a, e) => a + e.usd, 0), monthCount: month.reduce((a, e) => a + (e.qty || 1), 0), goal: sp.goalUsd || 0, lines: inP,
+    };
+  }
+  // Rank the service rooms: profit per hour of chair time by default (money after supplies, divided by time spent).
+  function serviceRanking(days = 30, metric = 'perHour') {
+    const rows = rooms.filter(isService).map((m) => ({ room: m, s: svcStats(m, days) }));
+    const val = (r) => (metric === 'revenue' ? r.s.revenue : metric === 'count' ? r.s.count : metric === 'profit' ? r.s.profit : (r.s.perHour ?? -Infinity));
+    return rows.sort((a, b) => val(b) - val(a) || b.s.revenue - a.s.revenue).map((r) => ({ ...r, value: val(r) }));
+  }
+  const topRoomId = () => { const r = serviceRanking(30, 'perHour').find((x) => x.s.count > 0 && x.s.perHour !== null); return r ? r.room.id : null; };
 
   // Wall screen content generators: (t along the wall, u up the wall) -> colour. Decoration.
   const SCREEN = {
@@ -1244,14 +1378,19 @@
       const look = roomLook(room), th = themeOf(room.id), p = pathState(room.id);
       const d = doorsOf(room.c, room.r);
       run(bbBox(x0 + 3.5, y0 + 3.5, 3.6, 3.6, 1), (g) => {
+        const checker = th.style === 'barber' && look === 'active', planks = th.style === 'shop' && look === 'active';
         for (let i = 0; i < ROOM; i++) for (let j = 0; j < ROOM; j++) {
           const entry = look === 'gated' && ((i === 3 && ((j === 0 && d.n) || (j === 6 && d.s))) || (j === 3 && ((i === 0 && d.w) || (i === 6 && d.e))));
-          floorTile(g, roomPal(look), x0 + i, y0 + j, entry);
+          if (checker) floorTile(g, (i + j) % 2 ? FLOOR.checkB : FLOOR.checkA, x0 + i, y0 + j, false, 0);
+          else if (planks) floorTile(g, FLOOR.wood, x0 + i, y0 + j, false, (i + j) % 3 ? 1 : 0);
+          else floorTile(g, roomPal(look), x0 + i, y0 + j, entry);
         }
         const tint = look === 'active' ? th.accent : look === 'gated' ? '#8a6a2a' : look === 'killed' ? '#6a2a2a' : '#4a4f5c';
-        const base = roomPal(look).base;
+        const base = checker ? '#22252d' : planks ? FLOOR.wood.base : roomPal(look).base;
         const rugIn = mix(tint, base, 0.8), rugEdge = mix(tint, base, 0.42), rugDot = mix(tint, base, 0.62);
-        quad(g, x0 + 0.7, y0 + 2.72, x0 + 6.05, y0 + 3.98, 0, (u, v, X, Y) => {
+        // runner rug down the aisle (a barbershop gets a narrower mat so the checkerboard shows)
+        const rug = checker ? [x0 + 1.2, y0 + 3.0, x0 + 5.8, y0 + 3.7] : [x0 + 0.7, y0 + 2.72, x0 + 6.05, y0 + 3.98];
+        quad(g, rug[0], rug[1], rug[2], rug[3], 0, (u, v, X, Y) => {
           if (v < 0.09 || v > 0.91 || u < 0.02 || u > 0.98) return rugEdge;
           if (v > 0.18 && v < 0.82 && (X + Y * 2) % 8 === 0) return rugDot;
           return rugIn;
@@ -1261,9 +1400,14 @@
         const stencil = mix(tint, base, 0.62);
         quad(g, x0 + 5.1, y0 + 5.75, x0 + 6.85, y0 + 6.75, 0, (u, v) => { const ci = Math.floor(u * cols.length), ri = Math.floor(v * 5); const col = cols[ci]; return col && col[ri] ? stencil : null; });
         ao(g, x0, y0);
-        for (let i = 0; i < 6; i++) { const [cx, cy] = deskCenter(room, i); shadow(g, cx, cy, 0.44, 0.3); shadow(g, cx, cy + 0.66, 0.18, 0.16, 0.26); }
+        for (let i = 0; i < 6; i++) {
+          const [cx, cy] = deskCenter(room, i);
+          if (th.style === 'barber') { shadow(g, cx, cy - 0.18, 0.44, 0.14); shadow(g, cx, cy + 0.56, 0.22, 0.22, 0.3); }
+          else if (th.style === 'shop') shadow(g, cx, cy, 0.44, 0.3);
+          else { shadow(g, cx, cy, 0.44, 0.3); shadow(g, cx, cy + 0.66, 0.18, 0.16, 0.26); }
+        }
         shadow(g, x0 + 0.62, y0 + 0.62, 0.34, 0.34, 0.42);
-        if (STAGES.some((st) => p.refs[st].length)) shadow(g, x0 + 6.43, y0 + 0.53, 0.34, 0.34, 0.36);
+        if (isService(room) ? svcStats(room).monthCount : STAGES.some((st) => p.refs[st].length)) shadow(g, x0 + 6.43, y0 + 0.53, 0.34, 0.34, 0.36);
         if (th.prop !== 'plant') shadow(g, x0 + PROP[0], y0 + PROP[1], 0.24, 0.36, 0.36);
         if (look === 'killed') {
           const [sx, sy] = P(x0 + 3.5, y0 + 3.5);
@@ -1353,7 +1497,23 @@
       light(x0 + 3.5, y0 + 5.6, 120, lampCol, lampA * 0.9, mode, 2.1);
       if (gated) { light(x0 + 3.5, y0 + 6.8, 60, '#ffb347', 0.85, 'beacon', 0); light(x0 + 6.8, y0 + 3.5, 60, '#ffb347', 0.85, 'beacon', 1.6); }
 
-      if (th.screen !== 'none') push(x0 + 5 + y0 - 0.85, bbBox(x0 + 5, y0 + 0.08, 1, 0.12, 23), (g) => {
+      const svc = isService(room), sv = svc ? svcStats(room) : null;
+      // a neon OPEN sign: the tubes glow while the room is open for business, with the odd flicker
+      if (th.screen === 'open') push(x0 + 5 + y0 - 0.85, bbBox(x0 + 5, y0 + 0.08, 1, 0.12, 23), (g) => {
+        const p0 = P(x0 + 4.1, y0 + 0.08), p1 = P(x0 + 5.9, y0 + 0.08);
+        band(g, p0, p1, 10, 21, '#0e1118');
+        band(g, p0, p1, 10, 11, '#2a3142');
+        const cols = glyphCols('OPEN');
+        const X0 = Math.round(p0[0]) + Math.floor((Math.round(p1[0]) - Math.round(p0[0]) - (cols.length - 1)) / 2);
+        const tube = off ? '#3a2228' : '#ff4a5a', rim = off ? '#1d2433' : accent, seed = room.c * 5 + room.r;
+        const letters = (c, col) => facePix(c, p0, p1, 13, 18, (t, u, X, k) => { const cl = cols[X - X0]; return cl && cl[4 - k] ? col : null; });
+        const frame = (c, col) => facePix(c, p0, p1, 11, 20, (t, u, X, k) => (k === 0 || k === 8 || t < 0.05 || t > 0.95 ? col : null));
+        if (off) { letters(g, tube); frame(g, rim); }
+        else E.surf((c) => { const fl = hash2(Math.floor(T * 6), seed) < 0.05; letters(c, fl ? '#6a1a24' : tube); frame(c, (T * 0.5 + seed) % 1 < 0.94 ? rim : shade(rim, -80)); },
+          (c) => { letters(c, '#fff'); frame(c, '#fff'); });
+        if (!off) light(x0 + 5, y0 + 0.6, 60, '#ff4a5a', 0.45);
+      });
+      else if (th.screen !== 'none' && SCREEN[th.screen]) push(x0 + 5 + y0 - 0.85, bbBox(x0 + 5, y0 + 0.08, 1, 0.12, 23), (g) => {
         const p0 = P(x0 + 4.08, y0 + 0.08), p1 = P(x0 + 5.92, y0 + 0.08);
         band(g, p0, p1, 5, 22, '#2a3142');
         band(g, p0, p1, 6, 21, '#0b0e15');
@@ -1375,14 +1535,15 @@
         });
       });
 
-      const ratio = room.spec.budgetUsd > 0 ? Math.min(1, p.spentUsd / room.spec.budgetUsd) : 0;
+      // the corner tube: agent spend against budget in a pipeline room, this month's takings against the goal in a service room
+      const ratio = svc ? (sv.goal > 0 ? Math.min(1, sv.monthUsd / sv.goal) : 0) : room.spec.budgetUsd > 0 ? Math.min(1, p.spentUsd / room.spec.budgetUsd) : 0;
       push(x0 + y0 + 1.1, bbBox(x0 + 0.62, y0 + 0.62, 0.36, 0.36, 36), (g) => {
         const cx = x0 + 0.62, cy = y0 + 0.62;
         box(g, cx, cy, 0.34, 0.34, 5, C.metal);
         box(g, cx, cy, 0.22, 0.22, 26, C.glass, 5);
         facePix(g, P(cx - 0.22, cy + 0.22), P(cx + 0.22, cy + 0.22), 6, 30, (t) => (Math.abs(t - 0.25) < 0.08 ? '#4a6d8c' : null));
         box(g, cx, cy, 0.3, 0.3, 3, C.metal, 31);
-        const ec = ratio > 0.8 ? '#ff4d4d' : ratio > 0.5 ? '#ffa23d' : '#3ddc97';
+        const ec = svc ? (ratio >= 1 ? '#ffcf5a' : '#3ddc97') : ratio > 0.8 ? '#ff4d4d' : ratio > 0.5 ? '#ffa23d' : '#3ddc97';
         const fillH = Math.max(0, Math.round(24 * ratio));
         E.surf((c) => {
           if (fillH > 0) box(c, cx, cy, 0.15, 0.15, fillH, { top: shade(ec, 60), left: ec, right: shade(ec, -40), rim: '#ffffff' }, 6);
@@ -1391,22 +1552,92 @@
         if (fillH > 0) light(cx, cy, 44, ec, 0.55, 'pulse', 0.5, 10);
       });
 
-      const nOut = Math.min(16, STAGES.reduce((s, st) => s + p.refs[st].length, 0));
+      // the stack in the corner: logged outcomes in a pipeline room, this month's sales in a service room
+      // (a barber room stacks folded towels instead of crates)
+      const nOut = svc ? Math.min(16, sv.monthCount) : Math.min(16, STAGES.reduce((s, st) => s + p.refs[st].length, 0));
+      const towels = svc && th.style === 'barber';
       if (nOut) push(x0 + 6 + y0 + 1.1, bbBox(x0 + 6.43, y0 + 0.53, 0.4, 0.4, 30), (g) => {
         for (let k = 0; k < nOut; k++) {
           const layer = Math.floor(k / 4), i = k % 4, gx = i % 2, gy = Math.floor(i / 2);
           const cx = x0 + 6.25 + gx * 0.36, cy = y0 + 0.35 + gy * 0.36;
+          if (towels) {
+            box(g, cx, cy, 0.15, 0.15, 3, C.towel, layer * 3);
+            band(g, P(cx - 0.15, cy + 0.15), P(cx + 0.15, cy + 0.15), layer * 3 + 1, layer * 3 + 2, shade(accent, -10));
+            continue;
+          }
           box(g, cx, cy, 0.16, 0.16, 7, C.crate, layer * 7);
           facePix(g, P(cx - 0.16, cy + 0.16), P(cx + 0.16, cy + 0.16), layer * 7, layer * 7 + 7, (t, u) => (Math.abs(t - 0.5) < 0.1 || Math.abs(u - 0.5) < 0.12 ? '#5a3f22' : null));
           facePix(g, P(cx + 0.16, cy + 0.16), P(cx + 0.16, cy - 0.16), layer * 7, layer * 7 + 7, (t, u) => (Math.abs(u - 0.5) < 0.12 ? '#4a321a' : null));
         }
       });
 
-      info.forEach((s, i) => {
+      // In a service room each station lights up for a sale made today: the first sale lights one chair, and so on.
+      const todayLit = svc ? Math.min(6, sv.today) : 0;
+      info.forEach((s0, i) => {
+        const s = svc ? { ...s0, done: i < todayLit, next: false } : s0;
         const [cx, cy] = deskCenter(room, i);
         const chairCol = look === 'active' ? mix(accent, '#1c212c', 0.5) : '#2f3544';
         const chair = { top: chairCol, rim: shade(chairCol, 30), left: shade(chairCol, -22), right: shade(chairCol, -36) };
         const key = room.id + ':' + i;
+        if (th.style === 'barber') {
+          // a barber's station: counter and mirror ringed with bulbs, then the chair facing it
+          push(cx + cy, bbBox(cx, cy - 0.12, 0.46, 0.22, 26), (g) => {
+            box(g, cx, cy - 0.12, 0.44, 0.18, 7, C.counter);
+            band(g, P(cx - 0.44, cy + 0.06), P(cx + 0.44, cy + 0.06), 2, 3, '#3a2c22');
+            for (const d of [-0.22, 0.22]) facePix(g, P(cx + d - 0.16, cy + 0.06), P(cx + d + 0.16, cy + 0.06), 3, 6, (t, u) => (t < 0.08 || t > 0.92 || u > 0.85 ? '#3a2c22' : null));
+            box(g, cx, cy - 0.27, 0.38, 0.03, 18, C.frame, 7);
+            const q0 = P(cx - 0.33, cy - 0.235, 7), q1 = P(cx + 0.33, cy - 0.235, 7);
+            facePix(g, q0, q1, 2, 16, (t, u) => { const streak = Math.abs(t * 0.9 + u * 0.5 - 0.62); return streak < 0.06 ? '#e6f0f8' : streak < 0.12 ? '#b8cadb' : mix('#6f8499', '#94a9bd', u); });
+            box(g, cx + 0.3, cy - 0.08, 0.05, 0.05, 5, C.blue, 7);
+            box(g, cx + 0.3, cy - 0.08, 0.05, 0.05, 1, C.dark, 12);
+            box(g, cx - 0.28, cy - 0.06, 0.08, 0.03, 1, C.dark, 7);
+            box(g, cx - 0.08, cy - 0.1, 0.03, 0.03, 4, { top: shade(accent, 30), left: accent, right: shade(accent, -30) }, 7);
+            const bulbs = [];
+            for (let k = 0; k < 7; k++) { const [bx, by] = P(cx - 0.33 + (k / 6) * 0.66, cy - 0.235, 7 + 18); bulbs.push([Math.round(bx), Math.round(by)]); }
+            for (const h of [6, 11]) for (const e of [-0.36, 0.36]) { const [bx, by] = P(cx + e, cy - 0.235, 7 + h); bulbs.push([Math.round(bx), Math.round(by)]); }
+            const dot = (c, col) => { c.fillStyle = col; for (const [X, Y] of bulbs) c.fillRect(X, Y, 1, 1); };
+            if (s.done) E.still((c) => dot(c, '#ffe6a8'));
+            else dot(g, '#5a4d36');
+            E.surf((c) => {
+              const busy = deskBusy.get(key);
+              if (busy) { const head = Math.floor(T * 10); c.fillStyle = busy; bulbs.forEach(([X, Y], k) => { if ((head - k) % 4 === 0) c.fillRect(X, Y, 1, 1); }); return; }
+              if (s.done && (deskFlash.get(key) || 0) > performance.now() && Math.floor(T * 8) % 2) dot(c, '#ffffff');
+            }, (c) => dot(c, '#fff'));
+            if (s.done) light(cx, cy + 0.1, 38, '#ffe6a8', 0.45);
+          });
+          const leather = look === 'active' ? mix(accent, '#1a0f10', 0.45) : '#2f3544';
+          const seat = { top: shade(leather, 18), rim: shade(leather, 45), left: shade(leather, -18), right: shade(leather, -36) };
+          push(cx + cy + 0.8, bbBox(cx, cy + 0.55, 0.3, 0.3, 18), (g) => {
+            box(g, cx, cy + 0.55, 0.14, 0.14, 2, C.chrome);
+            box(g, cx, cy + 0.55, 0.04, 0.04, 4, C.chrome, 2);
+            box(g, cx, cy + 0.32, 0.11, 0.05, 1, C.chrome, 3);
+            box(g, cx, cy + 0.55, 0.19, 0.17, 3, seat, 6);
+            for (const d of [-0.2, 0.2]) box(g, cx + d, cy + 0.54, 0.03, 0.15, 2, C.chrome, 9);
+            box(g, cx, cy + 0.72, 0.18, 0.04, 7, seat, 7);
+            box(g, cx, cy + 0.72, 0.07, 0.03, 2, seat, 14);
+          });
+          return;
+        }
+        if (th.style === 'shop') {
+          // a display table of stock, with a stool to sit at between customers
+          push(cx + cy, bbBox(cx, cy, 0.46, 0.34, 20), (g) => {
+            for (const [dx, dy] of [[-0.38, -0.24], [0.38, -0.24], [-0.38, 0.24], [0.38, 0.24]]) box(g, cx + dx, cy + dy, 0.04, 0.04, 6, C.plank);
+            box(g, cx, cy, 0.44, 0.3, 2, C.plank, 6);
+            const seed = room.c * 11 + room.r * 3 + i;
+            for (let k = 0; k < 6; k++) {
+              const gx = -0.3 + (k % 3) * 0.3, gy = -0.12 + Math.floor(k / 3) * 0.22, tall = 3 + Math.round(hash2(k, seed) * 4);
+              const col = [accent, '#e9ecf2', '#2a2f3a', shade(accent, 50)][Math.floor(hash2(k + 5, seed) * 4)];
+              box(g, cx + gx, cy + gy, 0.07, 0.06, tall, { top: shade(col, 25), left: col, right: shade(col, -35), rim: shade(col, 50) }, 8);
+            }
+            const tag = [];
+            for (let k = 0; k < 7; k++) { const [tx2, ty2] = P(cx - 0.3 + k * 0.1, cy + 0.3, 7); tag.push([Math.round(tx2), Math.round(ty2)]); }
+            if (s.done) E.still((c) => { c.fillStyle = accent; for (const [X, Y] of tag) c.fillRect(X, Y, 1, 1); });
+            E.surf((c) => { const busy = deskBusy.get(key); if (!busy) return; c.fillStyle = busy; const head = Math.floor(T * 10); tag.forEach(([X, Y], k) => { if ((head - k) % 3 === 0) c.fillRect(X, Y, 1, 1); }); }, (c) => { c.fillStyle = '#fff'; for (const [X, Y] of tag) c.fillRect(X, Y, 1, 1); });
+            if (s.done) light(cx, cy + 0.3, 30, accent, 0.4);
+          });
+          push(cx + cy + 0.8, bbBox(cx, cy + 0.64, 0.2, 0.2, 8), (g) => { box(g, cx, cy + 0.64, 0.03, 0.03, 4, C.leg); box(g, cx, cy + 0.64, 0.13, 0.13, 1, C.plank, 4); });
+          return;
+        }
         push(cx + cy, bbBox(cx, cy, 0.46, 0.34, 21), (g) => {
           box(g, cx, cy - 0.24, 0.4, 0.03, 6, C.leg);
           box(g, cx - 0.38, cy, 0.05, 0.27, 6, C.leg);
@@ -1441,6 +1672,7 @@
             else if (s.next && !gated) litScr(c, Math.floor(T * 2) % 2 ? '#7aa2ff' : '#3d5fb0');
           }, (c) => facePix(c, q0, q1, 1, 8, () => '#fff'));
           if (s.done || s.next) light(cx, cy + 0.3, 34, s.done ? '#3ddc97' : gated ? '#f5a623' : '#7aa2ff', 0.42, s.next && !gated ? 'blink' : 'steady');
+          if (svc) return;
           const pips = Math.min(6, s.target), lit = Math.min(pips, Math.round(pips * Math.min(1, s.n / s.target)));
           const pipPts = [];
           for (let k = 0; k < pips; k++) { const f = (k + 0.5) / pips; const [ex, ey] = P(cx - 0.36 + f * 0.72, cy + 0.3, 7); pipPts.push([Math.round(ex), Math.round(ey) - 1, k < lit]); }
@@ -1630,6 +1862,46 @@
         const [lx, ly] = P(cx, cy, 17);
         E.free((c) => { if (off) return; for (let k = 0; k < 4; k++) { const yy = (T * 8 + k * 3) % 10; c.fillStyle = `rgba(230,240,255,${(0.4 * (1 - yy / 10)).toFixed(3)})`; c.fillRect(Math.round(lx + Math.sin(T * 2 + k) * 1.5), Math.round(ly - yy), 1, 1); } });
       }
+      return;
+    }
+    if (kind === 'pole') {
+      // barber pole: chrome base and cap, a glass tube with the red-white-blue spiral turning while the room is open
+      const px0 = cx, py0 = cy - 0.3, a = 0.09;
+      box(g, px0, py0, 0.15, 0.15, 3, C.chrome);
+      box(g, px0, py0, a + 0.02, a + 0.02, 2, C.chrome, 3);
+      box(g, px0, py0, a + 0.02, a + 0.02, 2, C.chrome, 25);
+      box(g, px0, py0, 0.05, 0.05, 2, C.chrome, 27);
+      const [kx, ky] = P(px0, py0, 30);
+      g.fillStyle = '#e8eef8'; g.fillRect(Math.round(kx) - 1, Math.round(ky) - 1, 3, 2); g.fillStyle = '#ffffff'; g.fillRect(Math.round(kx) - 1, Math.round(ky) - 1, 1, 1);
+      const L0 = P(px0 - a, py0 + a, 5), L1 = P(px0 + a, py0 + a, 5), R1 = P(px0 + a, py0 - a, 5);
+      const stripe = (X, k, dark) => {
+        const s = ((k + X * 0.9 + (off ? 0 : T * 9)) % 9 + 9) % 9;
+        const col = s < 2.6 ? '#e8323c' : s < 4.5 ? '#f4f6fa' : s < 7.1 ? '#2a5bd7' : '#f4f6fa';
+        return dark ? shade(col, -45) : col;
+      };
+      box(g, px0, py0, a, a, 20, C.glass, 5);
+      if (off) { facePix(g, L0, L1, 0, 20, (t, u, X, k) => shade(stripe(X, k, false), -70)); facePix(g, L1, R1, 0, 20, (t, u, X, k) => shade(stripe(X, k, true), -60)); return; }
+      E.surf((c) => { facePix(c, L0, L1, 0, 20, (t, u, X, k) => (t > 0.3 && t < 0.45 ? '#ffffff' : stripe(X, k, false))); facePix(c, L1, R1, 0, 20, (t, u, X, k) => stripe(X, k, true)); },
+        (c) => { facePix(c, L0, L1, 0, 20, () => '#fff'); facePix(c, L1, R1, 0, 20, () => '#fff'); });
+      light(px0, py0 + 0.4, 46, '#ff7a86', 0.3, 'steady', 0, 12);
+      return;
+    }
+    if (kind === 'register') {
+      // a cash counter with the register and card reader on it
+      box(g, cx, cy, 0.3, 0.44, 10, C.counter);
+      band(g, P(cx - 0.3, cy + 0.44), P(cx + 0.3, cy + 0.44), 3, 4, '#3a2c22');
+      box(g, cx, cy - 0.1, 0.17, 0.2, 4, C.dark, 10);
+      box(g, cx + 0.02, cy - 0.12, 0.13, 0.16, 1, C.keys, 14);
+      box(g, cx - 0.08, cy - 0.12, 0.05, 0.13, 5, C.dark, 14);
+      box(g, cx + 0.1, cy + 0.24, 0.05, 0.07, 3, C.mon, 10);
+      const d0 = P(cx - 0.03, cy - 0.23, 15), d1 = P(cx - 0.03, cy - 0.01, 15);
+      const r0 = P(cx + 0.15, cy + 0.31, 10), r1 = P(cx + 0.15, cy + 0.17, 10);
+      if (off) { facePix(g, d0, d1, 1, 4, () => '#0c1210'); return; }
+      E.surf((c) => {
+        facePix(c, d0, d1, 1, 4, (t, u, X, k) => (hash2(X, k + Math.floor(T * 0.7)) < 0.55 ? '#3ddc97' : '#0e2a1e'));
+        facePix(c, r0, r1, 1, 2, () => (Math.floor(T * 1.5) % 2 ? accent : shade(accent, -60)));
+      }, (c) => { facePix(c, d0, d1, 1, 4, () => '#fff'); facePix(c, r0, r1, 1, 2, () => '#fff'); });
+      light(cx, cy, 40, '#3ddc97', 0.25, 'steady', 0, 14);
       return;
     }
     if (kind === 'camera') {
@@ -2205,12 +2477,13 @@
   const shortName = (spec) => spec.short || spec.name.replace(/,.*$/, '').slice(0, 30);
   function buildLabels() {
     if (!snap) return;
-    const html = [], anchors = [];
+    const html = [], anchors = [], topId = topRoomId();
     for (const room of rooms) {
       const look = roomLook(room), p = pathState(room.id);
       const live = snap.state.running.filter((r) => r.path === room.id).length;
       const tag = look !== 'active' ? `<span class="tag ${look}">${look.toUpperCase()}</span>` : live ? '<span class="tag live">LIVE</span>' : '';
-      html.push(`<div class="lbl${selected === room.id ? ' sel' : ''}" style="--c:${themeOf(room.id).accent}"><i class="stem"></i><div class="plate" data-sel="${esc(room.id)}"><b class="rk">${String(room.spec.rank).padStart(2, '0')}</b><span class="nm">${esc(shortName(room.spec))}</span><span class="m">${usd(p.earnedUsd)}</span>${tag}</div></div>`);
+      const crown = room.id === topId ? `<span class="crown" title="Most profit per hour, last 30 days">${ic('crown')}</span>` : '';
+      html.push(`<div class="lbl${selected === room.id ? ' sel' : ''}" style="--c:${themeOf(room.id).accent}"><i class="stem"></i><div class="plate" data-sel="${esc(room.id)}"><b class="rk">${String(room.spec.rank).padStart(2, '0')}</b>${crown}<span class="nm">${esc(shortName(room.spec))}</span><span class="m">${usd(p.earnedUsd)}</span>${tag}</div></div>`);
       anchors.push({ id: room.id, pt: P(room.x0 + 3.5, room.y0, WH + 4) });
     }
     const hubO = cellOrigin(...HUB), dockO = cellOrigin(...DOCK);
@@ -2283,6 +2556,11 @@
     } else if (hit.t.id === 'dock') {
       const n = Object.values(snap.outbox || {}).reduce((s, x) => s + x, 0);
       html = `<div class="h"><span class="sw"></span>Outbox dock</div><div class="s">${n} draft${n === 1 ? '' : 's'} written by agents, waiting for you to send</div><div class="hint">click for drafts by path</div>`;
+    } else if (isService(hit.t.room)) {
+      const room = hit.t.room, sv = svcStats(room, 30), rk = serviceRanking(30, 'perHour'), pos = rk.findIndex((r) => r.room.id === room.id) + 1;
+      html = `<div class="h"><span class="sw"></span>${room.id === topRoomId() ? ic('crown').replace('class="i"', 'class="i" style="width:12px;height:12px;color:var(--gold);vertical-align:-2px"') + ' ' : ''}${esc(shortName(room.spec))}</div><div class="s">${usd(pathState(room.id).earnedUsd)} all time · ${sv.today} today</div>` +
+        `<div class="s">30 days: ${sv.count} sold · ${usd(Math.round(sv.revenue))} · ${perHr(sv.perHour)}${sv.count && pos ? ` · #${pos} of ${rk.length}` : ''}</div>` +
+        (sv.goal ? `<div class="b"><i style="width:${Math.min(100, 100 * sv.monthUsd / sv.goal)}%"></i></div>` : '') + '<div class="hint">click for stats</div>';
     } else {
       const room = hit.t.room, p = pathState(room.id), info = stageInfo(room), next = info.find((s) => s.next), done = info.filter((s) => s.done).length;
       html = `<div class="h"><span class="sw"></span>#${room.spec.rank} ${esc(shortName(room.spec))}</div><div class="s">${roomLook(room)} · ${usd(p.earnedUsd)} earned · stage ${done}/6</div>` +
@@ -2477,6 +2755,7 @@
     const el = $('#panel');
     el.classList.remove('panel-in'); void el.offsetWidth; if (force) el.classList.add('panel-in');
     if (selected === 'dock') renderDock(el);
+    else if (room && isService(room)) renderService(el, room);
     else if (room) renderRoom(el, room);
     else renderRoster(el);
     if (force) el.scrollTop = 0;
@@ -2486,18 +2765,36 @@
     $('#inspector').style.setProperty('--room', '#ffcf5a');
     const list = rooms.map((m) => ({ m, p: pathState(m.id), look: roomLook(m), info: stageInfo(m) })).sort((a, b) => b.p.earnedUsd - a.p.earnedUsd || a.m.spec.rank - b.m.spec.rank);
     const open = snap.quests.filter((q) => q.status !== 'done').slice(0, 5);
+    const svcRooms = rooms.filter(isService), allSvc = svcRooms.length && svcRooms.length === rooms.length;
+    const rk = svcRooms.length ? serviceRanking(rankDays, rankMetric) : [];
+    const rkMax = Math.max(1e-9, ...rk.map((r) => (Number.isFinite(r.value) ? Math.abs(r.value) : 0)));
+    const anySold = rk.some((r) => r.s.count > 0);
+    // money on the ledger that no room shows: items no room claims whose room was removed. It still counts in the vault.
+    const orphan = st.moneyIn.filter((e) => !roomById(e.path)), orphanUsd = orphan.reduce((a, e) => a + e.usd, 0);
+    const lead = allSvc ? 'Each room is one service. Every sale lands in its room and totals in the vault at the centre. Click a card, a room or its label.'
+      : 'Every lit screen, crate, crew member and gold bar is a ledger line. Each room is one money path, ranked here by what it has earned. Click a card, a room or its label.';
     el.innerHTML = `
-      <div class="ih"><div class="big" style="--c:#ffcf5a">${ic('vault').replace('class="i"', 'class="i" style="width:24px;height:24px"')}</div><div><h2>Station roster</h2><div class="chips"><span class="pill cyan${st.running.length ? ' live' : ''}"><span class="d"></span>${st.running.length} working · ${crewTotal()} crew</span><span class="pill">${usd(st.earnedUsd)} earned</span></div></div></div>
-      <div class="muted small">Every lit screen, crate, crew member and gold bar is a ledger line. Each room is one money path, ranked here by what it has earned. Click a card, a room or its label.</div>
-      <div class="sec"><h3>Money paths</h3>${list.map(({ m, p, look, info }) => {
+      <div class="ih"><div class="big" style="--c:#ffcf5a">${ic('vault').replace('class="i"', 'class="i" style="width:24px;height:24px"')}</div><div><h2>${esc(stationName())}</h2><div class="chips"><span class="pill cyan${st.running.length ? ' live' : ''}"><span class="d"></span>${st.running.length} working · ${crewTotal()} crew</span><span class="pill">${usd(st.earnedUsd)} earned</span></div></div></div>
+      <div class="muted small">${lead}</div>
+      ${rk.length ? `<div class="sec"><h3>Service rankings</h3><div class="segs">${segHtml('data-rdays', PERIODS.slice(0, 3).concat([[0, 'All']]), rankDays)}${segHtml('data-metric', METRICS, rankMetric)}</div>
+        ${anySold ? '' : '<div class="muted small" style="margin-bottom:6px">Rankings fill in as sales land: link Square under Sync, or log a sale in any room.</div>'}
+        ${rk.map((r, i) => { const acc = themeOf(r.room.id).accent, lead1 = i === 0 && r.s.count > 0; const w = Number.isFinite(r.value) ? Math.max(0, 100 * r.value / rkMax) : 0;
+          return `<div class="rank${lead1 ? ' top' : ''}" data-sel="${esc(r.room.id)}" style="--c:${acc}"><span class="no">${lead1 ? ic('crown') : i + 1}</span><span class="nm">${esc(shortName(r.room.spec))}<small>${r.s.count} sold · ${usd(Math.round(r.s.revenue))} · ${perHr(r.s.perHour)}</small></span><span class="v">${metricFmt(rankMetric, r)}</span><i class="bg" style="width:${w.toFixed(1)}%"></i></div>`; }).join('')}
+        <div class="muted small" style="margin-top:6px">Profit per hour = (sales − supplies) ÷ chair time. Set each room's minutes and supply cost in ${'<a href="#" data-rooms="" style="color:var(--cyan)">Customize rooms</a>'}.</div></div>` : ''}
+      ${orphan.length ? `<div class="sec"><div class="callout" style="border-color:#5a4a2a;background:rgba(60,45,15,.18)"><b style="color:var(--gold)">Not in any room · ${usd(orphanUsd)}</b>${orphan.length} sale${orphan.length === 1 ? '' : 's'} logged to a room that no longer exists (${esc([...new Set(orphan.map((e) => e.path))].slice(0, 4).join(', '))}). They still count in the vault total. <a href="#" data-rooms="" style="color:var(--cyan)">Claim them with a keyword</a>.</div></div>` : ''}
+      <div class="sec"><h3>${allSvc ? 'Rooms' : 'Money paths'}</h3>${list.map(({ m, p, look, info }) => {
         const live = st.running.filter((r) => r.path === m.id).length, crew = jobsOn(m.id).filter((j) => j.enabled).length, acc = themeOf(m.id).accent;
+        const sv = isService(m) ? svcStats(m, 30) : null;
         return `<div class="card" data-sel="${esc(m.id)}" style="--c:${acc}">
           <div class="top"><span class="rk">${String(m.spec.rank).padStart(2, '0')}</span><span class="nm">${esc(shortName(m.spec))}</span><span class="u">${usd(p.earnedUsd)}</span></div>
-          <div class="mid"><div class="pips">${info.map((s) => `<i class="${s.done ? 'd' : s.next ? 'n' : ''}" title="${esc(s.id)} ${s.n}/${s.target}"></i>`).join('')}</div>${spark(m.id, acc)}</div>
-          <div class="sub"><span class="s-${look}">${look}</span><span>stage ${info.filter((s) => s.done).length}/6</span>${crew || live ? `<span class="crew">● ${crew} crew${live ? ` · ${live} working` : ''}</span>` : ''}<span>spent ${usd(p.spentUsd)}</span></div>
+          <div class="mid">${sv ? `<div class="muted small" style="font-family:var(--f-num)">${sv.count} sold in 30d · ${perHr(sv.perHour)}</div>` : `<div class="pips">${info.map((s) => `<i class="${s.done ? 'd' : s.next ? 'n' : ''}" title="${esc(s.id)} ${s.n}/${s.target}"></i>`).join('')}</div>`}${spark(m.id, acc)}</div>
+          <div class="sub"><span class="s-${look}">${sv && look === 'active' ? 'open' : look}</span>${sv ? `<span>${sv.today} today</span>${sv.goal ? `<span>${Math.round(100 * sv.monthUsd / sv.goal)}% of goal</span>` : ''}` : `<span>stage ${info.filter((s) => s.done).length}/6</span>`}${crew || live ? `<span class="crew">● ${crew} crew${live ? ` · ${live} working` : ''}</span>` : ''}${sv ? '' : `<span>spent ${usd(p.spentUsd)}</span>`}</div>
         </div>`;
-      }).join('')}</div>
+      }).join('')}
+      <button class="btn wide" type="button" data-rooms="" style="margin-top:4px">${ic('rooms')}Customize rooms</button></div>
       ${open.length ? `<div class="sec"><h3>Next quests</h3>${open.map((q) => mission(q)).join('')}</div>` : ''}`;
+    el.querySelectorAll('[data-rdays]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); rankDays = Number(b.dataset.rdays); panelSig = ''; renderPanel(); }));
+    el.querySelectorAll('[data-metric]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); rankMetric = b.dataset.metric; panelSig = ''; renderPanel(); }));
   }
   function mission(q) {
     const col = q.path ? themeOf(q.path).accent : q.kind === 'gate' ? '#f5a623' : '#ffcf5a';
@@ -2552,7 +2849,7 @@
       e.preventDefault();
       const msg = form.querySelector('.msg'); msg.className = 'msg'; msg.textContent = 'hiring…';
       try {
-        await post('/api/jobs', { role: hireRole, path: spec.id, everyHours: Number(form.everyHours.value), maxUsd: Number(form.maxUsd.value) });
+        await post('api/jobs', { role: hireRole, path: spec.id, everyHours: Number(form.everyHours.value), maxUsd: Number(form.maxUsd.value) });
         msg.className = 'msg ok'; msg.textContent = 'hired: watch them move in';
         toast('run', `${roleTitle(hireRole)} hired`, `${shortName(spec)} · ${sum.textContent}`, roleCol(hireRole), 'crew');
         hireOpen = false; panelSig = ''; poll();
@@ -2563,7 +2860,7 @@
       if (!j) return;
       inp.disabled = true;
       try {
-        await post('/api/jobs', { jobId: j.jobId, role: j.role, path: j.path, everyHours: j.everyHours, maxUsd: j.maxUsd, enabled: inp.checked });
+        await post('api/jobs', { jobId: j.jobId, role: j.role, path: j.path, everyHours: j.everyHours, maxUsd: j.maxUsd, enabled: inp.checked });
         toast('run', `${roleTitle(j.role)} ${inp.checked ? 'back on shift' : 'off shift'}`, shortName(spec), roleCol(j.role), 'crew');
         panelSig = ''; poll();
       } catch (err) { inp.checked = !inp.checked; toast('status', 'Could not change that agent', err.message, '#ff5c6c', 'warn'); }
@@ -2633,10 +2930,94 @@
     const syncCap = () => { cap.textContent = usd2(Math.max(0, Number(mx.value) || 0)); };
     mx.addEventListener('input', syncCap);
     el.querySelectorAll('[data-step]').forEach((b) => b.addEventListener('click', () => { mx.value = Math.max(0.25, (Number(mx.value) || 0) + Number(b.dataset.step)).toFixed(2); syncCap(); }));
-    wire('#f-run', (d) => post('/api/run', { role: d.role, path: spec.id, maxUsd: Number(d.maxUsd) }).then((j) => 'dispatched ' + j.runId));
+    wire('#f-run', (d) => post('api/run', { role: d.role, path: spec.id, maxUsd: Number(d.maxUsd) }).then((j) => 'dispatched ' + j.runId));
     wireCrew(el, spec);
-    wire('#f-out', (d) => post('/api/events', { kind: 'outcome', path: spec.id, stage: d.stage, ref: d.ref, evidence: d.evidence, by: 'user' }).then((j) => 'logged ' + j.event.id));
-    wire('#f-money', (d) => post('/api/events', { kind: 'money.in', path: spec.id, usd: Number(d.usd), source: d.source, evidence: d.evidence }).then((j) => 'logged ' + j.event.id));
+    wire('#f-out', (d) => post('api/events', { kind: 'outcome', path: spec.id, stage: d.stage, ref: d.ref, evidence: d.evidence, by: 'user' }).then((j) => 'logged ' + j.event.id));
+    wire('#f-money', (d) => post('api/events', { kind: 'money.in', path: spec.id, usd: Number(d.usd), source: d.source, evidence: d.evidence }).then((j) => 'logged ' + j.event.id));
+  }
+  // ---- a service room: what it sold, what it earned per hour of chair time, and where it ranks
+  let svcDays = 30, rankDays = 30, rankMetric = 'perHour';
+  const PERIODS = [[7, '7 days'], [30, '30 days'], [90, '90 days'], [0, 'All time']];
+  const METRICS = [['perHour', 'Profit / hr'], ['revenue', 'Revenue'], ['count', 'Sold'], ['profit', 'Profit']];
+  const PAID = ['Cash', 'Card', 'Venmo', 'Zelle', 'Cash App', 'Gift card', 'Other'];
+  const dshort = (ms) => new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const perHr = (v) => (v === null || v === undefined ? 'n/a' : usd(Math.round(v)) + '/hr');
+  const metricFmt = (m, r) => (m === 'perHour' ? perHr(r.s.perHour) : m === 'count' ? String(r.s.count) : usd(Math.round(m === 'profit' ? r.s.profit : r.s.revenue)));
+  function svcBuckets(room, days) {
+    const lines = snap.state.moneyIn.filter((e) => e.path === room.id);
+    const d0 = new Date(); d0.setHours(0, 0, 0, 0);
+    const end = d0.getTime() + DAY, weekly = !days || days > 30;
+    const oldest = Math.min(Date.now(), ...lines.map((e) => Date.parse(e.ts)));
+    const n = days === 7 ? 7 : days === 30 ? 30 : days === 90 ? 13 : clamp(Math.ceil((end - oldest) / (7 * DAY)), 4, 52);
+    const step = weekly ? 7 * DAY : DAY;
+    const out = Array.from({ length: n }, (_, i) => ({ from: end - (n - i) * step, usd: 0, count: 0 }));
+    for (const e of lines) { const k = n - 1 - Math.floor((end - 1 - Date.parse(e.ts)) / step); if (k >= 0 && k < n) { out[k].usd += e.usd; out[k].count += e.qty || 1; } }
+    return { out, weekly };
+  }
+  function barsSvg(b, accent) {
+    const n = b.out.length, max = Math.max(1, ...b.out.map((x) => x.usd)), w = 300 / n;
+    const bars = b.out.map((x, i) => {
+      const h = x.usd ? Math.max(2, 70 * x.usd / max) : 1.2;
+      const label = `${b.weekly ? 'week of ' : ''}${dshort(x.from)} · ${usd2(x.usd)} · ${x.count} sold`;
+      return `<rect x="${(i * w + w * 0.14).toFixed(2)}" y="${(74 - h).toFixed(2)}" width="${Math.max(0.6, w * 0.72).toFixed(2)}" height="${h.toFixed(2)}" rx="${Math.min(1.5, w * 0.2).toFixed(2)}" fill="${i === n - 1 ? '#ffcf5a' : accent}" fill-opacity="${x.usd ? 0.9 : 0.25}"><title>${esc(label)}</title></rect>`;
+    }).join('');
+    return `<div class="chart"><div class="cap"><span>best ${b.weekly ? 'week' : 'day'} ${usd(Math.round(max))}</span><span>${b.weekly ? 'per week' : 'per day'}</span></div><svg viewBox="0 0 300 76" preserveAspectRatio="none">${bars}<path d="M0 74.5H300" stroke="#26304a"/></svg><div class="cap"><span>${dshort(b.out[0].from)}</span><span>${b.weekly ? 'this week' : 'today'}</span></div></div>`;
+  }
+  function topItems(lines) {
+    const m = new Map();
+    for (const e of lines) { const name = String(e.item || e.tag || 'Unnamed sale').trim(); const k = name.toLowerCase(); const r = m.get(k) || { name, count: 0, usd: 0 }; r.count += e.qty || 1; r.usd += e.usd; m.set(k, r); }
+    return [...m.values()].sort((a, b) => b.usd - a.usd);
+  }
+  function segHtml(attr, list, cur) { return `<div class="seg">${list.map(([v, t]) => `<button type="button" ${attr}="${esc(v)}" class="${String(v) === String(cur) ? 'on' : ''}">${esc(t)}</button>`).join('')}</div>`; }
+  function renderService(el, room) {
+    const spec = room.spec, look = roomLook(room), accent = themeOf(room.id).accent;
+    $('#inspector').style.setProperty('--room', accent);
+    const s = svcStats(room, svcDays), month = svcStats(room, 30);
+    const rk = serviceRanking(svcDays, 'perHour'), pos = rk.findIndex((r) => r.room.id === room.id) + 1;
+    const top = topRoomId() === room.id;
+    const live = snap.state.running.filter((r) => r.path === spec.id);
+    const lookPill = { active: '<span class="pill good"><span class="d"></span>open</span>', gated: '<span class="pill warn">gated</span>', killed: '<span class="pill bad">closed</span>', paused: '<span class="pill">paused</span>' }[look];
+    const items = topItems(s.lines), itemMax = Math.max(1, ...items.map((x) => x.usd));
+    const recent = snap.state.moneyIn.filter((e) => e.path === room.id).slice().sort(byTs).reverse().slice(0, 6);
+    const goalPct = month.goal > 0 ? Math.min(100, 100 * month.monthUsd / month.goal) : 0;
+    const roles = Object.entries(snap.roles);
+    const pname = PERIODS.find((x) => x[0] === svcDays)[1].toLowerCase();
+    el.innerHTML = `
+      <button class="back" data-sel="hub">${ic('chevL')}station roster</button>
+      <div class="ih"><div class="big" style="--c:${accent}">${String(spec.rank).padStart(2, '0')}</div><div style="min-width:0"><h2>${esc(spec.name)}</h2><div class="chips">${lookPill}<span class="pill">${ic('scissors')}service</span>${top ? `<span class="pill gold">${ic('crown')}most profitable</span>` : ''}${live.length ? `<span class="pill cyan live"><span class="d"></span>${live.length} working</span>` : ''}</div></div></div>
+      <div class="segs">${segHtml('data-days', PERIODS, svcDays)}</div>
+      <div class="stats">
+        <div class="st"><div><div class="k">Revenue</div><div class="v gold">${usd(s.revenue)}</div><div class="s">${s.count} sold · avg ${usd2(s.avg)}</div></div></div>
+        <div class="st"><div><div class="k">Profit per hour</div><div class="v">${perHr(s.perHour)}</div><div class="s">${pos && s.count ? `#${pos} of ${rk.length} rooms` : spec.minutes ? 'no sales yet' : 'set minutes to rank'}</div></div></div>
+        <div class="st"><div><div class="k">Est. profit</div><div class="v">${usd(Math.round(s.profit))}</div><div class="s">after ${usd(Math.round(s.cost))} supplies</div></div></div>
+        <div class="st"><div><div class="k">Tips</div><div class="v">${usd(s.tips)}</div><div class="s">${s.revenue ? Math.round(100 * s.tips / s.revenue) : 0}% of revenue · ${Math.round(s.hours)}h</div></div></div>
+      </div>
+      <div class="sec"><h3>This month</h3><div class="goal${month.goal && month.monthUsd >= month.goal ? ' met' : ''}">
+        <div class="t"><span>${usd(month.monthUsd)} <small>· ${month.monthCount} sold · ${month.today} today</small></span><small>${month.goal ? `goal ${usd(month.goal)}` : 'no goal set'}</small></div>
+        <div class="bar"><i style="width:${goalPct.toFixed(1)}%"></i></div></div></div>
+      <div class="sec"><h3>Takings · ${esc(pname)}</h3>${barsSvg(svcBuckets(room, svcDays), accent)}</div>
+      <div class="sec"><h3>What sold · ${esc(pname)}</h3>${items.length ? `<div class="items">${items.slice(0, 8).map((x) => `<div class="it"><span>${esc(x.name)}</span><span class="n">×${x.count}</span><span class="u">${usd(x.usd)}</span><div class="sh"><i style="width:${(100 * x.usd / itemMax).toFixed(1)}%"></i></div></div>`).join('')}</div>` : '<div class="muted small">Nothing sold in this period yet.</div>'}</div>
+      <div class="sec"><h3>Claims sales named</h3>${spec.match && spec.match.length ? `<div class="kw">${spec.match.map((k) => `<span>${esc(k)}</span>`).join('')}</div>` : '<div class="muted small">No keywords: only sales logged here by hand land in this room.</div>'}
+        <div class="muted small" style="margin-top:7px">${spec.minutes ? `${spec.minutes} min a chair` : 'no time set'} · ${usd2(spec.costUsd || 0)} supplies each${spec.priceUsd ? ` · list price ${usd2(spec.priceUsd)}` : ''}</div>
+        <button class="btn wide" type="button" data-rooms="${esc(spec.id)}" style="margin-top:9px">${ic('sliders')}Customize this room</button></div>
+      <div class="sec"><h3>Log a sale</h3>
+        <form id="f-sale" class="pane on">
+          <div class="row2"><label class="field"><span>Service or product</span><input name="item" value="${esc(spec.name)}" maxlength="120" required></label><label class="field"><span>Client</span><input name="source" placeholder="walk-in"></label></div>
+          <div class="row2"><label class="field"><span>Price (USD)</span><input name="usd" type="number" step="0.01" min="0.01" value="${spec.priceUsd ? spec.priceUsd.toFixed(2) : ''}" placeholder="0.00" required></label><label class="field"><span>Tip (USD)</span><input name="tip" type="number" step="0.01" min="0" placeholder="0.00"></label></div>
+          <div class="row2"><label class="field"><span>Paid by</span><select name="paid">${PAID.map((x) => `<option>${x}</option>`).join('')}</select></label><label class="field"><span>Receipt or note</span><input name="note" placeholder="optional"></label></div>
+          <div class="muted small">Card sales through Square arrive on their own once Square is linked. Log cash and the rest here. The name decides the room.</div>
+          <button class="btn go">${ic('coin')}Log sale</button><div class="msg"></div>
+        </form></div>
+      ${recent.length ? `<div class="sec"><h3>Recent sales</h3><div class="runs">${recent.map((e) => `<div class="r" style="--rc:${accent}"><span class="sw"></span><span>${esc(e.item || e.tag || 'sale')} · ${esc(e.source)}<small>${e.via ? esc(viaTitle(e.via)) + ' · ' : ''}${ago(e.ts)}${e.tip ? ' · tip ' + usd2(e.tip) : ''}</small></span><span class="u">${usd2(e.usd)}</span></div>`).join('')}</div></div>` : ''}
+      <div class="sec"><h3>Crew · standing agents</h3>${crewHtml(spec, look, roles)}</div>`;
+    el.querySelectorAll('[data-days]').forEach((b) => b.addEventListener('click', () => { svcDays = Number(b.dataset.days); panelSig = ''; renderPanel(); }));
+    wireCrew(el, spec);
+    wire('#f-sale', (d) => {
+      const amt = Number(d.usd) || 0, tip = Math.max(0, Number(d.tip) || 0), total = Math.round((amt + tip) * 100) / 100;
+      const ev = { kind: 'money.in', path: spec.id, usd: total, item: d.item.trim() || spec.name, qty: 1, source: d.source.trim() || 'walk-in', evidence: `${d.paid}${d.note.trim() ? ' · ' + d.note.trim() : ''} · logged by hand` };
+      if (tip > 0) ev.tip = tip;
+      return post('api/events', ev).then(() => `logged ${usd2(total)} · ${ev.item}`);
+    });
   }
   async function post(url, body) {
     const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
@@ -2661,7 +3042,7 @@
   const BRAND = { stripe: '#7a73ff', square: '#d7dde8', paypal: '#2f9bff', gumroad: '#ff90e8' };
   const SOURCE_PATH = { upwork: 'freelance-desk', fiverr: 'freelance-desk', etsy: 'content-channel', amazon: 'content-channel' };
   async function loadSync() {
-    try { syncData = await (await fetch('/api/connections', { cache: 'no-store' })).json(); }
+    try { syncData = await (await fetch('api/connections', { cache: 'no-store' })).json(); }
     catch { syncData = syncData || null; }
   }
   async function openSync(tab) {
@@ -2702,7 +3083,8 @@
       <form id="f-link" class="sy-form" style="--c:${BRAND[linkKind] || '#8fb0ff'}" autocomplete="off">
         <div class="how"><b>Get a read-only key</b><ol>${spec.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${spec.link ? `<a class="btn" href="${esc(spec.link)}" target="_blank" rel="noopener noreferrer">Open ${esc(spec.title)} ↗</a>` : ''}</div>
         ${spec.fields.map((fd) => `<label class="field"><span>${esc(fd.label)}</span><input name="f_${fd.key}" type="${fd.secret ? 'password' : 'text'}" autocomplete="off" spellcheck="false" placeholder="${esc(fd.placeholder || '')}" required></label>`).join('')}
-        <div class="row2"><label class="field"><span>Counts toward</span><select name="path">${pathOptions(defaultPath())}</select></label><label class="field"><span>Import payments since</span><input name="since" type="date" value="${since}"></label></div>
+        <div class="row2"><label class="field"><span>${rooms.some(isService) ? 'Sales no room claims go to' : 'Counts toward'}</span><select name="path">${pathOptions(defaultPath())}</select></label><label class="field"><span>Import payments since</span><input name="since" type="date" value="${since}"></label></div>
+        ${rooms.some(isService) ? `<div class="muted small">Each sale lands in the room whose keywords match its item name${linkKind === 'square' ? ' (Square sends one line per service, so a cut plus a beard trim splits across both rooms, tip included)' : ''}. Anything no room claims goes to the room picked here.</div>` : ''}
         <label class="field"><span>Nickname (optional)</span><input name="label" placeholder="e.g. salon clients" maxlength="60"></label>
         <button class="btn go">${ic('bolt')}Test the key and link ${esc(spec.title)}</button><div class="msg"></div>
         <div class="muted small">The key is saved in data/connections.json on this computer only. It never goes into the ledger and the station never shows it again (only its last 4 characters).</div>
@@ -2771,11 +3153,11 @@
         setTimeout(() => { if (b.isConnected) { b.dataset.armed = ''; b.textContent = 'Remove'; b.classList.remove('danger'); } }, 4000);
         return;
       }
-      try { await post('/api/connections', { id: b.dataset.cdel, remove: true }); toast('status', 'Link removed', 'Its key was deleted from this computer. Payments already imported stay on the ledger.', '#9aa4b8', 'unlock'); await loadSync(); await poll(); renderSync(); }
+      try { await post('api/connections', { id: b.dataset.cdel, remove: true }); toast('status', 'Link removed', 'Its key was deleted from this computer. Payments already imported stay on the ledger.', '#9aa4b8', 'unlock'); await loadSync(); await poll(); renderSync(); }
       catch (e) { toast('status', 'Could not remove it', e.message, '#ff5c6c', 'warn'); }
     }));
     box.querySelectorAll('[data-cpath]').forEach((sel) => sel.addEventListener('change', async () => {
-      try { await post('/api/connections', { id: sel.dataset.cpath, path: sel.value }); toast('run', 'Link re-pointed', `new payments now count toward ${shortOf(sel.value)}`, '#5fd4ff', 'bolt'); await loadSync(); await poll(); renderSync(); }
+      try { await post('api/connections', { id: sel.dataset.cpath, path: sel.value }); toast('run', 'Link re-pointed', `new payments now count toward ${shortOf(sel.value)}`, '#5fd4ff', 'bolt'); await loadSync(); await poll(); renderSync(); }
       catch (e) { toast('status', 'Could not change it', e.message, '#ff5c6c', 'warn'); await loadSync(); renderSync(); }
     }));
     const lf = box.querySelector('#f-link');
@@ -2786,7 +3168,7 @@
       for (const fd of spec.fields) secret[fd.key] = lf.elements['f_' + fd.key].value.trim();
       msg.className = 'msg'; msg.textContent = `checking the key with ${spec.title}, then pulling your payments…`; btn.disabled = true;
       try {
-        const j = await post('/api/connections', { kind: linkKind, path: lf.elements.path.value, since: lf.elements.since.value, label: lf.elements.label.value, secret });
+        const j = await post('api/connections', { kind: linkKind, path: lf.elements.path.value, since: lf.elements.since.value, label: lf.elements.label.value, secret });
         const r = j.sync || {};
         toast('money', `${spec.title} linked`, r.ok ? `${r.imported} payment${r.imported === 1 ? '' : 's'} imported${r.usd ? ' · +' + usd(r.usd) : ''}. It keeps syncing on its own.` : `linked, but the first sync failed: ${r.error || 'unknown'}`, r.ok ? '#3ddc97' : '#f5a623', 'bolt');
         await loadSync(); await poll(); renderSync();
@@ -2814,7 +3196,7 @@
       const m = box.querySelector('[data-imsg]'); imp.disabled = true; m.className = 'msg'; m.textContent = 'importing…';
       const title = csv.title || (d.csvSources[csv.source] || {}).title || 'Statement';
       try {
-        const j = await post('/api/import/csv', { text: csv.text, path: csv.path, source: csv.source, title, mapping: csv.mapping || undefined });
+        const j = await post('api/import/csv', { text: csv.text, path: csv.path, source: csv.source, title, mapping: csv.mapping || undefined });
         toast('money', `${title} imported`, `${j.imported} payment${j.imported === 1 ? '' : 's'} · +${usd(j.usd)}${j.duplicates ? ` · ${j.duplicates} were already there` : ''}`, '#ffcf5a', 'coin');
         csv.text = ''; csv.file = ''; csv.preview = null; csv.mapping = null;
         await poll(); renderSync();
@@ -2822,18 +3204,219 @@
     });
   }
   async function dryRun() {
-    try { csv.preview = await post('/api/import/csv', { text: csv.text, path: csv.path || defaultPath(), source: csv.source, mapping: csv.mapping || undefined, dryRun: true }); }
+    try { csv.preview = await post('api/import/csv', { text: csv.text, path: csv.path || defaultPath(), source: csv.source, mapping: csv.mapping || undefined, dryRun: true }); }
     catch (e) { csv.preview = null; toast('status', 'Could not read that file', e.message, '#ff5c6c', 'warn'); }
     renderSync();
   }
   async function runSync(id, btn) {
     const was = btn.innerHTML; btn.disabled = true; btn.textContent = 'syncing…';
     try {
-      const j = await post('/api/sync', id ? { id } : {});
+      const j = await post('api/sync', id ? { id } : {});
       const rs = j.results || [], got = rs.reduce((a, r) => a + (r.imported || 0), 0), usdIn = rs.reduce((a, r) => a + (r.usd || 0), 0), bad = rs.filter((r) => !r.ok);
       toast(bad.length ? 'status' : 'money', bad.length ? 'Sync finished with a problem' : 'Synced', bad.length ? bad.map((r) => r.error).join(' · ') : `${got} new payment${got === 1 ? '' : 's'}${usdIn ? ' · +' + usd(usdIn) : ''}`, bad.length ? '#ff5c6c' : '#3ddc97', 'bolt');
       await loadSync(); await poll(); renderSync();
     } catch (e) { toast('status', 'Sync failed', e.message, '#ff5c6c', 'warn'); btn.disabled = false; btn.innerHTML = was; }
+  }
+
+  // ======================================================================= room designer
+  // A station is whatever its owner sells: the designer edits <data>/rooms.json through /api/rooms. The ledger is
+  // never touched: rooms are views, so renaming a room or changing its keywords re-sorts history on the next poll.
+  const SCREEN_NAME = { open: 'Neon OPEN sign', bars: 'Sales bars', calendar: 'Calendar', wave: 'Waveform', map: 'Map', board: 'Whiteboard', play: 'Video player', jobs: 'Job board', none: 'Bare wall' };
+  const PROP_NAME = { pole: 'Barber pole', register: 'Cash register', plant: 'Plant', rack: 'Server rack', phone: 'Phone', kiosk: 'Kiosk', camera: 'Camera and light', coffee: 'Coffee machine' };
+  const STYLE_ICON = { office: 'term', barber: 'scissors', shop: 'coin', studio: 'posts' };
+  const TPL_ICON = { barber: 'scissors', salon: 'scissors', freelance: 'term', paths: 'rocket', blank: 'plus' };
+  const normKw = (v) => String(v || '').toLowerCase().replace(/[\s_]+/g, ' ').trim().slice(0, 40);
+  const rd = { data: null, draft: null, sel: 0, armed: null, welcome: false, msg: '', err: false };
+  let welcomed = false;
+  function draftFrom(d) {
+    const cfg = d.config;
+    if (cfg && cfg.rooms) return { name: cfg.name, template: cfg.template, rooms: cfg.rooms.map((r) => ({ ...r, match: [...(r.match || [])] })) };
+    return { name: (cfg && cfg.name) || 'Revenue Station', template: 'paths', rooms: d.catalog.map((c) => { const t = THEME[c.id] || {}; return { base: c.id, name: c.name, short: c.short, accent: t.accent || '#8fb0ff', style: 'office', screen: t.screen, prop: t.prop, match: [] }; }) };
+  }
+  async function openRooms(opts = {}) {
+    rd.welcome = Boolean(opts.welcome); rd.armed = null; rd.msg = ''; rd.err = false;
+    const box = $('#roomsbox .box');
+    $('#roomsbox').hidden = false;
+    box.innerHTML = '<div class="muted" style="padding:20px">loading rooms…</div>';
+    try { rd.data = await (await fetch('api/rooms', { cache: 'no-store' })).json(); } catch { rd.data = null; }
+    if (!rd.data || !rd.data.templates) { box.innerHTML = `<button class="cbtn glass x" data-close title="Close (Esc)">${ic('close')}</button><div class="muted" style="padding:20px">Could not load the room design. Is the station running?</div>`; wireRooms(box); return; }
+    rd.draft = draftFrom(rd.data);
+    const want = opts.room ? rd.draft.rooms.findIndex((r) => (r.id || r.base) === opts.room) : -1;
+    rd.sel = want >= 0 ? want : 0;
+    renderRooms();
+  }
+  const closeRooms = () => { $('#roomsbox').hidden = true; if (rd.welcome) sset('rs-welcome', '1'); };
+  function claimPreview() {
+    const items = new Map();
+    for (const e of snap.state.moneyIn) { if (!e.item) continue; const k = String(e.item).trim(); const x = items.get(k) || { item: k, n: 0, usd: 0 }; x.n += e.qty || 1; x.usd += e.usd; items.set(k, x); }
+    const by = new Map(), free = [];
+    for (const x of items.values()) {
+      const n = normKw(x.item);
+      const i = rd.draft.rooms.findIndex((r) => r.match.some((m) => m && n.includes(m)));
+      if (i < 0) free.push(x); else { if (!by.has(i)) by.set(i, []); by.get(i).push(x); }
+    }
+    for (const list of by.values()) list.sort((a, b) => b.usd - a.usd);
+    return { by, free: free.sort((a, b) => b.usd - a.usd) };
+  }
+  function roomFormHtml(r) {
+    const d = rd.data, isBase = Boolean(r.base), cp = claimPreview(), mine = cp.by.get(rd.sel) || [];
+    const opt = (list, names, cur) => list.map((k) => `<option value="${k}"${cur === k ? ' selected' : ''}>${esc(names[k] || k)}</option>`).join('');
+    return `<div class="rd-form" style="--c:${r.accent}">
+      <h3>${isBase ? 'Built-in path' : 'Room'} ${rd.sel + 1}</h3>
+      <div class="row2"><label class="field"><span>Name</span><input data-f="name" maxlength="60" value="${esc(r.name)}"></label><label class="field"><span>Short label</span><input data-f="short" maxlength="22" value="${esc(r.short || '')}" placeholder="${esc(String(r.name || '').slice(0, 22))}"></label></div>
+      <div class="field" style="margin-top:10px"><span>Colour</span><div class="swatches">${d.palette.map((c) => `<button type="button" data-color="${c}" class="${c === r.accent ? 'on' : ''}" style="--sc:${c}" title="${c}"></button>`).join('')}</div></div>
+      <div class="field" style="margin-top:10px"><span>Furniture</span><div class="styles">${Object.entries(d.styles).map(([k, t]) => `<button type="button" class="tile${(r.style || 'office') === k ? ' on' : ''}" data-style="${k}" style="--c:${r.accent}">${ic(STYLE_ICON[k] || 'rooms')}<span><b>${esc(k[0].toUpperCase() + k.slice(1))}</b><small>${esc(t)}</small></span></button>`).join('')}</div></div>
+      <div class="row2" style="margin-top:10px"><label class="field"><span>Wall sign</span><select data-f="screen">${opt(d.screens, SCREEN_NAME, r.screen || 'none')}</select></label><label class="field"><span>Corner prop</span><select data-f="prop">${opt(d.props, PROP_NAME, r.prop || 'plant')}</select></label></div>
+      <div class="field" style="margin-top:12px"><span>Claims sales whose item name contains</span>
+        <div class="chipin">${r.match.map((m, k) => `<span>${esc(m)}<button type="button" data-unkw="${k}" title="Remove">×</button></span>`).join('')}<input id="rd-kw" placeholder="${r.match.length ? 'add another, press Enter' : 'e.g. fade, taper (press Enter)'}" maxlength="40"></div>
+        <div class="claims">${mine.length ? `Claims now: ${mine.slice(0, 8).map((x) => `<b>${esc(x.item)}</b> ×${x.n}`).join(' · ')}${mine.length > 8 ? ` · and ${mine.length - 8} more` : ''}` : 'Claims nothing on the ledger yet. Sales you log in this room by hand still land here.'}</div>
+        ${cp.free.length ? `<div class="muted small" style="margin-top:9px">No room's keywords match these yet. Click one to claim it here:</div><div class="sugg">${cp.free.slice(0, 12).map((x) => `<button type="button" data-sugg="${esc(x.item)}">+ ${esc(x.item)} <span class="muted">${usd(Math.round(x.usd))}</span></button>`).join('')}</div>` : ''}
+      </div>
+      ${isBase ? '<div class="muted small" style="margin-top:12px">A built-in path keeps its stages, gate, budget and agents.</div>' : `<div class="row4" style="margin-top:12px">
+        <label class="field"><span>Minutes each</span><input type="number" data-f="minutes" min="1" max="1440" step="1" value="${r.minutes ?? 30}"></label>
+        <label class="field"><span>Supplies each $</span><input type="number" data-f="costUsd" min="0" step="0.5" value="${r.costUsd ?? 0}"></label>
+        <label class="field"><span>Price $</span><input type="number" data-f="priceUsd" min="0" step="1" value="${r.priceUsd ?? 0}"></label>
+        <label class="field"><span>Monthly goal $</span><input type="number" data-f="goalUsd" min="0" step="50" value="${r.goalUsd ?? 0}"></label></div>
+        <div class="muted small" style="margin-top:7px">Minutes and supplies give profit per hour, which ranks the rooms. Price pre-fills Log a sale. The goal fills the room's tube.</div>`}
+    </div>`;
+  }
+  function renderRooms() {
+    const d = rd.data, dr = rd.draft, box = $('#roomsbox .box');
+    const tpls = Object.entries(d.templates);
+    if (rd.welcome) {
+      box.innerHTML = `<button class="cbtn glass x" data-close title="Skip (Esc)">${ic('close')}</button>
+        <div class="wel"><div class="sy-head"><div class="rd-ic">${ic('rooms')}</div><div style="min-width:0"><h2>Set up your station</h2><p class="lead">What does this station run? Pick a starting point. Every room becomes one service, product line or money path, and all of it totals in the vault at the centre. Everything can be changed later under Rooms.</p></div></div>
+        <label class="field" style="max-width:380px"><span>Name your station</span><input id="rd-name" maxlength="40" placeholder="e.g. Kim's Cuts"></label>
+        <h3>Start from</h3><div class="tiles">${tpls.map(([k, t]) => `<button type="button" class="tile" data-wtpl="${k}"><span class="t-ic" style="--c:#ffcf5a">${ic(TPL_ICON[k] || 'rooms')}</span><span><b>${esc(t.title)}</b><small>${esc(t.blurb)} ${t.rooms} room${t.rooms === 1 ? '' : 's'}.</small></span></button>`).join('')}</div>
+        <div class="msg ${rd.err ? 'err' : ''}">${esc(rd.msg)}</div></div>`;
+      wireRooms(box); return;
+    }
+    const r = dr.rooms[rd.sel];
+    const onStation = new Set(dr.rooms.filter((x) => x.base).map((x) => x.base));
+    const addBase = d.builtIn.filter((b) => !onStation.has(b.id)).map((b) => `<option value="${esc(b.id)}">${esc(b.short || b.name)}</option>`).join('');
+    const full = dr.rooms.length >= d.maxRooms;
+    box.innerHTML = `
+      <button class="cbtn glass x" data-close title="Close (Esc)">${ic('close')}</button>
+      <div class="sy-head"><div class="rd-ic">${ic('rooms')}</div><div style="flex:1;min-width:0"><h2>Customize rooms</h2><p class="lead">Each room is one service, product line or kind of gig. A synced sale lands in the first room whose keyword appears in its item name, so Square's "Skin Fade" goes to the room that claims <i>fade</i>. Every dollar, claimed or not, still totals in the vault.</p></div></div>
+      <div class="rd-grid">
+        <div>
+          <label class="field"><span>Station name</span><input id="rd-name" maxlength="40" value="${esc(dr.name)}"></label>
+          <h3>Rooms · ${dr.rooms.length} of ${d.maxRooms}</h3>
+          <div class="rd-list">${dr.rooms.map((x, i) => `<div class="rrow${i === rd.sel ? ' on' : ''}" data-i="${i}" style="--rc:${x.accent || '#8fb0ff'}"><span class="sw"></span><span style="min-width:0"><b>${i + 1}. ${esc(x.name || 'Untitled')}</b><small>${x.base ? 'built-in path' : x.match.length ? esc(x.match.join(', ')) : 'no keywords yet'}</small></span><span class="ac"><button type="button" data-mv="-1" data-i="${i}" title="Move up"${i === 0 ? ' disabled' : ''}>${ic('chevU')}</button><button type="button" data-mv="1" data-i="${i}" title="Move down"${i === dr.rooms.length - 1 ? ' disabled' : ''}>${ic('chevD')}</button><button type="button" data-del="${i}" title="Remove this room (its sales stay on the ledger)"${dr.rooms.length <= 1 ? ' disabled' : ''}>${ic('trash')}</button></span></div>`).join('')}</div>
+          <div class="row2" style="margin-top:6px"><button class="btn" type="button" data-add${full ? ' disabled' : ''}>${ic('plus')}Add a room</button>${addBase && !full ? `<select id="rd-base"><option value="">+ built-in path…</option>${addBase}</select>` : ''}</div>
+          <div class="muted small" style="margin-top:8px">Order matters: when two rooms share a keyword, the higher one wins. Keep specific services (skin fade, beard) above general ones (haircut).</div>
+          <h3>Or start over from a template</h3>
+          <div class="tiles">${tpls.map(([k, t]) => `<button type="button" class="tile${rd.armed === k ? ' on' : ''}" data-tpl="${k}" style="--c:${rd.armed === k ? '#ffb347' : '#ffcf5a'}"><span class="t-ic" style="--c:#ffcf5a">${ic(TPL_ICON[k] || 'rooms')}</span><span><b>${esc(t.title)}</b><small>${rd.armed === k ? 'Click again to replace every room. The ledger is untouched.' : esc(t.blurb)}</small></span></button>`).join('')}</div>
+        </div>
+        <div>${r ? roomFormHtml(r) : ''}</div>
+      </div>
+      <div class="rd-foot"><button class="btn go" type="button" data-save>${ic('check')}Save rooms</button><button class="btn ghost" type="button" data-close>Cancel</button><div class="msg ${rd.err ? 'err' : rd.msg ? 'ok' : ''}">${esc(rd.msg)}</div><button class="btn ghost danger sm2" type="button" data-reset>${rd.armed === '__reset' ? 'Click again to reset' : 'Reset to built-in paths'}</button></div>`;
+    wireRooms(box);
+  }
+  function roomsError(e) { rd.msg = /HTTP 40[45]|Failed to fetch|NetworkError/.test(e.message) ? 'This preview is read-only. Run the station on your computer to save rooms.' : e.message; rd.err = true; }
+  async function afterRoomsSaved(text) {
+    await poll();
+    toast('status', text, `${stationName() === 'Station roster' ? 'Revenue Station' : stationName()} · ${rooms.length} room${rooms.length === 1 ? '' : 's'}`, '#ffcf5a', 'rooms');
+  }
+  function wireRooms(box) {
+    box.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', closeRooms));
+    if (!rd.data || !rd.data.templates) return;
+    const dr = rd.draft, cur = () => dr.rooms[rd.sel];
+    const nameIn = box.querySelector('#rd-name');
+    if (rd.welcome) {
+      box.querySelectorAll('[data-wtpl]').forEach((b) => b.addEventListener('click', async () => {
+        const name = nameIn.value.trim();
+        box.querySelectorAll('[data-wtpl]').forEach((x) => { x.disabled = true; });
+        try { await post('api/rooms', { template: b.dataset.wtpl, ...(name ? { name } : {}) }); closeRooms(); await afterRoomsSaved(`Station set up: ${rd.data.templates[b.dataset.wtpl].title}`); }
+        catch (e) { roomsError(e); renderRooms(); }
+      }));
+      return;
+    }
+    nameIn.addEventListener('input', () => { dr.name = nameIn.value; });
+    box.querySelectorAll('.rrow').forEach((row) => row.addEventListener('click', (e) => { if (e.target.closest('button')) return; rd.sel = Number(row.dataset.i); rd.armed = null; renderRooms(); }));
+    box.querySelectorAll('[data-mv]').forEach((b) => b.addEventListener('click', () => {
+      const i = Number(b.dataset.i), j = i + Number(b.dataset.mv);
+      if (j < 0 || j >= dr.rooms.length) return;
+      [dr.rooms[i], dr.rooms[j]] = [dr.rooms[j], dr.rooms[i]];
+      if (rd.sel === i) rd.sel = j; else if (rd.sel === j) rd.sel = i;
+      renderRooms();
+    }));
+    box.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', () => {
+      const i = Number(b.dataset.del), gone = dr.rooms[i];
+      dr.rooms.splice(i, 1); rd.sel = Math.min(rd.sel >= i && rd.sel > 0 ? rd.sel - 1 : rd.sel, dr.rooms.length - 1);
+      rd.msg = `Removed ${gone.name}. Save to apply. Its sales stay on the ledger and in the vault total.`; rd.err = false;
+      renderRooms();
+    }));
+    const add = box.querySelector('[data-add]');
+    if (add) add.addEventListener('click', () => {
+      const styles = dr.rooms.filter((x) => !x.base).map((x) => x.style);
+      const style = styles.length ? styles.sort((a, b) => styles.filter((v) => v === b).length - styles.filter((v) => v === a).length)[0] : 'barber';
+      const used = new Set(dr.rooms.map((x) => x.accent));
+      dr.rooms.push({ name: 'New service', short: '', accent: rd.data.palette.find((c) => !used.has(c)) || rd.data.palette[dr.rooms.length % rd.data.palette.length], style, screen: style === 'barber' ? 'open' : 'bars', prop: style === 'barber' ? 'pole' : 'plant', match: [], minutes: 30, priceUsd: 0, costUsd: 0, goalUsd: 0 });
+      rd.sel = dr.rooms.length - 1; rd.msg = ''; renderRooms();
+      const inp = box.querySelector('[data-f="name"]'); if (inp) { inp.focus(); inp.select(); }
+    });
+    const baseSel = box.querySelector('#rd-base');
+    if (baseSel) baseSel.addEventListener('change', () => {
+      const b = rd.data.builtIn.find((x) => x.id === baseSel.value); if (!b) return;
+      const t = THEME[b.id] || {};
+      dr.rooms.push({ base: b.id, name: b.name, short: b.short, accent: t.accent || '#8fb0ff', style: 'office', screen: t.screen, prop: t.prop, match: [] });
+      rd.sel = dr.rooms.length - 1; renderRooms();
+    });
+    box.querySelectorAll('[data-tpl]').forEach((b) => b.addEventListener('click', async () => {
+      const k = b.dataset.tpl;
+      if (rd.armed !== k) { rd.armed = k; renderRooms(); return; }
+      rd.armed = null;
+      const name = dr.name.trim() && dr.name.trim() !== (rd.data.config && rd.data.config.name) ? dr.name.trim() : '';
+      try {
+        await post('api/rooms', { template: k, ...(name ? { name } : {}) });
+        rd.data = await (await fetch('api/rooms', { cache: 'no-store' })).json(); rd.draft = draftFrom(rd.data); rd.sel = 0;
+        rd.msg = `Rooms replaced with the ${rd.data.templates[k].title} template.`; rd.err = false;
+        renderRooms(); afterRoomsSaved('Template applied');
+      } catch (e) { roomsError(e); renderRooms(); }
+    }));
+    const reset = box.querySelector('[data-reset]');
+    reset.addEventListener('click', async () => {
+      if (rd.armed !== '__reset') { rd.armed = '__reset'; renderRooms(); return; }
+      rd.armed = null;
+      try { await post('api/rooms', { reset: true }); closeRooms(); await afterRoomsSaved('Back to the built-in paths'); } catch (e) { roomsError(e); renderRooms(); }
+    });
+    box.querySelector('[data-save]').addEventListener('click', async () => {
+      const bad = dr.rooms.findIndex((x) => !String(x.name || '').trim());
+      if (bad >= 0) { rd.sel = bad; rd.msg = `Room ${bad + 1} needs a name.`; rd.err = true; renderRooms(); return; }
+      const config = { name: dr.name.trim() || 'Revenue Station', template: dr.template, rooms: dr.rooms.map((x) => JSON.parse(JSON.stringify(x))) };
+      try { await post('api/rooms', { config }); closeRooms(); await afterRoomsSaved(`Rooms saved · ${dr.rooms.length} room${dr.rooms.length === 1 ? '' : 's'}`); }
+      catch (e) { roomsError(e); renderRooms(); }
+    });
+    const r = cur();
+    if (!r) return;
+    const form = box.querySelector('.rd-form');
+    const rowOf = () => box.querySelector(`.rrow[data-i="${rd.sel}"]`);
+    form.querySelectorAll('input[data-f]').forEach((inp) => inp.addEventListener('input', () => {
+      const f = inp.dataset.f;
+      r[f] = inp.type === 'number' ? (inp.value === '' ? 0 : Number(inp.value)) : inp.value;
+      if (f === 'name') { const b = rowOf() && rowOf().querySelector('b'); if (b) b.textContent = `${rd.sel + 1}. ${inp.value || 'Untitled'}`; }
+    }));
+    form.querySelectorAll('select[data-f]').forEach((sel) => sel.addEventListener('change', () => { r[sel.dataset.f] = sel.value; }));
+    form.querySelectorAll('[data-color]').forEach((b) => b.addEventListener('click', () => { r.accent = b.dataset.color; renderRooms(); }));
+    form.querySelectorAll('[data-style]').forEach((b) => b.addEventListener('click', () => {
+      const was = r.style; r.style = b.dataset.style;
+      // follow the furniture with a fitting sign and prop, unless they were changed by hand
+      const fit = { barber: ['open', 'pole'], shop: ['bars', 'register'], studio: ['play', 'camera'], office: ['board', 'plant'] };
+      if (fit[was] && r.screen === fit[was][0] && r.prop === fit[was][1] && fit[r.style]) [r.screen, r.prop] = fit[r.style];
+      renderRooms();
+    }));
+    const kw = form.querySelector('#rd-kw');
+    const addKw = (v) => { const k = normKw(v); if (!k || r.match.includes(k) || r.match.length >= 24) return false; r.match.push(k); return true; };
+    const refocus = () => { renderRooms(); const k2 = $('#rd-kw'); if (k2) k2.focus(); };
+    kw.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); if (addKw(kw.value)) refocus(); else kw.value = ''; }
+      else if (e.key === 'Backspace' && !kw.value && r.match.length) { r.match.pop(); refocus(); }
+    });
+    kw.addEventListener('blur', () => { if (kw.value.trim() && addKw(kw.value)) renderRooms(); });
+    form.querySelector('.chipin').addEventListener('click', (e) => { if (e.target.classList.contains('chipin')) kw.focus(); });
+    form.querySelectorAll('[data-unkw]').forEach((b) => b.addEventListener('click', () => { r.match.splice(Number(b.dataset.unkw), 1); renderRooms(); }));
+    form.querySelectorAll('[data-sugg]').forEach((b) => b.addEventListener('click', () => { addKw(b.dataset.sugg); renderRooms(); }));
   }
 
   // ======================================================================= field guide
@@ -2846,7 +3429,8 @@
       <div class="cols">
         <div><h3>Bound to the ledger</h3><dl>
           <dt>Room</dt><dd>One money path. Lit means active; amber beacons and hazard stripes mean gated; red emergency light means killed.</dd>
-          <dt>Six desks</dt><dd>The six stages. Green screen: target met. Blinking blue: the next stage. Dots on the desk edge: progress.</dd>
+          <dt>Service room</dt><dd>In a station built from your own services (Rooms, or press C), each room is one service. Mirror bulbs lit: sales today, one chair per sale up to six. Towel stack: sales this month. Tube: this month against the room's goal, gold once it is met. The crown marks the most profit per hour of chair time over 30 days.</dd>
+          <dt>Six desks</dt><dd>In a money path, the six stages. Green screen: target met. Blinking blue: the next stage. Dots on the desk edge: progress.</dd>
           <dt>Visiting crew</dt><dd>A one-off agent run. It beams in at Command when the run starts, sits and types at a desk, and beams out when it ends, carrying a crate if it logged outcomes.</dd>
           <dt>Code on a screen</dt><dd>A crew member is working at that desk right now.</dd>
           <dt>Hall pulses</dt><dd>A live run on that path reporting back to Command.</dd>
@@ -2860,13 +3444,14 @@
           <dt>Comm mast</dt><dd>Your income links. Green: synced. Amber: syncing. Red: a link failed. Grey: nothing linked. Waves leave the dish when a sync brings in money. Click it, or press I.</dd>
           <dt>Gold figure</dt><dd>You, the Commander.</dd>
         </dl></div>
-        <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">Wall screens, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the docking shuttle, where idle crew wander, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
+        <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">Wall screens, neon signs, barber poles, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the docking shuttle, where idle crew wander, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
           <h3>Controls</h3><div class="kb">
             <kbd>click</kbd><span>open a room, the vault (roster) or the outbox dock</span>
             <kbd>double-click</kbd><span>zoom into a room</span>
             <kbd>drag</kbd><span>pan the camera</span>
             <kbd>scroll · pinch</kbd><span>zoom</span>
-            <kbd>1 – 8</kbd><span>jump to room by rank</span>
+            <kbd>1 – 9</kbd><span>jump to room by rank</span>
+            <kbd>C</kbd><span>customize rooms: services, colours, keywords</span>
             <kbd>0 / H</kbd><span>station roster</span>
             <kbd>O</kbd><span>outbox dock</span>
             <kbd>I</kbd><span>income sync: link accounts, import statements</span>
@@ -2942,11 +3527,18 @@
   $('#labels').addEventListener('click', (ev) => { const el = ev.target.closest('[data-sel]'); if (el) select(el.dataset.sel); });
   $('#labels').addEventListener('mouseover', (ev) => { const el = ev.target.closest('[data-sel]'); if (el && snap) { const t = targetById(el.dataset.sel); if (t) showTip({ kind: 'place', t }, ev); } });
   $('#labels').addEventListener('mouseout', (ev) => { if (ev.target.closest('[data-sel]')) showTip(null); });
-  $('#panel').addEventListener('click', (ev) => { const el = ev.target.closest('[data-sel]'); if (el) { ev.preventDefault(); select(el.dataset.sel); } });
+  $('#panel').addEventListener('click', (ev) => {
+    const rb = ev.target.closest('[data-rooms]');
+    if (rb) { ev.preventDefault(); openRooms({ room: rb.dataset.rooms || null }); return; }
+    const el = ev.target.closest('[data-sel]'); if (el) { ev.preventDefault(); select(el.dataset.sel); }
+  });
   $('#zin').innerHTML = ic('zin'); $('#zout').innerHTML = ic('zout'); $('#zhome').innerHTML = ic('fit'); $('#help').innerHTML = ic('help');
   $('#insToggle').innerHTML = ic('chevR');
   $('#navSync').innerHTML = '<span class="sdot"></span>' + ic('bolt') + 'Sync';
   $('#navSync').addEventListener('click', (e) => { e.preventDefault(); openSync(); });
+  $('#navRooms').innerHTML = ic('rooms') + '<span class="lbl">Rooms</span>';
+  $('#navRooms').addEventListener('click', (e) => { e.preventDefault(); openRooms(); });
+  $('#roomsbox').addEventListener('click', (e) => { if (e.target.id === 'roomsbox') closeRooms(); });
   $('#syncbox').addEventListener('click', (e) => { if (e.target.id === 'syncbox') closeSync(); });
   $('#navTerm').innerHTML = ic('term') + '<span class="lbl">Terminal</span>'; $('#navLedger').innerHTML = ic('chart') + '<span class="lbl">Ledger</span>'; $('#navGuide').innerHTML = ic('book') + '<span class="lbl">Guide</span>';
   $('#navTerm').title = 'Production terminal'; $('#navLedger').title = 'Money dashboard'; $('#navGuide').title = 'Field guide (?)';
@@ -2966,18 +3558,20 @@
     if (ev.key === 'Escape') {
       if (!$('#guide').hidden) { closeGuide(); return; }
       if (!$('#syncbox').hidden) { closeSync(); return; }
+      if (!$('#roomsbox').hidden) { closeRooms(); return; }
       if (typing) { tgt.blur(); return; }
       select('hub'); return;
     }
     if (typing || ev.metaKey || ev.ctrlKey || ev.altKey) return;
-    if (!$('#guide').hidden || !$('#syncbox').hidden) return;
+    if (!$('#guide').hidden || !$('#syncbox').hidden || !$('#roomsbox').hidden) return;
     const k = ev.key;
-    if (/^[1-8]$/.test(k)) { const room = rooms.find((m) => m.spec.rank === Number(k)); if (room) select(room.id); ev.preventDefault(); return; }
+    if (/^[1-9]$/.test(k)) { const room = rooms.find((m) => m.spec.rank === Number(k)); if (room) select(room.id); ev.preventDefault(); return; }
     const panStep = 60 / (fitS * camT.z);
     switch (k) {
       case '0': case 'h': case 'H': select('hub'); break;
       case 'o': case 'O': select('dock'); break;
       case 'i': case 'I': openSync(); break;
+      case 'c': case 'C': openRooms({ room: selected && roomById(selected) ? selected : null }); break;
       case 'f': case 'F': camT.x = home.x; camT.y = home.y; camT.z = 1; break;
       case '+': case '=': zoomBy(1.35); break;
       case '-': case '_': zoomBy(1 / 1.35); break;
@@ -3014,18 +3608,37 @@
 
   async function poll() {
     try {
-      const r = await fetch('/api/state', { cache: 'no-store' });
+      const r = await fetch('api/state', { cache: 'no-store' });
       const next = await r.json();
       prev = snap; snap = next;
-      const rebuilt = !rooms.length || (prev && prev.catalog.length !== snap.catalog.length);
-      if (rebuilt) { buildRooms(); buildNav(); seedMotes(); layout(); camT.x = cam.x = home.x; camT.y = cam.y = home.y; }
+      // the room design changed (a template, a new room, a rename, a new order): rebuild the station around it
+      const catChanged = Boolean(prev) && catSig(prev.catalog) !== catSig(snap.catalog);
+      if (!rooms.length || catChanged) {
+        buildRooms(); buildNav(); seedMotes(); layout(); camT.x = cam.x = home.x; camT.y = cam.y = home.y;
+        if (catChanged) {
+          for (const id of [...agents.keys()]) if (id !== 'commander') agents.delete(id);
+          if (selected && selected !== 'dock' && !roomById(selected)) selected = null;
+          lastLabels = ''; panelSig = ''; bakedSig = ''; first = true;
+        }
+      }
+      renderStationName();
       sync(); announce(); first = false;
       renderHud(); renderFeed(); buildLabels();
       const sig = signature();
       if (sig !== bakedSig) { baked = bake(); bakeLights(); bakedSig = sig; }
       renderPanel();
       finishBoot();
+      if (!welcomed && snap.station && snap.station.configured === false && !snap.state.eventCount && !sget('rs-welcome')) { welcomed = true; openRooms({ welcome: true }); }
     } catch (e) { /* server down or preview offline: keep drawing the last truthful frame */ }
+  }
+  const stationName = () => { const n = snap && snap.station && snap.station.name; return n && n !== 'Revenue Station' ? n : 'Station roster'; };
+  let shownName = '';
+  function renderStationName() {
+    const n = (snap.station && snap.station.name) || 'Revenue Station';
+    if (n === shownName) return;
+    shownName = n;
+    $('#topbar .brand h1').textContent = n.toUpperCase();
+    document.title = n === 'Revenue Station' ? n : `${n} · Revenue Station`;
   }
   let last = performance.now(), slow = 0, fast = 0;
   const perf = { step: 0, world: 0, display: 0, quality: 2 };

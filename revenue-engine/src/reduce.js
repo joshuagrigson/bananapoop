@@ -3,6 +3,7 @@
 // Spend is counted from money.out only; agent.run.end.usd is descriptive and never double-counted.
 import { STAGES } from './ledger.js';
 import { CATALOG } from './paths.js';
+import { routeEvents } from './rooms.js';
 
 function emptyPath(id, spec) {
   return {
@@ -26,7 +27,8 @@ function emptyPath(id, spec) {
 const byTs = (a, b) => (a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0);
 
 export function reduce(events, catalog = CATALOG) {
-  const sorted = [...events].sort(byTs);
+  // rooms can claim money by item name ("Skin fade"): re-file before counting, without touching the ledger
+  const sorted = routeEvents([...events], catalog).sort(byTs);
   const st = {
     earnedUsd: 0,
     spentUsd: 0,

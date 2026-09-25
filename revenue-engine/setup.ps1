@@ -1,7 +1,10 @@
 # Revenue Station setup and daily start for Windows. Safe to run again any time: it skips what is already done.
 # From PowerShell, in the folder that holds bananapoop:
 #   powershell -ExecutionPolicy Bypass -File .\bananapoop\revenue-engine\setup.ps1
-param([switch]$NoServe)
+# A second, separate station (a barbershop, a salon, any business with its own rooms) keeps its own ledger, rooms and
+# links in data-<name> and runs on its own port, side by side with the first:
+#   powershell -ExecutionPolicy Bypass -File .\bananapoop\revenue-engine\setup.ps1 -Station shop
+param([switch]$NoServe, [string]$Station = '', [int]$Port = 0)
 
 # 'Continue', not 'Stop': Windows PowerShell 5.1 can treat git's and npm's normal progress output on stderr as a
 # fatal error under 'Stop'. Every real failure below is caught by checking exit codes and throwing on purpose.
@@ -9,6 +12,14 @@ $ErrorActionPreference = 'Continue'
 Set-Location -Path $PSScriptRoot
 $onWindows = $env:OS -eq 'Windows_NT'
 $npm = if ($onWindows) { 'npm.cmd' } else { 'npm' }
+$named = [bool]$Station
+if ($named) {
+  if ($Station -notmatch '^[a-z0-9][a-z0-9-]{0,19}$') { throw 'Use a short lowercase station name, like: -Station shop' }
+  $env:REVENUE_ENGINE_DATA = Join-Path $PSScriptRoot "data-$Station"
+  if (-not $Port) { $Port = 8791 }
+} else {
+  if (-not $Port) { $Port = 8790 }
+}
 
 function Say($msg) { Write-Host "`n== $msg" -ForegroundColor Cyan }
 
@@ -42,7 +53,9 @@ if (-not $env:ANTHROPIC_API_KEY -and $onWindows) {
   $saved = [Environment]::GetEnvironmentVariable('ANTHROPIC_API_KEY', 'User')
   if ($saved) { $env:ANTHROPIC_API_KEY = $saved }
 }
-if (-not $env:ANTHROPIC_API_KEY) {
+if ($named -and -not $env:ANTHROPIC_API_KEY) {
+  Write-Host 'Skipped: this station tracks sales and needs no key. A key only matters if you hire agents later.'
+} elseif (-not $env:ANTHROPIC_API_KEY) {
   Write-Host 'Get a key at https://console.anthropic.com/settings/keys'
   $secure = Read-Host 'Paste your key and press Enter (it stays hidden)' -AsSecureString
   $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
@@ -54,6 +67,18 @@ if (-not $env:ANTHROPIC_API_KEY) {
   Write-Host 'Saved to your Windows account, so you only do this once.'
 } else {
   Write-Host 'Key found.'
+}
+
+if ($named) {
+  Say "Station '$Station'"
+  Write-Host "Its ledger, rooms and income links live in $env:REVENUE_ENGINE_DATA (never uploaded anywhere)."
+  if ($NoServe) { Say 'Setup done (not starting the station because -NoServe was given).'; exit 0 }
+  Say 'Starting the station'
+  Write-Host 'Your browser opens in a moment. The first time, pick what the station runs (Barber shop) and name it.'
+  Write-Host 'Then open Sync, link Square, and every sale lands in the room for its service.'
+  Write-Host 'Leave this window open: closing it stops the Square sync. Paste the same command again to update and restart.'
+  & node src/cli.js serve --port $Port --open
+  exit 0
 }
 
 Say 'Finding new local businesses (free Texas records)'
@@ -80,4 +105,4 @@ Say 'Starting the Revenue Station'
 Write-Host 'Your browser opens in a moment. Leave this window open: closing it stops the agents.'
 Write-Host 'The auditor starts within a minute and spends at most $1 a run and $5 a day.'
 Write-Host 'Tomorrow, paste the same command again to update and restart.'
-& node src/cli.js serve --harvest-daily --open
+& node src/cli.js serve --port $Port --harvest-daily --open

@@ -27,7 +27,9 @@ export function createScheduler({ ledger, runAgent, makeProvider, dataDir, catal
   const lastError = new Map();
 
   async function tick(now = new Date()) {
-    const state = reduce(ledger.readAll(), catalog);
+    // catalog may be a function so rooms redesigned in the station apply without a restart
+    const cat = typeof catalog === 'function' ? catalog() : catalog;
+    const state = reduce(ledger.readAll(), cat);
     const spent = spentOnDay(state, now);
     // Roles with no inbox items or no due clients have nothing to do; drop them so they never block other jobs.
     const hasWork = (j) => { const r = ROLES[j.role]; return !r || !idleReason(r, dataDir, j.path); };
@@ -52,7 +54,7 @@ export function createScheduler({ ledger, runAgent, makeProvider, dataDir, catal
     }
     const maxUsd = Math.min(job.maxUsd, dailyCapUsd - spent);
     log({ type: 'job', jobId: job.jobId, role: job.role, path: job.path, maxUsd });
-    const running = runAgent({ role: job.role, pathId: job.path, jobId: job.jobId, ledger, dataDir, provider, catalog, maxUsd })
+    const running = runAgent({ role: job.role, pathId: job.path, jobId: job.jobId, ledger, dataDir, provider, catalog: cat, maxUsd })
       .then((result) => { lastError.delete(job.jobId); return result; })
       .catch((e) => {
         // Refusals (gated, killed, budget spent) are recorded once per distinct message, not every tick.

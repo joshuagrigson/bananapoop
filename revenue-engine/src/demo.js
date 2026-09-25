@@ -5,6 +5,7 @@ import path from 'node:path';
 import { LedgerError } from './ledger.js';
 import { addItem, markDone } from './inbox.js';
 import { addClient, markPacked } from './clients.js';
+import { fromTemplate, saveConfig } from './rooms.js';
 
 export function seedDemo(ledger, dataDir, now = Date.now()) {
   const existing = ledger.readAll();
@@ -86,6 +87,67 @@ export function seedDemo(ledger, dataDir, now = Date.now()) {
     id: 'conn_stripe_demo', kind: 'stripe', label: 'DEMO account', path: 'gbp-management', enabled: true, demo: true,
     since: at(90), createdAt: at(10), secret: {}, cursor: at(0.02),
     lastSync: { at: at(0.02), ok: true, imported: 1, usd: 193.9, seen: 3, skipped: 0 },
+  }], null, 2));
+  return lines.length;
+}
+
+// A barber's station for the preview: rooms from the barber template and ~60 days of fictional Square sales,
+// one ledger line per service on each ticket, exactly the shape a real Square sync writes. Loudly labeled demo data.
+export function seedBarberDemo(ledger, dataDir, now = Date.now()) {
+  if (ledger.readAll().length) throw new LedgerError('refusing to seed the barber demo into a ledger that already has lines');
+  const cfg = fromTemplate('barber');
+  // monthly goals so each room's tube has something to fill (placeholders, like the template's prices)
+  const GOALS = { products: 300, 'skin-fade': 2000, 'beard-trim': 600, 'kids-cut': 500, 'hot-towel-shave': 500, 'line-up': 500, color: 600, haircut: 2000 };
+  saveConfig(dataDir, { ...cfg, name: 'The Shop (demo)', rooms: cfg.rooms.map((r) => ({ ...r, goalUsd: GOALS[r.id] || 0 })) });
+  let seed = 20260925;
+  const rand = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+  const pick = (list) => { let t = rand() * list.reduce((s, x) => s + x.w, 0); for (const x of list) { t -= x.w; if (t <= 0) return x; } return list[list.length - 1]; };
+  const MENU = [
+    { item: "Men's Haircut", usd: 30, w: 30, tip: true }, { item: 'Skin Fade', usd: 40, w: 24, tip: true }, { item: 'Beard Trim', usd: 20, w: 10, tip: true },
+    { item: 'Kids Cut (12 & under)', usd: 25, w: 9, tip: true }, { item: 'Hot Towel Shave', usd: 35, w: 4, tip: true }, { item: 'Line Up', usd: 15, w: 9, tip: true },
+    { item: 'Gray Blend', usd: 60, w: 3, tip: true },
+  ];
+  const ADDONS = [{ item: 'Beard Trim', usd: 20 }, { item: 'Line Up', usd: 15 }, { item: 'Pomade', usd: 22 }, { item: 'Beard Oil', usd: 18 }];
+  const clients = ['Marcus T.', 'DeShawn R.', 'Luis P.', 'Tyler K.', 'Andre W.', 'Chris M.', 'Jamal B.', 'Noah S.', 'Eli G.', 'Omar F.', 'Brandon L.', 'Isaiah D.'];
+  const day = 86400e3;
+  const lines = [{ kind: 'note', demo: true, text: 'DEMO LEDGER: a fictional barber shop. Every client, ticket and dollar here is made up.', ts: new Date(now - 61 * day).toISOString() }];
+  let ticket = 0;
+  for (let d = 60; d >= 0; d--) {
+    const date = new Date(now - d * day);
+    const dow = date.getUTCDay();
+    if (dow === 0 || dow === 1) continue; // closed Sunday and Monday
+    const tickets = 5 + Math.floor(rand() * 6) + (dow === 5 || dow === 6 ? 3 : 0);
+    for (let k = 0; k < tickets; k++) {
+      ticket++;
+      const at = new Date(date.getTime() - (d === 0 ? 3 : 8 - k * 0.6) * 3600e3 + Math.floor(rand() * 20) * 60e3);
+      if (at.getTime() > now) continue;
+      const items = [pick(MENU)];
+      if (rand() < 0.28) { const a = ADDONS[Math.floor(rand() * ADDONS.length)]; if (a.item !== items[0].item) items.push(a); }
+      if (rand() < 0.03) items.push({ item: 'Gift Card', usd: 50 });
+      const tipBase = items.filter((x) => x.tip).reduce((s, x) => s + x.usd, 0);
+      const tip = Math.round(tipBase * (0.12 + rand() * 0.14));
+      const total = items.reduce((s, x) => s + x.usd, 0);
+      const fee = Math.round((total + tip) * 2.6 + 10) / 100;
+      const who = clients[Math.floor(rand() * clients.length)];
+      let givenNet = 0, givenTip = 0;
+      items.forEach((x, i) => {
+        const last = i === items.length - 1, share = x.usd / total;
+        const net = last ? Math.round((total + tip - fee - givenNet) * 100) / 100 : Math.round((total + tip - fee) * share * 100) / 100;
+        const t = last ? tip - givenTip : Math.round(tip * share * 100) / 100;
+        givenNet += net; givenTip += t;
+        lines.push({
+          kind: 'money.in', usd: net, path: 'haircut', source: who, evidence: `Square demo-${ticket} (synced)`, item: x.item, qty: 1,
+          ...(t > 0 ? { tip: Math.min(t, net) } : {}), ext: `square:demo-${ticket}:${i}`, grp: `square:demo-${ticket}`, via: 'square', ts: at.toISOString(),
+        });
+      });
+    }
+  }
+  lines.push({ kind: 'job', jobId: 'job_demo_promo', role: 'creator', path: 'skin-fade', everyHours: 48, maxUsd: 1, enabled: true, ts: new Date(now - 20 * day).toISOString() });
+  for (const l of lines) ledger.append(l);
+  fs.writeFileSync(path.join(dataDir, 'connections.json'), JSON.stringify([{
+    id: 'conn_square_demo', kind: 'square', label: 'DEMO shop', path: 'haircut', enabled: true, demo: true,
+    since: new Date(now - 61 * day).toISOString(), createdAt: new Date(now - 61 * day).toISOString(), secret: {}, cursor: new Date(now - 600e3).toISOString(),
+    lastSync: { at: new Date(now - 600e3).toISOString(), ok: true, imported: 3, usd: 96.4, seen: 3, skipped: 0 },
   }], null, 2));
   return lines.length;
 }

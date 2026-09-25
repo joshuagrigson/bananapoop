@@ -12,10 +12,11 @@ import { CATALOG, GATES } from './paths.js';
 import { runAgent, ROLES, DEFAULT_MODEL } from './agent.js';
 import { createServer } from './server.js';
 import { createScheduler } from './scheduler.js';
-import { seedDemo } from './demo.js';
+import { seedDemo, seedBarberDemo } from './demo.js';
 import { addItem, listItems } from './inbox.js';
 import { addClient, listClients, updateClient, isDue } from './clients.js';
 import { harvest, DEFAULT_COUNTIES } from './harvest.js';
+import { loadCatalog, loadConfig, saveConfig, resetConfig, fromTemplate, TEMPLATES } from './rooms.js';
 import { CONNECTORS, CSV_SOURCES, listConnections, upsertConnection, removeConnection, syncConnection, syncAll, testConnection, csvRecords, classify, knownExt, importRecords } from './sync.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -23,12 +24,12 @@ const ROOT = path.resolve(here, '..');
 const DATA_DIR = process.env.REVENUE_ENGINE_DATA || path.join(ROOT, 'data');
 const LEDGER_FILE = path.join(DATA_DIR, 'ledger.jsonl');
 
-const usd = (n) => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const usd = (n) => { const v = Number(n || 0); return (v < 0 ? '-$' : '$') + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: Math.abs(v) % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
 
 const HELP = `revenue-engine
 
   status                                   headline numbers, level, open quests
-  log-in <usd> --path P --source S --evidence E [--post ID] [--tag GIG] [--hours H]   real money received
+  log-in <usd> --path P --source S --evidence E [--item "Skin fade"] [--post ID] [--tag GIG] [--hours H]   real money received
   log-out <usd> --category C [--path P] --evidence E  real money spent (api|tool|ads|capital|other)
   outcome <path> <stage> --ref R --evidence E         prospect|conversation|demo|pilot|paid|retained
   gate <name> --cleared|--blocked --evidence E        e.g. gate employment-agreement --cleared --evidence "read 2026-09-26, no non-compete"
@@ -43,6 +44,9 @@ const HELP = `revenue-engine
   job add <role> --path P --every HOURS --max-usd N    a standing order the scheduler runs
   job off <jobId>                                      disable a job
   jobs                                                 list jobs
+  rooms                                                the rooms this station is built from
+  rooms template <barber|salon|freelance|paths|blank> [--name "Kayla's Chair"]   start the rooms from a template
+  rooms reset                                          back to the built-in money paths
   connections                                          income links and when each last synced
   connect <stripe|square|paypal|gumroad> --path P --key K [--secret S] [--label L] [--since 2026-06-01]
                                                        link where you get paid (PayPal: --key CLIENT_ID --secret SECRET)
@@ -50,7 +54,7 @@ const HELP = `revenue-engine
   sync [connectionId]                                  pull new payments now (serve does this every 15 minutes)
   import-csv <file> --path P --source upwork|fiverr|etsy|amazon|paypal|venmo|bank|other [--dry-run]
                                                        import a statement export; the same file twice never counts twice
-  seed-demo                                            fill an EMPTY data dir with labeled demo data
+  seed-demo [--barber]                                 fill an EMPTY data dir with labeled demo data (--barber: a barbershop)
   run <role> --path P [--max-usd 2] [--model ${DEFAULT_MODEL}] [--provider anthropic|replay --script file.json]
   serve [--port 8790] [--host 127.0.0.1] [--daily-cap 5] [--no-scheduler] [--harvest-daily] [--sync-every 15] [--open]
   paths                                    the catalog
@@ -78,21 +82,23 @@ async function providerFrom(v) {
 }
 
 function printStatus(ledger) {
-  const st = reduce(ledger.readAll());
+  const CAT = loadCatalog(DATA_DIR);
+  const st = reduce(ledger.readAll(), CAT);
   const lv = commanderLevel(st);
-  const q = quests(st);
+  const q = quests(st, CAT);
   const sum = summary(q);
   const y = st.spentUsd > 0 ? st.yieldRatio.toFixed(2) : 'n/a (nothing spent)';
   console.log(`earned ${usd(st.earnedUsd)} | spent ${usd(st.spentUsd)} | yield ${y} | Commander L${lv.level} (${lv.title})${lv.next ? ` | ${usd(lv.next.remainingUsd)} to ${lv.next.title}` : ''}`);
   console.log(`events ${st.eventCount} | runs ${st.runs.length}${st.running.length ? ` (+${st.running.length} live)` : ''} | quests ${sum.open} open / ${sum.done} done\n`);
-  for (const p of CATALOG) {
+  for (const p of CAT) {
     const s = st.paths[p.id];
+    if (p.kind === 'service') { const n = st.moneyIn.filter((e) => e.path === p.id).reduce((a, e) => a + (e.qty || 1), 0); console.log(`#${p.rank} ${p.name} [service] earned ${usd(s.earnedUsd)} from ${n} sold${p.match && p.match.length ? `  (claims items with: ${p.match.join(', ')})` : ''}`); continue; }
     const gated = p.gate && !(st.gates[p.gate] && st.gates[p.gate].cleared);
     const stages = Object.entries(s.outcomes).map(([k, n]) => `${k} ${k === 'paid' ? Math.max(n, s.moneyIn.length) : n}`).join(' · ');
     console.log(`#${p.rank} ${p.name} [${s.status}${gated ? ', gated' : ''}] earned ${usd(s.earnedUsd)} spent ${usd(s.spentUsd)}/${usd(p.budgetUsd)}\n    ${stages}`);
   }
   console.log('\nOPEN QUESTS');
-  for (const x of q.filter((i) => i.status === 'open')) console.log(`  [ ] ${x.title}${x.progress ? ` (${x.progress.n}/${x.progress.target})` : ''}${x.blocked ? ' BLOCKED' : ''}${x.gated ? ' gated' : ''}\n      ${x.desc}`);
+  for (const x of q.filter((i) => i.status === 'open')) console.log(`  [ ] ${x.title}${x.progress ? ` (${Math.round(x.progress.n * 100) / 100}/${x.progress.target})` : ''}${x.blocked ? ' BLOCKED' : ''}${x.gated ? ' gated' : ''}\n      ${x.desc}`);
   const done = q.filter((i) => i.status === 'done');
   if (done.length) { console.log('\nDONE'); for (const x of done) console.log(`  [x] ${x.title}: ${x.desc}`); }
 }
@@ -110,11 +116,12 @@ async function main(argv) {
       every: { type: 'string' }, type: { type: 'string' }, days: { type: 'string' }, counties: { type: 'string' },
       name: { type: 'string' }, city: { type: 'string' }, category: { type: 'string' }, website: { type: 'string' },
       monthly: { type: 'string' }, notes: { type: 'string' }, services: { type: 'string' }, 'harvest-daily': { type: 'boolean' }, open: { type: 'boolean' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
-      key: { type: 'string' }, secret: { type: 'string' }, label: { type: 'string' }, since: { type: 'string' }, 'dry-run': { type: 'boolean' }, 'sync-every': { type: 'string' },
+      key: { type: 'string' }, secret: { type: 'string' }, item: { type: 'string' }, label: { type: 'string' }, since: { type: 'string' }, 'dry-run': { type: 'boolean' }, 'sync-every': { type: 'string' }, barber: { type: 'boolean' },
     },
   });
   const [cmd, ...rest] = pos;
   const ledger = new Ledger(LEDGER_FILE);
+  const CAT = loadCatalog(DATA_DIR);
 
   switch (cmd) {
     case undefined:
@@ -123,11 +130,11 @@ async function main(argv) {
     case 'status':
       printStatus(ledger); return;
     case 'paths':
-      for (const p of CATALOG) console.log(`#${p.rank} ${p.id}\n   ${p.name} (${p.bucket})${p.gate ? ` gate: ${p.gate}` : ''}\n   ${p.thesis}\n   kill test: ${p.killTest}\n`);
+      for (const p of CAT) console.log(`#${p.rank} ${p.id}\n   ${p.name} (${p.bucket})${p.gate ? ` gate: ${p.gate}` : ''}\n   ${p.thesis}\n   kill test: ${p.killTest}\n`);
       console.log('GATES'); for (const [k, g] of Object.entries(GATES)) console.log(`   ${k}: ${g.title}`);
       return;
     case 'log-in': {
-      const ev = ledger.append({ kind: 'money.in', usd: Number(rest[0]), path: v.path, source: v.source, evidence: v.evidence, ...(v.post ? { postId: v.post } : {}), ...(v.tag ? { tag: v.tag } : {}), ...(v.hours ? { hours: Number(v.hours) } : {}) });
+      const ev = ledger.append({ kind: 'money.in', usd: Number(rest[0]), path: v.path, source: v.source, evidence: v.evidence, ...(v.post ? { postId: v.post } : {}), ...(v.tag ? { tag: v.tag } : {}), ...(v.hours ? { hours: Number(v.hours) } : {}), ...(v.item ? { item: v.item } : {}) });
       console.log(`appended money.in ${ev.id}: ${usd(ev.usd)} on ${ev.path} from ${ev.source}`); return;
     }
     case 'log-out': {
@@ -156,7 +163,7 @@ async function main(argv) {
       if (rest[0] === 'add') {
         const role = rest[1];
         if (!ROLES[role]) throw new LedgerError(`job add needs a role: ${Object.keys(ROLES).join(', ')}`);
-        if (!CATALOG.some((p) => p.id === v.path)) throw new LedgerError('job add needs a known --path');
+        if (!CAT.some((p) => p.id === v.path)) throw new LedgerError('job add needs a known --path');
         const ev = ledger.append({ kind: 'job', jobId: `job_${Date.now().toString(36)}`, role, path: v.path, everyHours: Number(v.every), maxUsd: Number(v['max-usd']), enabled: true });
         console.log(`appended job ${ev.jobId}: ${role} on ${ev.path} every ${ev.everyHours}h, max $${ev.maxUsd}/run. It runs while "serve" is up.`); return;
       }
@@ -185,7 +192,7 @@ async function main(argv) {
     }
     case 'client': {
       const pid = rest[1];
-      if (!CATALOG.some((p) => p.id === pid)) throw new LedgerError('client needs a known path, e.g. gbp-management');
+      if (!CAT.some((p) => p.id === pid)) throw new LedgerError('client needs a known path, e.g. gbp-management');
       if (rest[0] === 'add') {
         const c = addClient(DATA_DIR, pid, { name: v.name, city: v.city, category: v.category, website: v.website, services: v.services, notes: v.notes, monthlyUsd: v.monthly });
         console.log(`added client ${c.id}: ${c.name} (${c.city}). The manager writes their first pack on its next run.`); return;
@@ -197,7 +204,7 @@ async function main(argv) {
       throw new LedgerError('client needs "add" or "notes"');
     }
     case 'clients': {
-      const ids = rest[0] ? [rest[0]] : CATALOG.map((p) => p.id);
+      const ids = rest[0] ? [rest[0]] : CAT.map((p) => p.id);
       let any = false;
       for (const pid of ids) {
         for (const c of listClients(DATA_DIR, pid)) {
@@ -210,7 +217,7 @@ async function main(argv) {
     }
     case 'inbox': {
       if (rest[0] === 'add') {
-        if (!CATALOG.some((p) => p.id === rest[1])) throw new LedgerError('inbox add needs a known path, e.g. freelance-desk');
+        if (!CAT.some((p) => p.id === rest[1])) throw new LedgerError('inbox add needs a known path, e.g. freelance-desk');
         if (!v.file) throw new LedgerError('inbox add needs --file with the pasted post or brief');
         const item = addItem(DATA_DIR, rest[1], { type: v.type, url: v.url, text: fs.readFileSync(path.resolve(v.file), 'utf8') });
         console.log(`added ${item.id} (${item.type}) to ${rest[1]}: ${item.title}`); return;
@@ -224,7 +231,7 @@ async function main(argv) {
       return;
     }
     case 'seed-demo': {
-      const n = seedDemo(ledger, DATA_DIR);
+      const n = v.barber ? seedBarberDemo(ledger, DATA_DIR) : seedDemo(ledger, DATA_DIR);
       console.log(`seeded ${n} demo lines into ${LEDGER_FILE}. The station shows a DEMO banner. Delete ${DATA_DIR} to start real.`); return;
     }
     case 'run': {
@@ -239,6 +246,20 @@ async function main(argv) {
         log: (e) => console.error(`[${e.type}] ${JSON.stringify({ ...e, type: undefined })}`),
       });
       console.log(result.skipped ? `skipped: ${result.reason}. Nothing was spent.` : JSON.stringify(result, null, 2)); return;
+    }
+    case 'rooms': {
+      if (rest[0] === 'template') {
+        const cfg = fromTemplate(rest[1]);
+        const saved = saveConfig(DATA_DIR, v.name ? { ...cfg, name: v.name } : cfg);
+        console.log(`station "${saved.name}" now has ${saved.rooms ? saved.rooms.length + ' rooms: ' + saved.rooms.map((r) => r.name).join(', ') : 'the built-in paths'}. Edit them in the station (press C).`);
+        return;
+      }
+      if (rest[0] === 'reset') { resetConfig(DATA_DIR); console.log('back to the built-in money paths'); return; }
+      const cfg = loadConfig(DATA_DIR);
+      console.log(`${cfg ? cfg.name : 'Revenue Station'} (${cfg && cfg.rooms ? 'custom rooms' : 'built-in paths'})`);
+      for (const p of CAT) console.log(`  #${p.rank} ${p.id}  ${p.name}${p.kind === 'service' ? `  [service, ${p.minutes} min, cost ${usd(p.costUsd)}${p.match.length ? `, claims: ${p.match.join(', ')}` : ''}]` : ''}`);
+      console.log(`templates: ${Object.keys(TEMPLATES).join(', ')}`);
+      return;
     }
     case 'connections': {
       const list = listConnections(DATA_DIR);
@@ -257,7 +278,7 @@ async function main(argv) {
       spec.fields.forEach((f, i) => { secret[f.key] = i === 0 ? v.key : v.secret; });
       console.log(`checking the key with ${spec.title}...`);
       await testConnection({ kind, secret });
-      const c = upsertConnection(DATA_DIR, { kind, path: v.path, label: v.label, since: v.since, secret }, CATALOG);
+      const c = upsertConnection(DATA_DIR, { kind, path: v.path, label: v.label, since: v.since, secret }, CAT);
       const r = await syncConnection({ ledger, dataDir: DATA_DIR, id: c.id });
       console.log(r.ok ? `linked ${c.id}: ${r.imported} payments imported (${usd(r.usd)}), ${r.skipped} skipped. "serve" keeps it in sync.` : `linked ${c.id}, but the first sync failed: ${r.error}`);
       return;
@@ -272,7 +293,7 @@ async function main(argv) {
     }
     case 'import-csv': {
       if (!rest[0]) throw new LedgerError('import-csv <file> --path P --source upwork');
-      if (!CATALOG.some((p) => p.id === v.path)) throw new LedgerError(`--path must be one of: ${CATALOG.map((p) => p.id).join(', ')}`);
+      if (!CAT.some((p) => p.id === v.path)) throw new LedgerError(`--path must be one of: ${CAT.map((p) => p.id).join(', ')}`);
       const source = String(v.source || 'other').toLowerCase();
       const title = (CSV_SOURCES[source] || { title: v.source || 'CSV' }).title;
       const parsed = csvRecords(fs.readFileSync(rest[0], 'utf8'), { source });
@@ -303,7 +324,7 @@ async function main(argv) {
       if (!v['no-scheduler']) {
         const dailyCapUsd = Number(v['daily-cap'] || process.env.REVENUE_ENGINE_DAILY_CAP || 5);
         createScheduler({
-          ledger, runAgent, dataDir: DATA_DIR, dailyCapUsd, makeProvider: makeAnthropicProvider,
+          ledger, runAgent, dataDir: DATA_DIR, dailyCapUsd, makeProvider: makeAnthropicProvider, catalog: () => loadCatalog(DATA_DIR),
           log: (e) => console.error(`[scheduler] ${JSON.stringify(e)}`),
         }).start(60e3);
         if (v['harvest-daily']) {

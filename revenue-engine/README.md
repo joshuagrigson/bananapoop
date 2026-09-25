@@ -13,9 +13,9 @@ It is a small, honest machine for driving one operator from $0 to a first dollar
 
 ## Look first
 
-Live preview on demo data, buttons switched off: https://revenue-station-preview.netlify.app (station), `/terminal/` (production terminal), `/ledger/` (money dashboard). Rebuild it with `npm run preview`, which writes a static copy to `preview/`.
+Live preview on demo data, buttons switched off: https://revenue-station-preview.netlify.app (station), `/terminal/` (production terminal), `/ledger/` (money dashboard). A second station built for a barbershop, one room per service with Square sales split by service, is at https://revenue-station-preview.netlify.app/barber/. Rebuild both with `npm run preview`, which writes a static copy to `preview/`.
 
-Click anywhere on a room (floor, walls or its label) to open its stats, the vault for the station roster, or the outbox dock for drafts. Drag to pan, scroll or pinch to zoom, double-click a room to fly in, `1`-`8` jump to a room, `Esc` returns to the overview, `?` opens the field guide that says which objects are bound to the ledger and which are scenery.
+Click anywhere on a room (floor, walls or its label) to open its stats, the vault for the station roster, or the outbox dock for drafts. Drag to pan, scroll or pinch to zoom, double-click a room to fly in, `1`-`9` jump to a room, `C` customizes the rooms, `Esc` returns to the overview, `?` opens the field guide that says which objects are bound to the ledger and which are scenery.
 
 ## One-paste start (Windows)
 
@@ -41,6 +41,28 @@ node src/cli.js sync
 node src/cli.js connections
 ```
 
+## Rooms: make the station your business
+
+The rooms don't have to be the built-in money paths. Open **Rooms** in the top bar (or press `C`) and make each room whatever you sell: a barber makes one room per service (skin fade, beard trim, kids cut, products), a salon one per treatment, a freelancer one per kind of gig. Up to 10 rooms, each with its own name, colour, furniture (barber chairs and mirrors, a shop counter, desks, a studio), wall sign and corner prop. Start from a template (barber shop, hair salon, freelancer, the built-in paths, blank) and change anything. A new, empty station asks on first open.
+
+Each room claims sales by keyword. A synced sale keeps the name its platform gave it, and it lands in the first room whose keyword appears in that name: Square's "Skin Fade" goes to the room that claims `fade`, "Beard Oil" to the products room that claims `oil`. Square is read one line per service on the ticket, so a cut plus a beard trim lands in two rooms, and the tip and fees are shared between them by price, to the cent. Cash and other sales go in with a service room's **Log a sale**.
+
+Rooms are views, not buckets. Renaming a room, changing its keywords or reordering the rooms re-sorts the whole history on the next refresh, and no ledger line is ever rewritten. Sales no room claims stay in the room they were logged to (for Square, the room picked when linking it), and every dollar, claimed or not, still totals in the vault at the centre. Money logged to a room you later removed shows on the roster as "not in any room" until a keyword claims it.
+
+A service room shows what it sold, revenue, average ticket, tips, estimated profit after supplies, and **profit per hour of chair time** (set minutes and supply cost per service), with a daily takings chart and a monthly goal. The roster ranks the services by profit per hour, revenue, count or profit over 7, 30 or 90 days, and the top earner per hour wears a crown on the map. On the map: mirror bulbs light for each sale today, towels stack up with this month's sales, and the tube fills toward the room's goal (gold once met).
+
+The design lives in `data/rooms.json`. From the command line: `node src/cli.js rooms`, `rooms template barber --name "Kim's Cuts"`, `rooms reset`.
+
+### A second station for someone else's business
+
+A separate station keeps its own ledger, rooms and income links, so a barbershop's Square key and sales never mix with yours. On Windows:
+
+```powershell
+cd $HOME; if (Test-Path bananapoop) { git -C bananapoop pull } else { git clone -b claude/amazing-edison-n9ydsa https://github.com/joshuagrigson/bananapoop }; powershell -ExecutionPolicy Bypass -File .\bananapoop\revenue-engine\setup.ps1 -Station shop
+```
+
+That keeps everything in `data-shop/`, runs on port 8791 (side by side with your own station on 8790), needs no Anthropic key, and opens the station: pick **Barber shop**, name it, open **Sync**, link Square. Elsewhere: `REVENUE_ENGINE_DATA=./data-shop node src/cli.js serve --port 8791`.
+
 ## Crew
 
 Every agent you hire (a standing job) is a character who lives in its room: it wanders between runs and sits at a desk while its run is live. Hire one from a room's **Crew** section (role, how often, max per run); flip its switch to send it off shift. One-off runs from **Act → Dispatch** beam in from Command and leave when done.
@@ -52,8 +74,9 @@ Requirements: Node 22+. One dependency (`@anthropic-ai/sdk`).
 ```bash
 cd revenue-engine
 npm install
-npm test                       # 59 tests, zero spend (replay provider, fake payment APIs)
+npm test                       # 68 tests, zero spend (replay provider, fake payment APIs)
 REVENUE_ENGINE_DATA=./demo node src/cli.js seed-demo   # optional: labeled fake data to preview the station
+REVENUE_ENGINE_DATA=./demo-shop node src/cli.js seed-demo --barber   # optional: the barbershop demo
 node src/cli.js status         # headline numbers, level, open quests
 node src/cli.js paths          # the catalog
 node src/cli.js serve          # station at http://127.0.0.1:8790, money at /ledger, scheduler on
@@ -166,9 +189,10 @@ src/scheduler.js  jobs: due logic, daily cap, one-at-a-time dispatch, skips inbo
 src/inbox.js      the job inbox: posts to score, won jobs to fulfill, local leads to audit
 src/harvest.js    free Texas new-permit feed (data.texas.gov jrea-zgmq) into the GBP inbox
 src/sync.js       income sync: Stripe, Square, PayPal, Gumroad links and CSV statement import, deduped by transaction id
+src/rooms.js      the room design: templates, validation, keyword routing of sales into rooms (views over the ledger)
 src/clients.js    client roster with monthly pack due dates
 src/demo.js       labeled demo data (refuses a real ledger)
-src/server.js     localhost HTTP: station, /ledger, /api/state, /api/events, /api/run, /api/runs, /api/jobs, /api/outbox
+src/server.js     localhost HTTP: station, /ledger, /api/state, /api/events, /api/run, /api/runs, /api/jobs, /api/outbox, /api/rooms, /api/connections
 src/station.html  the pixel-art station: canvas renderer (lighting, bloom, depth-aware crew, pathfinding, camera) and game HUD; no assets, scenery labelled as scenery
 src/dashboard.html  the money dashboard
 src/cli.js

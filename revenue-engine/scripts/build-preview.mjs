@@ -1,14 +1,16 @@
 // Builds a static, click-around preview of the Revenue Station from labeled demo data.
 // Output: preview/ with the station (/), the production terminal (/terminal/), the money dashboard (/ledger/),
-// and frozen copies of every GET endpoint under /api/. Any POST (dispatch, log, add client) is answered by a
+// and frozen copies of every GET endpoint under /api/. A second station, a barbershop built from custom service
+// rooms with Square sales split by service, lives under /barber/ with its own pages and endpoints. Any POST (dispatch, log, add client) is answered by a
 // shim with "preview only", so nothing in the preview can spend money or pretend to act.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Ledger } from '../src/ledger.js';
-import { seedDemo } from '../src/demo.js';
-import { snapshot, listOutbox } from '../src/server.js';
+import { seedDemo, seedBarberDemo } from '../src/demo.js';
+import { snapshot, listOutbox, roomsInfo } from '../src/server.js';
+import { loadCatalog } from '../src/rooms.js';
 import { CATALOG } from '../src/paths.js';
 import { listItems } from '../src/inbox.js';
 import { listClients, isDue } from '../src/clients.js';
@@ -49,6 +51,10 @@ const BANNER = '<div style="background:#1d2a4d;color:#cfe0ff;padding:6px 16px;fo
 const page = (file) => fs.readFileSync(path.join(root, 'src', file), 'utf8')
   .replace('<head>', '<head>\n' + SHIM)
   .replace(/<body>/, '<body>\n' + BANNER);
+// the same pages, re-pointed at the barbershop's endpoints and links under /barber/
+const barberPage = (file) => page(file)
+  .replace(/(['"`])\/api\//g, '$1/barber/api/')
+  .replace(/href="\/"/g, 'href="/barber/"').replace(/href="\/terminal"/g, 'href="/barber/terminal/"').replace(/href="\/ledger"/g, 'href="/barber/ledger/"');
 
 fs.rmSync(out, { recursive: true, force: true });
 const write = (rel, body) => { const f = path.join(out, rel); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, body); };
@@ -61,6 +67,25 @@ write('api/inbox', JSON.stringify(inbox));
 write('api/clients', JSON.stringify(clients));
 write('api/runs', '[]');
 write('api/connections', JSON.stringify({ connectors: connectorSpecs(), csvSources: CSV_SOURCES, connections: listConnections(data), syncing: false }));
-write('_headers', '/api/*\n  Content-Type: application/json; charset=utf-8\n  Cache-Control: no-store\n');
+write('api/rooms', JSON.stringify(roomsInfo(ledger, CATALOG, data)));
+
+// ---- the barbershop station
+const bdata = fs.mkdtempSync(path.join(os.tmpdir(), 'station-barber-'));
+const bledger = new Ledger(path.join(bdata, 'ledger.jsonl'));
+seedBarberDemo(bledger, bdata);
+const bcat = loadCatalog(bdata);
+write('barber/index.html', barberPage('station.html'));
+write('barber/terminal/index.html', barberPage('terminal.html'));
+write('barber/ledger/index.html', barberPage('dashboard.html'));
+write('barber/api/state', JSON.stringify(snapshot(bledger, bcat, bdata)));
+write('barber/api/outbox', JSON.stringify(listOutbox(bdata, bcat)));
+write('barber/api/inbox', '{}');
+write('barber/api/clients', '{}');
+write('barber/api/runs', '[]');
+write('barber/api/connections', JSON.stringify({ connectors: connectorSpecs(), csvSources: CSV_SOURCES, connections: listConnections(bdata), syncing: false }));
+write('barber/api/rooms', JSON.stringify(roomsInfo(bledger, bcat, bdata)));
+
+write('_headers', ['/api/*', '/barber/api/*'].map((p) => `${p}\n  Content-Type: application/json; charset=utf-8\n  Cache-Control: no-store\n`).join(''));
 fs.rmSync(data, { recursive: true, force: true });
+fs.rmSync(bdata, { recursive: true, force: true });
 console.log(`preview built in ${out}`);

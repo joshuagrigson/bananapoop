@@ -99,6 +99,26 @@
       const drafts = outbox.filter((o) => o.path === spec.id).slice(0, Math.max(0, 4 - posts.length))
         .map((o) => `<div class="card"><div class="thumb">DRAFT</div>${esc(o.file)}</div>`);
       const cards = [...posts, ...drafts];
+      // a service room (a barber's skin fade, a shop's retail) shows its sales instead of a sales pipeline
+      const svc = spec.kind === 'service';
+      let sales = '', sold = '';
+      if (svc) {
+        const DAY = 864e5, now = Date.now(), lines = st.moneyIn.filter((e) => e.path === spec.id);
+        const m30 = lines.filter((e) => now - Date.parse(e.ts) < 30 * DAY);
+        const n30 = m30.reduce((a, e) => a + (e.qty || 1), 0), r30 = m30.reduce((a, e) => a + e.usd, 0);
+        const d0 = new Date(); d0.setHours(0, 0, 0, 0);
+        const m0 = new Date(d0.getFullYear(), d0.getMonth(), 1).getTime();
+        const today = lines.filter((e) => Date.parse(e.ts) >= d0.getTime()).reduce((a, e) => a + (e.qty || 1), 0);
+        const month = lines.filter((e) => Date.parse(e.ts) >= m0).reduce((a, e) => a + e.usd, 0);
+        const hours = n30 * (spec.minutes || 0) / 60, profit = r30 - n30 * (spec.costUsd || 0);
+        const row = (k, v) => `<div class="step done"><span class="n">${k}</span><span style="float:right">${v}</span></div>`;
+        const goal = spec.goalUsd || 0, gp = goal ? Math.min(100, 100 * month / goal) : 0;
+        sales = row('SOLD · 30 DAYS', n30) + row('REVENUE · 30 DAYS', usd(r30)) + row('AVG TICKET', n30 ? usd(r30 / n30) : '-') + row('PROFIT PER HOUR', hours ? usd(Math.round(profit / hours)) + '/hr' : 'n/a') + row('SOLD TODAY', today) +
+          `<div class="step ${goal && month >= goal ? 'done' : 'next'}"><span class="n">THIS MONTH</span> ${usd(month)}${goal ? ` of ${usd(goal)}` : ''}<div class="bar"><i style="width:${gp}%"></i></div></div>`;
+        const items = new Map();
+        for (const e of m30) { const k = String(e.item || e.tag || 'sale').trim(); const x = items.get(k) || { n: 0, usd: 0 }; x.n += e.qty || 1; x.usd += e.usd; items.set(k, x); }
+        sold = [...items.entries()].sort((a, b) => b[1].usd - a[1].usd).slice(0, 5).map(([k, x]) => `<div class="card"><div class="thumb">×${x.n} · ${usd(x.usd)}</div>${esc(k)}</div>`).join('');
+      }
       const events = st.tail.filter((e) => e.path === spec.id && e.kind !== 'money.out').slice(-4).reverse().map((e) => {
         const t = (e.ts || '').slice(5, 16).replace('T', ' ');
         const txt = e.kind === 'money.in' ? `+${usd(e.usd)} ${e.source}` : e.kind === 'outcome' ? `${e.stage}: ${e.ref}` : e.kind === 'post' ? `posted ${e.platform}: ${e.title}` : e.kind === 'agent.run.start' ? `${e.role} dispatched` : e.kind === 'agent.run.end' ? `${e.role} ${e.reason} ${usd(e.usd)}` : (e.text || e.kind);
@@ -113,10 +133,10 @@
           <div><div class="k">Live</div><div class="v">${p.posts.length}</div></div>
         </div>
         <div class="body">
-          <div class="pipe"><h3>Pipeline</h3>${steps}</div>
-          <div class="out"><h3>Output</h3>${cards.length ? `<div class="cards">${cards.join('')}</div>` : '<div class="empty">no output yet. Dispatch an agent from the station.</div>'}
-            <h3 style="margin-top:10px">Budget</h3><div class="bar" style="height:6px"><i style="width:${Math.min(100, 100 * p.spentUsd / (spec.budgetUsd || 1))}%;background:${p.spentUsd / (spec.budgetUsd || 1) > 0.8 ? 'var(--bad)' : 'var(--ph)'}"></i></div>
-            <div class="empty" style="margin-top:3px">${usd(p.spentUsd)} of ${usd(spec.budgetUsd)} · kill test: ${esc(spec.killTest)}</div>
+          <div class="pipe"><h3>${svc ? 'Sales' : 'Pipeline'}</h3>${svc ? sales : steps}</div>
+          <div class="out">${svc ? `<h3>What sold · 30 days</h3>${sold ? `<div class="cards">${sold}</div>` : '<div class="empty">nothing sold in 30 days.</div>'}` : `<h3>Output</h3>${cards.length ? `<div class="cards">${cards.join('')}</div>` : '<div class="empty">no output yet. Dispatch an agent from the station.</div>'}`}
+            <h3 style="margin-top:10px">Agent budget</h3><div class="bar" style="height:6px"><i style="width:${Math.min(100, 100 * p.spentUsd / (spec.budgetUsd || 1))}%;background:${p.spentUsd / (spec.budgetUsd || 1) > 0.8 ? 'var(--bad)' : 'var(--ph)'}"></i></div>
+            <div class="empty" style="margin-top:3px">${usd(p.spentUsd)} of ${usd(spec.budgetUsd)}${spec.killTest ? ` · kill test: ${esc(spec.killTest)}` : ''}</div>
           </div>
         </div>
         <div class="log">${events || '<div class="empty">&gt; idle<span class="blink">_</span></div>'}</div>

@@ -41,6 +41,11 @@ export function validate(input) {
       // synced or imported payments carry the platform's own transaction id, so the same payment is never counted twice
       if (ev.ext !== undefined && !(isText(ev.ext, 3) && ev.ext.length <= 200)) fail('money.in ext must be the platform transaction id (3-200 chars)');
       if (ev.via !== undefined && !(isText(ev.via) && ev.via.length <= 40)) fail('money.in via must name the connector, e.g. stripe');
+      // what was sold, as the platform named it ("Skin fade"): rooms claim money by item name
+      if (ev.item !== undefined && !(isText(ev.item) && ev.item.length <= 120)) fail('money.in item must be the service or product name (1-120 chars)');
+      if (ev.qty !== undefined && !(typeof ev.qty === 'number' && ev.qty > 0 && ev.qty < 10000)) fail('money.in qty must be a positive number');
+      if (ev.tip !== undefined && !(isUsd(ev.tip) && ev.tip >= 0 && ev.tip <= ev.usd)) fail('money.in tip must be between 0 and the amount');
+      if (ev.grp !== undefined && !(isText(ev.grp, 3) && ev.grp.length <= 200)) fail('money.in grp must be the parent transaction id');
       break;
     case 'post':
       if (!isText(ev.path)) fail('post needs a path id');

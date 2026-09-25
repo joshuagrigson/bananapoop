@@ -13,6 +13,7 @@ import { ROLES, DEFAULT_MODEL } from './agent.js';
 import { addItem, listItems } from './inbox.js';
 import { addClient, listClients, updateClient, isDue } from './clients.js';
 import { harvest as runHarvest } from './harvest.js';
+import { loadCatalog, loadConfig, saveConfig, resetConfig, fromTemplate, stationInfo, unclaimedItems, TEMPLATES, STYLES, SCREENS, PROPS, PALETTE, MAX_ROOMS } from './rooms.js';
 import { connectorSpecs, CSV_SOURCES, listConnections, upsertConnection, removeConnection, publicConnection, syncConnection, syncAll, syncing, testConnection, csvRecords, classify, knownExt, importRecords } from './sync.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -59,6 +60,7 @@ export function snapshot(ledger, catalog = CATALOG, dataDir = null) {
     quests: q,
     questSummary: summary(q),
     catalog: catalog.map((p) => ({ ...p, stageList: stagesFor(p) })),
+    station: dataDir ? stationInfo(dataDir) : { name: 'Revenue Station', template: 'paths', custom: false, configured: false },
     // income links, without any secret: the station's comm mast and sync panel read this
     sync: { syncing: syncing(), connections: dataDir ? listConnections(dataDir).map(({ secret, ...c }) => c) : [] },
     gates: GATES,
@@ -104,13 +106,29 @@ function guard(req, checkHost) {
 
 // opts.runAgent(args) -> Promise<result>; opts.makeProvider() -> provider for live runs (may throw if no credentials)
 // opts.fetchImpl is what income sync uses to reach Stripe, Square, PayPal and Gumroad (swapped out in tests).
-export function createServer({ ledger, catalog = CATALOG, dataDir, runAgent, makeProvider, harvestImpl = null, fetchImpl = globalThis.fetch, checkHost = true }) {
+// opts.catalog pins the rooms (tests); without it the rooms come from <data>/rooms.json on every request, so a room
+// designed in the station takes effect immediately.
+// Everything the room designer needs: the saved design, the live catalog, templates and the menu of looks.
+export function roomsInfo(ledger, catalog, dataDir) {
+  const cfg = dataDir ? loadConfig(dataDir) : null;
+  return {
+    config: cfg || { name: 'Revenue Station', template: 'paths', rooms: null },
+    catalog: catalog.map((p) => ({ id: p.id, name: p.name, short: p.short, kind: p.kind || 'pipeline', accent: p.accent, style: p.style, screen: p.screen, prop: p.prop, match: p.match || [], minutes: p.minutes, priceUsd: p.priceUsd, costUsd: p.costUsd, goalUsd: p.goalUsd, base: p.kind === 'service' ? undefined : p.id })),
+    templates: Object.fromEntries(Object.entries(TEMPLATES).map(([k, t]) => [k, { title: t.title, blurb: t.blurb, rooms: t.rooms ? t.rooms.length : CATALOG.length }])),
+    builtIn: CATALOG.map((p) => ({ id: p.id, name: p.name, short: p.short })),
+    styles: STYLES, screens: SCREENS, props: PROPS, palette: PALETTE, maxRooms: MAX_ROOMS,
+    unclaimed: unclaimedItems(ledger.readAll(), catalog),
+  };
+}
+
+export function createServer({ ledger, catalog: fixedCatalog = null, dataDir, runAgent, makeProvider, harvestImpl = null, fetchImpl = globalThis.fetch, checkHost = true }) {
   const runs = new Map(); // runId -> { status, started, result?, error? }
 
   return http.createServer(async (req, res) => {
     const url = new URL(req.url, 'http://localhost');
     const refused = guard(req, checkHost);
     if (refused) return send(res, 403, { ok: false, error: refused });
+    const catalog = fixedCatalog || loadCatalog(dataDir);
     try {
       if (req.method === 'GET' && url.pathname === '/') return send(res, 200, STATION_HTML, 'text/html');
       if (req.method === 'GET' && url.pathname === '/terminal') return send(res, 200, TERMINAL_HTML, 'text/html');
@@ -188,6 +206,22 @@ export function createServer({ ledger, catalog = CATALOG, dataDir, runAgent, mak
         try {
           const ev = ledger.append(body);
           return send(res, 201, { ok: true, event: ev });
+        } catch (e) {
+          if (e instanceof LedgerError) return send(res, 400, { ok: false, error: e.message });
+          throw e;
+        }
+      }
+
+      // ---- room designer
+      if (req.method === 'GET' && url.pathname === '/api/rooms') return send(res, 200, roomsInfo(ledger, catalog, dataDir));
+      if (req.method === 'POST' && url.pathname === '/api/rooms') {
+        if (!dataDir) return send(res, 501, { ok: false, error: 'no data dir' });
+        const body = await readJson(req);
+        try {
+          if (body.reset) { resetConfig(dataDir); return send(res, 200, { ok: true, config: null }); }
+          const cfg = body.template ? fromTemplate(body.template) : body.config;
+          const saved = saveConfig(dataDir, body.name && body.template ? { ...cfg, name: body.name } : cfg);
+          return send(res, 200, { ok: true, config: saved });
         } catch (e) {
           if (e instanceof LedgerError) return send(res, 400, { ok: false, error: e.message });
           throw e;
