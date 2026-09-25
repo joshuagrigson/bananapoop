@@ -1,0 +1,79 @@
+<title>Money Tournament 2026</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#f6f4ee;--ink:#1d1a14;--muted:#5f584a;--line:#d9d3c4;--card:#fffdf8;--accent:#8a3b12;--accent-ink:#ffffff;--trend:#245c7a;--ever:#4f6b2c;--uns:#7a3d8a;--ref:#fbf3e4;--fatal:#f1e6e2;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;--sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--disp:'Fraunces',Georgia,'Times New Roman',serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#17150f;--ink:#efe9da;--muted:#b3aa95;--line:#3a352a;--card:#1f1c15;--accent:#e0824a;--accent-ink:#17150f;--trend:#7fb6d6;--ever:#a3c46f;--uns:#c99ad6;--ref:#2a2416;--fatal:#2b1f1c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17150f;--ink:#efe9da;--muted:#b3aa95;--line:#3a352a;--card:#1f1c15;--accent:#e0824a;--accent-ink:#17150f;--trend:#7fb6d6;--ever:#a3c46f;--uns:#c99ad6;--ref:#2a2416;--fatal:#2b1f1c;color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;padding-inline:16px;padding-block:8px 48px;margin:0}
+main{max-width:980px;margin:0 auto}
+h1{font-family:var(--disp);font-size:clamp(2rem,5vw,3.2rem);font-weight:700;line-height:1.05;margin:24px 0 8px;text-wrap:balance}
+h2{font-family:var(--disp);font-size:1.6rem;font-weight:600;margin:40px 0 12px;text-wrap:balance}
+h3{font-family:var(--disp);font-size:1.25rem;font-weight:600;margin:0 0 6px;text-wrap:balance}
+p{max-width:68ch}
+.lede{font-size:1.1rem;color:var(--muted);max-width:70ch}
+.method{border-left:3px solid var(--accent);padding:4px 16px;margin:20px 0;color:var(--muted);font-size:.95rem}
+.kpis{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0}
+.kpi{background:var(--card);border:1px solid var(--line);padding:10px 14px;min-width:120px}
+.kpi b{display:block;font-family:var(--mono);font-size:1.4rem;font-variant-numeric:tabular-nums}
+.kpi span{font-size:.8rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+ol.picks{list-style:none;padding:0;margin:0;display:grid;gap:14px}
+.pick{display:grid;grid-template-columns:52px 1fr;gap:12px;background:var(--card);border:1px solid var(--line);padding:16px}
+.rank{font-family:var(--disp);font-size:2rem;font-weight:700;color:var(--accent);line-height:1}
+.tags{margin:0 0 8px;display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);padding:2px 8px;color:var(--muted)}
+.t-trend{border-color:var(--trend);color:var(--trend)}.t-evergreen{border-color:var(--ever);color:var(--ever)}.t-unsolved{border-color:var(--uns);color:var(--uns)}
+dl.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:0 0 10px}
+dl.nums div{border-top:1px solid var(--line);padding-top:6px}
+dl.nums dt{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+dl.nums dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500}
+.ev,.sk{font-size:.93rem;margin:6px 0;max-width:none}
+.sk{color:var(--muted)}
+ul.plain{padding-left:20px}ul.plain li{margin:6px 0;max-width:80ch}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:820px;font-size:.88rem}
+th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--line);padding:8px}
+td{vertical-align:top;padding:8px;border-bottom:1px solid var(--line)}
+td small{color:var(--muted)}
+tr.ref{background:var(--ref)}tr.fatal{background:var(--fatal)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin:8px 0 12px}
+.legend i{display:inline-block;width:14px;height:14px;border:1px solid var(--line);vertical-align:-2px;margin-right:6px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.filters button{background:var(--card);border:1px solid var(--line);color:var(--ink);padding:6px 12px;font:inherit;font-size:.85rem;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.filters button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{margin-top:40px;color:var(--muted);font-size:.85rem}
+@media (max-width:520px){.pick{grid-template-columns:1fr}.rank{font-size:1.5rem}}
+</style>
+<main>
+<h1>Money Tournament 2026</h1>
+<p class="lede">Ten ways to make the most money in today's market, chosen only after every other idea in a 109-idea field lost on evidence. Trends, things that have always paid, and unsolved problems solved efficiently.</p>
+<div class="kpis"><div class="kpi"><b>144</b><span>raw ideas, 12 lenses</span></div><div class="kpi"><b>109</b><span>distinct after merging</span></div><div class="kpi"><b>3</b><span>independent judges</span></div><div class="kpi"><b>21</b><span>refereed head-to-heads</span></div><div class="kpi"><b>1</b><span>upset</span></div></div>
+<div class="method"><p>Each idea carries a dossier (median net income at about 24 months, top decile, odds of reaching the median, months to first dollar, capital, durability to 2031) built from sourced claims plus 30 verification searches, and a skeptic line. Judges ranked all 109 under three lenses (expected value; durability and ceiling; speed, capital and execution odds), aggregated by Borda count. Spread rules: at least 2 trend, 2 evergreen, 2 unsolved; no repeated category; at least one employment path; at least five businesses. Ranks 11 to 30 were refereed head-to-head against the incumbent they would displace; ranks 31 to 109 are eliminated on panel placement plus the skeptic's finding and were not individually refereed. Scored for a motivated adult who could be earning within 24 months without a new degree and about $50,000 of capital; fit for Joshua counted in one judge of three.</p></div>
+<h2>The ten</h2>
+<ol class="picks">
+{{TOP10}}
+</ol>
+<h2>The spread</h2>
+<p>Unsolved 2, evergreen 3, trend 5. Two employment paths, two hybrids, six businesses, ten distinct categories. The spread rules cost nothing: the pure Borda top 10 already met them. The one concentration risk is that four picks sell into call centers or AI vendors; if that lane closes, the Medicare Advantage renewal book, the Texas property-tax protest firm and fire and life-safety inspection routes are the replacements, and each lost its head-to-head narrowly.</p>
+<h2>What changed in the challenge round</h2>
+<ul class="plain"><li>Upset: cost segregation (rank 14) beat generator load-bank testing (rank 10) on cited per-study pricing, a permanent statutory driver, a $1M ceiling and $10K of capital against $80K.</li><li>Collapse: the book-rate desk for PE home-services platforms and the show-rate desk were refereed as the same business; the show-rate desk led on every number and kept the slot.</li><li>Load-bank testing refilled the freed slot because it outranked every remaining idea that had not lost a head-to-head; it holds the weakest evidence in the ten.</li><li>Not run, for budget: a completeness-critic round. Paths never in the pool and therefore untested: a property-and-casualty agency book, a bookkeeping and tax firm, commercial cleaning, mortgage origination, government-contracting resale.</li></ul>
+<h2>What would flip this</h2>
+<ul class="plain"><li>No access to call-center clients outside the employer: the contact-rate service and show-rate desk drop, the Medicare Advantage book and property-tax firm move in.</li><li>No $80,000 to $160,000 down payment: the trades-shop acquisition becomes a pest-control or dumpster route built from scratch.</li><li>AI-vendor hiring cools in 2027: both employment paths weaken; fire inspection routes and cost segregation rise.</li><li>A verified contract book for load-bank testing restores it above cost segregation; a failed generator-tech hire removes it.</li></ul>
+<h2>Elimination ledger</h2>
+<p>Every other idea, with the incumbent that beats it and the reason. Shaded rows were refereed head-to-head; red rows were flagged fatal or near-fatal on capital, timing or probability.</p>
+<div class="legend"><span><i style="background:var(--ref)"></i>refereed</span><span><i style="background:var(--fatal)"></i>fatal or near-fatal</span></div>
+<div class="filters" role="group" aria-label="Filter ledger"><button id="f-all" aria-pressed="true" data-f="all">All</button><button id="f-ref" aria-pressed="false" data-f="ref">Refereed only</button><button id="f-trend" aria-pressed="false" data-f="trend">Trend</button><button id="f-ever" aria-pressed="false" data-f="evergreen">Evergreen</button><button id="f-uns" aria-pressed="false" data-f="unsolved">Unsolved</button></div>
+<div class="tablewrap"><table id="ledger"><thead><tr><th>Rank</th><th>Idea</th><th>Median / top / odds</th><th>Beaten by</th><th>Reason</th></tr></thead><tbody>
+{{LEDGER}}
+</tbody></table></div>
+<footer><p>Built September 25, 2026. Income figures are realistic net for a competent entrant at about 24 months, from sources cited in each card; every number is a 2025-2026 snapshot.</p></footer>
+</main>
+<script>
+(function(){
+  var btns=document.querySelectorAll('.filters button');var rows=document.querySelectorAll('#ledger tbody tr');
+  function apply(f){rows.forEach(function(r){var t=r.querySelector('small')?r.querySelector('small').textContent:'';var show=f==='all'||(f==='ref'&&r.classList.contains('ref'))||t.indexOf(f)===0;r.hidden=!show});btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.f===f))});try{localStorage.setItem('mt-filter',f)}catch(e){}}
+  btns.forEach(function(b){b.addEventListener('click',function(){apply(b.dataset.f)})});
+  var saved='all';try{saved=localStorage.getItem('mt-filter')||'all'}catch(e){}
+  apply(saved);
+})();
+</script>
