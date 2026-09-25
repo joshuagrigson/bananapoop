@@ -1,0 +1,25 @@
+[
+  {
+    "text": "Reading the path first.",
+    "calls": [{ "name": "read_path", "input": {} }],
+    "usage": { "input_tokens": 1200, "output_tokens": 60 }
+  },
+  {
+    "text": "Logging two prospects with live URLs.",
+    "calls": [
+      { "name": "log_outcome", "input": { "stage": "prospect", "ref": "Example Salon Co", "evidence": "https://example.com/salon", "note": "Texarkana TX; Square booking page, no online booking; site contact form" } },
+      { "name": "log_outcome", "input": { "stage": "prospect", "ref": "Sample Med Spa", "evidence": "https://example.com/medspa", "note": "Shreveport LA; missed-call text-back absent; listed email" } },
+      { "name": "log_outcome", "input": { "stage": "prospect", "ref": "No Evidence Shop", "evidence": "I could not find a page", "note": "should be rejected" } }
+    ],
+    "usage": { "input_tokens": 2400, "output_tokens": 400 }
+  },
+  {
+    "text": "Writing the prospect list to the outbox.",
+    "calls": [{ "name": "write_note", "input": { "filename": "prospects.md", "content": "# Prospects\n\n- Example Salon Co (https://example.com/salon): no online booking. Angle: free audit of the booking flow.\n- Sample Med Spa (https://example.com/medspa): no missed-call text-back. Angle: show the missed-call math.\n" } }],
+    "usage": { "input_tokens": 2600, "output_tokens": 300 }
+  },
+  {
+    "text": "Logged 2 prospects; 1 rejected for lacking a live URL. Wrote prospects.md.",
+    "usage": { "input_tokens": 2800, "output_tokens": 80 }
+  }
+]

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revenue Engine</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --line: #262b36; --ink: #e6e8ee; --muted: #8b93a7;
+    --good: #3ddc97; --warn: #f5a623; --bad: #ff5c5c; --accent: #7aa2ff; --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  header { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  header h1 { margin: 0; font-size: 16px; letter-spacing: .08em; text-transform: uppercase; }
+  header .law { color: var(--muted); font-size: 12px; }
+  main { padding: 16px 20px 60px; max-width: 1200px; margin: 0 auto; display: grid; gap: 16px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; }
+  .tile .k { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  .tile .v { font-size: 24px; margin-top: 4px; }
+  .tile .s { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+  section h2 { margin: 0 0 10px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+  .quest { display: grid; grid-template-columns: 22px 1fr; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); }
+  .quest:first-of-type { border-top: 0; }
+  .quest .dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 4px; border: 2px solid var(--muted); }
+  .quest.done .dot { background: var(--good); border-color: var(--good); }
+  .quest.gate .dot { border-color: var(--warn); }
+  .quest.blocked .dot { border-color: var(--bad); background: var(--bad); }
+  .quest .t { font-weight: 600; }
+  .quest .d { color: var(--muted); font-size: 12px; }
+  .quest .r { color: var(--accent); font-size: 12px; }
+  .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .bar > i { display: block; height: 100%; background: var(--accent); }
+  .path { border-top: 1px solid var(--line); padding: 10px 0; }
+  .path:first-of-type { border-top: 0; }
+  .path .name { font-weight: 600; }
+  .path .meta { color: var(--muted); font-size: 12px; margin: 2px 0 6px; }
+  .path .stages { display: flex; gap: 4px; flex-wrap: wrap; }
+  .path .stg { font-size: 11px; padding: 2px 6px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); }
+  .path .stg.done { border-color: var(--good); color: var(--good); }
+  .path .stg.next { border-color: var(--accent); color: var(--accent); }
+  .badge { font-size: 10px; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted); margin-left: 6px; vertical-align: middle; }
+  .badge.killed { border-color: var(--bad); color: var(--bad); }
+  .badge.paused { border-color: var(--warn); color: var(--warn); }
+  .badge.gated { border-color: var(--warn); color: var(--warn); }
+  form { display: grid; gap: 6px; }
+  form label { display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
+  input, select, textarea, button { font: inherit; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+  button { cursor: pointer; background: #1f2633; }
+  button:hover { border-color: var(--accent); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .msg { font-size: 12px; min-height: 16px; color: var(--muted); }
+  .msg.err { color: var(--bad); }
+  .msg.ok { color: var(--good); }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { text-align: left; padding: 6px 4px; border-top: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; border-top: 0; }
+  .empty { color: var(--muted); font-size: 12px; }
+  .cite { color: var(--muted); font-size: 11px; }
+  @media (max-width: 640px) { main { padding: 12px 16px 60px; } .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Revenue Engine</h1>
+  <span class="law">Nothing on this page is simulated. Every number cites a ledger line.</span>
+</header>
+<main>
+  <div class="tiles" id="tiles"></div>
+  <div class="grid2">
+    <section><h2>Open quests</h2><div id="quests-open"></div></section>
+    <section><h2>Paths</h2><div id="paths"></div></section>
+  </div>
+  <div class="grid2">
+    <section>
+      <h2>Log revenue (evidence required)</h2>
+      <form id="f-money">
+        <div class="row">
+          <label>USD received <input name="usd" type="number" step="0.01" min="0.01" required></label>
+          <label>Path <select name="path" data-paths></select></label>
+        </div>
+        <label>Who paid <input name="source" required placeholder="Acme Dental, Stripe customer cus_..."></label>
+        <label>Evidence <input name="evidence" required placeholder="invoice #, Stripe charge id, bank line"></label>
+        <button>Append money.in</button>
+        <div class="msg"></div>
+      </form>
+    </section>
+    <section>
+      <h2>Log an outcome</h2>
+      <form id="f-outcome">
+        <div class="row">
+          <label>Path <select name="path" data-paths></select></label>
+          <label>Stage <select name="stage" data-stages></select></label>
+        </div>
+        <label>Ref (business or person) <input name="ref" required></label>
+        <label>Evidence (URL, email subject, calendar link) <input name="evidence" required></label>
+        <button>Append outcome</button>
+        <div class="msg"></div>
+      </form>
+    </section>
+  </div>
+  <div class="grid2">
+    <section>
+      <h2>Gates and path status</h2>
+      <form id="f-gate">
+        <label>Gate <select name="gate" data-gates></select></label>
+        <label>Cleared? <select name="cleared"><option value="true">yes, side work is permitted</option><option value="false">no, blocked</option></select></label>
+        <label>Evidence (what you read, who confirmed) <input name="evidence" required></label>
+        <button>Append gate</button>
+        <div class="msg"></div>
+      </form>
+      <form id="f-status" style="margin-top:12px">
+        <div class="row">
+          <label>Path <select name="path" data-paths></select></label>
+          <label>Status <select name="status"><option>active</option><option>paused</option><option>killed</option></select></label>
+        </div>
+        <label>Reason <input name="reason" required placeholder="kill test failed: 0 calls from 25 outreaches"></label>
+        <button>Append path.status</button>
+        <div class="msg"></div>
+      </form>
+    </section>
+    <section>
+      <h2>Run an agent (spends real money)</h2>
+      <form id="f-run">
+        <div class="row">
+          <label>Role <select name="role" data-roles></select></label>
+          <label>Path <select name="path" data-paths></select></label>
+        </div>
+        <div class="row">
+          <label>Max USD this run <input name="maxUsd" type="number" step="0.25" min="0.25" value="2"></label>
+          <label>Model <input name="model" data-model></label>
+        </div>
+        <button>Start run</button>
+        <div class="msg"></div>
+      </form>
+      <div id="runs" style="margin-top:10px"></div>
+    </section>
+  </div>
+  <section><h2>Money ladder</h2><div id="ladder"></div></section>
+  <section><h2>Done quests (trophy shelf)</h2><div id="quests-done"></div></section>
+  <section><h2>Ledger tail</h2><div id="tail"></div></section>
+</main>
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const usd = (n) => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+  let snap = null;
+
+  function tiles(s) {
+    const st = s.state, lv = s.level;
+    const y = st.spentUsd > 0 ? st.yieldRatio.toFixed(2) : 'n/a';
+    $('#tiles').innerHTML = [
+      ['Earned', usd(st.earnedUsd), st.moneyIn.length ? st.moneyIn.length + ' payments with evidence' : 'no revenue recorded'],
+      ['Spent', usd(st.spentUsd), st.moneyOut.length + ' spend lines'],
+      ['Yield', y, st.spentUsd > 0 ? 'earned / spent' : 'undefined until something is spent'],
+      ['Commander', 'L' + lv.level, lv.next ? usd(lv.next.remainingUsd) + ' to ' + lv.next.title : lv.title],
+      ['Quests', s.questSummary.open + ' open', s.questSummary.done + ' done'],
+      ['Runs', st.runs.length + (st.running.length ? ' (+' + st.running.length + ' live)' : ''), st.runs.length ? 'last ' + (st.runs[st.runs.length-1].reason) : 'none yet'],
+    ].map(([k, v, d]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(d)}</div></div>`).join('');
+  }
+
+  function questHtml(q) {
+    const cls = ['quest', q.status, q.kind, q.blocked ? 'blocked' : ''].join(' ');
+    const bar = q.progress ? `<div class="bar"><i style="width:${Math.min(100, 100 * q.progress.n / q.progress.target)}%"></i></div>` : '';
+    const cite = q.cites && q.cites.length ? `<div class="cite">cites ${q.cites.length} ledger line${q.cites.length > 1 ? 's' : ''}: ${esc(q.cites.slice(0, 3).join(', '))}${q.cites.length > 3 ? '…' : ''}</div>` : '';
+    return `<div class="${cls}"><div class="dot"></div><div><div class="t">${esc(q.title)}${q.gated ? '<span class="badge gated">gated</span>' : ''}</div><div class="d">${esc(q.desc)}</div><div class="r">reward: ${esc(q.reward)}</div>${bar}${cite}</div></div>`;
+  }
+
+  function quests(s) {
+    const open = s.quests.filter((q) => q.status === 'open' && q.kind !== 'ladder');
+    const done = s.quests.filter((q) => q.status === 'done');
+    $('#quests-open').innerHTML = open.length ? open.map(questHtml).join('') : '<div class="empty">nothing open</div>';
+    $('#quests-done').innerHTML = done.length ? done.map(questHtml).join('') : '<div class="empty">nothing earned yet. First dollar is the first rung.</div>';
+    $('#ladder').innerHTML = s.quests.filter((q) => q.kind === 'ladder').map(questHtml).join('');
+  }
+
+  function paths(s) {
+    const html = s.catalog.map((spec) => {
+      const p = s.state.paths[spec.id];
+      const gated = spec.gate && !(s.state.gates[spec.gate] && s.state.gates[spec.gate].cleared);
+      let nextSeen = false;
+      const stages = spec.stageList.map((st) => {
+        const n = st.id === 'paid' ? Math.max(p.outcomes.paid, p.moneyIn.length) : p.outcomes[st.id];
+        const done = n >= st.target;
+        const next = !done && !nextSeen && p.status === 'active';
+        if (next) nextSeen = true;
+        return `<span class="stg ${done ? 'done' : next ? 'next' : ''}" title="${esc(st.label)}">${esc(st.id)} ${n}/${st.target}</span>`;
+      }).join('');
+      const badges = (p.status !== 'active' ? `<span class="badge ${p.status}">${p.status}</span>` : '') + (gated ? '<span class="badge gated">gated</span>' : '');
+      return `<div class="path"><div class="name">#${spec.rank} ${esc(spec.name)}${badges}</div>
+        <div class="meta">${esc(spec.bucket)} · month-12 ${usd(spec.month12Usd[0])}-${usd(spec.month12Usd[1])}/mo · first $ in ${spec.firstDollarWeeks[0]}-${spec.firstDollarWeeks[1]} wks · earned ${usd(p.earnedUsd)} · spent ${usd(p.spentUsd)} of ${usd(spec.budgetUsd)} budget</div>
+        <div class="stages">${stages}</div>
+        <div class="meta" style="margin-top:6px">kill test: ${esc(spec.killTest)}${p.statusReason ? ' · ' + esc(p.statusReason) : ''}</div></div>`;
+    }).join('');
+    $('#paths').innerHTML = html;
+  }
+
+  function tail(s) {
+    const runs = s.state.runs.slice(-8).reverse();
+    $('#runs').innerHTML = runs.length ? `<table><tr><th>run</th><th>role</th><th>path</th><th>reason</th><th>usd</th><th>iters</th></tr>${runs.map((r) => `<tr><td>${esc(r.runId)}</td><td>${esc(r.role)}</td><td>${esc(r.path)}</td><td>${esc(r.reason)}</td><td>${usd(r.usd)}</td><td>${r.iterations}</td></tr>`).join('')}</table>` : '<div class="empty">no runs yet</div>';
+    const rows = [...s.state.moneyIn.map((e) => ({ ts: e.ts, what: 'money.in', path: e.path, detail: `${usd(e.usd)} from ${e.source} (${e.evidence})` })),
+      ...s.state.moneyOut.slice(-20).map((e) => ({ ts: e.ts, what: 'money.out', path: e.path, detail: `${usd(e.usd)} ${e.category} ${e.evidence || e.runId || ''}` }))]
+      .sort((a, b) => (a.ts < b.ts ? 1 : -1)).slice(0, 15);
+    $('#tail').innerHTML = rows.length ? `<table><tr><th>when</th><th>what</th><th>path</th><th>detail</th></tr>${rows.map((r) => `<tr><td>${esc(r.ts.slice(0, 16).replace('T', ' '))}</td><td>${esc(r.what)}</td><td>${esc(r.path)}</td><td>${esc(r.detail)}</td></tr>`).join('')}</table>` : '<div class="empty">ledger is empty</div>';
+  }
+
+  function fillSelects(s) {
+    const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
+    document.querySelectorAll('[data-paths]').forEach((el) => { const cur = el.value; el.innerHTML = s.catalog.map((p) => opt(p.id, '#' + p.rank + ' ' + p.name)).join(''); if (cur) el.value = cur; });
+    document.querySelectorAll('[data-stages]').forEach((el) => { if (!el.options.length) el.innerHTML = ['prospect', 'conversation', 'demo', 'pilot', 'paid', 'retained'].map((x) => opt(x, x)).join(''); });
+    document.querySelectorAll('[data-gates]').forEach((el) => { if (!el.options.length) el.innerHTML = Object.entries(s.gates).map(([k, g]) => opt(k, g.title)).join(''); });
+    document.querySelectorAll('[data-roles]').forEach((el) => { if (!el.options.length) el.innerHTML = Object.entries(s.roles).map(([k, r]) => opt(k, r.title + (r.logs.length ? ' (logs ' + r.logs.join(',') + ')' : ' (drafts only)'))).join(''); });
+    document.querySelectorAll('[data-model]').forEach((el) => { if (!el.value) el.value = s.defaultModel; });
+  }
+
+  async function refresh() {
+    try {
+      const r = await fetch('/api/state', { cache: 'no-store' });
+      snap = await r.json();
+      fillSelects(snap); tiles(snap); quests(snap); paths(snap); tail(snap);
+    } catch (e) { $('#tiles').innerHTML = `<div class="tile"><div class="k">error</div><div class="s">${esc(e.message)}</div></div>`; }
+  }
+
+  async function post(url, body) {
+    const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const j = await r.json();
+    if (!r.ok || j.ok === false) throw new Error(j.error || ('HTTP ' + r.status));
+    return j;
+  }
+
+  function wire(id, build) {
+    const f = $(id), msg = $('.msg', f);
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const d = Object.fromEntries(new FormData(f).entries());
+      msg.className = 'msg'; msg.textContent = 'appending…';
+      try {
+        const res = await build(d);
+        msg.className = 'msg ok'; msg.textContent = res;
+        f.querySelectorAll('input[type=text],input:not([type]),input[type=number]').forEach((i) => { if (!i.hasAttribute('data-model') && i.name !== 'maxUsd') i.value = ''; });
+        refresh();
+      } catch (err) { msg.className = 'msg err'; msg.textContent = err.message; }
+    });
+  }
+
+  wire('#f-money', async (d) => { const j = await post('/api/events', { kind: 'money.in', usd: Number(d.usd), path: d.path, source: d.source, evidence: d.evidence }); return 'appended ' + j.event.id; });
+  wire('#f-outcome', async (d) => { const j = await post('/api/events', { kind: 'outcome', path: d.path, stage: d.stage, ref: d.ref, evidence: d.evidence, by: 'user' }); return 'appended ' + j.event.id; });
+  wire('#f-gate', async (d) => { const j = await post('/api/events', { kind: 'gate', gate: d.gate, cleared: d.cleared === 'true', evidence: d.evidence }); return 'appended ' + j.event.id; });
+  wire('#f-status', async (d) => { const j = await post('/api/events', { kind: 'path.status', path: d.path, status: d.status, reason: d.reason }); return 'appended ' + j.event.id; });
+  wire('#f-run', async (d) => { const j = await post('/api/run', { role: d.role, path: d.path, maxUsd: Number(d.maxUsd), model: d.model }); return 'started ' + j.runId + ' (results land on the ledger)'; });
+
+  refresh();
+  setInterval(refresh, 5000);
+})();
+</script>
+</body>
+</html>
