@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Production Terminal</title>
+<link rel="icon" href="data:,">
+<style>
+  :root { --bg: #020904; --panel: #03130a; --line: #0f4a24; --ph: #39ff88; --ph2: #1fbf5f; --dim: #138a44; --warn: #ffd34d; --bad: #ff5c5c; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ph); font: 13px/1.35 "VT323", ui-monospace, Menlo, Consolas, monospace; }
+  body::after { content: ""; position: fixed; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, transparent 1px 3px); mix-blend-mode: multiply; }
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; box-shadow: inset 0 0 140px rgba(0,0,0,.85); z-index: 2; }
+  .glow { text-shadow: 0 0 6px rgba(57,255,136,.55); }
+  .demo { background: #3a0f14; color: #ffb3b8; padding: 5px 14px; font-size: 12px; display: none; }
+  .ticker { display: flex; gap: 0; border-bottom: 1px solid var(--line); overflow-x: auto; white-space: nowrap; }
+  .ticker div { padding: 6px 14px; border-right: 1px solid var(--line); font-size: 12px; }
+  .ticker b { color: #b9ffd6; }
+  .ticker a { color: var(--ph); }
+  main { padding: 14px; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); }
+  @media (max-width: 420px) { main { grid-template-columns: 1fr; padding: 10px; } }
+  .term { border: 1px solid var(--line); background: var(--panel); box-shadow: 0 0 18px rgba(31,191,95,.08) inset; }
+  .term.killed { opacity: .55; filter: hue-rotate(-100deg); }
+  .term header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  .term header h2 { margin: 0; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; }
+  .tag { font-size: 10px; border: 1px solid currentColor; padding: 0 5px; }
+  .tag.gated { color: var(--warn); } .tag.killed { color: var(--bad); } .tag.live { color: var(--ph); }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--line); }
+  .kpis div { padding: 6px 10px; border-right: 1px solid var(--line); }
+  .kpis div:last-child { border-right: 0; }
+  .kpis .k { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: .1em; }
+  .kpis .v { font-size: 20px; }
+  .body { display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 420px) { .body { grid-template-columns: 1fr; } .kpis { grid-template-columns: 1fr 1fr; } }
+  .pipe { border-right: 1px solid var(--line); padding: 8px 10px; }
+  .step { border: 1px solid var(--line); padding: 4px 6px; margin-bottom: 5px; font-size: 12px; }
+  .step .n { color: var(--dim); font-size: 10px; }
+  .step.done { border-color: var(--ph2); background: rgba(57,255,136,.07); }
+  .step.next { border-color: var(--ph); animation: pulse 1.6s ease-in-out infinite; }
+  .step.gated { border-color: var(--warn); color: var(--warn); }
+  @keyframes pulse { 50% { box-shadow: 0 0 10px rgba(57,255,136,.45); } }
+  .bar { height: 3px; background: var(--line); margin-top: 3px; }
+  .bar i { display: block; height: 100%; background: var(--ph); }
+  .out { padding: 8px 10px; }
+  .out h3, .pipe h3 { margin: 0 0 6px; font-size: 10px; color: var(--dim); letter-spacing: .12em; text-transform: uppercase; font-weight: normal; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .card { border: 1px solid var(--line); padding: 5px; font-size: 11px; min-height: 58px; overflow: hidden; }
+  .card .thumb { height: 26px; margin-bottom: 4px; background: repeating-linear-gradient(45deg, #062a14 0 4px, #041d0e 4px 8px); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--dim); }
+  .card.earned { border-color: var(--warn); }
+  .card.earned .thumb { color: var(--warn); }
+  .card a { color: var(--ph); text-decoration: none; }
+  .log { border-top: 1px solid var(--line); padding: 6px 10px; font-size: 11px; color: var(--ph2); max-height: 76px; overflow: hidden; }
+  .empty { color: var(--dim); font-size: 11px; }
+  .crew { color: #b9ffd6; }
+  .blink { animation: blink 1s steps(1) infinite; } @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+<div class="demo" id="demo">DEMO LEDGER: fictional preview data.</div>
+<div class="ticker glow" id="ticker"></div>
+<main id="grid"></main>
+<script>
+(() => {
+  'use strict';
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const usd = (n) => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  let outbox = [];
+
+  function render(s) {
+    const st = s.state;
+    $('#demo').style.display = st.demo ? 'block' : 'none';
+    const live = st.posts.length;
+    const net = st.earnedUsd - st.spentUsd;
+    const tick = [
+      ['REV', usd(st.earnedUsd)], ['SPEND', usd(st.spentUsd)], ['NET', usd(net)],
+      ['YIELD', st.spentUsd > 0 ? st.yieldRatio.toFixed(2) + 'x' : 'n/a'],
+      ['AGENTS', st.running.length + ' on the job'], ['LIVE', live + ' posts'],
+      ['LEVEL', 'L' + s.level.level + (s.level.next ? ' · ' + usd(s.level.next.remainingUsd) + ' to ' + s.level.next.title : '')],
+    ];
+    $('#ticker').innerHTML = tick.map(([k, v]) => `<div>${k} <b>${esc(v)}</b></div>`).join('') + `<div><a href="/">station</a> · <a href="/ledger">ledger</a></div>`;
+
+    $('#grid').innerHTML = s.catalog.map((spec) => {
+      const p = st.paths[spec.id];
+      const gated = spec.gate && !(st.gates[spec.gate] && st.gates[spec.gate].cleared);
+      const crew = st.running.filter((r) => r.path === spec.id);
+      const status = p.status !== 'active' ? p.status : gated ? 'gated' : crew.length ? 'live' : '';
+      let nextSeen = false;
+      const steps = spec.stageList.map((sg, i) => {
+        const n = sg.id === 'paid' ? Math.max(p.outcomes.paid, p.moneyIn.length) : p.outcomes[sg.id];
+        const done = n >= sg.target;
+        const next = !done && !nextSeen && p.status === 'active';
+        if (next) nextSeen = true;
+        const cls = done ? 'done' : next ? (gated ? 'gated' : 'next') : '';
+        return `<div class="step ${cls}"><span class="n">STEP ${i + 1} · ${esc(sg.id.toUpperCase())}</span> ${done ? '✓' : ''}<br>${esc(sg.label)} <span style="float:right">${n}/${sg.target}</span><div class="bar"><i style="width:${Math.min(100, 100 * n / sg.target)}%"></i></div></div>`;
+      }).join('');
+      const posts = p.posts.slice().sort((a, b) => b.earnedUsd - a.earnedUsd || (a.ts < b.ts ? 1 : -1)).slice(0, 4)
+        .map((x) => `<div class="card ${x.earnedUsd > 0 ? 'earned' : ''}"><div class="thumb">${esc(x.platform.toUpperCase())}${x.earnedUsd > 0 ? ' · ' + usd(x.earnedUsd) : ''}</div><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a></div>`);
+      const drafts = outbox.filter((o) => o.path === spec.id).slice(0, Math.max(0, 4 - posts.length))
+        .map((o) => `<div class="card"><div class="thumb">DRAFT</div>${esc(o.file)}</div>`);
+      const cards = [...posts, ...drafts];
+      const events = st.tail.filter((e) => e.path === spec.id && e.kind !== 'money.out').slice(-4).reverse().map((e) => {
+        const t = (e.ts || '').slice(5, 16).replace('T', ' ');
+        const txt = e.kind === 'money.in' ? `+${usd(e.usd)} ${e.source}` : e.kind === 'outcome' ? `${e.stage}: ${e.ref}` : e.kind === 'post' ? `posted ${e.platform}: ${e.title}` : e.kind === 'agent.run.start' ? `${e.role} dispatched` : e.kind === 'agent.run.end' ? `${e.role} ${e.reason} ${usd(e.usd)}` : (e.text || e.kind);
+        return `<div>&gt; ${esc(t)} ${esc(txt)}</div>`;
+      }).join('');
+      return `<section class="term ${p.status === 'killed' ? 'killed' : ''}">
+        <header><h2 class="glow">#${spec.rank} ${esc(spec.short || spec.name)} terminal</h2>${status ? `<span class="tag ${status}">${status.toUpperCase()}</span>` : ''}</header>
+        <div class="kpis glow">
+          <div><div class="k">Revenue</div><div class="v">${usd(p.earnedUsd)}</div></div>
+          <div><div class="k">Spend</div><div class="v">${usd(p.spentUsd)}</div></div>
+          <div><div class="k">Crew</div><div class="v crew">${crew.length ? crew.length + '<span class="blink">_</span>' : '0'}</div></div>
+          <div><div class="k">Live</div><div class="v">${p.posts.length}</div></div>
+        </div>
+        <div class="body">
+          <div class="pipe"><h3>Pipeline</h3>${steps}</div>
+          <div class="out"><h3>Output</h3>${cards.length ? `<div class="cards">${cards.join('')}</div>` : '<div class="empty">no output yet. Dispatch an agent from the station.</div>'}
+            <h3 style="margin-top:10px">Budget</h3><div class="bar" style="height:6px"><i style="width:${Math.min(100, 100 * p.spentUsd / (spec.budgetUsd || 1))}%;background:${p.spentUsd / (spec.budgetUsd || 1) > 0.8 ? 'var(--bad)' : 'var(--ph)'}"></i></div>
+            <div class="empty" style="margin-top:3px">${usd(p.spentUsd)} of ${usd(spec.budgetUsd)} · kill test: ${esc(spec.killTest)}</div>
+          </div>
+        </div>
+        <div class="log">${events || '<div class="empty">&gt; idle<span class="blink">_</span></div>'}</div>
+      </section>`;
+    }).join('');
+  }
+
+  async function poll() {
+    try {
+      const [s, ob] = await Promise.all([fetch('/api/state', { cache: 'no-store' }).then((r) => r.json()), fetch('/api/outbox', { cache: 'no-store' }).then((r) => r.json())]);
+      outbox = ob;
+      render(s);
+    } catch { /* keep the last truthful frame */ }
+  }
+  poll();
+  setInterval(poll, 3000);
+})();
+</script>
+</body>
+</html>

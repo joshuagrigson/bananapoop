@@ -14,6 +14,7 @@ import { ROLES, DEFAULT_MODEL } from './agent.js';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const LEDGER_HTML = fs.readFileSync(path.join(here, 'dashboard.html'), 'utf8');
 const STATION_HTML = fs.readFileSync(path.join(here, 'station.html'), 'utf8');
+const TERMINAL_HTML = fs.readFileSync(path.join(here, 'terminal.html'), 'utf8');
 
 // Count real files an agent wrote to each path's outbox. The station's dock draws exactly this many papers.
 function outboxCounts(dataDir, catalog) {
@@ -89,6 +90,7 @@ export function createServer({ ledger, catalog = CATALOG, dataDir, runAgent, mak
     const url = new URL(req.url, 'http://localhost');
     try {
       if (req.method === 'GET' && url.pathname === '/') return send(res, 200, STATION_HTML, 'text/html');
+      if (req.method === 'GET' && url.pathname === '/terminal') return send(res, 200, TERMINAL_HTML, 'text/html');
       if (req.method === 'GET' && url.pathname === '/ledger') return send(res, 200, LEDGER_HTML, 'text/html');
       if (req.method === 'GET' && url.pathname === '/api/state') return send(res, 200, snapshot(ledger, catalog, dataDir));
       if (req.method === 'GET' && url.pathname === '/api/runs') return send(res, 200, [...runs.values()]);

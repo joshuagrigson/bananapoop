@@ -22,6 +22,8 @@ test('dashboard, state, event validation and a replayed run over HTTP', async ()
     const money = await fetch(base + '/ledger');
     assert.equal(money.status, 200);
     assert.match(await money.text(), /Money Dashboard/);
+    const term = await fetch(base + '/terminal');
+    assert.match(await term.text(), /Production Terminal/);
     const job = await fetch(base + '/api/jobs', { method: 'POST', body: JSON.stringify({ role: 'creator', path: 'beta', everyHours: 24, maxUsd: 1 }) });
     assert.equal(job.status, 201);
     const badJob = await fetch(base + '/api/jobs', { method: 'POST', body: JSON.stringify({ role: 'wizard', path: 'beta', everyHours: 24, maxUsd: 1 }) });
