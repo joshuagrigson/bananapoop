@@ -15,6 +15,8 @@ It is a small, honest machine for driving one operator from $0 to a first dollar
 
 Live preview on demo data, buttons switched off: https://revenue-station-preview.netlify.app (station), `/terminal/` (production terminal), `/ledger/` (money dashboard). Rebuild it with `npm run preview`, which writes a static copy to `preview/`.
 
+Click anywhere on a room (floor, walls or its label) to open its stats, the vault for the station roster, or the outbox dock for drafts.
+
 ## One-paste start (Windows)
 
 Paste this into PowerShell. It downloads or updates the code, checks Node, asks for your Anthropic key once (hidden), pulls new local businesses, adds Randi as client #1, sets the auditor and manager jobs, and opens the station. Run the same line again any day to update and restart.

@@ -5,77 +5,110 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Revenue Station</title>
 <link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=VT323&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #07080c; --panel: #11141b; --line: #232835; --ink: #e6e8ee; --muted: #8b93a7;
-    --good: #3ddc97; --warn: #f5a623; --bad: #ff5c5c; --accent: #7aa2ff; --gold: #ffcf5a;
+    --bg: #04050a; --panel: #0c0f18; --panel2: #111624; --line: #1f2738; --line2: #2b3550; --ink: #e8ecf4; --muted: #8a94ab;
+    --good: #3ddc97; --warn: #f5a623; --bad: #ff5c5c; --accent: #7aa2ff; --gold: #ffcf5a; --room: #7aa2ff;
+    --pix: "VT323", ui-monospace, Menlo, Consolas, monospace;
+    --pix2: "Silkscreen", "VT323", ui-monospace, monospace;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
   a { color: var(--accent); }
-  .hud { display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch; padding: 10px 16px; border-bottom: 1px solid var(--line); }
-  .hud .brand { font-size: 14px; letter-spacing: .14em; text-transform: uppercase; margin-right: auto; align-self: center; }
-  .hud .brand small { display: block; color: var(--muted); letter-spacing: .04em; text-transform: none; font-size: 11px; }
-  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; min-width: 110px; }
-  .stat .k { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
-  .stat .v { font-size: 18px; }
-  .stat .v.gold { color: var(--gold); }
-  .stat .bar { height: 4px; background: var(--line); border-radius: 2px; margin-top: 4px; overflow: hidden; }
-  .stat .bar i { display: block; height: 100%; background: var(--gold); }
-  .demo { background: #3a0f14; color: #ffb3b8; border-bottom: 1px solid #6a1d25; padding: 6px 16px; font-size: 12px; display: none; }
-  .wrap { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 0; }
-  @media (max-width: 900px) { .wrap { grid-template-columns: 1fr; } }
-  .stage { position: relative; overflow: hidden; background: #05060a; display: flex; justify-content: center; align-items: flex-start; }
+  .demo { background: linear-gradient(90deg, #3a0f14, #2a0b10); color: #ffb3b8; border-bottom: 1px solid #6a1d25; padding: 6px 16px; font-size: 12px; display: none; }
+  .hud { display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch; padding: 12px 16px; border-bottom: 1px solid var(--line);
+    background: radial-gradient(1200px 120px at 30% 0%, rgba(122,162,255,.08), transparent), linear-gradient(180deg, #0a0d16, #070910); }
+  .brand { margin-right: auto; align-self: center; display: flex; gap: 12px; align-items: center; }
+  .brand .logo { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #ffe8a3, #c98a16 60%, #6b4a0a); box-shadow: 0 0 18px rgba(255,207,90,.35); font-family: var(--pix2); color: #2a1a00; font-size: 14px; }
+  .brand h1 { margin: 0; font-family: var(--pix2); font-size: 16px; letter-spacing: .12em; font-weight: 400; text-shadow: 0 0 12px rgba(122,162,255,.35); }
+  .brand small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .stat { position: relative; background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--line2); border-radius: 10px; padding: 7px 12px 6px; min-width: 104px; overflow: hidden; }
+  .stat::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--c, #7aa2ff), transparent); opacity: .8; }
+  .stat .k { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .12em; }
+  .stat .v { font-family: var(--pix); font-size: 26px; line-height: 1; margin-top: 2px; }
+  .stat .v.gold { color: var(--gold); text-shadow: 0 0 10px rgba(255,207,90,.45); }
+  .stat .bar { height: 5px; background: #1a2030; border-radius: 3px; margin-top: 5px; overflow: hidden; }
+  .stat .bar i { display: block; height: 100%; background: linear-gradient(90deg, #c98a16, #ffcf5a); box-shadow: 0 0 8px rgba(255,207,90,.6); }
+  .wrap { display: grid; grid-template-columns: minmax(0, 1fr) 350px; }
+  @media (max-width: 960px) { .wrap { grid-template-columns: 1fr; } }
+  .stage { position: relative; overflow: hidden; background: #04050a; display: flex; justify-content: center; align-items: flex-start; }
   canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: crosshair; }
   .labels { position: absolute; inset: 0; pointer-events: none; }
-  .lbl { position: absolute; transform: translate(-50%, -100%); white-space: nowrap; font-size: 10px; text-align: center; line-height: 1.25; color: #cfd6e6; text-shadow: 0 0 6px #000, 0 0 2px #000; letter-spacing: .04em; }
-  .lbl b { color: #fff; font-weight: 600; }
-  .lbl .tag { display: inline-block; margin-left: 4px; padding: 0 4px; border-radius: 3px; font-size: 9px; border: 1px solid currentColor; }
-  .lbl.gated .tag { color: var(--warn); } .lbl.killed .tag { color: var(--bad); } .lbl.paused .tag { color: var(--muted); }
-  .float { position: absolute; transform: translate(-50%, -100%); font-size: 12px; font-weight: 700; text-shadow: 0 0 6px #000; pointer-events: none; animation: rise 2.2s ease-out forwards; }
-  @keyframes rise { from { opacity: 1; margin-top: 0; } to { opacity: 0; margin-top: -40px; } }
-  .tip { position: absolute; pointer-events: none; background: #0c0f16ee; border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font-size: 11px; display: none; white-space: nowrap; z-index: 3; }
-  aside { background: var(--panel); border-left: 1px solid var(--line); padding: 14px 16px; min-height: 420px; }
-  @media (max-width: 900px) { aside { border-left: 0; border-top: 1px solid var(--line); } }
-  aside h2 { margin: 0 0 4px; font-size: 14px; }
-  aside h3 { margin: 14px 0 6px; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  .lbl { position: absolute; transform: translate(-50%, -100%); white-space: nowrap; display: flex; align-items: center; gap: 7px; padding: 3px 8px 3px 7px; border-radius: 5px;
+    background: rgba(6,8,14,.8); border: 1px solid rgba(255,255,255,.08); border-left: 3px solid var(--c, #7aa2ff); box-shadow: 0 4px 14px rgba(0,0,0,.5), 0 0 12px color-mix(in srgb, var(--c, #7aa2ff) 22%, transparent);
+    pointer-events: auto; cursor: pointer; transition: background .15s, box-shadow .15s, transform .15s; }
+  .lbl:hover, .lbl.sel { background: color-mix(in srgb, var(--c, #7aa2ff) 16%, rgba(6,8,14,.9)); box-shadow: 0 4px 14px rgba(0,0,0,.5), 0 0 18px color-mix(in srgb, var(--c, #7aa2ff) 45%, transparent); }
+  .lbl:hover { transform: translate(-50%, -100%) translateY(-2px); }
+  .lbl .n { font-family: var(--pix2); font-size: 10px; letter-spacing: .05em; color: #fff; }
+  .lbl .n i { font-style: normal; color: var(--c, #7aa2ff); margin-right: 4px; }
+  .lbl .m { font-family: var(--pix); font-size: 16px; line-height: 1; color: var(--gold); }
+  .lbl .nm { font-weight: 400; }
+  .labels.compact .lbl { padding: 1px 5px 1px 4px; gap: 4px; border-left-width: 2px; }
+  .labels.compact .lbl .nm, .labels.compact .lbl .tag { display: none; }
+  .labels.compact .lbl .n { font-size: 9px; } .labels.compact .lbl .m { font-size: 13px; }
+  .lbl .tag { display: inline-block; padding: 0 4px; border-radius: 3px; font-family: ui-monospace, monospace; font-size: 9px; border: 1px solid currentColor; }
+  .lbl.gated .tag { color: var(--warn); } .lbl.killed .tag { color: var(--bad); } .lbl.paused .tag { color: var(--muted); } .lbl.live .tag { color: var(--good); }
+  .float { position: absolute; transform: translate(-50%, -100%); font-family: var(--pix); font-size: 20px; text-shadow: 0 0 8px #000, 0 0 2px #000; pointer-events: none; animation: rise 2.4s ease-out forwards; white-space: nowrap; }
+  @keyframes rise { from { opacity: 1; margin-top: 0; } to { opacity: 0; margin-top: -46px; } }
+  .tip { position: absolute; pointer-events: none; background: rgba(8,10,16,.92); border: 1px solid var(--line2); border-radius: 6px; padding: 5px 9px; font-size: 11px; display: none; white-space: nowrap; z-index: 3; }
+  aside { background: linear-gradient(180deg, #0c0f18, #090b12); border-left: 1px solid var(--line); padding: 16px; min-height: 420px; border-top: 3px solid var(--room); }
+  @media (max-width: 960px) { aside { border-left: 0; } }
+  aside h2 { margin: 0 0 6px; font-family: var(--pix2); font-size: 13px; font-weight: 400; letter-spacing: .06em; color: #fff; }
+  aside h2 .rk { color: var(--room); }
+  aside h3 { margin: 16px 0 7px; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
   aside .muted { color: var(--muted); font-size: 12px; }
-  .stg { display: grid; grid-template-columns: 90px 1fr 54px; gap: 6px; align-items: center; font-size: 12px; margin: 3px 0; }
-  .stg .b { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
-  .stg .b i { display: block; height: 100%; background: var(--accent); }
-  .stg.done .b i { background: var(--good); }
+  .chip { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px; border: 1px solid currentColor; margin-right: 4px; }
+  .stg { display: grid; grid-template-columns: 96px 1fr 58px; gap: 8px; align-items: center; font-size: 12px; margin: 4px 0; }
+  .stg .b { height: 8px; background: #161c2a; border-radius: 4px; overflow: hidden; border: 1px solid #1f2738; }
+  .stg .b i { display: block; height: 100%; background: linear-gradient(90deg, color-mix(in srgb, var(--room) 60%, #000), var(--room)); }
+  .stg.done .b i { background: linear-gradient(90deg, #1f8f5f, #3ddc97); box-shadow: 0 0 8px rgba(61,220,151,.6); }
   .stg.done { color: var(--good); }
+  .stg.next span:first-child { color: #fff; }
   form { display: grid; gap: 6px; margin-top: 6px; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  input, select, button { font: inherit; background: #0b0d13; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 5px 7px; width: 100%; }
-  button { cursor: pointer; background: #1a2130; }
-  button:hover { border-color: var(--accent); }
-  button.spend { border-color: #6a4d1a; }
+  input, select, button { font: inherit; background: #080a11; color: var(--ink); border: 1px solid var(--line2); border-radius: 7px; padding: 6px 8px; width: 100%; }
+  button { cursor: pointer; background: linear-gradient(180deg, #1a2234, #131a28); }
+  button:hover { border-color: var(--room); box-shadow: 0 0 10px color-mix(in srgb, var(--room) 30%, transparent); }
+  button.spend { border-color: #7a5a1a; }
   .msg { font-size: 11px; min-height: 14px; color: var(--muted); }
   .msg.err { color: var(--bad); } .msg.ok { color: var(--good); }
-  .quest { padding: 5px 0; border-top: 1px solid var(--line); font-size: 12px; }
+  .back { display: inline-block; font-size: 11px; color: var(--muted); text-decoration: none; margin-bottom: 8px; }
+  .back:hover { color: var(--ink); }
+  .rost { padding: 7px 9px 7px 10px; margin: 5px 0; border-radius: 7px; border: 1px solid var(--line); border-left: 3px solid var(--c); background: linear-gradient(90deg, color-mix(in srgb, var(--c) 7%, transparent), transparent 70%); cursor: pointer; transition: background .15s, border-color .15s; }
+  .rost:hover { border-color: var(--c); background: linear-gradient(90deg, color-mix(in srgb, var(--c) 16%, transparent), transparent 80%); }
+  .rost .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .rost .nm { font-family: var(--pix2); font-size: 10px; letter-spacing: .05em; color: #fff; }
+  .rost .nm i { font-style: normal; color: var(--c); margin-right: 5px; }
+  .rost .usd { font-family: var(--pix); font-size: 18px; color: var(--gold); line-height: 1; }
+  .rost .bar { height: 4px; background: #161c2a; border-radius: 2px; margin: 5px 0 4px; overflow: hidden; }
+  .rost .bar i { display: block; height: 100%; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 50%, #000), var(--c)); box-shadow: 0 0 6px var(--c); }
+  .rost .sub { font-size: 10px; color: var(--muted); }
+  .quest { padding: 6px 0; border-top: 1px solid var(--line); font-size: 12px; }
   .quest:first-child { border-top: 0; }
   .quest .d { color: var(--muted); font-size: 11px; }
-  .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--line); }
-  @media (max-width: 900px) { .bottom { grid-template-columns: 1fr; } }
-  .bottom section { padding: 12px 16px; }
+  .bottom { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); background: #070910; }
+  @media (max-width: 960px) { .bottom { grid-template-columns: 1fr; } }
+  .bottom section { padding: 14px 16px; }
   .bottom section + section { border-left: 1px solid var(--line); }
-  @media (max-width: 900px) { .bottom section + section { border-left: 0; border-top: 1px solid var(--line); } }
-  .bottom h3 { margin: 0 0 8px; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  @media (max-width: 960px) { .bottom section + section { border-left: 0; border-top: 1px solid var(--line); } }
+  .bottom h3 { margin: 0 0 8px; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
   .feed div { font-size: 11px; padding: 2px 0; color: #b8c0d4; }
   .feed .t { color: var(--muted); margin-right: 6px; }
-  .legend { display: grid; grid-template-columns: 1fr; gap: 3px; font-size: 11px; color: #b8c0d4; }
+  .legend { display: grid; gap: 3px; font-size: 11px; color: #b8c0d4; }
   .legend b { color: var(--ink); font-weight: 600; }
 </style>
 </head>
 <body>
 <div class="demo" id="demo">DEMO LEDGER. Everything on this station is fictional preview data. Point REVENUE_ENGINE_DATA at your real ledger to see the truth.</div>
 <div class="hud" id="hud">
-  <div class="brand">Revenue Station<small>every object on the floor is a ledger line &middot; <a href="/terminal">production terminal</a> · <a href="/ledger">money dashboard</a></small></div>
+  <div class="brand"><div class="logo">$</div><div><h1>REVENUE STATION</h1><small>every lit screen, crate, crew member and gold bar is a ledger line &middot; <a href="/terminal">production terminal</a> · <a href="/ledger">money dashboard</a></small></div></div>
 </div>
 <div class="wrap">
   <div class="stage" id="stage">
-    <canvas id="cv" width="560" height="340"></canvas>
+    <canvas id="cv" width="720" height="430"></canvas>
     <div class="labels" id="labels"></div>
     <div class="tip" id="tip"></div>
   </div>
@@ -85,30 +118,45 @@
   <section><h3>Ledger feed</h3><div class="feed" id="feed"></div></section>
   <section><h3>What you are looking at</h3>
     <div class="legend">
-      <div><b>Room</b> = one money path. Lit means active. Amber hazard means gated. Red and dark means killed.</div>
-      <div><b>Six desks</b> = the six stages. A green screen means the stage target is met. A blinking blue screen marks the next stage.</div>
+      <div><b>Room</b> = one money path. Lit means active. Amber beacons and hazard stripes mean gated. Red emergency light means killed.</div>
+      <div><b>Six desks</b> = the six stages. A green screen means the stage target is met. A blinking blue screen marks the next stage. The dots on the desk edge are progress.</div>
       <div><b>Crates</b> = evidenced outcomes logged on that path, one crate each (display capped at 16).</div>
-      <div><b>Reactor tube</b> = spend against the path budget. It glows red past 80%.</div>
+      <div><b>Reactor tube</b> = spend against the path budget. It burns orange past 50% and red past 80%.</div>
       <div><b>Crew</b> = a real agent run. No run, no crew member. Walking in is a run start; walking out is a run end, carrying a crate if the run logged outcomes.</div>
-      <div><b>Vault</b> = evidenced revenue. One gold bar per ladder rung crossed: $1, $1K, $10K, $100K, $1M.</div>
+      <div><b>Vault</b> = evidenced revenue. One gold bar per ladder rung crossed ($1, $1K, $10K, $100K, $1M); the hologram shows your Commander level.</div>
       <div><b>Posters</b> = posts you published, logged with their live URL. A gold corner means that post has earned money.</div>
       <div><b>Outbox dock</b> = one sheet per draft an agent wrote. Nothing is sent without you.</div>
-      <div><b>Gold figure</b> = you, the Commander.</div>
+      <div><b>Pulses in the halls</b> = a live agent run on that path, reporting back to Command. They stop when the run ends.</div>
+      <div><b>Gold figure</b> = you, the Commander. <b>Decoration</b>: wall screens, rugs, chairs, mugs, plants, racks, windows, solar wings and everything in space are scenery with no meaning.</div>
+      <div><b>Click</b> any room (floor, wall or label), the vault for the station roster, or the outbox dock.</div>
     </div>
   </section>
 </div>
 <script>
 (() => {
   'use strict';
-  // ---------- constants ----------
-  const W = 560, H = 340, OX = 280, OY = 58, WH = 16;   // canvas size, iso origin, wall height
+  // ---------------------------------------------------------------- constants
+  const W = 720, H = 430, OX = 360, OY = 70, HW = 12, HH = 6, WH = 26, SLAB = 12;
   const CELL = 10, ROOM = 7;
   const PATH_CELLS = [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [1, 2], [2, 2], [3, 1]];
   const HUB = [1, 1], DOCK = [0, 2];
-  const PLATFORM_COLOR = { linkedin: '#4a8fe0', x: '#d8dde8', youtube: '#ff4d4d', instagram: '#c86bff', blog: '#3ddc97' };
   const DESKS = [[1, 1], [3, 1], [5, 1], [1, 4], [3, 4], [5, 4]];   // room-local, one per stage
   const STAGES = ['prospect', 'conversation', 'demo', 'pilot', 'paid', 'retained'];
-  const ROLE_COLOR = { prospector: '#5fd4ff', outreach: '#b48cff', pricing: '#ffb347', creator: '#ff7ab8', lister: '#9be15d', scout: '#4df0d0', fulfiller: '#f0e14d', auditor: '#6bd6ff', manager: '#ffa3f5', commander: '#ffcf5a' };
+  const PLATFORM_COLOR = { linkedin: '#4a8fe0', x: '#d8dde8', youtube: '#ff4d4d', instagram: '#c86bff', blog: '#3ddc97' };
+  const ROLE_COLOR = { prospector: '#5fd4ff', outreach: '#b48cff', pricing: '#ffb347', creator: '#ff7ab8', lister: '#9be15d', scout: '#4df0d0', fulfiller: '#f0e14d', auditor: '#6bd6ff', manager: '#ffa3f5', commander: '#e0b84a' };
+  // Scenery themes per path. Decoration only: none of this is read from the ledger.
+  const THEME = {
+    'ops-consulting': { accent: '#ffb454', screen: 'bars', prop: 'rack' },
+    'show-rate-engine': { accent: '#4fd1c5', screen: 'calendar', prop: 'phone' },
+    'managed-call-qa': { accent: '#a78bfa', screen: 'wave', prop: 'rack' },
+    'gbp-management': { accent: '#4ade80', screen: 'map', prop: 'kiosk' },
+    'coparent-hq': { accent: '#f87171', screen: 'none', prop: 'plant' },
+    'cohort-course': { accent: '#60a5fa', screen: 'board', prop: 'plant' },
+    'content-channel': { accent: '#f472b6', screen: 'play', prop: 'camera' },
+    'freelance-desk': { accent: '#22d3ee', screen: 'jobs', prop: 'coffee' },
+  };
+  const themeOf = (id) => THEME[id] || { accent: '#7aa2ff', screen: 'bars', prop: 'plant' };
+
   const cv = document.getElementById('cv');
   const ctx = cv.getContext('2d');
   ctx.imageSmoothingEnabled = false;
@@ -116,79 +164,254 @@
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const usd = (n) => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
 
-  const iso = (x, y) => [OX + (x - y) * 8, OY + (x + y) * 4];
+  const iso = (x, y) => [OX + (x - y) * HW, OY + (x + y) * HH];
+  const P = (x, y, z = 0) => { const [sx, sy] = iso(x, y); return [sx, sy - z]; };
   const cellOrigin = (c, r) => [c * CELL + 1, r * CELL + 1];
   const cellCenter = (c, r) => [c * CELL + 1 + 3.5, r * CELL + 1 + 3.5];
 
-  // ---------- seeded rng for static scenery ----------
-  let seed = 1337;
-  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
-  const STARS = Array.from({ length: 160 }, () => ({ x: Math.floor(rnd() * W), y: Math.floor(rnd() * H), b: rnd(), p: rnd() * 6.28 }));
-
-  // ---------- pixel sprite bakers ----------
-  const bake = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); fn(g); return c; };
-  const px = (g, x, y, col) => { g.fillStyle = col; g.fillRect(x, y, 1, 1); };
-  const cache = new Map();
-  const cached = (key, fn) => { if (!cache.has(key)) cache.set(key, fn()); return cache.get(key); };
-
-  function tileSprite(fill, edge, stripe) {
-    return cached('t' + fill + edge + (stripe || ''), () => bake(16, 8, (g) => {
-      for (let y = 0; y < 8; y++) for (let x = 0; x < 16; x++) {
-        const d = Math.abs(x + 0.5 - 8) / 8 + Math.abs(y + 0.5 - 4) / 4;
-        if (d > 1) continue;
-        let col = d > 0.8 ? edge : fill;
-        if (stripe && d <= 0.8 && ((x + y * 2) % 6) < 3) col = stripe;
-        px(g, x, y, col);
-      }
-    }));
-  }
-
-  function boxSprite(h, top, left, right, key) {
-    return cached('b' + key, () => bake(16, 8 + h, (g) => {
-      for (let x = 0; x < 16; x++) {
-        const yb = 4 + 4 * (1 - Math.abs(x + 0.5 - 8) / 8);
-        for (let y = Math.floor(yb); y < Math.floor(yb) + h; y++) px(g, x, y + h - 4 < 0 ? 0 : y + h - 4 + 4 - 4, x < 8 ? left : right);
-      }
-      // faces were drawn relative to a top at y=0; draw the top diamond over them
-      for (let y = 0; y < 8; y++) for (let x = 0; x < 16; x++) {
-        const d = Math.abs(x + 0.5 - 8) / 8 + Math.abs(y + 0.5 - 4) / 4;
-        if (d <= 1) px(g, x, y, d > 0.85 ? shade(top, 18) : top);
-      }
-    }));
-  }
+  const hash2 = (a, b) => { let h = (Math.imul(a | 0, 374761393) + Math.imul(b | 0, 668265263)) >>> 0; h = Math.imul(h ^ (h >>> 13), 1274126177) >>> 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+  let seed = 7;
+  const rnd = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
 
   function shade(hex, amt) {
     const n = parseInt(hex.slice(1), 16);
-    const cl = (v) => Math.max(0, Math.min(255, v));
-    const r = cl((n >> 16) + amt), g = cl(((n >> 8) & 255) + amt), b = cl((n & 255) + amt);
-    return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+    const cl = (v) => Math.max(0, Math.min(255, Math.round(v)));
+    return '#' + ((1 << 24) | (cl((n >> 16) + amt) << 16) | (cl(((n >> 8) & 255) + amt) << 8) | cl((n & 255) + amt)).toString(16).slice(1);
   }
+  function mix(a, b, t) {
+    const A = parseInt(a.slice(1), 16), B = parseInt(b.slice(1), 16);
+    const ch = (s) => Math.round(((A >> s) & 255) * (1 - t) + ((B >> s) & 255) * t);
+    return '#' + ((1 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)).toString(16).slice(1);
+  }
+  const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
 
-  // Crew bitmap, 5x9. W body, V visor, A accent.
-  const BODY = {
-    stand: ['.WWW.', 'WVVVW', '.WWW.', 'AWWWA', 'WWAWW', '.WWW.', '.W.W.', '.W.W.', '.W.W.'],
-    walkA: ['.WWW.', 'WVVVW', '.WWW.', 'AWWWA', 'WWAWW', '.WWW.', '.W.W.', 'W...W', 'W...W'],
-    walkB: ['.WWW.', 'WVVVW', '.WWW.', 'AWWWA', 'WWAWW', '.WWW.', '.W.W.', '.W.W.', '..W..'],
-    typeA: ['.WWW.', 'WVVVW', '.WWW.', 'WWWWA', 'WWAWA', '.WWW.', '.W.W.', '.W.W.', '.W.W.'],
-    typeB: ['.WWW.', 'WVVVW', '.WWW.', 'AWWWW', 'AWAWW', '.WWW.', '.W.W.', '.W.W.', '.W.W.'],
+  const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; return [c, g]; };
+  const cache = new Map();
+  const cached = (key, fn) => { if (!cache.has(key)) cache.set(key, fn()); return cache.get(key); };
+  const px = (g, x, y, col) => { g.fillStyle = col; g.fillRect(x, y, 1, 1); };
+
+  // ---------------------------------------------------------------- iso primitives
+  const lerpY = (p, q, x) => (q[0] === p[0] ? p[1] : p[1] + (q[1] - p[1]) * (x - p[0]) / (q[0] - p[0]));
+  // A solid block centred on world (cx,cy) with half-extents a (x) and b (y), h pixels tall, standing at elevation z.
+  // Drawn column by column so every edge stays pixel-crisp.
+  function box(g, cx, cy, a, b, h, c, z = 0) {
+    const N = P(cx - a, cy - b, z), E = P(cx + a, cy - b, z), S = P(cx + a, cy + b, z), Wc = P(cx - a, cy + b, z);
+    const xs = Math.round(Wc[0]), xe = Math.round(E[0]), sx = Math.round(S[0]);
+    for (let X = xs; X < xe; X++) {
+      const xc = X + 0.5;
+      const yt = xc < N[0] ? lerpY(Wc, N, xc) : lerpY(N, E, xc);
+      const yb = xc < S[0] ? lerpY(Wc, S, xc) : lerpY(S, E, xc);
+      const t = Math.round(yt - h), m = Math.round(yb - h), bot = Math.round(yb);
+      if (m > t) { g.fillStyle = c.top; g.fillRect(X, t, 1, m - t); }
+      if (h > 0 && bot > m) { g.fillStyle = X < sx ? c.left : c.right; g.fillRect(X, m, 1, bot - m); }
+      g.fillStyle = c.rim || c.top; g.fillRect(X, t, 1, 1);
+    }
+    if (h > 1 && c.edge) { g.fillStyle = c.edge; g.fillRect(sx, Math.round(S[1] - h), 1, Math.max(1, Math.round(h))); }
+    return { N, E, S, W: Wc, top: [(N[0] + S[0]) / 2, (N[1] + S[1]) / 2 - h] };
+  }
+  // Paint one pixel column band on a vertical face that runs along the ground from screen p0 to p1.
+  function facePix(g, p0, p1, h0, h1, fn) {
+    const xa = Math.round(Math.min(p0[0], p1[0])), xb = Math.round(Math.max(p0[0], p1[0]));
+    const n = Math.max(1, Math.round(h1 - h0));
+    for (let X = xa; X < xb; X++) {
+      const base = lerpY(p0, p1, X + 0.5);
+      const t = (X + 0.5 - p0[0]) / ((p1[0] - p0[0]) || 1);
+      for (let k = 0; k < n; k++) {
+        const col = fn(t, (k + 0.5) / n, X, k);
+        if (col) { g.fillStyle = col; g.fillRect(X, Math.round(base - h0) - 1 - k, 1, 1); }
+      }
+    }
+  }
+  const band = (g, p0, p1, h0, h1, col) => facePix(g, p0, p1, h0, h1, () => col);
+  // Fill the world rectangle [xa,xb) x [ya,yb) lying flat at elevation z, one screen pixel at a time so edges stay crisp.
+  // fn(u, v, X, Y) returns a colour or null; u and v run 0..1 across the rectangle.
+  function quad(g, xa, ya, xb, yb, z, fn) {
+    const cs = [P(xa, ya, z), P(xb, ya, z), P(xb, yb, z), P(xa, yb, z)];
+    const X0 = Math.floor(Math.min(...cs.map((p) => p[0]))), X1 = Math.ceil(Math.max(...cs.map((p) => p[0])));
+    const Y0 = Math.floor(Math.min(...cs.map((p) => p[1]))), Y1 = Math.ceil(Math.max(...cs.map((p) => p[1])));
+    for (let Y = Y0; Y < Y1; Y++) for (let X = X0; X < X1; X++) {
+      const a = (X + 0.5 - OX) / HW, b = (Y + 0.5 + z - OY) / HH;
+      const wx = (a + b) / 2, wy = (b - a) / 2;
+      if (wx < xa || wx >= xb || wy < ya || wy >= yb) continue;
+      const col = fn((wx - xa) / (xb - xa), (wy - ya) / (yb - ya), X, Y);
+      if (col) { g.fillStyle = col; g.fillRect(X, Y, 1, 1); }
+    }
+  }
+  // A soft contact shadow on the floor under something standing at (cx,cy) with half-extents a,b.
+  const shadow = (g, cx, cy, a, b, alpha = 0.32) => quad(g, cx - a + 0.08, cy - b + 0.08, cx + a + 0.22, cy + b + 0.22, 0, (u, v) => {
+    const e = Math.min(u, v, 1 - u, 1 - v);
+    return `rgba(4,6,12,${(alpha * Math.min(1, e * 6 + 0.35)).toFixed(3)})`;
+  });
+
+  // ---------------------------------------------------------------- palettes and sprites
+  const FLOOR = {
+    room: { key: 'room', base: '#2b3142', dark: '#262b3a', light: '#323a4e', seam: '#1d2230', grate: '#20252f', rivet: '#46506a', hi: '#3e475d', lo: '#1a1e29' },
+    gated: { key: 'gated', base: '#322d24', dark: '#2b271f', light: '#3a342a', seam: '#221e18', grate: '#26221b', rivet: '#5a4d33', hi: '#463e2e', lo: '#1f1b15' },
+    killed: { key: 'killed', base: '#2c1b1f', dark: '#26171a', light: '#332024', seam: '#1c1113', grate: '#211419', rivet: '#522e36', hi: '#3e252a', lo: '#1a0f11' },
+    paused: { key: 'paused', base: '#24272f', dark: '#202329', light: '#2a2e37', seam: '#1a1c22', grate: '#1d2026', rivet: '#3a3f4c', hi: '#323641', lo: '#17191e' },
+    hub: { key: 'hub', base: '#2d3550', dark: '#283048', light: '#36405e', seam: '#20273c', grate: '#232a40', rivet: '#56638a', hi: '#46527a', lo: '#1b2134' },
+    dock: { key: 'dock', base: '#272d3a', dark: '#232834', light: '#2e3544', seam: '#1b2029', grate: '#1f242e', rivet: '#434d63', hi: '#394155', lo: '#181c25' },
+    hall: { key: 'hall', base: '#1e232e', dark: '#1b1f29', light: '#242a36', seam: '#161a22', grate: '#171b24', rivet: '#353d4f', hi: '#2c3342', lo: '#12151c' },
   };
-  function crewSprite(frame, accent, body) {
-    return cached('c' + frame + accent + body, () => bake(5, 9, (g) => {
-      BODY[frame].forEach((row, y) => [...row].forEach((ch, x) => {
-        if (ch === 'W') px(g, x, y, x === 0 ? shade(body, -40) : body);
-        else if (ch === 'V') px(g, x, y, '#1b2230');
-        else if (ch === 'A') px(g, x, y, accent);
-      }));
-    }));
+  function tile(pal, v, hazard) {
+    return cached('t' + pal.key + v + (hazard ? 'h' : ''), () => {
+      const [c, g] = mk(24, 12);
+      for (let y = 0; y < 12; y++) for (let x = 0; x < 24; x++) {
+        const d = Math.abs(x + 0.5 - 12) / 12 + Math.abs(y + 0.5 - 6) / 6;
+        if (d > 1) continue;
+        const u = ((x + 0.5 - 12) / 12 + (y + 0.5) / 6) / 2, w = ((y + 0.5) / 6 - (x + 0.5 - 12) / 12) / 2;
+        const n = hash2(x * 7 + v * 131, y * 13 + v * 17);
+        let col = n < 0.1 ? pal.dark : n > 0.92 ? pal.light : pal.base;
+        if (v === 1 && Math.abs(u - 0.5) < 0.04) col = pal.seam;
+        if (v === 2 && u > 0.12 && u < 0.88 && w > 0.12 && w < 0.88 && ((u * 10) | 0) % 2 === 0) col = pal.grate;
+        if (v !== 2 && (Math.abs(u - 0.13) < 0.05 || Math.abs(u - 0.87) < 0.05) && (Math.abs(w - 0.13) < 0.07 || Math.abs(w - 0.87) < 0.07)) col = pal.rivet;
+        if (hazard && u > 0.08 && u < 0.92 && w > 0.08 && w < 0.92) col = ((u * 6) | 0) % 2 ? '#d99a1e' : '#1b1710';
+        if (d > 0.9) col = y + 0.5 < 6 ? pal.hi : pal.lo;
+        px(g, x, y, col);
+      }
+      return c;
+    });
+  }
+  const floorTile = (g, pal, x, y, hazard) => { const [sx, sy] = iso(x, y); const v = [0, 0, 1, 0, 1, 3, 2, 0][(hash2(x * 3, y * 5) * 8) | 0]; g.drawImage(tile(pal, v, hazard), sx - 12, sy); };
+
+  const C = {
+    slab: { top: '#1a1f2c', left: '#141824', right: '#0e1119', rim: '#2a3142', edge: '#232a3a' },
+    wall: { top: '#525c76', rim: '#7d89a8', left: '#363d50', right: '#2c3244', edge: '#4a546c' },
+    wallGated: { top: '#5a5140', rim: '#8a7a55', left: '#3d3628', right: '#322c21', edge: '#51472f' },
+    wallKilled: { top: '#533138', rim: '#7a4550', left: '#3a2126', right: '#2e1a1e', edge: '#4a2a30' },
+    desk: { top: '#6d7892', rim: '#a3aec6', left: '#4a5369', right: '#3b4356', edge: '#5d6781' },
+    keys: { top: '#3a4254', rim: '#5a647c', left: '#262c3a', right: '#1f2430' },
+    leg: { top: '#3a4154', rim: '#4d566c', left: '#2a3040', right: '#20252f' },
+    mon: { top: '#1a1e28', rim: '#3a4256', left: '#12151d', right: '#0e1117', edge: '#2c3344' },
+    chair: { top: '#2a3040', rim: '#394155', left: '#1e2330', right: '#181c27' },
+    panel: { top: '#1b2a4e', rim: '#8a93a8', left: '#4a5266', right: '#394054' },
+    metal: { top: '#586380', rim: '#7684a6', left: '#3a4257', right: '#2e3546', edge: '#4a5570' },
+    dark: { top: '#232937', rim: '#323a4d', left: '#191d27', right: '#14171f', edge: '#2a3141' },
+    glass: { top: '#1b2a3a', rim: '#3d5d7a', left: '#101a26', right: '#0c141d', edge: '#2f4b66' },
+    crate: { top: '#b0844c', rim: '#d6a866', left: '#7f5a31', right: '#654625', edge: '#9a7040' },
+    vault: { top: '#46506a', rim: '#ffcf5a', left: '#343b50', right: '#272d3e', edge: '#c9982a' },
+    gold: { top: '#ffd766', rim: '#fff1b0', left: '#c9982a', right: '#a57a1c', edge: '#e6b848' },
+    pot: { top: '#6b4a3a', rim: '#8a6450', left: '#553a2d', right: '#452e24' },
+  };
+
+  function plantSprite(v) {
+    return cached('plant' + v, () => {
+      const [c, g] = mk(16, 22);
+      g.fillStyle = '#5a3d2e'; g.fillRect(4, 15, 8, 6); g.fillStyle = '#7a5440'; g.fillRect(4, 15, 8, 1); g.fillStyle = '#44301f'; g.fillRect(10, 16, 2, 5);
+      const greens = ['#2f7d4a', '#3fa35e', '#58c077', '#246b3d', '#7fd690'];
+      for (let i = 0; i < 70; i++) {
+        const a = hash2(i, v) * Math.PI - Math.PI, r = 2 + hash2(i + 9, v) * 7;
+        const x = Math.round(8 + Math.cos(a) * r * 0.8), y = Math.round(10 + Math.sin(a) * r * 0.9 - 2);
+        if (y < 15 && y >= 0 && x >= 0 && x < 16) px(g, x, y, greens[(hash2(i, v + 3) * greens.length) | 0]);
+      }
+      return c;
+    });
   }
 
-  // ---------- world model built from ledger snapshot ----------
+  // Crew: 8x14 astronaut sprites built from rows. H helmet, h helmet shade, V visor, G glint, S suit, s suit shade, a chest light, b backpack, d boots.
+  const CREW_BASE = ['..hHHh..', '.hHHHHh.', '.HVVVGH.', '.HVVVVH.', '..hHHh..', '.bSSSSs.', 'bbSSSSss', 'bbSaaSss', '.bSSSSs.', '..SSSs..', '..SS.Ss.', '..SS.Ss.', '..dd.dd.', '........'];
+  const CREW_FRAMES = {
+    stand: {},
+    walkA: { 10: '..SS.Ss.', 11: '.SS...Ss', 12: '.dd...dd' },
+    walkB: { 10: '..SSSs..', 11: '...SS...', 12: '...dd...' },
+    typeA: { 6: 'bbSSSSSs', 7: 'bbSaaSSS' },
+    typeB: { 6: 'bbSSSSss', 7: 'bbSaaSSs' },
+  };
+  function crewSprite(frame, role) {
+    return cached('crew' + frame + role, () => {
+      const [c, g] = mk(10, 16);
+      const suit = ROLE_COLOR[role] || '#9aa6c0';
+      const commander = role === 'commander';
+      const pal = { H: commander ? '#fff4d6' : '#eef1f8', h: commander ? '#d8c28a' : '#b9c0d0', V: commander ? '#3a2a0a' : '#141b2b', G: commander ? '#ffe9a0' : '#8fe3ff', S: suit, s: shade(suit, -45), a: shade(suit, 70), b: '#7d869b', d: '#2a303d' };
+      const rows = CREW_BASE.map((r, i) => (CREW_FRAMES[frame][i] || r));
+      const on = (x, y) => y >= 0 && y < rows.length && x >= 0 && x < 8 && Boolean(pal[rows[y][x]]);
+      // 1px dark outline so crew read against any floor
+      for (let y = -1; y <= rows.length; y++) for (let x = -1; x <= 8; x++) {
+        if (!on(x, y) && (on(x - 1, y) || on(x + 1, y) || on(x, y - 1) || on(x, y + 1))) px(g, x + 1, y + 1, '#06080e');
+      }
+      rows.forEach((row, y) => [...row].forEach((ch, x) => { if (pal[ch]) px(g, x + 1, y + 1, pal[ch]); }));
+      return c;
+    });
+  }
+
+  function glow(color) {
+    return cached('glow' + color, () => {
+      const [c, g] = mk(64, 64);
+      const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      gr.addColorStop(0, rgba(color, 1)); gr.addColorStop(0.35, rgba(color, 0.45)); gr.addColorStop(1, rgba(color, 0));
+      g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+      return c;
+    });
+  }
+
+  const GLYPH = { L: ['100', '100', '100', '100', '111'], 0: ['111', '101', '101', '101', '111'], 1: ['010', '110', '010', '010', '111'], 2: ['111', '001', '111', '100', '111'], 3: ['111', '001', '111', '001', '111'], 4: ['101', '101', '111', '001', '001'], 5: ['111', '100', '111', '001', '111'] };
+  function glyphs(g, text, x, y, col, s = 1) {
+    g.fillStyle = col;
+    [...String(text)].forEach((ch, i) => (GLYPH[ch] || []).forEach((row, r) => [...row].forEach((b, k) => { if (b === '1') g.fillRect(x + i * 4 * s + k * s, y + r * s, s, s); })));
+  }
+
+  // ---------------------------------------------------------------- background (baked once)
+  const [BG, bgc] = mk(W, H);
+  const STAR_TWINKLE = [];
+  (function bakeBackground() {
+    const lin = bgc.createLinearGradient(0, 0, 0, H);
+    lin.addColorStop(0, '#080a15'); lin.addColorStop(1, '#030409');
+    bgc.fillStyle = lin; bgc.fillRect(0, 0, W, H);
+    const neb = [[W * 0.8, H * 0.22, 260, '#5a2a9a', 0.22], [W * 0.18, H * 0.85, 280, '#15708a', 0.18], [W * 0.55, H * 0.5, 320, '#3c1a6a', 0.12], [W * 0.95, H * 0.95, 200, '#a0306a', 0.12], [W * 0.35, H * 0.1, 160, '#1a4aa0', 0.1]];
+    for (const [x, y, r, col, a] of neb) {
+      const gr = bgc.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, rgba(col, a)); gr.addColorStop(1, rgba(col, 0));
+      bgc.fillStyle = gr; bgc.fillRect(0, 0, W, H);
+    }
+    seed = 99;
+    for (let i = 0; i < W * H * 0.05; i++) { bgc.fillStyle = rnd() < 0.5 ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.025)'; bgc.fillRect((rnd() * W) | 0, (rnd() * H) | 0, 1, 1); }
+    const tints = ['#ffffff', '#cfe0ff', '#ffe6c7', '#d6f0ff', '#ffd1e8'];
+    for (let i = 0; i < 420; i++) {
+      const x = (rnd() * W) | 0, y = (rnd() * H) | 0, b = rnd(), t = tints[(rnd() * tints.length) | 0];
+      bgc.fillStyle = rgba(t, 0.25 + b * 0.6); bgc.fillRect(x, y, 1, 1);
+      if (b > 0.97) { bgc.fillStyle = rgba(t, 0.35); bgc.fillRect(x - 1, y, 3, 1); bgc.fillRect(x, y - 1, 1, 3); }
+      if (b > 0.9 && STAR_TWINKLE.length < 50) STAR_TWINKLE.push({ x, y, p: rnd() * 6.28, t });
+    }
+    // gas giant, top-left: banded rows, terminator shadow, atmosphere rim
+    const cx = -40, cy = -30, R = 175;
+    for (let y = 0; y < cy + R; y++) {
+      const dy = y - cy; if (Math.abs(dy) > R) continue;
+      const half = Math.sqrt(R * R - dy * dy);
+      const x0 = Math.max(0, Math.floor(cx - half)), x1 = Math.floor(cx + half);
+      for (let x = x0; x < x1; x++) {
+        const band = Math.floor((y + 6 * Math.sin(y / 11 + x / 60)) / 9) % 4;
+        let col = ['#1a2c55', '#223a6b', '#162448', '#2a4577'][band];
+        const lx = (x - cx) / R, ly = (y - cy) / R; const lit = lx * 0.75 + ly * 0.66;
+        if (lit > 0.55) col = shade(col, -18); if (lit > 0.72) col = shade(col, -18);
+        if (hash2(x, y) < 0.04) col = shade(col, 10);
+        bgc.fillStyle = col; bgc.fillRect(x, y, 1, 1);
+      }
+      bgc.fillStyle = 'rgba(120,170,255,0.55)'; bgc.fillRect(x1, y, 1, 1);
+      bgc.fillStyle = 'rgba(120,170,255,0.18)'; bgc.fillRect(x1 + 1, y, 2, 1);
+    }
+    // small moon, top-right
+    const mx = W - 64, my = 40, mr = 14;
+    for (let y = -mr; y <= mr; y++) for (let x = -mr; x <= mr; x++) {
+      if (x * x + y * y > mr * mr) continue;
+      let col = (x + y) > 6 ? '#5a5f6e' : '#8a90a0';
+      if (hash2(x + 50, y + 50) < 0.08) col = '#6b7080';
+      bgc.fillStyle = col; bgc.fillRect(mx + x, my + y, 1, 1);
+    }
+    // parked shuttle beside the outbox airlock (scenery)
+    const [sx, sy] = P(-1.4, 25.6);
+    const hull = [[0, 3, 18, 5, '#9aa3b8'], [2, 2, 12, 1, '#c2c9d8'], [14, 4, 6, 3, '#7d869b'], [3, 4, 4, 2, '#3a7bd5'], [0, 8, 18, 1, '#5b6376'], [-2, 4, 2, 3, '#ff9a3d']];
+    for (const [x, y, w, h, col] of hull) { bgc.fillStyle = col; bgc.fillRect(sx - 22 + x, sy - 8 + y, w, h); }
+  })();
+  const [VIG, vg] = mk(W, H);
+  { const gr = vg.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, W * 0.62); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,0.55)'); vg.fillStyle = gr; vg.fillRect(0, 0, W, H); }
+
+  // ---------------------------------------------------------------- world model from the ledger snapshot
   let snap = null, prev = null, first = true;
-  const rooms = [];        // {id, spec, c, r, x0, y0, status, gated, ...}
-  const cells = new Map(); // "c,r" -> kind
+  const rooms = [];
+  const cells = new Map();
   const agents = new Map();
   const particles = [];
-  const deskFlash = new Map(); // "pathId:stage" -> until ms
+  const deskFlash = new Map();
 
   function buildRooms() {
     rooms.length = 0; cells.clear();
@@ -200,10 +423,9 @@
       rooms.push({ id: spec.id, spec, c, r, x0, y0 });
     });
   }
-
   const pathState = (id) => snap.state.paths[id];
   const isGated = (spec) => Boolean(spec.gate && !(snap.state.gates[spec.gate] && snap.state.gates[spec.gate].cleared));
-  function stageCount(p, st) { return st === 'paid' ? Math.max(p.outcomes.paid, p.moneyIn.length) : p.outcomes[st]; }
+  const stageCount = (p, st) => (st === 'paid' ? Math.max(p.outcomes.paid, p.moneyIn.length) : p.outcomes[st]);
   function stageInfo(room) {
     const p = pathState(room.id);
     let nextSeen = false;
@@ -216,37 +438,22 @@
   }
   function roomLook(room) {
     const p = pathState(room.id);
-    if (p.status === 'killed') return { fill: '#2a171a', edge: '#3d2226', wall: '#3a1e22', lit: false, look: 'killed' };
-    if (p.status === 'paused') return { fill: '#20232b', edge: '#2a2e37', wall: '#2a2e38', lit: false, look: 'paused' };
-    if (isGated(room.spec)) return { fill: '#2b2820', edge: '#433a24', wall: '#3a3426', lit: 'amber', look: 'gated' };
-    return { fill: '#28303f', edge: '#384257', wall: '#343c4e', lit: true, look: 'active' };
+    if (p.status === 'killed') return 'killed';
+    if (p.status === 'paused') return 'paused';
+    if (isGated(room.spec)) return 'gated';
+    return 'active';
   }
-
-  // Grid neighbours among occupied cells, for walking routes.
-  function neighbours(c, r) {
-    return [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dc, dr]) => [c + dc, r + dr]).filter(([a, b]) => cells.has(a + ',' + b));
-  }
+  function neighbours(c, r) { return [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dc, dr]) => [c + dc, r + dr]).filter(([a, b]) => cells.has(a + ',' + b)); }
   function route(from, to) {
     const key = (p) => p.join(',');
     const q = [from], seen = new Map([[key(from), null]]);
-    while (q.length) {
-      const cur = q.shift();
-      if (key(cur) === key(to)) break;
-      for (const n of neighbours(...cur)) if (!seen.has(key(n))) { seen.set(key(n), cur); q.push(n); }
-    }
+    while (q.length) { const cur = q.shift(); if (key(cur) === key(to)) break; for (const n of neighbours(...cur)) if (!seen.has(key(n))) { seen.set(key(n), cur); q.push(n); } }
     const out = []; let cur = to;
     while (cur) { out.unshift(cur); cur = seen.get(key(cur)); }
     return out.map(([c, r]) => cellCenter(c, r));
   }
-  function deskStand(room, idx) { const [dx, dy] = DESKS[idx]; return [room.x0 + dx + 0.5, room.y0 + dy + 1.5]; }
-
-  // ---------- diffing snapshots into crew movement and celebrations ----------
-  function outcomesForRun(runId) {
-    let n = 0;
-    for (const p of Object.values(snap.state.paths)) for (const list of Object.values(p.refs)) for (const r of list) if (r.runId === runId) n++;
-    return n;
-  }
-  function screenOf(x, y) { const [sx, sy] = iso(x, y); return [sx, sy]; }
+  const deskStand = (room, idx) => { const [dx, dy] = DESKS[idx]; return [room.x0 + dx + 0.5, room.y0 + dy + 1.5]; };
+  function outcomesForRun(runId) { let n = 0; for (const p of Object.values(snap.state.paths)) for (const list of Object.values(p.refs)) for (const r of list) if (r.runId === runId) n++; return n; }
 
   function sync() {
     const running = new Map(snap.state.running.map((r) => [r.runId, r]));
@@ -254,15 +461,14 @@
       if (agents.has(runId)) continue;
       const room = rooms.find((m) => m.id === r.path);
       if (!room) continue;
-      const info = stageInfo(room);
-      const idx = Math.max(0, info.findIndex((s) => s.next));
+      const idx = Math.max(0, stageInfo(room).findIndex((s) => s.next));
       const target = deskStand(room, idx);
       const hub = cellCenter(...HUB);
       const way = route(HUB, [room.c, room.r]);
-      const a = { id: runId, role: r.role, path: r.path, x: hub[0], y: hub[1], queue: [...way.slice(1), target], state: 'enter', carry: 0, t: Math.random() * 10 };
+      const a = { id: runId, role: r.role, path: r.path, x: hub[0], y: hub[1], queue: [...way.slice(1), target], state: 'enter', carry: 0, t: Math.random() * 10, face: 1 };
       if (first) { a.x = target[0]; a.y = target[1]; a.queue = []; a.state = 'work'; }
       agents.set(runId, a);
-      if (!first) floatAt(...screenOf(hub[0], hub[1]), `${r.role} dispatched`, ROLE_COLOR[r.role] || '#fff');
+      if (!first) floatAt(...P(hub[0], hub[1], 20), `${r.role} dispatched`, ROLE_COLOR[r.role] || '#fff');
     }
     for (const a of agents.values()) {
       if (a.id === 'commander' || running.has(a.id) || a.state === 'leave') continue;
@@ -270,19 +476,17 @@
       const room = rooms.find((m) => m.id === a.path);
       a.state = 'leave';
       a.carry = outcomesForRun(a.id);
-      const back = route([room.c, room.r], HUB);
-      a.queue = [cellCenter(room.c, room.r), ...back.slice(1)];
-      if (ended) floatAt(...screenOf(a.x, a.y), `${ended.reason} · ${usd(ended.usd)}${a.carry ? ' · ' + a.carry + ' logged' : ''}`, ended.reason === 'done' ? '#3ddc97' : '#f5a623');
+      a.queue = [cellCenter(room.c, room.r), ...route([room.c, room.r], HUB).slice(1)];
+      if (ended) floatAt(...P(a.x, a.y, 20), `${ended.reason} · ${usd(ended.usd)}${a.carry ? ' · ' + a.carry + ' logged' : ''}`, ended.reason === 'done' ? '#3ddc97' : '#f5a623');
     }
     if (prev && !first) {
       const gained = snap.state.earnedUsd - prev.state.earnedUsd;
       if (gained > 0) {
-        const [vx, vy] = cellCenter(...HUB);
-        const [sx, sy] = screenOf(vx, vy);
-        floatAt(sx, sy - 18, '+' + usd(gained), '#ffcf5a');
-        for (let i = 0; i < 40; i++) particles.push({ x: sx, y: sy - 10, vx: (Math.random() - 0.5) * 60, vy: -40 - Math.random() * 60, life: 1.6, col: i % 3 ? '#ffcf5a' : '#fff3b0' });
+        const [sx, sy] = P(...cellCenter(...HUB), 24);
+        floatAt(sx, sy - 10, '+' + usd(gained), '#ffcf5a');
+        for (let i = 0; i < 60; i++) particles.push({ x: sx, y: sy, vx: (Math.random() - 0.5) * 90, vy: -50 - Math.random() * 80, g: 120, life: 1.8, col: i % 3 ? '#ffcf5a' : '#fff3b0' });
       }
-      if (snap.level.level > prev.level.level) { const [sx, sy] = screenOf(...cellCenter(...HUB)); floatAt(sx, sy - 34, 'LEVEL ' + snap.level.level + ' · ' + snap.level.title, '#ffcf5a'); }
+      if (snap.level.level > prev.level.level) { const [sx, sy] = P(...cellCenter(...HUB), 60); floatAt(sx, sy, 'LEVEL ' + snap.level.level + ' · ' + snap.level.title, '#ffcf5a'); }
       for (const room of rooms) {
         const before = prev.state.paths[room.id], after = pathState(room.id);
         STAGES.forEach((st, i) => {
@@ -291,224 +495,579 @@
           if (!wasDone && stageCount(after, st) >= target) {
             deskFlash.set(room.id + ':' + st, performance.now() + 4000);
             const [dx, dy] = DESKS[i];
-            floatAt(...screenOf(room.x0 + dx + 0.5, room.y0 + dy + 0.5), 'STAGE CLEAR: ' + st, '#3ddc97');
+            floatAt(...P(room.x0 + dx + 0.5, room.y0 + dy + 0.5, 22), 'STAGE CLEAR: ' + st, '#3ddc97');
           }
         });
-        if (before.status !== after.status) floatAt(...screenOf(...cellCenter(room.c, room.r)), after.status.toUpperCase(), after.status === 'killed' ? '#ff5c5c' : '#cfd6e6');
+        if (before.status !== after.status) floatAt(...P(...cellCenter(room.c, room.r), 30), after.status.toUpperCase(), after.status === 'killed' ? '#ff5c5c' : '#cfd6e6');
       }
     }
-    if (!agents.has('commander')) { const [x, y] = cellCenter(...HUB); agents.set('commander', { id: 'commander', role: 'commander', x: x + 1.2, y: y + 1.4, queue: [], state: 'idle', carry: 0, t: 0 }); }
+    if (!agents.has('commander')) { const [x, y] = cellCenter(...HUB); agents.set('commander', { id: 'commander', role: 'commander', x: x + 1.5, y: y + 1.7, queue: [], state: 'idle', carry: 0, t: 0, face: -1 }); }
     first = false;
   }
 
-  // ---------- drawing ----------
-  let T = 0;
-  function drawSpace() {
-    ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, W, H);
-    for (const s of STARS) {
-      const tw = 0.55 + 0.45 * Math.sin(T * 1.3 + s.p);
-      const v = Math.floor(80 + 150 * s.b * tw);
-      ctx.fillStyle = `rgb(${v},${v},${Math.min(255, v + 25)})`;
-      ctx.fillRect(s.x, s.y, 1, 1);
+  // ---------------------------------------------------------------- the static station bake
+  const [SC, sg] = mk(W, H);          // lit geometry
+  const [ST, stg] = mk(W, H);         // per-frame stage (geometry x light map)
+  const LW = W / 2, LH = H / 2;
+  const [LC, lg] = mk(LW, LH);        // half-res light map
+  let baked = { emis: [], lights: [] }, bakedSig = '';
+
+  function signature() {
+    const parts = [snap.level.level, JSON.stringify(snap.outbox || {})];
+    for (const r of rooms) {
+      const p = pathState(r.id);
+      parts.push(r.id, roomLook(r), stageInfo(r).map((s) => s.n + (s.next ? 'n' : '')).join(','), p.posts.map((x) => x.platform + (x.earnedUsd > 0 ? '$' : '')).join(','),
+        Math.round(Math.min(1, p.spentUsd / (r.spec.budgetUsd || 1)) * 40), STAGES.reduce((s, st) => s + p.refs[st].length, 0));
     }
-    // planet limb, top-left, banded like the gas giants station art tends to sit next to
-    const cx = -30, cy = -10, R = 120;
-    for (let y = 0; y < 110; y++) {
-      const dy = y - cy; if (Math.abs(dy) > R) continue;
-      const half = Math.sqrt(R * R - dy * dy);
-      const band = Math.floor((y + 4 * Math.sin(y / 9)) / 7) % 3;
-      ctx.fillStyle = ['#16233f', '#1b2b4d', '#122039'][band];
-      ctx.fillRect(Math.max(0, Math.floor(cx - half)), y, Math.floor(cx + half) - Math.max(0, Math.floor(cx - half)), 1);
-      ctx.fillStyle = '#3b5f9e';
-      ctx.fillRect(Math.floor(cx + half), y, 1, 1);
-    }
+    return parts.join('|');
   }
 
-  function floorTile(x, y, fill, edge, stripe) { const [sx, sy] = iso(x, y); ctx.drawImage(tileSprite(fill, edge, stripe), sx - 8, sy); }
+  function bake() {
+    const g = sg;
+    g.clearRect(0, 0, W, H);
+    const emis = [], lights = [], list = [];
+    const push = (d, fn) => list.push({ d, fn });
+    const light = (x, y, r, color, a, mode = 'steady', phase = 0) => { const [sx, sy] = P(x, y); lights.push({ sx, sy, r, color, a, mode, phase }); };
+    const doorsOf = (c, r) => ({ n: cells.has(c + ',' + (r - 1)), w: cells.has((c - 1) + ',' + r), s: cells.has(c + ',' + (r + 1)), e: cells.has((c + 1) + ',' + r) });
 
-  // A wall segment along the north edge (dir 'n') or west edge (dir 'w') of tile x,y.
-  function wallSeg(x, y, dir, h, col, lit, windowOn) {
-    const [sx, sy] = iso(x, y);
-    const face = dir === 'n' ? shade(col, 8) : shade(col, -6);
-    for (let i = 0; i < 8; i++) {
-      const X = dir === 'n' ? sx + i : sx - 1 - i;
-      const yb = Math.round(sy + (dir === 'n' ? i : i + 1) * 0.5);
-      ctx.fillStyle = face; ctx.fillRect(X, yb - h, 1, h);
-      ctx.fillStyle = shade(col, 30); ctx.fillRect(X, yb - h, 1, 1);
-      if (h >= 10 && windowOn && i >= 2 && i <= 5) {
-        const on = lit === true ? '#ffd27a' : lit === 'amber' ? '#c98a2a' : '#1a1d24';
-        ctx.fillStyle = on; ctx.fillRect(X, yb - h + 4, 1, 3);
-      }
-    }
-  }
+    // 0) solar wing behind the station (scenery): drawn first so every room sits in front of it
+    solarWing(g, emis, 14.5, 0.85, -1, 11);
 
-  function drawBox(x, y, h, top, left, right, key) {
-    const [sx, sy] = iso(x, y);
-    const spr = boxSprite(h, top, left, right, key);
-    ctx.drawImage(spr, sx - 8, sy - h);
-    return [sx, sy - h];
-  }
-
-  const drawList = [];
-  const push = (depth, fn) => drawList.push({ depth, fn });
-
-  function roomWalls(x0, y0, look, doors) {
-    for (let i = 0; i < ROOM; i++) {
-      const tx = x0 + i;
-      if (!(doors.n && i === 3)) push(tx + y0 - 0.9, () => wallSeg(tx, y0, 'n', WH, look.wall, look.lit, i % 2 === 1));
-      const ty = y0 + i;
-      if (!(doors.w && i === 3)) push(x0 + ty - 0.9, () => wallSeg(x0, ty, 'w', WH, look.wall, look.lit, i % 2 === 1));
-    }
-  }
-
-  function scene() {
-    drawList.length = 0;
-    const now = performance.now();
-    // ---- hallways ----
+    // 1) hull slabs under every room and walkway
+    const slabs = [];
     for (const key of cells.keys()) {
       const [c, r] = key.split(',').map(Number);
-      if (cells.has((c + 1) + ',' + r)) for (let x = c * CELL + 8; x <= c * CELL + 10; x++) {
-        const y = r * CELL + 4;
-        floorTile(x, y, '#1c212b', '#2a303c');
-        push(x + y - 0.9, () => wallSeg(x, y, 'n', 5, '#2a303c', false, false));
-      }
-      if (cells.has(c + ',' + (r + 1))) for (let y = r * CELL + 8; y <= r * CELL + 10; y++) {
-        const x = c * CELL + 4;
-        floorTile(x, y, '#1c212b', '#2a303c');
-        push(x + y - 0.9, () => wallSeg(x, y, 'w', 5, '#2a303c', false, false));
-      }
+      const [x0, y0] = cellOrigin(c, r);
+      slabs.push([x0 + 3.5, y0 + 3.5, 3.65, 3.65, SLAB]);
+      if (cells.has((c + 1) + ',' + r)) slabs.push([c * CELL + 9.5, r * CELL + 4.5, 1.6, 0.62, SLAB - 4]);
+      if (cells.has(c + ',' + (r + 1))) slabs.push([c * CELL + 4.5, r * CELL + 9.5, 0.62, 1.6, SLAB - 4]);
     }
-    const doorsOf = (c, r) => ({ n: cells.has(c + ',' + (r - 1)), w: cells.has((c - 1) + ',' + r) });
-    // ---- hub ----
-    {
-      const [x0, y0] = cellOrigin(...HUB);
-      for (let i = 0; i < ROOM; i++) for (let j = 0; j < ROOM; j++) floorTile(x0 + i, y0 + j, (i + j) % 2 ? '#2a3246' : '#2e374d', '#44506a');
-      roomWalls(x0, y0, { wall: '#39435a', lit: true }, doorsOf(...HUB));
-      // vault: one gold bar per ladder rung crossed
-      const vx = x0 + 3, vy = y0 + 3;
-      push(vx + vy, () => {
-        const [tx, ty] = drawBox(vx, vy, 9, '#4a4030', '#3a3223', '#2c261a', 'vault');
-        const bars = snap.level.level;
-        for (let b = 0; b < bars; b++) {
-          const bx = tx - 4 + (b % 3) * 3, by = ty + 1 - Math.floor(b / 3) * 2 - (b % 3 === 1 ? 1 : 0);
-          ctx.fillStyle = '#ffcf5a'; ctx.fillRect(bx, by, 3, 2);
-          ctx.fillStyle = '#fff3b0'; ctx.fillRect(bx, by, 3, 1);
-        }
-        if (snap.state.earnedUsd > 0) { const a = 0.35 + 0.25 * Math.sin(T * 2); ctx.fillStyle = `rgba(255,207,90,${a})`; ctx.fillRect(tx - 6, ty + 5, 12, 1); }
-      });
-      // ledger terminal: flickers once per event count change
-      push(x0 + 1 + y0 + 1, () => {
-        const [tx, ty] = drawBox(x0 + 1, y0 + 1, 5, '#3a4458', '#2a3142', '#222837', 'term');
-        ctx.fillStyle = (Math.floor(T * 3) % 2) ? '#7aa2ff' : '#5a7fd6'; ctx.fillRect(tx - 2, ty - 3, 5, 3);
-      });
+    slabs.sort((a, b) => (a[0] + a[1]) - (b[0] + b[1]));
+    for (const [cx, cy, a, b, h] of slabs) {
+      const bx = box(g, cx, cy, a, b, h, C.slab, -h);
+      // running lights along the hull's front faces
+      for (let i = 0; i < a * 2; i += 1) { const [lx, ly] = P(cx - a + i + 0.5, cy + b, -h / 2); emis.push((c) => { c.fillStyle = 'rgba(122,162,255,0.55)'; c.fillRect(Math.round(lx), Math.round(ly), 1, 1); }); }
+      for (let i = 0; i < b * 2; i += 1) { const [lx, ly] = P(cx + a, cy - b + i + 0.5, -h / 2); emis.push((c) => { c.fillStyle = 'rgba(122,162,255,0.4)'; c.fillRect(Math.round(lx), Math.round(ly), 1, 1); }); }
+      void bx;
     }
-    // ---- outbox dock ----
-    {
-      const [x0, y0] = cellOrigin(...DOCK);
-      for (let i = 0; i < ROOM; i++) for (let j = 0; j < ROOM; j++) floorTile(x0 + i, y0 + j, '#242a36', '#323a4a');
-      roomWalls(x0, y0, { wall: '#303848', lit: true }, doorsOf(...DOCK));
-      const total = Object.values(snap.outbox || {}).reduce((s, n) => s + n, 0);
-      for (let s = 0; s < 3; s++) {
-        const x = x0 + 1 + s * 2, y = y0 + 1;
-        push(x + y, () => {
-          const [tx, ty] = drawBox(x, y, 7, '#3d4556', '#2c3342', '#232937', 'shelf');
-          const here = Math.max(0, Math.min(8, total - s * 8));
-          for (let k = 0; k < here; k++) { ctx.fillStyle = k % 2 ? '#e8ecf5' : '#cfd6e6'; ctx.fillRect(tx - 4 + k, ty + 2 - (k % 2), 1, 3); }
-        });
-      }
+    // second solar wing in front of the south hull (scenery)
+    solarWing(g, emis, 14.5, 28.15, 1, 14);
+
+    // 2) floors
+    const roomPal = (look) => (look === 'gated' ? FLOOR.gated : look === 'killed' ? FLOOR.killed : look === 'paused' ? FLOOR.paused : FLOOR.room);
+    for (const key of cells.keys()) {
+      const [c, r] = key.split(',').map(Number);
+      if (cells.has((c + 1) + ',' + r)) for (let x = c * CELL + 8; x <= c * CELL + 10; x++) { floorTile(g, FLOOR.hall, x, r * CELL + 4); light(x + 0.5, r * CELL + 4.5, 26, '#5fd4ff', 0.18); }
+      if (cells.has(c + ',' + (r + 1))) for (let y = r * CELL + 8; y <= r * CELL + 10; y++) { floorTile(g, FLOOR.hall, c * CELL + 4, y); light(c * CELL + 4.5, y + 0.5, 26, '#5fd4ff', 0.18); }
     }
-    // ---- path rooms ----
+    const hubO = cellOrigin(...HUB), dockO = cellOrigin(...DOCK);
+    for (let i = 0; i < ROOM; i++) for (let j = 0; j < ROOM; j++) { floorTile(g, FLOOR.hub, hubO[0] + i, hubO[1] + j); floorTile(g, FLOOR.dock, dockO[0] + i, dockO[1] + j); }
     for (const room of rooms) {
       const look = roomLook(room);
-      const { x0, y0 } = room;
-      const doors = doorsOf(room.c, room.r);
+      const d = doorsOf(room.c, room.r);
       for (let i = 0; i < ROOM; i++) for (let j = 0; j < ROOM; j++) {
-        const entry = look.look === 'gated' && ((i === 3 && (j === 6 || j === 0)) || (j === 3 && (i === 6 || i === 0)));
-        floorTile(x0 + i, y0 + j, (i + j) % 2 ? look.fill : shade(look.fill, 4), look.edge, entry ? '#8a6414' : null);
+        const entry = look === 'gated' && ((i === 3 && ((j === 0 && d.n) || (j === 6 && d.s))) || (j === 3 && ((i === 0 && d.w) || (i === 6 && d.e))));
+        floorTile(g, roomPal(look), room.x0 + i, room.y0 + j, entry);
       }
-      roomWalls(x0, y0, look, doors);
-      // posters on the north wall = live posts logged on this path, colored by platform
-      const posts = pathState(room.id).posts || [];
-      posts.slice(-12).forEach((post, k) => {
-        const tile = [0, 1, 2, 4, 5, 6][k % 6], row = Math.floor(k / 6);
-        push(x0 + tile + y0 - 0.85, () => {
-          const [sx, sy] = iso(x0 + tile, y0);
-          const X = sx + 2, Y = Math.round(sy + 1) - WH + 3 + row * 6;
-          ctx.fillStyle = '#0d1016'; ctx.fillRect(X, Y, 5, 5);
-          ctx.fillStyle = PLATFORM_COLOR[post.platform] || '#cfd6e6'; ctx.fillRect(X + 1, Y + 1, 3, 3);
-          if (post.earnedUsd > 0) { ctx.fillStyle = '#ffcf5a'; ctx.fillRect(X + 4, Y, 1, 1); }
+      // runner rug down the aisle between the two desk rows (scenery, tinted with the room's accent)
+      const tint = look === 'active' ? themeOf(room.id).accent : look === 'gated' ? '#8a6a2a' : look === 'killed' ? '#6a2a2a' : '#4a4f5c';
+      const base = roomPal(look).base;
+      const rugIn = mix(tint, base, 0.8), rugEdge = mix(tint, base, 0.45), rugDot = mix(tint, base, 0.62);
+      quad(g, room.x0 + 0.7, room.y0 + 2.72, room.x0 + 6.05, room.y0 + 3.98, 0, (u, v, X, Y) => {
+        if (v < 0.09 || v > 0.91 || u < 0.02 || u > 0.98) return rugEdge;
+        if (v > 0.18 && v < 0.82 && (X + Y * 2) % 8 === 0) return rugDot;
+        return rugIn;
+      });
+    }
+    // contact shadows where floors meet the back walls, and under everything that stands
+    const ao = (x0, y0) => {
+      quad(g, x0, y0, x0 + ROOM, y0 + 0.7, 0, (u, v) => `rgba(3,5,10,${(0.42 * (1 - v) ** 1.6).toFixed(3)})`);
+      quad(g, x0, y0, x0 + 0.7, y0 + ROOM, 0, (u) => `rgba(3,5,10,${(0.36 * (1 - u) ** 1.6).toFixed(3)})`);
+    };
+    for (const room of rooms) {
+      const { x0, y0 } = room;
+      ao(x0, y0);
+      for (const [dx, dy] of DESKS) { shadow(g, x0 + dx + 0.5, y0 + dy + 0.5, 0.44, 0.3); shadow(g, x0 + dx + 0.5, y0 + dy + 1.2, 0.17, 0.12, 0.25); }
+      shadow(g, x0 + 0.62, y0 + 0.62, 0.34, 0.34, 0.4);
+      const p = pathState(room.id);
+      if (STAGES.some((st) => p.refs[st].length)) shadow(g, x0 + 6.43, y0 + 0.53, 0.34, 0.34, 0.35);
+      if (themeOf(room.id).prop !== 'plant') shadow(g, x0 + 6.45, y0 + 3.5, 0.22, 0.34, 0.35);
+    }
+    ao(hubO[0], hubO[1]); ao(dockO[0], dockO[1]);
+    shadow(g, hubO[0] + 3.5, hubO[1] + 3.5, 1.05, 1.05, 0.45);
+    shadow(g, hubO[0] + 5, hubO[1] + 1.2, 0.5, 0.3); shadow(g, hubO[0] + 1.2, hubO[1] + 5, 0.3, 0.5);
+    for (let s = 0; s < 3; s++) shadow(g, dockO[0] + 1.4 + s * 2, dockO[1] + 1.3, 0.5, 0.28);
+    shadow(g, dockO[0] + 3.2, dockO[1] + 5.3, 2.3, 0.35);
+    // hub floor ring around the vault
+    { const [cx, cy] = P(hubO[0] + 3.5, hubO[1] + 3.5); for (let k = 0; k < 96; k++) { const a = k / 96 * Math.PI * 2; if (k % 4 === 3) continue; const x = Math.round(cx + Math.cos(a) * 40), y = Math.round(cy + Math.sin(a) * 20); emis.push((c) => { c.fillStyle = 'rgba(255,207,90,0.55)'; c.fillRect(x, y, 1, 1); }); } }
+
+    // 3) walls, props and everything that stands up: depth-sorted
+    const wallSet = (look) => (look === 'gated' ? C.wallGated : look === 'killed' ? C.wallKilled : C.wall);
+    function walls(x0, y0, doors, look, accent, opts = {}) {
+      const col = wallSet(look);
+      const strip = look === 'killed' ? '#ff4d4d' : look === 'gated' ? '#f5a623' : look === 'paused' ? '#555c6c' : accent;
+      for (let i = 0; i < ROOM; i++) {
+        const tx = x0 + i;
+        if (!(doors.n && i === 3)) push(tx + y0 - 0.9, () => {
+          box(g, tx + 0.5, y0 - 0.07, 0.5, 0.07, WH, col);
+          const p0 = P(tx, y0), p1 = P(tx + 1, y0);
+          band(g, p0, p1, 0, 3, shade(col.left, -14));
+          facePix(g, p0, p1, 3, WH - 1, (t) => (t < 0.06 ? shade(col.left, -10) : null));
+          const isScreen = opts.screen && (i === 4 || i === 5);
+          if (!isScreen && opts.windows && (i === 1 || i === 2 || i === 6)) {
+            facePix(g, p0, p1, 8, 19, (t, u, X, k) => (t < 0.18 || t > 0.82 || k === 0 || k === 10 ? '#1c2230' : (hash2(X * 3, k * 7 + i) < 0.05 ? '#cfe0ff' : '#070b16')));
+          }
+          emis.push((c) => band(c, p0, p1, WH - 5, WH - 4, rgba(strip, look === 'paused' ? 0.35 : 0.9)));
+        });
+        const ty = y0 + i;
+        if (!(doors.w && i === 3)) push(x0 + ty - 0.9, () => {
+          box(g, x0 - 0.07, ty + 0.5, 0.07, 0.5, WH, col);
+          const p0 = P(x0 + 0.07, ty), p1 = P(x0 + 0.07, ty + 1);
+          band(g, p0, p1, 0, 3, shade(col.right, -12));
+          facePix(g, p0, p1, 3, WH - 1, (t) => (t < 0.06 ? shade(col.right, -10) : null));
+          if (opts.airlock && i === 3) {
+            facePix(g, p0, p1, 0, 20, (t, u) => (t < 0.1 || t > 0.9 || u > 0.93 ? '#3a4256' : (((t * 8 + u * 5) | 0) % 2 ? '#c98a16' : '#1b1710')));
+            const [lx, ly] = P(x0 + 0.1, ty + 0.5, 22);
+            emis.push((c) => { c.fillStyle = Math.floor(T * 1.5) % 2 ? '#ff4d4d' : '#6a1a1a'; c.fillRect(Math.round(lx) - 1, Math.round(ly), 3, 2); });
+          }
+          emis.push((c) => band(c, p0, p1, WH - 5, WH - 4, rgba(strip, look === 'paused' ? 0.3 : 0.75)));
+        });
+        // door frames
+        if (doors.n && i === 3) for (const e of [0, 1]) push(tx + e + y0 - 0.85, () => { box(g, tx + e, y0 - 0.05, 0.08, 0.1, WH, C.metal); const [lx, ly] = P(tx + e, y0 + 0.06, WH - 3); emis.push((c) => { c.fillStyle = rgba(strip, 0.9); c.fillRect(Math.round(lx), Math.round(ly), 1, 2); }); });
+        if (doors.w && i === 3) for (const e of [0, 1]) push(x0 + ty + e - 0.85, () => { box(g, x0 - 0.05, ty + e, 0.1, 0.08, WH, C.metal); });
+      }
+    }
+
+    // --- path rooms
+    for (const room of rooms) {
+      const { x0, y0 } = room;
+      const look = roomLook(room);
+      const th = themeOf(room.id);
+      const accent = th.accent;
+      const p = pathState(room.id);
+      const info = stageInfo(room);
+      const gated = look === 'gated';
+      walls(x0, y0, doorsOf(room.c, room.r), look, accent, { windows: true, screen: th.screen !== 'none' });
+
+      // lighting mood
+      const lampCol = look === 'killed' ? '#ff3b3b' : look === 'gated' ? '#ffb347' : look === 'paused' ? '#8088a0' : mix(accent, '#fff4e0', 0.55);
+      const lampA = look === 'killed' ? 0.55 : look === 'gated' ? 0.55 : look === 'paused' ? 0.35 : 0.85;
+      const mode = look === 'killed' ? 'pulse' : 'steady';
+      light(x0 + 1.8, y0 + 2.6, 110, lampCol, lampA, mode, 0);
+      light(x0 + 5.2, y0 + 2.6, 110, lampCol, lampA, mode, 1.3);
+      light(x0 + 3.5, y0 + 5.6, 120, lampCol, lampA * 0.9, mode, 2.1);
+      if (gated) { light(x0 + 3.5, y0 + 6.8, 60, '#ffb347', 0.8, 'beacon', 0); light(x0 + 6.8, y0 + 3.5, 60, '#ffb347', 0.8, 'beacon', 1.6); }
+
+      // wall screen (decoration)
+      if (th.screen !== 'none') push(x0 + 4 + y0 - 0.8, () => {
+        const p0 = P(x0 + 4.08, y0 + 0.08), p1 = P(x0 + 5.92, y0 + 0.08);
+        band(g, p0, p1, 6, 21, '#0b0e15');
+        const q0 = P(x0 + 4.2, y0 + 0.09), q1 = P(x0 + 5.8, y0 + 0.09);
+        const scr = SCREEN[th.screen];
+        const dim = look === 'killed' || look === 'paused';
+        emis.push((c) => facePix(c, q0, q1, 7, 20, (t, u, X, k) => (dim ? (hash2(X, k + Math.floor(T * 8)) < 0.08 ? '#2a2f3a' : '#0d1017') : scr(t, u, accent))));
+        const [lx, ly] = P(x0 + 5, y0 + 0.6);
+        if (!dim) lights.push({ sx: lx, sy: ly, r: 50, color: accent, a: 0.35, mode: 'steady', phase: 0 });
+      });
+
+      // posters on the west wall = live posts
+      const posts = (p.posts || []).slice(-10);
+      posts.forEach((post, k) => {
+        const slot = [0.2, 1.2, 2.2, 4.2, 5.2, 6.2][k % 6], row = Math.floor(k / 6);
+        push(x0 + y0 + slot - 0.8, () => {
+          const p0 = P(x0 + 0.08, y0 + slot), p1 = P(x0 + 0.08, y0 + slot + 0.6);
+          const h0 = 9 + row * 8;
+          band(g, p0, p1, h0, h0 + 7, '#0d1016');
+          const pc = PLATFORM_COLOR[post.platform] || '#cfd6e6';
+          facePix(g, p0, p1, h0 + 1, h0 + 6, (t) => (t > 0.12 && t < 0.88 ? pc : null));
+          if (post.earnedUsd > 0) { const [gx, gy] = P(x0 + 0.08, y0 + slot + 0.55, h0 + 7); emis.push((c) => { c.fillStyle = '#ffcf5a'; c.fillRect(Math.round(gx) - 1, Math.round(gy), 2, 2); }); }
         });
       });
-      const info = stageInfo(room);
-      const p = pathState(room.id);
-      const gated = look.look === 'gated';
+
+      // reactor: spend vs path budget
+      const ratio = room.spec.budgetUsd > 0 ? Math.min(1, p.spentUsd / room.spec.budgetUsd) : 0;
+      push(x0 + y0 + 1.1, () => {
+        const cx = x0 + 0.62, cy = y0 + 0.62;
+        box(g, cx, cy, 0.34, 0.34, 5, C.metal);
+        box(g, cx, cy, 0.22, 0.22, 26, C.glass, 5);
+        box(g, cx, cy, 0.3, 0.3, 3, C.metal, 31);
+        const ec = ratio > 0.8 ? '#ff4d4d' : ratio > 0.5 ? '#ffa23d' : '#3ddc97';
+        const fillH = Math.max(0, Math.round(24 * ratio));
+        emis.push((c) => {
+          if (fillH > 0) box(c, cx, cy, 0.15, 0.15, fillH, { top: shade(ec, 60), left: ec, right: shade(ec, -40), rim: '#ffffff' }, 6);
+          for (let b = 0; b < 3 && fillH > 3; b++) {
+            const yy = ((T * 12 + b * 9) % fillH);
+            const [bx, by] = P(cx, cy + 0.1, 6 + yy);
+            c.fillStyle = 'rgba(255,255,255,0.7)'; c.fillRect(Math.round(bx) + (b - 1), Math.round(by), 1, 1);
+          }
+        });
+        if (fillH > 0) { const [lx, ly] = P(cx, cy); lights.push({ sx: lx, sy: ly - 10, r: 44, color: ec, a: 0.5, mode: 'pulse', phase: 0.5 }); }
+      });
+
+      // crates: one per evidenced outcome (display capped at 16)
+      const nOut = Math.min(16, STAGES.reduce((s, st) => s + p.refs[st].length, 0));
+      push(x0 + 6 + y0 + 1.1, () => {
+        for (let k = 0; k < nOut; k++) {
+          const layer = Math.floor(k / 4), i = k % 4, gx = i % 2, gy = Math.floor(i / 2);
+          box(g, x0 + 6.25 + gx * 0.36, y0 + 0.35 + gy * 0.36, 0.16, 0.16, 7, C.crate, layer * 7);
+          const [sx, sy] = P(x0 + 6.25 + gx * 0.36, y0 + 0.51 + gy * 0.36, layer * 7 + 3);
+          g.fillStyle = '#5a3f22'; g.fillRect(Math.round(sx) - 2, Math.round(sy), 4, 1);
+        }
+      });
+
       // desks = stages
       info.forEach((s, i) => {
         const [dx, dy] = DESKS[i];
-        const x = x0 + dx, y = y0 + dy;
-        push(x + y, () => {
-          const [tx, ty] = drawBox(x, y, 5, '#465068', '#343c50', '#2a3141', 'desk');
-          const flash = (deskFlash.get(room.id + ':' + s.id) || 0) > now;
-          let col = '#1a1e27';
-          if (s.done) col = flash && Math.floor(T * 8) % 2 ? '#ffffff' : '#3ddc97';
-          else if (s.next && !gated) col = Math.floor(T * 2) % 2 ? '#7aa2ff' : '#3d5fb0';
-          else if (s.next && gated) col = '#8a6414';
-          ctx.fillStyle = '#10131a'; ctx.fillRect(tx - 3, ty - 4, 7, 5);
-          ctx.fillStyle = col; ctx.fillRect(tx - 2, ty - 3, 5, 3);
-          // progress pips on the desk top: n of target, up to 6 pips
+        const cx = x0 + dx + 0.5, cy = y0 + dy + 0.5;
+        const chairCol = look === 'active' ? mix(accent, '#1c212c', 0.5) : '#2f3544';
+        const chair = { top: chairCol, rim: shade(chairCol, 28), left: shade(chairCol, -22), right: shade(chairCol, -36) };
+        push(cx + cy, () => {
+          // table: modesty panel, two legs, a thin top
+          box(g, cx, cy - 0.24, 0.4, 0.03, 6, C.leg);
+          box(g, cx - 0.38, cy, 0.05, 0.27, 6, C.leg);
+          box(g, cx + 0.38, cy, 0.05, 0.27, 6, C.leg);
+          box(g, cx, cy, 0.44, 0.3, 2, C.desk, 6);
+          // monitor on a stand, keyboard, and a mug on some desks (scenery)
+          box(g, cx, cy - 0.13, 0.04, 0.03, 2, C.metal, 8);
+          box(g, cx, cy - 0.16, 0.3, 0.04, 9, C.mon, 10);
+          box(g, cx + 0.02, cy + 0.1, 0.18, 0.04, 1, C.keys, 8);
+          if (hash2(room.c * 7 + i, room.r * 5) < 0.5) box(g, cx + 0.34, cy + 0.08, 0.04, 0.04, 2, { top: '#e9ecf2', left: '#c9cfda', right: '#a9b0bf', rim: '#ffffff' }, 8);
+          // chair, facing the desk: stem, seat, backrest
+          box(g, cx, cy + 0.64, 0.03, 0.03, 3, C.leg);
+          box(g, cx, cy + 0.64, 0.17, 0.14, 2, chair, 3);
+          box(g, cx, cy + 0.8, 0.16, 0.03, 7, chair, 4);
+          const q0 = P(cx - 0.27, cy - 0.115, 10), q1 = P(cx + 0.27, cy - 0.115, 10);
+          const key = room.id + ':' + s.id;
+          emis.push((c) => {
+            const flash = (deskFlash.get(key) || 0) > performance.now();
+            let col = null;
+            if (s.done) col = flash && Math.floor(T * 8) % 2 ? '#ffffff' : '#3ddc97';
+            else if (s.next && !gated) col = Math.floor(T * 2) % 2 ? '#7aa2ff' : '#3d5fb0';
+            else if (s.next && gated) col = '#8a6414';
+            // an unlit screen is dark glass with a sheen: material, not state
+            if (!col) { facePix(c, q0, q1, 1, 8, (t, u, X, k) => ((X + k) % 6 === 0 && t > 0.2 && t < 0.8 ? '#1c2331' : '#0b0e15')); return; }
+            facePix(c, q0, q1, 1, 8, (t, u, X, k) => (k % 3 === 0 ? shade(col, -30) : u > 0.8 ? shade(col, 40) : col));
+          });
+          if (s.done || s.next) { const [lx, ly] = P(cx, cy + 0.3); lights.push({ sx: lx, sy: ly, r: 34, color: s.done ? '#3ddc97' : gated ? '#f5a623' : '#7aa2ff', a: 0.4, mode: s.next && !gated ? 'blink' : 'steady', phase: 0 }); }
+          // progress pips along the desk's front edge
           const pips = Math.min(6, s.target), lit = Math.min(pips, Math.round(pips * Math.min(1, s.n / s.target)));
-          for (let k = 0; k < pips; k++) { ctx.fillStyle = k < lit ? (s.done ? '#3ddc97' : '#7aa2ff') : '#2a3040'; ctx.fillRect(tx - 3 + k, ty + 3, 1, 1); }
+          for (let k = 0; k < pips; k++) {
+            const f = (k + 0.5) / pips;
+            const [ex, ey] = P(cx - 0.36 + f * 0.72, cy + 0.3, 7);
+            const on = k < lit;
+            emis.push((c) => { c.fillStyle = on ? (s.done ? '#3ddc97' : '#7aa2ff') : '#232a3a'; c.fillRect(Math.round(ex), Math.round(ey) - 1, 1, 1); });
+          }
         });
       });
-      // reactor: spend vs budget
-      push(x0 + y0 + 0.1, () => {
-        const [sx, sy] = iso(x0 + 0.5, y0 + 0.5);
-        const ratio = room.spec.budgetUsd > 0 ? Math.min(1, p.spentUsd / room.spec.budgetUsd) : 0;
-        ctx.fillStyle = '#1a1f2a'; ctx.fillRect(sx - 3, sy - 18, 6, 18);
-        ctx.fillStyle = '#2d3445'; ctx.fillRect(sx - 3, sy - 18, 1, 18); ctx.fillRect(sx + 2, sy - 18, 1, 18);
-        const fh = Math.round(15 * ratio);
-        ctx.fillStyle = ratio > 0.8 ? '#ff5c5c' : ratio > 0.5 ? '#f5a623' : '#3ddc97';
-        if (fh > 0) ctx.fillRect(sx - 2, sy - 2 - fh, 4, fh);
-        ctx.fillStyle = '#4a5368'; ctx.fillRect(sx - 4, sy - 19, 8, 1); ctx.fillRect(sx - 4, sy - 1, 8, 1);
+
+      // theme prop + plant (decoration)
+      push(x0 + y0 + 6.9, () => { const [sx, sy] = P(x0 + 0.55, y0 + 6.45); g.drawImage(plantSprite(room.c * 3 + room.r), Math.round(sx) - 8, Math.round(sy) - 21); });
+      push(x0 + 6.45 + y0 + 3.5, () => themeProp(g, emis, lights, th.prop, x0 + 6.45, y0 + 3.5, accent, look));
+
+      if (look === 'killed') push(x0 + y0 + 7, () => {
+        const [sx, sy] = P(x0 + 3.5, y0 + 3.5);
+        for (let k = -9; k <= 9; k++) { g.fillStyle = '#a02a2a'; g.fillRect(Math.round(sx + k * 1.4), Math.round(sy + k * 0.7), 2, 1); g.fillRect(Math.round(sx + k * 1.4), Math.round(sy - k * 0.7), 2, 1); }
       });
-      // crates = evidenced outcomes
-      const nOut = Math.min(16, STAGES.reduce((s, st) => s + p.refs[st].length, 0));
-      push(x0 + 6 + y0 + 0.2, () => {
-        const [sx, sy] = iso(x0 + 6.5, y0 + 0.5);
-        for (let k = 0; k < nOut; k++) {
-          const col = k % 4, lvl = Math.floor(k / 4);
-          const bx = sx - 6 + col * 3, by = sy - 2 - lvl * 3 + (col % 2);
-          ctx.fillStyle = '#7a5a34'; ctx.fillRect(bx, by, 3, 3);
-          ctx.fillStyle = '#a07a48'; ctx.fillRect(bx, by, 3, 1);
-          ctx.fillStyle = '#4e3a22'; ctx.fillRect(bx + 2, by + 1, 1, 2);
+    }
+
+    // --- command hub
+    {
+      const [x0, y0] = hubO;
+      walls(x0, y0, doorsOf(...HUB), 'active', '#ffcf5a', { windows: true });
+      light(x0 + 3.5, y0 + 3.5, 150, '#ffe2a0', 0.9);
+      light(x0 + 1.2, y0 + 1.6, 70, '#7aa2ff', 0.5);
+      light(x0 + 5.8, y0 + 1.6, 70, '#7aa2ff', 0.5);
+      const vx = x0 + 3.5, vy = y0 + 3.5;
+      push(vx + vy + 1, () => {
+        box(g, vx, vy, 1.05, 1.05, 4, C.metal);
+        const b = box(g, vx, vy, 0.9, 0.9, 18, C.vault, 4);
+        // gold trim bands and a lighter lid plate
+        for (const h of [6, 19]) { band(g, P(vx - 0.9, vy + 0.9), P(vx + 0.9, vy + 0.9), h, h + 1, '#c9982a'); band(g, P(vx + 0.9, vy + 0.9), P(vx + 0.9, vy - 0.9), h, h + 1, '#a57a1c'); }
+        quad(g, vx - 0.6, vy - 0.6, vx + 0.6, vy + 0.6, 22, (u, v) => (u < 0.06 || u > 0.94 || v < 0.06 || v > 0.94 ? '#8a7440' : '#56617e'));
+        // vault door wheel on the south face
+        const [dx, dy] = P(vx - 0.1, vy + 0.9, 12);
+        for (let k = 0; k < 20; k++) { const a = k / 20 * Math.PI * 2; g.fillStyle = '#b89548'; g.fillRect(Math.round(dx + Math.cos(a) * 5), Math.round(dy + Math.sin(a) * 5), 1, 1); }
+        g.fillStyle = '#e0c070'; g.fillRect(Math.round(dx) - 4, Math.round(dy), 9, 1); g.fillRect(Math.round(dx), Math.round(dy) - 4, 1, 9);
+        // one gold bar per ladder rung crossed
+        const bars = snap.level.level;
+        for (let k = 0; k < bars; k++) {
+          const gx = [-0.45, 0, 0.45, -0.22, 0.22][k] || 0, gy = [0.2, 0.2, 0.2, -0.2, -0.2][k] || 0, z = k < 3 ? 22 : 26;
+          box(g, vx + gx, vy + gy, 0.2, 0.1, 4, C.gold, z);
         }
+        void b;
       });
-      if (look.look === 'killed') push(x0 + y0 + 7, () => {
-        const [sx, sy] = iso(x0 + 3.5, y0 + 3.5);
-        ctx.fillStyle = '#ff5c5c';
-        for (let k = -5; k <= 5; k++) { ctx.fillRect(sx + k, sy + Math.round(k / 2), 1, 1); ctx.fillRect(sx + k, sy - Math.round(k / 2), 1, 1); }
+      // two ops consoles against the walls, off to the sides so they never sit behind the vault hologram
+      push(x0 + 5 + y0 + 1.2, () => {
+        const cx = x0 + 5, cy = y0 + 1.2;
+        box(g, cx, cy, 0.5, 0.3, 8, C.dark);
+        box(g, cx, cy - 0.2, 0.45, 0.05, 9, C.mon, 8);
+        const q0 = P(cx - 0.4, cy - 0.15, 8), q1 = P(cx + 0.4, cy - 0.15, 8);
+        emis.push((c) => facePix(c, q0, q1, 1, 8, (t, u, X, k) => (hash2(X, k + Math.floor(T * 3)) < 0.35 ? '#5fd4ff' : '#123a55')));
+      });
+      push(x0 + 1.2 + y0 + 5, () => {
+        const cx = x0 + 1.2, cy = y0 + 5;
+        box(g, cx, cy, 0.3, 0.5, 8, C.dark);
+        box(g, cx - 0.2, cy, 0.05, 0.45, 9, C.mon, 8);
+        const q0 = P(cx - 0.15, cy - 0.4, 8), q1 = P(cx - 0.15, cy + 0.4, 8);
+        emis.push((c) => facePix(c, q0, q1, 1, 8, (t, u, X, k) => (hash2(X + 5, k + Math.floor(T * 3)) < 0.35 ? '#5fd4ff' : '#123a55')));
+      });
+      light(x0 + 5, y0 + 1.8, 60, '#5fd4ff', 0.35);
+      light(x0 + 1.8, y0 + 5, 60, '#5fd4ff', 0.35);
+      const lvl = snap.level.level;
+      emis.push((c) => {
+        // hologram: beam + rotating ring + level digit, bound to the Commander level
+        const [bx, by] = P(vx, vy, 22);
+        c.save(); c.globalCompositeOperation = 'lighter';
+        for (let k = 0; k < 22; k++) { c.fillStyle = `rgba(255,207,90,${0.26 * (1 - k / 22)})`; c.fillRect(Math.round(bx) - 4, Math.round(by) - k, 9, 1); }
+        for (const [rr, h, sp] of [[16, 6, 0.8], [11, 13, -1.3]]) for (let k = 0; k < 30; k++) {
+          const a = k / 30 * Math.PI * 2 + T * sp;
+          const x = bx + Math.cos(a) * rr, y = by - h + Math.sin(a) * rr * 0.3;
+          c.fillStyle = Math.sin(a) > 0 ? 'rgba(255,224,140,0.9)' : 'rgba(255,207,90,0.3)'; c.fillRect(Math.round(x), Math.round(y), 1, 1);
+        }
+        const flick = hash2(Math.floor(T * 10), 3) < 0.06 ? 0.4 : 1;
+        c.globalAlpha = flick;
+        glyphs(c, 'L' + lvl, Math.round(bx) - 7, Math.round(by) - 26 + (Math.floor(T * 1.5) % 2), '#ffe28a', 2);
+        c.restore();
       });
     }
-    // ---- crew ----
-    for (const a of agents.values()) {
-      push(a.x + a.y - 0.4, () => {
-        const [sx, sy] = iso(a.x, a.y);
-        const moving = a.queue.length > 0;
-        const frame = moving ? (Math.floor(a.t * 6) % 2 ? 'walkA' : 'walkB') : a.state === 'work' ? (Math.floor(a.t * 5) % 2 ? 'typeA' : 'typeB') : 'stand';
-        const body = a.role === 'commander' ? '#e9d9a8' : '#e8e8f0';
-        const bob = a.role === 'commander' && !moving ? (Math.floor(a.t * 1.5) % 2) : 0;
-        ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(sx - 3, sy - 1, 6, 2);
-        ctx.drawImage(crewSprite(frame, ROLE_COLOR[a.role] || '#fff', body), sx - 2, sy - 9 - bob);
-        if (a.carry > 0) { ctx.fillStyle = '#a07a48'; ctx.fillRect(sx - 2, sy - 13, 4, 3); ctx.fillStyle = '#7a5a34'; ctx.fillRect(sx - 2, sy - 11, 4, 1); }
+
+    // --- outbox dock
+    {
+      const [x0, y0] = dockO;
+      walls(x0, y0, doorsOf(...DOCK), 'active', '#cfd6e6', { windows: false, airlock: true });
+      light(x0 + 3.5, y0 + 3.5, 140, '#dfe8ff', 0.75);
+      const total = Object.values(snap.outbox || {}).reduce((s, n) => s + n, 0);
+      push(x0 + 3 + y0 + 5.2, () => {
+        const b = box(g, x0 + 3.2, y0 + 5.3, 2.3, 0.35, 4, C.dark);
+        for (let k = 0; k < 18; k++) { const [sx, sy] = P(x0 + 1.0 + k * 0.25, y0 + 5.3, 4); g.fillStyle = '#3a4256'; g.fillRect(Math.round(sx), Math.round(sy) - 1, 1, 2); }
+        void b;
       });
+      for (let s = 0; s < 3; s++) {
+        const cx = x0 + 1.4 + s * 2, cy = y0 + 1.3;
+        push(cx + cy, () => {
+          box(g, cx, cy, 0.5, 0.28, 16, C.metal);
+          const here = Math.max(0, Math.min(8, total - s * 8));
+          for (let k = 0; k < here; k++) {
+            const shelf = k < 4 ? 5 : 11, off = (k % 4) * 0.2 - 0.3;
+            box(g, cx + off, cy + 0.12, 0.08, 0.1, 4, { top: '#f2f5fb', left: '#cfd6e6', right: '#aab3c6', rim: '#ffffff' }, shelf);
+          }
+        });
+      }
     }
-    drawList.sort((a, b) => a.depth - b.depth);
-    for (const d of drawList) d.fn();
-    // particles
-    for (const p of particles) { ctx.fillStyle = p.col; ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); }
+
+    list.sort((a, b) => a.d - b.d);
+    for (const item of list) item.fn();
+    return { emis, lights };
   }
 
-  // ---------- simulation of crew movement between snapshots ----------
+  // Wall screen content generators: (t along the wall, u up the wall) -> colour. Decoration.
+  const SCREEN = {
+    bars: (t, u, a) => { const i = Math.floor(t * 9); const h = 0.25 + hash2(i, 3) * 0.6 + Math.sin(T * 1.5 + i) * 0.05; return u < h && (t * 9) % 1 < 0.7 ? (u > h - 0.08 ? shade(a, 60) : a) : '#0a1018'; },
+    calendar: (t, u, a) => { const ci = Math.floor(t * 7), cj = Math.floor(u * 4); const edge = (t * 7) % 1 < 0.12 || (u * 4) % 1 < 0.15; return edge ? '#1d3a38' : (hash2(ci, cj) < 0.4 ? (ci === Math.floor(T) % 7 && cj === 2 ? '#ffffff' : a) : '#0b1716'); },
+    wave: (t, u, a) => { const y = 0.5 + 0.3 * Math.sin(t * 18 + T * 5) * Math.sin(t * 3 + T); return Math.abs(u - y) < 0.09 ? a : (Math.abs(u - 0.5) < 0.02 ? '#241c3a' : '#0c0a16'); },
+    map: (t, u) => {
+      if (Math.abs(u - (0.35 + t * 0.2)) < 0.05 || Math.abs(t - 0.62) < 0.03 || Math.abs(u - 0.75) < 0.04) return '#3d6b4a';
+      const pins = [[0.2, 0.55, '#ea4335'], [0.45, 0.3, '#fbbc05'], [0.75, 0.62, '#34a853'], [0.88, 0.25, '#4285f4']];
+      for (const [pt, pu, col] of pins) { const d = Math.hypot((t - pt) * 1.6, u - pu); if (d < 0.09 + 0.03 * Math.sin(T * 3 + pt * 10)) return col; }
+      return hash2(Math.floor(t * 30), Math.floor(u * 12)) < 0.12 ? '#16331f' : '#0f2418';
+    },
+    board: (t, u) => ((u * 6) % 1 < 0.2 && t > 0.08 && t < 0.3 + hash2(Math.floor(u * 6), 1) * 0.6 ? '#3a4458' : '#d9e1ea'),
+    play: (t, u) => { const x = t - 0.4; if (x > 0 && x < 0.24 && Math.abs(u - 0.55) < (0.24 - x) * 1.3) return '#ff4d6d'; if (u < 0.12) return t < ((T * 0.05) % 1) ? '#ff4d6d' : '#3a1f2a'; return '#140a10'; },
+    jobs: (t, u, a) => { const ci = Math.floor(t * 3), cj = Math.floor(u * 2); const lt = (t * 3) % 1, lu = (u * 2) % 1; if (lt < 0.1 || lu < 0.12) return '#081218'; if (lu > 0.82) return a; return hash2(ci, cj) < 0.5 ? '#1e3a48' : '#16303c'; },
+  };
+
+  // Solar wing: a truss out from the hull at world (ax, ay) along +y (dir 1) or -y (dir -1), panels on both sides. Scenery.
+  function solarWing(g, emis, ax, ay, dir, len) {
+    const z = -5;
+    g.save();
+    box(g, ax, ay + dir * 0.35, 0.32, 0.32, 7, C.metal, z - 3);
+    const bands = [];
+    for (let s0 = 0.8; s0 + 2.2 <= len; s0 += 2.6) { const a = ay + dir * s0, b = ay + dir * (s0 + 2.2); bands.push([Math.min(a, b), Math.max(a, b)]); }
+    bands.sort((p, q) => p[0] - q[0]);
+    const cellCol = (u, v) => {
+      if (u < 0.025 || u > 0.975 || v < 0.05 || v > 0.95) return '#8a93a8';
+      if ((u * 8) % 1 < 0.09 || (v * 4) % 1 < 0.08) return '#2a3d6a';
+      const sheen = Math.max(0, 1 - Math.abs(u * 0.6 + v * 0.4 - 0.45) * 3.2);
+      return mix('#12234a', '#3a64b8', sheen * 0.7);
+    };
+    for (const [ya, yb] of bands) for (const [xa, xb] of [[ax - 4.3, ax - 0.35], [ax + 0.35, ax + 4.3]]) {
+      quad(g, xa, ya, xb, yb, z - 1, () => '#0a0f1c');
+      quad(g, xa, ya, xb, yb, z, cellCol);
+    }
+    const tip = ay + dir * len;
+    box(g, ax, (ay + tip) / 2, 0.1, len / 2, 3, C.metal, z - 1);
+    const [lx, ly] = P(ax - 4.3, bands.length ? (dir > 0 ? bands[bands.length - 1][1] : bands[0][0]) : tip, z + 1);
+    const [rx, ry] = P(ax + 4.3, bands.length ? (dir > 0 ? bands[bands.length - 1][1] : bands[0][0]) : tip, z + 1);
+    emis.push((c) => {
+      const on = (T * 0.8 + (dir > 0 ? 0.5 : 0)) % 1 < 0.12;
+      c.fillStyle = on ? '#ff4d4d' : '#4a1616'; c.fillRect(Math.round(lx) - 1, Math.round(ly) - 1, 2, 2);
+      c.fillStyle = on ? '#4dff9a' : '#164a2c'; c.fillRect(Math.round(rx) - 1, Math.round(ry) - 1, 2, 2);
+    });
+    g.restore();
+  }
+
+  function themeProp(g, emis, lights, kind, cx, cy, accent, look) {
+    const off = look === 'killed' || look === 'paused';
+    if (kind === 'rack' || kind === 'phone' || kind === 'kiosk' || kind === 'coffee') {
+      const h = kind === 'rack' ? 24 : kind === 'kiosk' ? 14 : 10;
+      box(g, cx, cy, 0.22, 0.34, h, C.dark);
+      if (kind === 'rack') for (let r = 0; r < 6; r++) for (let k = 0; k < 3; k++) {
+        const [lx, ly] = P(cx - 0.2 + k * 0.08, cy + 0.34, 4 + r * 3.3);
+        const seedK = r * 3 + k;
+        emis.push((c) => { if (off) return; c.fillStyle = hash2(seedK, Math.floor(T * 4 + seedK)) < 0.5 ? accent : '#1a2030'; c.fillRect(Math.round(lx), Math.round(ly), 1, 1); });
+      }
+      if (kind === 'kiosk') { const q0 = P(cx - 0.18, cy + 0.34, 5), q1 = P(cx + 0.18, cy + 0.34, 5); emis.push((c) => facePix(c, q0, q1, 0, 8, (t, u) => (off ? '#0c0f16' : u > 0.7 ? '#ffffff' : (Math.hypot(t - 0.5, u - 0.4) < 0.25 ? '#ea4335' : accent)))); }
+      if (kind === 'phone') { box(g, cx, cy, 0.14, 0.1, 3, C.metal, 10); const [lx, ly] = P(cx, cy, 14); emis.push((c) => { if (off) return; c.fillStyle = Math.floor(T * 2) % 3 === 0 ? accent : '#1a2030'; c.fillRect(Math.round(lx), Math.round(ly), 2, 1); }); }
+      if (kind === 'coffee') {
+        box(g, cx, cy, 0.18, 0.18, 6, C.metal, 10);
+        const [lx, ly] = P(cx, cy, 17);
+        emis.push((c) => { if (off) return; for (let k = 0; k < 4; k++) { const yy = (T * 8 + k * 3) % 10; c.fillStyle = `rgba(230,240,255,${0.4 * (1 - yy / 10)})`; c.fillRect(Math.round(lx + Math.sin(T * 2 + k) * 1.5), Math.round(ly - yy), 1, 1); } });
+      }
+      return;
+    }
+    if (kind === 'camera') {
+      const [bx, by] = P(cx, cy);
+      g.fillStyle = '#3a4256'; for (const d of [-4, 0, 4]) { for (let k = 0; k < 12; k++) g.fillRect(Math.round(bx + d * (1 - k / 12)), Math.round(by - k), 1, 1); }
+      box(g, cx, cy, 0.16, 0.12, 5, C.dark, 12);
+      // softbox on a stand, lighting the set
+      const kx = cx - 0.5, ky = cy - 0.5;
+      box(g, kx, ky, 0.03, 0.03, 12, C.leg);
+      box(g, kx, ky, 0.07, 0.32, 9, C.dark, 12);
+      const s0 = P(kx + 0.08, ky - 0.28, 12), s1 = P(kx + 0.08, ky + 0.28, 12);
+      const [lx, ly] = P(kx, ky, 16);
+      emis.push((c) => { if (off) return; facePix(c, s0, s1, 1, 8, (t, u) => (t < 0.08 || t > 0.92 || u > 0.9 ? '#d8c8d0' : '#fff4fa')); c.fillStyle = Math.floor(T * 2) % 2 ? '#ff3b5c' : '#5a1020'; const [rx, ry] = P(cx + 0.1, cy, 16); c.fillRect(Math.round(rx), Math.round(ry), 1, 1); });
+      if (!off) lights.push({ sx: lx, sy: ly + 16, r: 70, color: '#ffe8f4', a: 0.5, mode: 'steady', phase: 0 });
+      return;
+    }
+    const [sx, sy] = P(cx, cy);
+    g.drawImage(plantSprite(Math.round(cx * 7 + cy)), Math.round(sx) - 8, Math.round(sy) - 21);
+  }
+
+  // ---------------------------------------------------------------- per-frame render
+  let T = 0, hoverRoom = null, selected = null;
+  function lightPass() {
+    lg.globalCompositeOperation = 'source-over';
+    lg.fillStyle = 'rgb(66,72,98)'; lg.fillRect(0, 0, LW, LH);
+    lg.globalCompositeOperation = 'lighter';
+    for (const L of baked.lights) {
+      let a = L.a;
+      if (L.mode === 'pulse') a *= 0.55 + 0.45 * Math.sin(T * 2.2 + L.phase);
+      else if (L.mode === 'beacon') a *= Math.max(0, Math.sin(T * 3 + L.phase)) ** 2;
+      else if (L.mode === 'blink') a *= Math.floor(T * 2) % 2 ? 1 : 0.4;
+      if (a <= 0.01) continue;
+      lg.globalAlpha = Math.min(1, a);
+      const r = L.r / 2;
+      lg.drawImage(glow(L.color), L.sx / 2 - r, L.sy / 2 - r, r * 2, r * 2);
+    }
+    lg.globalAlpha = 1;
+    lg.globalCompositeOperation = 'source-over';
+    stg.clearRect(0, 0, W, H);
+    stg.drawImage(SC, 0, 0);
+    stg.globalCompositeOperation = 'multiply';
+    stg.imageSmoothingEnabled = true;
+    stg.drawImage(LC, 0, 0, W, H);
+    stg.imageSmoothingEnabled = false;
+    stg.globalCompositeOperation = 'destination-in';
+    stg.drawImage(SC, 0, 0);
+    stg.globalCompositeOperation = 'source-over';
+  }
+
+  // Selection / hover outline: the room's silhouette (floor front edges and the tops of its back walls).
+  function drawOutline(t, col, a) {
+    const N = P(t.x0, t.y0), E = P(t.x0 + ROOM, t.y0), S = P(t.x0 + ROOM, t.y0 + ROOM), Wc = P(t.x0, t.y0 + ROOM);
+    const up = (p) => [p[0], p[1] - WH - 1];
+    const poly = [Wc, up(Wc), up(N), up(E), E, S, Wc];
+    ctx.fillStyle = rgba(col, a);
+    for (let k = 0; k + 1 < poly.length; k++) {
+      const [x0, y0] = poly[k], [x1, y1] = poly[k + 1];
+      const n = Math.max(1, Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))));
+      for (let i = 0; i <= n; i++) ctx.fillRect(Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n), 1, 1);
+    }
+    ctx.fillStyle = rgba(col, a * 0.5);
+    for (const p of [Wc, E]) for (let k = 0; k < WH; k += 2) ctx.fillRect(Math.round(p[0]), Math.round(p[1]) - k, 1, 1);
+  }
+
+  function drawCrew() {
+    const list = [...agents.values()].sort((a, b) => (a.x + a.y) - (b.x + b.y));
+    for (const a of list) {
+      const [sx, sy] = P(a.x, a.y);
+      const moving = a.queue.length > 0;
+      const frame = moving ? (Math.floor(a.t * 6) % 2 ? 'walkA' : 'walkB') : a.state === 'work' ? (Math.floor(a.t * 5) % 2 ? 'typeA' : 'typeB') : 'stand';
+      const bob = !moving && a.role === 'commander' ? Math.floor(a.t * 1.2) % 2 : moving ? Math.floor(a.t * 6) % 2 : 0;
+      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(Math.round(sx) - 4, Math.round(sy) - 1, 9, 2); ctx.fillRect(Math.round(sx) - 3, Math.round(sy), 7, 1);
+      const spr = crewSprite(frame, a.role);
+      ctx.save();
+      ctx.translate(Math.round(sx), Math.round(sy) - 15 - bob);
+      if (a.face < 0) { ctx.scale(-1, 1); ctx.drawImage(spr, -5, 0); } else ctx.drawImage(spr, -5, 0);
+      ctx.restore();
+      if (a.carry > 0) { ctx.fillStyle = '#b0844c'; ctx.fillRect(Math.round(sx) - 3, Math.round(sy) - 20 - bob, 6, 5); ctx.fillStyle = '#7f5a31'; ctx.fillRect(Math.round(sx) - 3, Math.round(sy) - 16 - bob, 6, 1); }
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35;
+      ctx.drawImage(glow(ROLE_COLOR[a.role] || '#ffffff'), Math.round(sx) - 9, Math.round(sy) - 20, 18, 18);
+      ctx.restore();
+    }
+  }
+
+  const [EM, eg] = mk(W, H);
+  const [B1, b1g] = mk(W / 2, H / 2), [B2, b2g] = mk(W / 4, H / 4), [B3, b3g] = mk(W / 8, H / 8);
+  for (const g of [b1g, b2g, b3g]) g.imageSmoothingEnabled = true;
+
+  // Data packets running down the halls toward the hub, only on a path that has a live agent run.
+  function drawPackets(c) {
+    if (!snap) return;
+    const live = new Set(snap.state.running.map((r) => r.path));
+    for (const room of rooms) {
+      if (!live.has(room.id)) continue;
+      const cellsOnWay = route([room.c, room.r], HUB).map(([x, y]) => [Math.round((x - 4.5) / CELL), Math.round((y - 4.5) / CELL)]);
+      const col = themeOf(room.id).accent;
+      for (let k = 0; k + 1 < cellsOnWay.length; k++) {
+        const [c0, r0] = cellsOnWay[k], [c1, r1] = cellsOnWay[k + 1];
+        const dc = c1 - c0, dr = r1 - r0;
+        // hall runs from the door edge of one cell to the door edge of the next
+        const ax = c0 * CELL + 4.5 + dc * 3.6, ay = r0 * CELL + 4.5 + dr * 3.6;
+        const bx = c1 * CELL + 4.5 - dc * 3.6, by = r1 * CELL + 4.5 - dr * 3.6;
+        for (let q = 0; q < 3; q++) {
+          const f = (T * 0.9 + q / 3 + k * 0.17) % 1;
+          const [sx, sy] = P(ax + (bx - ax) * f, ay + (by - ay) * f, 1);
+          c.fillStyle = col; c.fillRect(Math.round(sx) - 1, Math.round(sy), 2, 1);
+          c.fillStyle = '#ffffff'; c.fillRect(Math.round(sx), Math.round(sy), 1, 1);
+        }
+      }
+    }
+  }
+
+  let shipT = 0;
+  function frameDraw() {
+    ctx.drawImage(BG, 0, 0);
+    for (const s of STAR_TWINKLE) { const a = 0.3 + 0.7 * Math.max(0, Math.sin(T * 1.7 + s.p)); ctx.fillStyle = rgba(s.t, a); ctx.fillRect(s.x, s.y, 1, 1); }
+    // distant freighter crossing the sky every ~70s (scenery)
+    shipT = (T % 70) / 70;
+    { const x = -30 + shipT * (W + 60), y = 22 + shipT * 18; ctx.fillStyle = '#6b7488'; ctx.fillRect(Math.round(x), Math.round(y), 9, 2); ctx.fillStyle = '#9aa3b8'; ctx.fillRect(Math.round(x) + 2, Math.round(y) - 1, 5, 1); ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(glow('#5fd4ff'), Math.round(x) - 7, Math.round(y) - 4, 10, 10); ctx.restore(); }
+    lightPass();
+    ctx.drawImage(ST, 0, 0);
+    // emissive layer (screens, light strips, hologram, packets), then a cheap bloom: shrink it twice and add it back soft
+    eg.clearRect(0, 0, W, H);
+    for (const op of baked.emis) op(eg);
+    drawPackets(eg);
+    ctx.drawImage(EM, 0, 0);
+    b1g.clearRect(0, 0, W / 2, H / 2); b1g.drawImage(EM, 0, 0, W / 2, H / 2);
+    b2g.clearRect(0, 0, W / 4, H / 4); b2g.drawImage(B1, 0, 0, W / 4, H / 4);
+    b3g.clearRect(0, 0, W / 8, H / 8); b3g.drawImage(B2, 0, 0, W / 8, H / 8);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.imageSmoothingEnabled = true;
+    ctx.globalAlpha = 0.55; ctx.drawImage(B2, 0, 0, W, H);
+    ctx.globalAlpha = 0.7; ctx.drawImage(B3, 0, 0, W, H);
+    ctx.imageSmoothingEnabled = false;
+    for (const L of baked.lights) { if (L.r > 70) continue; ctx.globalAlpha = 0.18 * L.a; ctx.drawImage(glow(L.color), L.sx - L.r / 2, L.sy - L.r / 2 - 6, L.r, L.r); }
+    ctx.restore();
+    if (hoverRoom) drawOutline(hoverRoom, hoverRoom.accent, 0.8);
+    const sel = selected && targetById(selected);
+    if (sel && (!hoverRoom || sel.id !== hoverRoom.id)) drawOutline(sel, sel.accent, 0.45 + 0.3 * Math.sin(T * 3));
+    drawCrew();
+    for (const p of particles) { ctx.fillStyle = p.col; ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); }
+    ctx.drawImage(VIG, 0, 0);
+  }
+
   function step(dt) {
     T += dt;
     for (const [id, a] of agents) {
@@ -516,109 +1075,181 @@
       if (a.queue.length) {
         const [tx, ty] = a.queue[0];
         const dx = tx - a.x, dy = ty - a.y, dist = Math.hypot(dx, dy), sp = 3.2 * dt;
+        const sdx = (dx - dy); if (Math.abs(sdx) > 0.01) a.face = sdx > 0 ? 1 : -1;
         if (dist <= sp) { a.x = tx; a.y = ty; a.queue.shift(); } else { a.x += dx / dist * sp; a.y += dy / dist * sp; }
-        if (!a.queue.length) {
-          if (a.state === 'enter') a.state = 'work';
-          else if (a.state === 'leave') agents.delete(id);
-        }
+        if (!a.queue.length) { if (a.state === 'enter') a.state = 'work'; else if (a.state === 'leave') agents.delete(id); }
       }
     }
+    // sparks in killed rooms (the status is real; the sparks are the way it is shown)
+    for (const room of rooms) if (roomLook(room) === 'killed' && Math.random() < dt * 0.8) {
+      const [sx, sy] = P(room.x0 + 1 + Math.random() * 5, room.y0 + 0.1, 18 + Math.random() * 6);
+      for (let k = 0; k < 8; k++) particles.push({ x: sx, y: sy, vx: (Math.random() - 0.5) * 40, vy: -Math.random() * 30, g: 90, life: 0.6 + Math.random() * 0.4, col: k % 2 ? '#ffd27a' : '#ff7a3d' });
+    }
     for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i]; p.life -= dt; p.vy += 90 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      const p = particles[i]; p.life -= dt; p.vy += (p.g || 90) * dt; p.x += p.vx * dt; p.y += p.vy * dt;
       if (p.life <= 0) particles.splice(i, 1);
     }
   }
 
-  // ---------- DOM overlay: labels, floaters, tooltip ----------
+  // ---------------------------------------------------------------- DOM overlay
   let scale = 1;
   function layout() {
     const avail = $('#stage').clientWidth;
-    const tall = Math.max(300, window.innerHeight - 190);
-    scale = Math.max(0.5, Math.min(avail / W, tall / H, 3));
+    const tall = Math.max(320, window.innerHeight - 150);
+    scale = Math.max(0.45, Math.min(avail / W, tall / H, 2.6));
     cv.style.width = Math.round(W * scale) + 'px';
     cv.style.height = Math.round(H * scale) + 'px';
+    $('#labels').classList.toggle('compact', scale < 0.95);
     placeLabels();
   }
-  const offsetX = () => cv.offsetLeft;
-  function toScreen(sx, sy) { return [offsetX() + sx * scale, sy * scale]; }
+  const toScreen = (sx, sy) => [cv.offsetLeft + sx * scale, cv.offsetTop + sy * scale];
+  const shortName = (spec) => spec.short || spec.name.replace(/,.*$/, '').slice(0, 30);
 
   function placeLabels() {
     if (!snap) return;
-    const box = $('#labels');
     const html = [];
     for (const room of rooms) {
       const look = roomLook(room);
       const p = pathState(room.id);
-      const [sx, sy] = iso(room.x0 + 3.5, room.y0);
-      const [X, Y] = toScreen(sx, sy - WH - 4);
-      const tag = look.look === 'active' ? '' : `<span class="tag">${look.look.toUpperCase()}</span>`;
-      html.push(`<div class="lbl ${look.look}" style="left:${X}px;top:${Y}px"><b>#${room.spec.rank}</b> ${esc(shortName(room.spec.name))}${tag}<br><span style="color:#9aa3b8">${usd(p.earnedUsd)} earned</span></div>`);
+      const live = snap.state.running.some((r) => r.path === room.id);
+      const [X, Y] = toScreen(...P(room.x0 + 3.5, room.y0, WH + 8));
+      const tag = look !== 'active' ? `<span class="tag">${look.toUpperCase()}</span>` : live ? '<span class="tag">CREW</span>' : '';
+      const sel = selected === room.id ? ' sel' : '';
+      html.push(`<div class="lbl ${look !== 'active' ? look : live ? 'live' : ''}${sel}" data-sel="${esc(room.id)}" style="left:${X}px;top:${Y}px;--c:${themeOf(room.id).accent}"><span class="n"><i>#${room.spec.rank}</i><b class="nm">${esc(shortName(room.spec))}</b></span><span class="m">${usd(p.earnedUsd)}</span>${tag}</div>`);
     }
-    const [hx, hy] = iso(cellOrigin(...HUB)[0] + 3.5, cellOrigin(...HUB)[1]);
-    const [HX, HY] = toScreen(hx, hy - WH - 4);
-    html.push(`<div class="lbl" style="left:${HX}px;top:${HY}px"><b>COMMAND</b> · vault ${usd(snap.state.earnedUsd)}</div>`);
-    const [dx, dy] = iso(cellOrigin(...DOCK)[0] + 3.5, cellOrigin(...DOCK)[1]);
-    const [DX, DY] = toScreen(dx, dy - WH - 4);
+    const hubO = cellOrigin(...HUB), dockO = cellOrigin(...DOCK);
+    const [HX, HY] = toScreen(...P(hubO[0] + 3.5, hubO[1], WH + 8));
+    html.push(`<div class="lbl${selected === 'hub' ? ' sel' : ''}" data-sel="hub" style="left:${HX}px;top:${HY}px;--c:#ffcf5a"><span class="n"><i>&#9670;</i><b class="nm">COMMAND </b>L${snap.level.level}</span><span class="m">${usd(snap.state.earnedUsd)}</span></div>`);
     const drafts = Object.values(snap.outbox || {}).reduce((s, n) => s + n, 0);
-    html.push(`<div class="lbl" style="left:${DX}px;top:${DY}px"><b>OUTBOX</b> · ${drafts} draft${drafts === 1 ? '' : 's'}</div>`);
-    box.innerHTML = html.join('');
+    const [DX, DY] = toScreen(...P(dockO[0] + 3.5, dockO[1], WH + 8));
+    html.push(`<div class="lbl${selected === 'dock' ? ' sel' : ''}" data-sel="dock" style="left:${DX}px;top:${DY}px;--c:#cfd6e6"><span class="n"><i>&#9993;</i><b class="nm">OUTBOX</b></span><span class="m" style="color:#cfd6e6">${drafts}<b class="nm"> draft${drafts === 1 ? '' : 's'}</b></span></div>`);
+    $('#labels').innerHTML = html.join('');
   }
-  const shortName = (n) => (snap && (snap.catalog.find((c) => c.name === n) || {}).short) || n.replace(/,.*$/, '').replace(/ for Square-based.*$/, '').replace(/ with weekly.*$/, '').replace(/: ship real.*$/, '').replace(/ that sells.*$/, '').slice(0, 30);
 
   function floatAt(sx, sy, text, color) {
     const [X, Y] = toScreen(sx, sy);
     const el = document.createElement('div');
     el.className = 'float'; el.textContent = text; el.style.left = X + 'px'; el.style.top = Y + 'px'; el.style.color = color;
     $('#labels').appendChild(el);
-    setTimeout(() => el.remove(), 2300);
+    setTimeout(() => el.remove(), 2500);
   }
 
-  function worldAt(ev) {
-    const r = cv.getBoundingClientRect();
-    const mx = (ev.clientX - r.left) / (r.width / W), my = (ev.clientY - r.top) / (r.height / H);
-    const a = (mx - OX) / 8, b = (my - OY) / 4;
-    return [(a + b) / 2, (b - a) / 2];
+  // Hit testing in screen space: a room is its floor diamond plus the two back walls rising above it, so a click on
+  // a wall, a screen, a desk or the floor all select it. Where rooms overlap on screen, the one in front wins.
+  function canvasXY(ev) { const r = cv.getBoundingClientRect(); return [(ev.clientX - r.left) / (r.width / W), (ev.clientY - r.top) / (r.height / H)]; }
+  function inPoly([x, y], poly) {
+    let inside = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const [xi, yi] = poly[i], [xj, yj] = poly[j];
+      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
   }
-  function roomAt(ev) {
-    const [x, y] = worldAt(ev);
-    return rooms.find((m) => x >= m.x0 && x < m.x0 + ROOM && y >= m.y0 && y < m.y0 + ROOM) || null;
+  function silhouette(x0, y0) {
+    const N = P(x0, y0), E = P(x0 + ROOM, y0), S = P(x0 + ROOM, y0 + ROOM), Wc = P(x0, y0 + ROOM);
+    return [Wc, [Wc[0], Wc[1] - WH - 2], [N[0], N[1] - WH - 2], [E[0], E[1] - WH - 2], E, [S[0], S[1] + SLAB], [Wc[0], Wc[1] + SLAB]];
   }
-  cv.addEventListener('mousemove', (ev) => {
+  function targets() {
+    const hubO = cellOrigin(...HUB), dockO = cellOrigin(...DOCK);
+    return [
+      ...rooms.map((m) => ({ id: m.id, c: m.c, r: m.r, x0: m.x0, y0: m.y0, accent: themeOf(m.id).accent, room: m })),
+      { id: 'hub', c: HUB[0], r: HUB[1], x0: hubO[0], y0: hubO[1], accent: '#ffcf5a' },
+      { id: 'dock', c: DOCK[0], r: DOCK[1], x0: dockO[0], y0: dockO[1], accent: '#cfd6e6' },
+    ].sort((a, b) => (b.c + b.r) - (a.c + a.r));
+  }
+  const targetAt = (ev) => { const pt = canvasXY(ev); return targets().find((t) => inPoly(pt, silhouette(t.x0, t.y0))) || null; };
+  const targetById = (id) => targets().find((t) => t.id === id) || null;
+  function tipText(t) {
+    if (t.id === 'hub') return `Command · L${snap.level.level} · ${usd(snap.state.earnedUsd)} earned · click for the station roster`;
+    if (t.id === 'dock') return `Outbox · ${Object.values(snap.outbox || {}).reduce((s, n) => s + n, 0)} drafts waiting for you`;
+    const next = stageInfo(t.room).find((s) => s.next);
+    return `#${t.room.spec.rank} ${esc(shortName(t.room.spec))} · ${roomLook(t.room)}${next ? ` · next: ${next.id} ${next.n}/${next.target}` : ''} · click for stats`;
+  }
+  function hover(t, ev) {
     const tip = $('#tip');
-    const room = snap && roomAt(ev);
-    if (!room) { tip.style.display = 'none'; cv.style.cursor = 'crosshair'; return; }
+    hoverRoom = t;
+    if (!t) { tip.style.display = 'none'; cv.style.cursor = 'crosshair'; return; }
     cv.style.cursor = 'pointer';
-    const info = stageInfo(room), next = info.find((s) => s.next);
-    const look = roomLook(room).look;
-    tip.innerHTML = `#${room.spec.rank} ${esc(shortName(room.spec.name))} · ${look}${next ? ` · next: ${next.id} ${next.n}/${next.target}` : ''}`;
+    tip.innerHTML = tipText(t);
     const r = $('#stage').getBoundingClientRect();
-    tip.style.left = (ev.clientX - r.left + 12) + 'px'; tip.style.top = (ev.clientY - r.top + 12) + 'px'; tip.style.display = 'block';
-  });
-  cv.addEventListener('mouseleave', () => { $('#tip').style.display = 'none'; });
-  let selected = null;
-  cv.addEventListener('click', (ev) => { const room = snap && roomAt(ev); if (room) { selected = room.id; renderPanel(); } });
+    tip.style.left = (ev.clientX - r.left + 14) + 'px'; tip.style.top = (ev.clientY - r.top + 14) + 'px'; tip.style.display = 'block';
+  }
+  function select(id) {
+    selected = id; renderPanel(); placeLabels();
+    if (window.innerWidth <= 960) $('#panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  cv.addEventListener('mousemove', (ev) => hover(snap && targetAt(ev), ev));
+  cv.addEventListener('mouseleave', () => hover(null));
+  cv.addEventListener('click', (ev) => { const t = snap && targetAt(ev); if (t) select(t.id); });
+  // Labels are click targets too (delegated: the label layer is rebuilt on every poll)
+  $('#labels').addEventListener('click', (ev) => { const el = ev.target.closest('[data-sel]'); if (el) select(el.dataset.sel); });
+  $('#labels').addEventListener('mouseover', (ev) => { const el = ev.target.closest('[data-sel]'); if (el && snap) hover(targetById(el.dataset.sel), ev); });
+  $('#labels').addEventListener('mouseout', (ev) => { if (ev.target.closest('[data-sel]')) hover(null); });
+  $('#panel').addEventListener('click', (ev) => { const el = ev.target.closest('[data-sel]'); if (el) { ev.preventDefault(); select(el.dataset.sel); } });
 
-  // ---------- side panel ----------
+  // ---------------------------------------------------------------- side panel
+  // Nothing selected, or the command hub: the whole station at a glance, every row clickable.
+  function renderOverview() {
+    const st = snap.state, lv = snap.level;
+    $('#panel').style.setProperty('--room', '#ffcf5a');
+    const list = rooms.map((m) => ({ m, p: pathState(m.id), look: roomLook(m), info: stageInfo(m) }))
+      .sort((a, b) => b.p.earnedUsd - a.p.earnedUsd || a.m.spec.rank - b.m.spec.rank);
+    const top = Math.max(1, ...list.map((x) => x.p.earnedUsd));
+    const open = snap.quests.filter((q) => q.status !== 'done').slice(0, 5);
+    const lookCol = { active: 'var(--good)', gated: 'var(--warn)', killed: 'var(--bad)', paused: 'var(--muted)' };
+    $('#panel').innerHTML = `
+      <h2><span class="rk">&#9670;</span> Station roster</h2>
+      <div class="muted">Commander L${lv.level} · ${esc(lv.title)} · ${usd(st.earnedUsd)} earned, ${usd(st.spentUsd)} spent. Click any room, label or row for its stats.</div>
+      <h3>Paths by money earned</h3>
+      ${list.map(({ m, p, look, info }) => {
+        const live = st.running.filter((r) => r.path === m.id).length;
+        const done = info.filter((s) => s.done).length;
+        return `<div class="rost" data-sel="${esc(m.id)}" style="--c:${themeOf(m.id).accent}">
+          <div class="top"><span class="nm"><i>#${m.spec.rank}</i>${esc(shortName(m.spec))}</span><span class="usd">${usd(p.earnedUsd)}</span></div>
+          <div class="bar"><i style="width:${(100 * p.earnedUsd / top).toFixed(1)}%"></i></div>
+          <div class="sub"><span style="color:${lookCol[look]}">${look}</span> · stage ${done}/6${live ? ` · <span style="color:var(--good)">${live} crew out</span>` : ''} · spent ${usd(p.spentUsd)}</div>
+        </div>`;
+      }).join('')}
+      ${open.length ? `<h3>Next quests</h3>${open.map((q) => `<div class="quest"${q.path ? ` data-sel="${esc(q.path)}" style="cursor:pointer"` : ''}>&#9675; ${esc(q.title)}<div class="d">${esc(q.desc)}</div></div>`).join('')}` : ''}`;
+  }
+  function renderDock() {
+    $('#panel').style.setProperty('--room', '#cfd6e6');
+    const ob = snap.outbox || {};
+    const rows = Object.entries(ob).filter(([, n]) => n > 0);
+    const total = rows.reduce((s, [, n]) => s + n, 0);
+    $('#panel').innerHTML = `
+      <h2><span class="rk">&#9993;</span> Outbox dock</h2>
+      <div class="muted">${total} draft${total === 1 ? '' : 's'} written by agents. Nothing leaves this station until you send it yourself.</div>
+      <h3>Drafts by path</h3>
+      ${rows.length ? rows.map(([id, n]) => { const m = rooms.find((r) => r.id === id); return `<div class="rost" data-sel="${esc(id)}" style="--c:${themeOf(id).accent}"><div class="top"><span class="nm">${m ? `<i>#${m.spec.rank}</i>${esc(shortName(m.spec))}` : esc(id)}</span><span class="usd" style="color:#cfd6e6">${n}</span></div></div>`; }).join('') : '<div class="muted">No drafts yet.</div>'}
+      <div class="muted" style="margin-top:10px">Read and copy them on the <a href="/ledger">money dashboard</a>.</div>`;
+  }
   function renderPanel() {
-    if (!snap || !selected) return;
+    if (!snap) return;
+    if (!selected || selected === 'hub') return renderOverview();
+    if (selected === 'dock') return renderDock();
     const room = rooms.find((m) => m.id === selected);
-    if (!room) return;
-    const spec = room.spec, p = pathState(room.id), look = roomLook(room).look, info = stageInfo(room);
+    if (!room) return renderOverview();
+    const spec = room.spec, p = pathState(room.id), look = roomLook(room), info = stageInfo(room);
+    const accent = themeOf(room.id).accent;
+    $('#panel').style.setProperty('--room', accent);
     const qs = snap.quests.filter((q) => q.path === spec.id || (q.kind === 'gate' && spec.gate && q.id === 'gate:' + spec.gate));
     const runs = snap.state.runs.filter((r) => r.path === spec.id).slice(-4).reverse();
     const roleOpts = Object.entries(snap.roles).map(([k, r]) => `<option value="${k}">${esc(r.title)}${r.logs.length ? '' : ' (drafts)'}</option>`).join('');
     const stageOpts = STAGES.map((s) => `<option>${s}</option>`).join('');
+    const lookChip = look === 'active' ? '<span class="chip" style="color:var(--good)">active</span>' : `<span class="chip" style="color:${look === 'killed' ? 'var(--bad)' : look === 'gated' ? 'var(--warn)' : 'var(--muted)'}">${look}</span>`;
     $('#panel').innerHTML = `
-      <h2>#${spec.rank} ${esc(spec.name)}</h2>
-      <div class="muted">${esc(spec.bucket)} · status <b>${look}</b> · earned ${usd(p.earnedUsd)} · spent ${usd(p.spentUsd)} of ${usd(spec.budgetUsd)}</div>
+      <a href="#" class="back" data-sel="hub">&larr; station roster</a>
+      <h2><span class="rk">#${spec.rank}</span> ${esc(spec.name)}</h2>
+      <div class="muted">${lookChip}${esc(spec.bucket)} · earned <b style="color:var(--gold)">${usd(p.earnedUsd)}</b> · spent ${usd(p.spentUsd)} of ${usd(spec.budgetUsd)}</div>
       <h3>Stages</h3>
-      ${info.map((s) => `<div class="stg ${s.done ? 'done' : ''}"><span>${s.next ? '&#9656; ' : ''}${s.id}</span><div class="b"><i style="width:${Math.min(100, 100 * s.n / s.target)}%"></i></div><span>${s.n}/${s.target}</span></div>`).join('')}
-      <div class="muted" style="margin-top:6px">kill test: ${esc(spec.killTest)}</div>
+      ${info.map((s) => `<div class="stg ${s.done ? 'done' : ''} ${s.next ? 'next' : ''}"><span>${s.next ? '&#9656; ' : ''}${s.id}</span><div class="b"><i style="width:${Math.min(100, 100 * s.n / s.target)}%"></i></div><span>${s.n}/${s.target}</span></div>`).join('')}
+      <div class="muted" style="margin-top:8px">kill test: ${esc(spec.killTest)}</div>
       ${qs.length ? `<h3>Quests here</h3>${qs.map((q) => `<div class="quest">${q.status === 'done' ? '&#10003;' : '&#9675;'} ${esc(q.title)}<div class="d">${esc(q.desc)}</div></div>`).join('')}` : ''}
       <h3>Send an agent (spends real money)</h3>
       <form id="f-run">
-        <div class="row"><select name="role">${roleOpts}</select><input name="maxUsd" type="number" step="0.25" min="0.25" value="2" title="max USD"></div>
-        <button class="spend">Dispatch to ${esc(shortName(spec.name))}</button><div class="msg"></div>
+        <div class="row"><select name="role">${roleOpts}</select><input name="maxUsd" type="number" step="0.25" min="0.25" value="1" title="max USD"></div>
+        <button class="spend">Dispatch to ${esc(shortName(spec))}</button><div class="msg"></div>
       </form>
       <h3>Log what happened</h3>
       <form id="f-out">
@@ -648,39 +1279,31 @@
     f.addEventListener('submit', async (e) => {
       e.preventDefault();
       msg.className = 'msg'; msg.textContent = 'working…';
-      try { msg.textContent = await fn(Object.fromEntries(new FormData(f).entries())); msg.className = 'msg ok'; poll(); }
-      catch (err) { msg.className = 'msg err'; msg.textContent = err.message; }
+      try { msg.textContent = await fn(Object.fromEntries(new FormData(f).entries())); msg.className = 'msg ok'; poll(); } catch (err) { msg.className = 'msg err'; msg.textContent = err.message; }
     });
   }
 
-  // ---------- HUD + feed ----------
+  // ---------------------------------------------------------------- HUD + feed
   function renderHud() {
     const st = snap.state, lv = snap.level;
-    const y = st.spentUsd > 0 ? st.yieldRatio.toFixed(2) : 'n/a';
-    const pct = lv.next ? Math.min(100, 100 * (st.earnedUsd - (lv.level ? lv.citations[lv.citations.length - 1].usd : 0)) / (lv.next.usd - (lv.level ? lv.citations[lv.citations.length - 1].usd : 0))) : 100;
-    const stats = [
-      ['Earned', usd(st.earnedUsd), 'gold'],
-      ['Spent', usd(st.spentUsd), ''],
-      ['Yield', y, ''],
-      ['Crew out', String(st.running.length), ''],
-      ['Posts live', String(st.posts.length), ''],
-      ['Quests', `${snap.questSummary.open} open`, ''],
-    ];
+    const yieldTxt = st.spentUsd > 0 ? st.yieldRatio.toFixed(2) + 'x' : 'n/a';
+    const floorUsd = lv.level ? lv.citations[lv.citations.length - 1].usd : 0;
+    const pct = lv.next ? Math.min(100, 100 * (st.earnedUsd - floorUsd) / (lv.next.usd - floorUsd)) : 100;
+    const stats = [['Earned', usd(st.earnedUsd), 'gold', '#ffcf5a'], ['Spent', usd(st.spentUsd), '', '#ff7a7a'], ['Yield', yieldTxt, '', '#3ddc97'], ['Crew out', String(st.running.length), '', '#5fd4ff'], ['Posts live', String(st.posts.length), '', '#f472b6'], ['Quests', `${snap.questSummary.open} open`, '', '#a78bfa']];
     const hud = $('#hud');
     hud.querySelectorAll('.stat').forEach((e) => e.remove());
-    for (const [k, v, c] of stats) hud.insertAdjacentHTML('beforeend', `<div class="stat"><div class="k">${k}</div><div class="v ${c}">${esc(v)}</div></div>`);
-    hud.insertAdjacentHTML('beforeend', `<div class="stat" style="min-width:170px"><div class="k">Commander L${lv.level}</div><div class="v gold" style="font-size:13px">${esc(lv.next ? usd(lv.next.remainingUsd) + ' to ' + lv.next.title : lv.title)}</div><div class="bar"><i style="width:${pct}%"></i></div></div>`);
+    for (const [k, v, c, col] of stats) hud.insertAdjacentHTML('beforeend', `<div class="stat" style="--c:${col}"><div class="k">${k}</div><div class="v ${c}">${esc(v)}</div></div>`);
+    hud.insertAdjacentHTML('beforeend', `<div class="stat" style="min-width:190px;--c:#ffcf5a"><div class="k">Commander L${lv.level} · ${esc(lv.title)}</div><div class="v gold" style="font-size:18px">${esc(lv.next ? usd(lv.next.remainingUsd) + ' to ' + lv.next.title : 'top rung')}</div><div class="bar"><i style="width:${pct}%"></i></div></div>`);
     $('#demo').style.display = st.demo ? 'block' : 'none';
     const line = (e) => {
       const t = (e.ts || '').slice(5, 16).replace('T', ' ');
       switch (e.kind) {
         case 'money.in': return [t, `+${usd(e.usd)} from ${e.source} on ${e.path}`];
-        case 'money.out': return [t, `-${usd(e.usd)} ${e.category} on ${e.path}`];
         case 'outcome': return [t, `${e.stage}: ${e.ref} (${e.path}, by ${e.by})`];
         case 'agent.run.start': return [t, `${e.role} dispatched to ${e.path}`];
+        case 'agent.run.end': return [t, `${e.role} back from ${e.path}: ${e.reason}, ${usd(e.usd)}`];
         case 'post': return [t, `posted on ${e.platform}: ${e.title}`];
         case 'job': return [t, `job ${e.jobId} ${e.enabled ? 'on' : 'off'}: ${e.role} -> ${e.path} every ${e.everyHours}h`];
-        case 'agent.run.end': return [t, `${e.role} back from ${e.path}: ${e.reason}, ${usd(e.usd)}`];
         case 'gate': return [t, `gate ${e.gate} ${e.cleared ? 'CLEARED' : 'BLOCKED'}`];
         case 'path.status': return [t, `${e.path} -> ${e.status}: ${e.reason}`];
         default: return [t, e.text || e.kind];
@@ -690,7 +1313,7 @@
     $('#feed').innerHTML = rows.length ? rows.map(([t, s]) => `<div><span class="t">${esc(t)}</span>${esc(s)}</div>`).join('') : '<div>ledger is empty. The first line you log appears here.</div>';
   }
 
-  // ---------- loop ----------
+  // ---------------------------------------------------------------- loop
   async function poll() {
     try {
       const r = await fetch('/api/state', { cache: 'no-store' });
@@ -698,17 +1321,20 @@
       prev = snap; snap = next;
       if (!rooms.length || (prev && prev.catalog.length !== snap.catalog.length)) buildRooms();
       sync(); renderHud(); placeLabels();
-      if (selected) { const active = document.activeElement; if (!active || !$('#panel').contains(active)) renderPanel(); }
+      const sig = signature();
+      if (sig !== bakedSig) { baked = bake(); bakedSig = sig; }
+      { const active = document.activeElement; if (!active || !$('#panel').contains(active)) renderPanel(); }
     } catch (e) { /* server down: keep drawing the last truthful frame */ }
   }
   let last = performance.now();
   function frame(now) {
     const dt = Math.min(0.1, (now - last) / 1000); last = now;
-    if (snap) { step(dt); drawSpace(); scene(); }
+    if (snap) { step(dt); frameDraw(); }
     requestAnimationFrame(frame);
   }
   window.addEventListener('resize', layout);
   poll().then(layout);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
   setInterval(poll, 2000);
   requestAnimationFrame(frame);
 })();
