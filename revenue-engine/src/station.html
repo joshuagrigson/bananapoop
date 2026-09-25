@@ -78,6 +78,7 @@
   .brand h1 { margin: 0; font: 700 15px/1 var(--f-ui); letter-spacing: .22em; background: linear-gradient(90deg, #fff, #ffe7a8 60%, #ffcf5a); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; }
   .brand .sub { color: var(--muted); font-size: 11px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 360px; }
   @media (max-width: 1520px) and (min-width: 901px) { .brand .sub { display: none; } .brand nav { margin-top: 8px; } .cmdr { min-width: 220px; } }
+  @media (max-width: 1680px) and (min-width: 901px) { .brand nav a .lbl { display: none; } .brand nav a:not(#navSync) { padding: 4px 6px; } }
   @media (max-width: 1240px) and (min-width: 901px) { .rc .ic { display: none; } .rc { padding: 8px 10px; } .brand h1 { font-size: 13px; letter-spacing: .16em; } }
   .brand nav { display: flex; gap: 6px; margin-top: 6px; }
   .brand nav a { display: inline-flex; align-items: center; gap: 5px; font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; text-decoration: none; color: var(--ink2); padding: 4px 7px; border-radius: 6px; border: 1px solid #262f4a; background: rgba(10, 14, 24, .6); transition: .15s; }
@@ -262,6 +263,86 @@
   #guide .kb { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 12px; color: var(--ink2); margin-top: 6px; }
   #guide kbd { font: 600 10.5px/1 var(--f-num); color: #fff; background: #151b2d; border: 1px solid #2a3452; border-bottom-width: 2px; border-radius: 5px; padding: 3px 6px; white-space: nowrap; }
   #guide .x { position: absolute; right: 14px; top: 14px; }
+  /* crew list and hiring */
+  .crewrow { display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; margin-bottom: 6px; border-radius: 10px; border: 1px solid #1f2742; background: linear-gradient(90deg, color-mix(in srgb, var(--rc) 10%, rgba(12,16,28,.7)), rgba(10,13,23,.6) 70%); }
+  .crewrow.off { opacity: .55; filter: saturate(.4); }
+  .crewrow .av { width: 26px; height: 26px; border-radius: 8px; background: radial-gradient(circle at 50% 38%, #eef1f8 0 28%, #141b2b 29% 38%, var(--rc) 39%); box-shadow: 0 0 12px color-mix(in srgb, var(--rc) 45%, transparent), inset 0 0 0 1px rgba(255,255,255,.1); }
+  .crewrow .cm b { font-size: 12.5px; color: #fff; font-weight: 600; }
+  .crewrow .cm small { display: block; font: 10.5px/1.35 var(--f-num); color: var(--muted); }
+  .tog { position: relative; width: 38px; height: 22px; cursor: pointer; flex: none; }
+  .tog input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .tog i { position: absolute; inset: 0; border-radius: 12px; background: #1a2134; border: 1px solid #2a3452; transition: .2s; pointer-events: none; }
+  .tog i::after { content: ""; position: absolute; left: 3px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #56607a; transition: .2s cubic-bezier(.2,.8,.2,1.3); }
+  .tog input:checked + i { background: color-mix(in srgb, var(--rc, var(--good)) 35%, #0c1120); border-color: var(--rc, var(--good)); }
+  .tog input:checked + i::after { left: 19px; background: #fff; box-shadow: 0 0 8px var(--rc, var(--good)); }
+  .tog input:focus-visible + i { outline: 2px solid var(--c); outline-offset: 2px; }
+  .btn.hire { width: 100%; border-style: dashed; }
+  .btn.hire.on { border-style: solid; }
+  /* income sync center */
+  #navSync { position: relative; }
+  #navSync .sdot { width: 7px; height: 7px; border-radius: 50%; background: #8a93a8; }
+  #navSync .sdot.pulse { animation: blink 1s infinite; }
+  #syncbox { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: rgba(2, 3, 8, .62); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  #syncbox[hidden] { display: none; }
+  #syncbox .box { position: relative; width: min(1080px, 95vw); max-height: 90vh; overflow: auto; padding: 22px 24px; --c: #5fd4ff; animation: tin .4s cubic-bezier(.2,.9,.3,1.2) both; scrollbar-width: thin; scrollbar-color: #2a3350 transparent; }
+  #syncbox .x { position: absolute; right: 14px; top: 14px; }
+  #syncbox h2 { margin: 0 0 4px; font: 700 18px/1.2 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; }
+  #syncbox h3 { font: 600 10px/1 var(--f-ui); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+  #syncbox .lead { color: var(--ink2); margin: 0 0 6px; max-width: 720px; }
+  .sy-head { display: flex; gap: 16px; align-items: flex-start; padding-right: 44px; margin-bottom: 18px; }
+  .sy-head > .btn { flex: none; margin-top: 4px; }
+  .sy-status { font: 600 11.5px/1.3 var(--f-num); }
+  .sy-mast { position: relative; width: 54px; height: 54px; flex: none; border-radius: 14px; background: radial-gradient(circle at 50% 70%, color-mix(in srgb, var(--c) 30%, transparent), rgba(10,14,24,.8)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent), 0 0 22px color-mix(in srgb, var(--c) 30%, transparent); overflow: hidden; }
+  .sy-mast i { position: absolute; left: 50%; bottom: 10px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; border: 2px solid var(--c); opacity: 0; animation: wave 2.4s infinite; }
+  .sy-mast i:nth-child(2) { animation-delay: .8s; } .sy-mast i:nth-child(3) { animation-delay: 1.6s; }
+  @keyframes wave { 0% { transform: scale(.4); opacity: .9; } 100% { transform: scale(4.2); opacity: 0; } }
+  .sy-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 22px; }
+  .sy-empty { display: flex; gap: 12px; padding: 14px; border-radius: 12px; border: 1px dashed #2a3452; color: var(--ink2); font-size: 12.5px; } .sy-empty .i { width: 20px; height: 20px; color: var(--cyan); flex: none; }
+  .lk { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: start; padding: 12px; margin-bottom: 8px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--c) 30%, #1c2440); background: linear-gradient(90deg, color-mix(in srgb, var(--c) 10%, rgba(12,16,28,.8)), rgba(10,13,23,.6) 70%); }
+  .lk-ic, .t-ic { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; font: 700 18px/1 var(--f-ui); color: #0a0d16; background: var(--c); box-shadow: 0 0 16px color-mix(in srgb, var(--c) 45%, transparent); flex: none; }
+  .lk-t { font-size: 13px; } .lk-t b { color: #fff; }
+  .lk-path { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); margin: 5px 0; }
+  .lk-path select { padding: 4px 6px; font-size: 11.5px; width: auto; max-width: 220px; }
+  .lk-st { font: 11px/1.4 var(--f-num); color: var(--ink2); } .lk-st .ok { color: var(--good); } .lk-st .bad { color: var(--bad); } .lk-st .err { color: #ffb3bb; font-family: var(--f-ui); margin-top: 3px; }
+  .lk-act { display: grid; gap: 5px; }
+  .btn.sm2 { padding: 7px 10px; font-size: 10px; }
+  .btn.ghost { background: transparent; }
+  .btn.danger { border-color: var(--bad); color: #ffb3bb; }
+  .imp { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: baseline; padding: 8px 2px; border-top: 1px solid #161c2e; font-size: 12.5px; } .imp b { color: var(--gold); font-family: var(--f-num); }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 12px; }
+  .tiles.small { grid-template-columns: repeat(4, 1fr); }
+  .tile { display: flex; gap: 10px; align-items: center; text-align: left; padding: 9px; border-radius: 11px; border: 1px solid #1f2742; background: #0b101c; cursor: pointer; color: var(--ink); transition: .15s; font: inherit; }
+  .tile .t-ic { width: 32px; height: 32px; font-size: 15px; border-radius: 9px; }
+  .tile b { display: block; font-size: 12.5px; } .tile small { display: block; font-size: 10.5px; color: var(--muted); line-height: 1.3; margin-top: 2px; }
+  .tiles.small .tile { justify-content: center; padding: 8px 6px; } .tiles.small .tile b { font-size: 11px; text-align: center; }
+  .tile:hover { border-color: color-mix(in srgb, var(--c, #5fd4ff) 60%, transparent); }
+  .tile.on { border-color: var(--c, #5fd4ff); background: color-mix(in srgb, var(--c, #5fd4ff) 12%, #0b101c); box-shadow: 0 0 16px color-mix(in srgb, var(--c, #5fd4ff) 22%, transparent); }
+  .sy-form { display: grid; gap: 9px; }
+  .how { padding: 11px 13px; border-radius: 11px; background: rgba(95, 212, 255, .05); border: 1px solid rgba(95, 212, 255, .16); margin-bottom: 10px; font-size: 12px; color: var(--ink2); }
+  .how b { font: 600 10px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--cyan); }
+  .how ol { margin: 7px 0 8px; padding-left: 18px; } .how li { margin: 2px 0; } .how .btn { padding: 6px 10px; font-size: 10px; text-decoration: none; }
+  .drop { position: relative; display: flex; gap: 12px; align-items: center; padding: 18px; border-radius: 12px; border: 1.5px dashed #33406a; background: rgba(10, 14, 24, .6); cursor: pointer; transition: .15s; margin-bottom: 10px; }
+  .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .drop .i { width: 26px; height: 26px; color: var(--cyan); flex: none; }
+  .drop b { display: block; color: #fff; } .drop small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .drop.over, .drop:hover { border-color: var(--cyan); background: rgba(95, 212, 255, .07); }
+  .drop.has { border-style: solid; border-color: #2c5a44; background: rgba(61, 220, 151, .05); }
+  details.mapping { margin: 8px 0; font-size: 12px; color: var(--ink2); }
+  details.mapping summary { cursor: pointer; list-style: none; } details.mapping summary::-webkit-details-marker { display: none; }
+  details.mapping .lnk { color: var(--cyan); text-decoration: underline; }
+  .map { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+  .map select { padding: 6px; font-size: 11px; }
+  .sum { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; margin: 10px 0 8px; font-size: 11.5px; color: var(--muted); } .sum b { color: var(--good); font-size: 13px; }
+  .tbl { max-height: 260px; overflow: auto; border: 1px solid #1c2338; border-radius: 10px; margin-bottom: 10px; scrollbar-width: thin; }
+  .tbl table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .tbl th { position: sticky; top: 0; background: #0d1220; text-align: left; font: 600 9.5px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding: 7px 8px; }
+  .tbl td { padding: 6px 8px; border-top: 1px solid #141a2a; vertical-align: top; } .tbl td small { display: block; color: var(--dim); font-size: 10px; }
+  .tbl .r { text-align: right; font-family: var(--f-num); white-space: nowrap; }
+  .tbl tr.skip td, .tbl tr.duplicate td { color: var(--dim); }
+  .stb { font: 700 9px/1 var(--f-num); padding: 3px 5px; border-radius: 4px; text-transform: uppercase; }
+  .stb.new { background: rgba(61, 220, 151, .16); color: var(--good); } .stb.duplicate { background: rgba(122, 162, 255, .12); color: #9fb6ff; } .stb.skip { background: rgba(255, 255, 255, .05); color: var(--dim); }
+  .btn[disabled] { opacity: .45; cursor: not-allowed; }
+  @media (max-width: 900px) { #syncbox { position: fixed; } .sy-grid { grid-template-columns: 1fr; } .tiles.small { grid-template-columns: repeat(2, 1fr); } .map { grid-template-columns: 1fr 1fr; } .sy-head { flex-wrap: wrap; } }
   #boot { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; background: radial-gradient(60% 60% at 50% 45%, #0d1224, #03040a); transition: opacity .7s ease, visibility .7s; }
   #boot.gone { opacity: 0; visibility: hidden; }
   #boot .in { text-align: center; }
@@ -315,7 +396,7 @@
       <div style="min-width:0">
         <h1>REVENUE STATION</h1>
         <div class="sub">Every lit screen, crate, crew member and gold bar is a ledger line.</div>
-        <nav><a href="/terminal" id="navTerm"></a><a href="/ledger" id="navLedger"></a><a href="#" id="navGuide"></a></nav>
+        <nav><a href="#" id="navSync" title="Income sync: link where you get paid (I)"></a><a href="/terminal" id="navTerm"></a><a href="/ledger" id="navLedger"></a><a href="#" id="navGuide"></a></nav>
       </div>
     </div>
     <div class="res" id="res"></div>
@@ -326,6 +407,7 @@
   <section id="comms" class="glass"><button class="hd" id="commsHd"><span class="live"></span>Comms · ledger feed<span class="ch"></span></button><div id="feed"></div></section>
   <div id="toasts" aria-live="polite"></div>
   <div id="guide" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Field guide"></div></div>
+  <div id="syncbox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Income sync"></div></div>
   <div id="boot"><div class="in">
     <svg class="logo" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 1.5l17.5 10v21L20 42.5 2.5 32.5v-21z" fill="#ffcf5a"/><path d="M20 7.5l12.3 7v14.6L20 36.3 7.7 29.1V14.5z" fill="#1c1204"/><path d="M23.6 16.4c-.8-1-2-1.5-3.3-1.5-2 0-3.5 1.1-3.5 2.6 0 3.6 7 1.8 7 5.3 0 1.5-1.6 2.6-3.7 2.6-1.4 0-2.7-.6-3.5-1.7M20.3 13v18" stroke="#ffcf5a" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
     <h1>REVENUE STATION</h1><div class="ln" id="bootLn">establishing ledger uplink</div><div class="bar"><i id="bootBar"></i></div>
@@ -817,6 +899,20 @@
   const NR = 4, NGW = 44 * NR, NGH = 34 * NR;
   const PROP = [6.45, 5.2];                                 // room-local spot of each room's scenery prop
   const HUB_SPAWN = [1.9, 1.9];                             // hub-local spot where crew beam in and out
+  const MAST = [28.3, 0.7];                                 // world spot of the comm mast (income sync)
+  // Income sync health, read from the snapshot: drives the mast beacon, the Sync button and the mast tooltip.
+  function syncStatus() {
+    const list = (snap && snap.sync && snap.sync.connections) || [];
+    const live = list.filter((c) => c.enabled);
+    if (snap && snap.sync && snap.sync.syncing) return { key: 'syncing', color: '#ffb347', blink: 4, text: 'syncing now…' };
+    if (!live.length) return { key: 'none', color: '#8a93a8', blink: 0.5, text: 'no income linked yet' };
+    const bad = live.filter((c) => c.lastSync && !c.lastSync.ok);
+    if (bad.length) return { key: 'error', color: '#ff5c6c', blink: 1.5, text: `${bad.length} link${bad.length === 1 ? '' : 's'} failed: ${bad[0].title}` };
+    const times = live.map((c) => (c.lastSync ? Date.parse(c.lastSync.at) : 0));
+    const oldest = Math.min(...times);
+    if (!oldest) return { key: 'stale', color: '#ffb347', blink: 0, text: 'linked, waiting for the first sync' };
+    return { key: 'ok', color: '#3ddc97', blink: 0, text: `${live.length} linked · synced ${ago(new Date(Math.max(...times)).toISOString())}` };
+  }
   let nav = null;
   function buildNav() {
     const g = new Uint8Array(NGW * NGH);
@@ -901,32 +997,96 @@
   }
   function outcomesForRun(runId) { let n = 0; for (const p of Object.values(snap.state.paths)) for (const list of Object.values(p.refs)) for (const r of list) if (r.runId === runId) n++; return n; }
   const deskCenter = (room, i) => [room.x0 + DESKS[i][0] + 0.5, room.y0 + DESKS[i][1] + 0.5];
-  function pickDesk(room) {
+  function pickDesk(room, self = null) {
     const info = stageInfo(room);
-    const taken = new Set([...agents.values()].filter((a) => a.path === room.id && a.state !== 'leave').map((a) => a.desk));
+    const taken = new Set([...agents.values()].filter((a) => a !== self && a.path === room.id && a.state !== 'leave' && a.desk >= 0).map((a) => a.desk));
     const pref = Math.max(0, info.findIndex((s) => s.next));
     if (!taken.has(pref)) return pref;
     for (let i = 0; i < 6; i++) if (!taken.has(i)) return i;
     return pref;
   }
+  // somewhere to stand in a room when a standing agent is between runs
+  function idleSpot(room) {
+    for (let k = 0; k < 30; k++) {
+      const x = room.x0 + 0.6 + Math.random() * 5.8, y = room.y0 + 0.6 + Math.random() * 5.8;
+      if (nav && walkable(x, y) && walkable(x + 0.3, y) && walkable(x - 0.3, y) && walkable(x, y + 0.3) && walkable(x, y - 0.3)) return [x, y];
+    }
+    return cellCenter(room.c, room.r);
+  }
+  const jobsOn = (pathId) => Object.values((snap && snap.state.jobs) || {}).filter((j) => j.path === pathId);
+  const jobNext = (j) => {
+    if (!j.enabled) return 'off';
+    if (!j.lastRunAt) return 'due now';
+    const ms = Date.parse(j.lastRunAt) + j.everyHours * 3600e3 - Date.now();
+    if (ms <= 0) return 'due now';
+    const h = ms / 3600e3;
+    return h >= 24 ? `in ${Math.round(h / 24)}d` : h >= 1 ? `in ${Math.round(h)}h` : `in ${Math.max(1, Math.round(ms / 60e3))}m`;
+  };
 
+  // Two kinds of crew. A standing agent (an enabled job) lives in its room: it idles between runs and sits at a desk
+  // while its run is live. A one-off run with no job beams in from Command, works, and beams out when it ends.
   function sync() {
     const running = new Map(snap.state.running.map((r) => [r.runId, r]));
+    const jobs = Object.values(snap.state.jobs || {}).filter((j) => j.enabled && roomById(j.path));
+    const jobIds = new Set(jobs.map((j) => 'job:' + j.jobId));
+    for (const j of jobs) {
+      const id = 'job:' + j.jobId;
+      if (agents.has(id)) { const a = agents.get(id); a.job = j; if (a.state === 'leave' && !a.runId) { a.state = 'idle'; a.queue = findPath([a.x, a.y], idleSpot(roomById(j.path))); } continue; }
+      const room = roomById(j.path);
+      const a = { id, kind: 'job', job: j, role: j.role, path: j.path, x: 0, y: 0, queue: [], state: 'idle', desk: -1, carry: 0, t: Math.random() * 10, face: Math.random() < 0.5 ? 1 : -1, view: 'front', next: 2 + Math.random() * 6, runId: null };
+      if (first) { const [x, y] = idleSpot(room); a.x = x; a.y = y; }
+      else {
+        const sp = hubSpawn(); a.x = sp[0]; a.y = sp[1];
+        a.queue = findPath(sp, idleSpot(room)); a.state = 'arrive';
+        beam(sp[0], sp[1], roleCol(j.role));
+        floatAt(sp[0], sp[1], 24, `${roleTitle(j.role)} hired`, roleCol(j.role));
+      }
+      agents.set(id, a);
+    }
     for (const [runId, r] of running) {
+      const mine = r.jobId ? agents.get('job:' + r.jobId) : null;
+      if (mine && mine.path === r.path) {
+        if (mine.runId === runId) continue;
+        const room = roomById(r.path);
+        mine.runId = runId; mine.run = r; mine.carry = 0;
+        mine.desk = pickDesk(room, mine);
+        const [cx, cy] = deskCenter(room, mine.desk);
+        if (first) { mine.x = cx; mine.y = cy + 0.62; mine.queue = []; mine.state = 'work'; }
+        else { mine.queue = [...findPath([mine.x, mine.y], [cx, cy + 1.2]), [cx, cy + 0.62]]; mine.state = 'enter'; }
+        continue;
+      }
       if (agents.has(runId)) continue;
       const room = roomById(r.path);
       if (!room) continue;
       const desk = pickDesk(room);
       const [cx, cy] = deskCenter(room, desk);
       const sp = hubSpawn();
-      const a = { id: runId, role: r.role, path: r.path, run: r, x: sp[0], y: sp[1], queue: [...findPath(sp, [cx, cy + 1.2]), [cx, cy + 0.62]], state: 'enter', desk, carry: 0, t: Math.random() * 10, face: 1, view: 'front' };
+      const a = { id: runId, kind: 'visit', role: r.role, path: r.path, run: r, runId, x: sp[0], y: sp[1], queue: [...findPath(sp, [cx, cy + 1.2]), [cx, cy + 0.62]], state: 'enter', desk, carry: 0, t: Math.random() * 10, face: 1, view: 'front' };
       if (first) { a.x = cx; a.y = cy + 0.62; a.queue = []; a.state = 'work'; } else beam(sp[0], sp[1], roleCol(r.role));
       agents.set(runId, a);
     }
     for (const a of agents.values()) {
-      if (a.id === 'commander' || running.has(a.id) || a.state === 'leave') continue;
-      const ended = snap.state.runs.find((r) => r.runId === a.id);
+      if (a.id === 'commander') continue;
       const room = roomById(a.path);
+      if (a.kind === 'job') {
+        if (a.runId && !running.has(a.runId)) {
+          // the run ended: stand up, carry anything it logged to the crate stack, then go back to idling
+          const ended = snap.state.runs.find((r) => r.runId === a.runId);
+          a.carry = outcomesForRun(a.runId);
+          const [cx, cy] = a.desk >= 0 ? deskCenter(room, a.desk) : [a.x, a.y];
+          const drop = [room.x0 + 6.45, room.y0 + 1.35];
+          a.queue = [[cx, cy + 1.2], ...findPath([cx, cy + 1.2], a.carry ? drop : idleSpot(room))];
+          a.state = a.carry ? 'deliver' : 'idle'; a.runId = null; a.run = null; a.desk = -1; a.next = 5 + Math.random() * 6;
+          if (ended) floatAt(cx, cy, 22, `${ended.reason} · ${usd2(ended.usd)}${a.carry ? ' · ' + a.carry + ' logged' : ''}`, ended.reason === 'done' ? '#3ddc97' : '#f5a623');
+        }
+        if (!jobIds.has(a.id) && !a.runId && a.state !== 'leave') {
+          a.state = 'leave'; a.desk = -1; a.queue = findPath([a.x, a.y], hubSpawn());
+          floatAt(a.x, a.y, 24, `${roleTitle(a.role)} off shift`, '#9aa4b8');
+        }
+        continue;
+      }
+      if (running.has(a.id) || a.state === 'leave') continue;
+      const ended = snap.state.runs.find((r) => r.runId === a.id);
       a.state = 'leave';
       a.carry = outcomesForRun(a.id);
       const [cx, cy] = deskCenter(room, a.desk);
@@ -1388,17 +1548,18 @@
     }
 
     // --- comm mast on the station's north-east edge (scenery)
-    push(29, bbBox(28.3, 0.7, 1.2, 0.8, 64, -9), (g) => {
-      const mx = 28.3, my = 0.7;
+    push(29, bbBox(MAST[0], MAST[1], 1.2, 0.8, 64, -9), (g) => {
+      const [mx, my] = MAST;
       box(g, mx, my, 0.25, 0.25, 10, C.metal, -8);
       box(g, mx, my, 0.05, 0.05, 50, C.leg, 2);
       for (let k = 0; k < 4; k++) box(g, mx, my, 0.12, 0.02, 1, C.metal, 12 + k * 10);
       box(g, mx + 0.22, my, 0.26, 0.05, 4, C.metal, 38);
       const [dx, dy] = P(mx + 0.5, my, 40);
       for (let k = -4; k <= 4; k++) { g.fillStyle = '#8a96b6'; g.fillRect(Math.round(dx) + 1, Math.round(dy) + k - Math.round(Math.abs(k) * 0.4), 1, 1); g.fillStyle = '#5a6480'; g.fillRect(Math.round(dx), Math.round(dy) + k, 1, 1); }
+      // the mast's beacon is bound to income sync: green synced, amber syncing, red a link failed, grey nothing linked
       const [lx, ly] = P(mx, my, 53);
-      E.surf((c) => { c.fillStyle = (T % 2) < 0.18 ? '#ff5a5a' : '#4a1616'; c.fillRect(Math.round(lx) - 1, Math.round(ly), 2, 2); });
-      light(mx, my, 34, '#ff5a5a', 0.6, 'blink', 0, 52);
+      E.surf((c) => { const s = syncStatus(); const on = s.blink ? (T * s.blink) % 1 < 0.5 : true; c.fillStyle = on ? s.color : shade(s.color, -110); c.fillRect(Math.round(lx) - 1, Math.round(ly), 2, 2); c.fillRect(Math.round(lx) - 1, Math.round(ly) + 2, 2, 1); },
+        (c) => { c.fillStyle = '#fff'; c.fillRect(Math.round(lx) - 1, Math.round(ly), 2, 3); });
     });
 
     list.sort((a, b) => a.d - b.d);
@@ -1592,7 +1753,7 @@
         }
       }
       drawMasked(wbg, d.spr, d.X, d.Y, d.flip, dcode, rgb(col));
-      if (a.carry > 0 && a.state === 'leave') { wbg.fillStyle = '#b0844c'; wbg.fillRect(Math.round(d.sx) - 3, d.Y - 6, 6, 5); wbg.fillStyle = '#7f5a31'; wbg.fillRect(Math.round(d.sx) - 3, d.Y - 2, 6, 1); wbg.fillStyle = '#d9ac6a'; wbg.fillRect(Math.round(d.sx) - 3, d.Y - 6, 6, 1); }
+      if (a.carry > 0 && (a.state === 'leave' || a.state === 'deliver')) { wbg.fillStyle = '#b0844c'; wbg.fillRect(Math.round(d.sx) - 3, d.Y - 6, 6, 5); wbg.fillStyle = '#7f5a31'; wbg.fillRect(Math.round(d.sx) - 3, d.Y - 2, 6, 1); wbg.fillStyle = '#d9ac6a'; wbg.fillRect(Math.round(d.sx) - 3, d.Y - 6, 6, 1); }
       if (a.role !== 'commander' && a.state === 'work') {
         // live-run marker: a small ring over the head in the role's colour
         const hx = Math.round(d.sx), hy = d.Y - 5 + Math.round(Math.sin(a.t * 3) * 1);
@@ -1700,7 +1861,7 @@
       a.t += dt;
       if (a.queue.length) {
         const [tx, ty] = a.queue[0];
-        const dx = tx - a.x, dy = ty - a.y, dist = Math.hypot(dx, dy), sp = 3.1 * dt;
+        const dx = tx - a.x, dy = ty - a.y, dist = Math.hypot(dx, dy), sp = (a.state === 'idle' ? 1.7 : 3.1) * dt;
         const sdx = dx - dy, sdy = dx + dy;
         if (Math.abs(sdx) > 0.01) a.face = sdx > 0 ? 1 : -1;
         if (Math.abs(sdy) > 0.01 || Math.abs(sdx) > 0.01) a.view = sdy < -0.01 ? 'back' : 'front';
@@ -1708,7 +1869,22 @@
         if (!a.queue.length) {
           if (a.state === 'enter') a.state = 'work';
           else if (a.state === 'leave') { beam(a.x, a.y, roleCol(a.role)); agents.delete(id); continue; }
+          else if (a.state === 'deliver') {
+            // drop what the run logged on the crate stack
+            const [sx, sy] = P(a.x, a.y, 10);
+            for (let k = 0; k < 10; k++) particles.push({ x: sx, y: sy, vx: (Math.random() - 0.5) * 30, vy: -10 - Math.random() * 20, g: 60, life: 0.5 + Math.random() * 0.3, col: k % 2 ? '#d9ac6a' : '#fff3b0', glow: true });
+            a.carry = 0; a.state = 'idle'; a.next = 2 + Math.random() * 3;
+          } else if (a.state === 'arrive') a.state = 'idle';
           if (a.role === 'commander') { a.face = -1; a.view = 'front'; }
+          if (a.kind === 'job' && a.state === 'idle') a.view = Math.random() < 0.7 ? 'front' : 'back';
+        }
+      } else if (a.kind === 'job' && a.state === 'idle') {
+        // between runs: wander the room, pausing to look at screens or out of the windows
+        a.next -= dt;
+        if (a.next <= 0) {
+          const room = roomById(a.path);
+          if (room) a.queue = findPath([a.x, a.y], idleSpot(room));
+          a.next = 5 + Math.random() * 9;
         }
       } else if (a.role === 'commander') {
         a.next -= dt;
@@ -1764,6 +1940,7 @@
     }
     for (let i = fx.length - 1; i >= 0; i--) { fx[i].t += dt; if (fx[i].t > fx[i].dur) fx.splice(i, 1); }
     vaultFlash = Math.max(0, vaultFlash - dt * 1.8);
+    { const s = syncStatus(); const on = s.blink ? (T * s.blink) % 1 < 0.5 : true; dynLights.push({ ...lightAt(MAST[0], MAST[1], 52), r: 40, color: s.color, a: on ? 0.75 : 0.12, mode: 'steady', phase: 0 }); }
     if (vaultFlash > 0) { const [hx, hy] = cellCenter(...HUB); dynLights.push({ ...lightAt(hx, hy, 0), r: 160, color: '#ffd76a', a: vaultFlash * 0.9, mode: 'steady', phase: 0 }); }
   }
   let vaultFlash = 0;
@@ -1792,6 +1969,12 @@
       }
     }
     for (const e of fx) {
+      if (e.kind === 'wave') {
+        // income sync signal: arcs spreading from the comm mast dish
+        const f = Math.max(0, e.t) / e.dur, r = 4 + f * 60, a = e.t < 0 ? 0 : (1 - f) * 0.9;
+        for (const g of [wbg, bsg]) { g.fillStyle = `rgba(120,230,255,${a.toFixed(3)})`; for (let k = -12; k <= 12; k++) { const an = -Math.PI / 2 + (k / 12) * 1.1; g.fillRect(Math.round(e.x + Math.cos(an) * r * 1.4), Math.round(e.y + Math.sin(an) * r * 0.7), 1, 1); } }
+        continue;
+      }
       if (e.kind !== 'ring') continue;
       const f = e.t / e.dur, r = 10 + f * 140, a = (1 - f) * 0.9;
       for (const g of [wbg, bsg]) {
@@ -2008,6 +2191,7 @@
   const targetById = (id) => targets().find((t) => t.id === id) || null;
   function pick(X, Y) {
     const pt = toNative(X, Y);
+    { const [mx, my] = P(MAST[0], MAST[1], 0); if (pt[0] >= mx - 7 && pt[0] <= mx + 12 && pt[1] >= my - 58 && pt[1] <= my + 6) return { kind: 'mast', t: null }; }
     for (const a of agents.values()) {
       const d = crewDraw(a);
       if (pt[0] >= d.X - 1 && pt[0] <= d.X + d.spr.width + 1 && pt[1] >= d.Y - 1 && pt[1] <= d.Y + d.spr.height + 1) return { kind: 'crew', agent: a, t: a.path ? targetById(a.path) : targetById('hub') };
@@ -2078,12 +2262,20 @@
     if (hit.kind === 'crew') {
       const a = hit.agent; accent = roleCol(a.role);
       if (a.role === 'commander') html = `<div class="h"><span class="sw"></span>Commander (you)</div><div class="s">Level ${snap.level.level} · ${esc(snap.level.title)} · ${usd(snap.state.earnedUsd)} evidenced</div>`;
-      else {
+      else if (a.kind === 'job') {
+        const j = a.job, room = roomById(a.path);
+        const doing = a.runId ? 'working a live run' : a.state === 'deliver' ? 'carrying outcomes to the crates' : a.state === 'leave' ? 'going off shift' : a.state === 'arrive' ? 'moving in' : 'on shift, between runs';
+        html = `<div class="h"><span class="sw"></span>${esc(roleTitle(a.role))} · standing agent</div><div class="s">${doing} in ${room ? esc(shortName(room.spec)) : esc(a.path)}</div>` +
+          `<div class="s">every ${j.everyHours}h · cap ${usd2(j.maxUsd)}/run · ${j.runs} run${j.runs === 1 ? '' : 's'} · next ${jobNext(j)}</div><div class="hint">click to manage this crew</div>`;
+      } else {
         const run = snap.state.running.find((r) => r.runId === a.id);
         const room = roomById(a.path);
         html = `<div class="h"><span class="sw"></span>${esc(roleTitle(a.role))}</div><div class="s">${a.state === 'leave' ? 'heading back from' : 'on a live run in'} ${room ? esc(shortName(room.spec)) : esc(a.path)}</div>` +
           (run ? `<div class="s">started ${ago(run.startedAt)} · ${esc(run.model || '')} · cap ${usd2(run.maxUsd)}</div>` : '') + '<div class="hint">click for the room</div>';
       }
+    } else if (hit.kind === 'mast') {
+      const s = syncStatus(); accent = s.color;
+      html = `<div class="h"><span class="sw"></span>Comm mast · income sync</div><div class="s">${esc(s.text)}</div><div class="hint">click to link Stripe, Square, PayPal, Gumroad or import a statement</div>`;
     } else if (hit.t.id === 'hub') {
       const lv = snap.level; const floorUsd = lv.level ? lv.citations[lv.citations.length - 1].usd : 0;
       const pct = lv.next ? clamp(100 * (snap.state.earnedUsd - floorUsd) / (lv.next.usd - floorUsd), 0, 100) : 100;
@@ -2154,7 +2346,7 @@
       ['earned', 'Earned', st.earnedUsd, (v) => usd2(v), '#ffcf5a', 'coin', 'Evidenced revenue on the ledger', 'gold'],
       ['spent', 'Spent', st.spentUsd, (v) => usd2(v), '#ff7a8a', 'flame', 'Model spend, reconciled every iteration', ''],
       ['yield', 'Yield', st.spentUsd > 0 ? st.yieldRatio : null, (v) => (v === null ? 'n/a' : v.toFixed(1) + '×'), '#3ddc97', 'trend', 'Earned divided by spent', ''],
-      ['crew', 'Crew out', st.running.length, (v) => String(Math.round(v)), '#5fd4ff', 'crew', 'Agent runs happening right now', ''],
+      ['crew', 'Crew working', st.running.length, (v) => `${Math.round(v)}/${crewTotal()}`, '#5fd4ff', 'crew', 'Agents on a live run now / all crew (standing agents plus one-off runs)', ''],
       ['posts', 'Posts live', st.posts.length, (v) => String(Math.round(v)), '#f472b6', 'posts', 'Posts published with a live URL', ''],
       ['quests', 'Quests', snap.questSummary.open, (v) => String(Math.round(v)), '#a78bfa', 'target', 'Open quests: gates, next stages, money rungs', ''],
     ];
@@ -2172,6 +2364,7 @@
       <div style="flex:1;min-width:0"><div class="k">Commander · level ${lv.level}</div><div class="t">${esc(lv.title)}</div><div class="xp"><i style="width:${pct.toFixed(1)}%"></i></div><div class="n">${lv.next ? `${usd(lv.next.remainingUsd)} to ${esc(lv.next.title)}` : 'top rung reached'}</div></div>`;
     if (cmdrHtml !== lastCmdr) { $('#cmdr').innerHTML = cmdrHtml; lastCmdr = cmdrHtml; }
     $('#demo').style.display = st.demo ? 'block' : 'none';
+    { const ss = syncStatus(); const dot = $('#navSync .sdot'); if (dot) { dot.style.background = ss.color; dot.style.boxShadow = `0 0 8px ${ss.color}`; dot.classList.toggle('pulse', ss.key === 'syncing' || ss.key === 'error'); } $('#navSync').title = 'Income sync: ' + ss.text + ' (I)'; }
   }
 
   // ======================================================================= comms feed
@@ -2179,7 +2372,7 @@
   let feedPrimed = false;
   function feedLine(e) {
     switch (e.kind) {
-      case 'money.in': return ['coin', '#ffcf5a', `<b style="color:var(--gold)">+${usd(e.usd)}</b> from ${esc(e.source)} · ${esc(shortOf(e.path))}`];
+      case 'money.in': return ['coin', '#ffcf5a', `<b style="color:var(--gold)">+${usd(e.usd)}</b> from ${esc(e.source)} · ${esc(shortOf(e.path))}${e.via ? ` <span class="muted">via ${esc(viaTitle(e.via))}</span>` : ''}`];
       case 'outcome': return ['check', '#3ddc97', `${esc(e.stage)}: ${esc(e.ref)} · ${esc(shortOf(e.path))} <span class="muted">by ${esc(e.by)}</span>`];
       case 'agent.run.start': return ['rocket', roleCol(e.role), `${esc(roleTitle(e.role))} dispatched to ${esc(shortOf(e.path))}`];
       case 'agent.run.end': return ['back', roleCol(e.role), `${esc(roleTitle(e.role))} back from ${esc(shortOf(e.path))}: ${esc(e.reason)}, ${usd2(e.usd)}`];
@@ -2190,6 +2383,9 @@
       default: return ['note', '#7c88a6', esc(e.text || e.kind)];
     }
   }
+  const VIA = { stripe: 'Stripe', square: 'Square', paypal: 'PayPal', gumroad: 'Gumroad', 'csv:upwork': 'Upwork', 'csv:fiverr': 'Fiverr', 'csv:etsy': 'Etsy', 'csv:amazon': 'Amazon Associates', 'csv:paypal': 'PayPal', 'csv:venmo': 'Venmo', 'csv:bank': 'Bank', 'csv:other': 'Statement' };
+  const viaTitle = (v) => VIA[v] || String(v).replace(/^csv:/, '');
+  const crewTotal = () => { const jobs = Object.values((snap && snap.state.jobs) || {}).filter((j) => j.enabled).length; const visits = ((snap && snap.state.running) || []).filter((r) => !(r.jobId && snap.state.jobs[r.jobId] && snap.state.jobs[r.jobId].enabled)).length; return jobs + visits; };
   const shortOf = (id) => { const r = snap && snap.catalog.find((p) => p.id === id); return r ? shortName(r) : id; };
   function renderFeed() {
     const rows = snap.state.tail.filter((e) => e.kind !== 'money.out').slice(-16).reverse();
@@ -2217,11 +2413,22 @@
     if (!prev || first) return;
     const st = snap.state, pst = prev.state;
     const seenMoney = new Set(pst.moneyIn.map((e) => e.id));
-    for (const e of st.moneyIn) if (!seenMoney.has(e.id)) {
-      toast('money', `+${usd(e.usd)} · ${e.source}`, `${shortOf(e.path)} · ${e.evidence}`, '#ffcf5a', 'coin');
-      const room = roomById(e.path); if (room) spawnCoins(room, clamp(Math.round(6 + Math.log10(Math.max(1, e.usd)) * 5), 6, 26));
-      const [hx, hy] = cellCenter(...HUB); floatAt(hx, hy, 36, '+' + usd(e.usd), '#ffcf5a');
+    const fresh = st.moneyIn.filter((e) => !seenMoney.has(e.id));
+    const groups = new Map();
+    let coinBudget = 90;
+    for (const e of fresh) {
+      if (e.via) { const g = groups.get(e.via) || { n: 0, usd: 0, paths: new Set() }; g.n++; g.usd += e.usd; g.paths.add(e.path); groups.set(e.via, g); }
+      else toast('money', `+${usd(e.usd)} · ${e.source}`, `${shortOf(e.path)} · ${e.evidence}`, '#ffcf5a', 'coin');
+      const room = roomById(e.path);
+      if (room && coinBudget > 0) { const n = clamp(Math.round(6 + Math.log10(Math.max(1, e.usd)) * 5), 6, 26); spawnCoins(room, Math.min(n, coinBudget)); coinBudget -= n; }
     }
+    for (const [via, g] of groups) {
+      const csvSrc = via.startsWith('csv:');
+      const title = viaTitle(via);
+      toast('money', `${title} ${csvSrc ? 'statement imported' : 'synced'} · +${usd(g.usd)}`, `${g.n} new payment${g.n === 1 ? '' : 's'} → ${[...g.paths].map(shortOf).join(', ')}`, '#ffcf5a', 'coin');
+      if (!csvSrc) { const [sx, sy] = P(MAST[0] + 0.5, MAST[1], 40); fx.push({ kind: 'wave', x: sx, y: sy, t: 0, dur: 2.2 }); fx.push({ kind: 'wave', x: sx, y: sy, t: -0.4, dur: 2.2 }); }
+    }
+    if (fresh.length) { const [hx, hy] = cellCenter(...HUB); floatAt(hx, hy, 36, '+' + usd(fresh.reduce((a, e) => a + e.usd, 0)), '#ffcf5a'); }
     const wasRunning = new Set(pst.running.map((r) => r.runId));
     for (const r of st.running) if (!wasRunning.has(r.runId)) { toast('run', `${roleTitle(r.role)} dispatched`, `to ${shortOf(r.path)} · cap ${usd2(r.maxUsd)}`, roleCol(r.role), 'rocket'); const [hx, hy] = cellCenter(...HUB); floatAt(hx, hy, 22, `${r.role} dispatched`, roleCol(r.role)); }
     const seenRuns = new Set(pst.runs.map((r) => r.runId));
@@ -2280,14 +2487,14 @@
     const list = rooms.map((m) => ({ m, p: pathState(m.id), look: roomLook(m), info: stageInfo(m) })).sort((a, b) => b.p.earnedUsd - a.p.earnedUsd || a.m.spec.rank - b.m.spec.rank);
     const open = snap.quests.filter((q) => q.status !== 'done').slice(0, 5);
     el.innerHTML = `
-      <div class="ih"><div class="big" style="--c:#ffcf5a">${ic('vault').replace('class="i"', 'class="i" style="width:24px;height:24px"')}</div><div><h2>Station roster</h2><div class="chips"><span class="pill cyan"><span class="d"></span>${st.running.length} crew out</span><span class="pill">${usd(st.earnedUsd)} earned</span></div></div></div>
+      <div class="ih"><div class="big" style="--c:#ffcf5a">${ic('vault').replace('class="i"', 'class="i" style="width:24px;height:24px"')}</div><div><h2>Station roster</h2><div class="chips"><span class="pill cyan${st.running.length ? ' live' : ''}"><span class="d"></span>${st.running.length} working · ${crewTotal()} crew</span><span class="pill">${usd(st.earnedUsd)} earned</span></div></div></div>
       <div class="muted small">Every lit screen, crate, crew member and gold bar is a ledger line. Each room is one money path, ranked here by what it has earned. Click a card, a room or its label.</div>
       <div class="sec"><h3>Money paths</h3>${list.map(({ m, p, look, info }) => {
-        const live = st.running.filter((r) => r.path === m.id).length, acc = themeOf(m.id).accent;
+        const live = st.running.filter((r) => r.path === m.id).length, crew = jobsOn(m.id).filter((j) => j.enabled).length, acc = themeOf(m.id).accent;
         return `<div class="card" data-sel="${esc(m.id)}" style="--c:${acc}">
           <div class="top"><span class="rk">${String(m.spec.rank).padStart(2, '0')}</span><span class="nm">${esc(shortName(m.spec))}</span><span class="u">${usd(p.earnedUsd)}</span></div>
           <div class="mid"><div class="pips">${info.map((s) => `<i class="${s.done ? 'd' : s.next ? 'n' : ''}" title="${esc(s.id)} ${s.n}/${s.target}"></i>`).join('')}</div>${spark(m.id, acc)}</div>
-          <div class="sub"><span class="s-${look}">${look}</span><span>stage ${info.filter((s) => s.done).length}/6</span>${live ? `<span class="crew">● ${live} crew</span>` : ''}<span>spent ${usd(p.spentUsd)}</span></div>
+          <div class="sub"><span class="s-${look}">${look}</span><span>stage ${info.filter((s) => s.done).length}/6</span>${crew || live ? `<span class="crew">● ${crew} crew${live ? ` · ${live} working` : ''}</span>` : ''}<span>spent ${usd(p.spentUsd)}</span></div>
         </div>`;
       }).join('')}</div>
       ${open.length ? `<div class="sec"><h3>Next quests</h3>${open.map((q) => mission(q)).join('')}</div>` : ''}`;
@@ -2309,6 +2516,60 @@
       <div class="sec"><h3>Drafts by path</h3>${rows.length ? rows.map(([id, n]) => { const m = roomById(id); return `<div class="card" data-sel="${esc(id)}" style="--c:${themeOf(id).accent}"><div class="top"><span class="rk">${m ? String(m.spec.rank).padStart(2, '0') : '--'}</span><span class="nm">${m ? esc(shortName(m.spec)) : esc(id)}</span><span class="u" style="color:#e8eefc">${n}</span></div></div>`; }).join('') : '<div class="muted">No drafts yet.</div>'}</div>
       <div class="sec"><a class="btn" style="width:100%;text-decoration:none" href="/ledger">${ic('chart')}Open drafts on the dashboard</a></div>`;
   }
+  // Standing agents for one room: each is an enabled job, and each one is a character living in that room.
+  const EVERY = [[2, 'every 2 hours'], [6, 'every 6 hours'], [12, 'every 12 hours'], [24, 'once a day'], [48, 'every 2 days'], [168, 'once a week']];
+  let hireOpen = false, hireRole = null;
+  function crewHtml(spec, look, roles) {
+    const list = jobsOn(spec.id).sort((a, b) => (b.enabled - a.enabled) || a.role.localeCompare(b.role));
+    if (!hireRole || !snap.roles[hireRole]) hireRole = roles.length ? roles[0][0] : null;
+    const rows = list.map((j) => {
+      const working = snap.state.running.some((r) => r.jobId === j.jobId);
+      const status = !j.enabled ? 'off shift' : working ? '<span style="color:var(--good)">working now</span>' : `next run ${jobNext(j)}`;
+      return `<div class="crewrow${j.enabled ? '' : ' off'}" style="--rc:${roleCol(j.role)}"><span class="av"></span><div class="cm"><b>${esc(roleTitle(j.role))}</b><small>${EVERY.find((e) => e[0] === j.everyHours)?.[1] || `every ${j.everyHours}h`} · up to ${usd2(j.maxUsd)} a run · ${j.runs} run${j.runs === 1 ? '' : 's'}</small><small>${status}</small></div>
+        <label class="tog" title="${j.enabled ? 'Send off shift (stops its runs)' : 'Put back on shift'}"><input type="checkbox" data-job="${esc(j.jobId)}"${j.enabled ? ' checked' : ''}><i></i></label></div>`;
+    }).join('');
+    const blocked = look === 'gated' ? 'This path is gated: a hired agent moves in, but its runs are refused until the employment-agreement gate is cleared.' : look !== 'active' ? `This path is ${look}: runs are refused.` : '';
+    return `${rows || '<div class="muted small" style="margin-bottom:8px">No standing agents here yet. Hire one: it moves into this room, idles between runs, and sits at a desk whenever its run starts.</div>'}
+      <button class="btn hire${hireOpen ? ' on' : ''}" type="button" data-hire>${ic('crew')}${hireOpen ? 'Close' : 'Hire an agent for this room'}</button>
+      <form id="f-hire" class="pane${hireOpen ? ' on' : ''}" style="margin-top:8px">
+        <div class="roles">${roles.map(([k, r]) => `<label class="role${k === hireRole ? ' on' : ''}" style="--rc:${roleCol(k)}"><input type="radio" name="role" value="${esc(k)}"${k === hireRole ? ' checked' : ''}><span class="sw"></span><span>${esc(r.title)}<small>${r.logs.length ? 'logs ' + esc(r.logs.join(', ')) : 'drafts only'}</small></span></label>`).join('')}</div>
+        <div class="row2"><label class="field"><span>Works</span><select name="everyHours">${EVERY.map(([h, t]) => `<option value="${h}"${h === 24 ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
+        <label class="field"><span>Max per run (USD)</span><input name="maxUsd" type="number" step="0.25" min="0.25" value="1"></label></div>
+        ${blocked ? `<div class="warn-note">${ic('warn')}${blocked}</div>` : ''}
+        <div class="muted small">The scheduler runs it while the station is open on your computer, never twice at once, and never past your daily cap.</div>
+        <button class="btn go">${ic('crew')}<span>Hire · <b data-hsum>once a day, up to $1.00 a run</b></span></button><div class="msg"></div>
+      </form>`;
+  }
+  function wireCrew(el, spec) {
+    const btn = el.querySelector('[data-hire]'), form = el.querySelector('#f-hire');
+    if (!btn || !form) return;
+    btn.addEventListener('click', () => { hireOpen = !hireOpen; form.classList.toggle('on', hireOpen); btn.classList.toggle('on', hireOpen); btn.innerHTML = ic('crew') + (hireOpen ? 'Close' : 'Hire an agent for this room'); });
+    form.querySelectorAll('.role input').forEach((inp) => inp.addEventListener('change', () => { hireRole = inp.value; form.querySelectorAll('.role').forEach((l) => l.classList.toggle('on', l.contains(inp))); }));
+    const sum = form.querySelector('[data-hsum]');
+    const upd = () => { const e = EVERY.find((x) => String(x[0]) === form.everyHours.value); sum.textContent = `${e ? e[1] : 'every ' + form.everyHours.value + 'h'}, up to ${usd2(Math.max(0, Number(form.maxUsd.value) || 0))} a run`; };
+    form.everyHours.addEventListener('change', upd); form.maxUsd.addEventListener('input', upd);
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = form.querySelector('.msg'); msg.className = 'msg'; msg.textContent = 'hiring…';
+      try {
+        await post('/api/jobs', { role: hireRole, path: spec.id, everyHours: Number(form.everyHours.value), maxUsd: Number(form.maxUsd.value) });
+        msg.className = 'msg ok'; msg.textContent = 'hired: watch them move in';
+        toast('run', `${roleTitle(hireRole)} hired`, `${shortName(spec)} · ${sum.textContent}`, roleCol(hireRole), 'crew');
+        hireOpen = false; panelSig = ''; poll();
+      } catch (err) { msg.className = 'msg err'; msg.textContent = err.message; }
+    });
+    el.querySelectorAll('input[data-job]').forEach((inp) => inp.addEventListener('change', async () => {
+      const j = (snap.state.jobs || {})[inp.dataset.job];
+      if (!j) return;
+      inp.disabled = true;
+      try {
+        await post('/api/jobs', { jobId: j.jobId, role: j.role, path: j.path, everyHours: j.everyHours, maxUsd: j.maxUsd, enabled: inp.checked });
+        toast('run', `${roleTitle(j.role)} ${inp.checked ? 'back on shift' : 'off shift'}`, shortName(spec), roleCol(j.role), 'crew');
+        panelSig = ''; poll();
+      } catch (err) { inp.checked = !inp.checked; toast('status', 'Could not change that agent', err.message, '#ff5c6c', 'warn'); }
+      inp.disabled = false;
+    }));
+  }
   function renderRoom(el, room) {
     const spec = room.spec, p = pathState(room.id), look = roomLook(room), info = stageInfo(room), accent = themeOf(room.id).accent;
     $('#inspector').style.setProperty('--room', accent);
@@ -2325,7 +2586,7 @@
     const offers = Array.isArray(spec.offers) ? spec.offers : [];
     el.innerHTML = `
       <button class="back" data-sel="hub">${ic('chevL')}station roster</button>
-      <div class="ih"><div class="big" style="--c:${accent}">${String(spec.rank).padStart(2, '0')}</div><div style="min-width:0"><h2>${esc(spec.name)}</h2><div class="chips">${lookPill}${spec.bucket ? `<span class="pill">${esc(spec.bucket)}</span>` : ''}${live.length ? `<span class="pill cyan live"><span class="d"></span>${live.length} crew live</span>` : ''}</div></div></div>
+      <div class="ih"><div class="big" style="--c:${accent}">${String(spec.rank).padStart(2, '0')}</div><div style="min-width:0"><h2>${esc(spec.name)}</h2><div class="chips">${lookPill}${spec.bucket ? `<span class="pill">${esc(spec.bucket)}</span>` : ''}${live.length ? `<span class="pill cyan live"><span class="d"></span>${live.length} working</span>` : ''}</div></div></div>
       <div class="stats">
         <div class="st"><div><div class="k">Earned</div><div class="v gold">${usd(p.earnedUsd)}</div><div class="s">${p.moneyIn.length} payment${p.moneyIn.length === 1 ? '' : 's'} · yield ${yieldP}</div></div></div>
         <div class="st"><svg class="gauge" viewBox="0 0 54 54" style="color:${gcol}"><circle class="tr" cx="27" cy="27" r="22"/><circle class="fg" cx="27" cy="27" r="22" style="stroke:${gcol};stroke-dasharray:${(ratio * C2).toFixed(1)} ${C2.toFixed(1)}"/></svg><div style="min-width:0"><div class="k">Budget</div><div class="v">${Math.round(ratio * 100)}%</div><div class="s">${usd2(p.spentUsd)} of ${usd(spec.budgetUsd)}</div></div></div>
@@ -2337,6 +2598,9 @@
       </div></div>
       ${spec.killTest ? `<div class="sec"><div class="callout"><b>Kill test</b>${esc(spec.killTest)}</div></div>` : ''}
       ${qs.length ? `<div class="sec"><h3>Quests here</h3>${qs.map((q) => mission(q).replace(/ data-sel="[^"]*"/, '')).join('')}</div>` : ''}
+      <div class="sec"><h3>Crew · standing agents</h3>
+        ${crewHtml(spec, look, roles)}
+      </div>
       <div class="sec"><h3>Act</h3>
         <div class="tabs" role="tablist"><button data-tab="run" class="${insTab === 'run' ? 'on' : ''}">Dispatch</button><button data-tab="out" class="${insTab === 'out' ? 'on' : ''}">Log outcome</button><button data-tab="money" class="${insTab === 'money' ? 'on' : ''}">Log revenue</button></div>
         <form id="f-run" class="pane ${insTab === 'run' ? 'on' : ''}">
@@ -2370,6 +2634,7 @@
     mx.addEventListener('input', syncCap);
     el.querySelectorAll('[data-step]').forEach((b) => b.addEventListener('click', () => { mx.value = Math.max(0.25, (Number(mx.value) || 0) + Number(b.dataset.step)).toFixed(2); syncCap(); }));
     wire('#f-run', (d) => post('/api/run', { role: d.role, path: spec.id, maxUsd: Number(d.maxUsd) }).then((j) => 'dispatched ' + j.runId));
+    wireCrew(el, spec);
     wire('#f-out', (d) => post('/api/events', { kind: 'outcome', path: spec.id, stage: d.stage, ref: d.ref, evidence: d.evidence, by: 'user' }).then((j) => 'logged ' + j.event.id));
     wire('#f-money', (d) => post('/api/events', { kind: 'money.in', path: spec.id, usd: Number(d.usd), source: d.source, evidence: d.evidence }).then((j) => 'logged ' + j.event.id));
   }
@@ -2390,6 +2655,187 @@
     });
   }
 
+  // ======================================================================= income sync center
+  let syncData = null, syncTab = 'link', linkKind = null;
+  const csv = { source: 'upwork', text: '', file: '', title: null, mapping: null, preview: null, path: null };
+  const BRAND = { stripe: '#7a73ff', square: '#d7dde8', paypal: '#2f9bff', gumroad: '#ff90e8' };
+  const SOURCE_PATH = { upwork: 'freelance-desk', fiverr: 'freelance-desk', etsy: 'content-channel', amazon: 'content-channel' };
+  async function loadSync() {
+    try { syncData = await (await fetch('/api/connections', { cache: 'no-store' })).json(); }
+    catch { syncData = syncData || null; }
+  }
+  async function openSync(tab) {
+    if (tab) syncTab = tab;
+    $('#syncbox').hidden = false;
+    renderSync();
+    await loadSync();
+    renderSync();
+  }
+  const closeSync = () => { $('#syncbox').hidden = true; };
+  const pathOptions = (sel) => rooms.map((m) => `<option value="${esc(m.id)}"${m.id === sel ? ' selected' : ''}>#${m.spec.rank} ${esc(shortName(m.spec))}${roomLook(m) === 'active' ? '' : ' (' + roomLook(m) + ')'}</option>`).join('');
+  const defaultPath = () => (selected && roomById(selected) ? selected : ((rooms.find((m) => roomLook(m) === 'active') || rooms[0] || {}).id));
+  function importedGroups() {
+    const g = new Map();
+    for (const e of snap.state.moneyIn) {
+      if (!e.via || !e.via.startsWith('csv:')) continue;
+      const x = g.get(e.via) || { via: e.via, n: 0, usd: 0, last: '' };
+      x.n++; x.usd += e.usd; if (e.ts > x.last) x.last = e.ts;
+      g.set(e.via, x);
+    }
+    return [...g.values()].sort((a, b) => (a.last < b.last ? 1 : -1));
+  }
+  function connCard(c) {
+    const ls = c.lastSync, col = BRAND[c.kind] || '#8fb0ff';
+    const st = !ls ? '<span class="muted">waiting for the first sync</span>'
+      : ls.ok ? `<span class="ok">● synced ${ago(ls.at)}</span> · ${ls.imported} new${ls.usd ? ' · +' + usd(ls.usd) : ''}`
+        : `<span class="bad">● failed ${ago(ls.at)}</span><div class="err">${esc(ls.error)}</div>`;
+    return `<div class="lk" style="--c:${col}"><div class="lk-ic">${esc(c.title[0])}</div>
+      <div class="lk-main"><div class="lk-t"><b>${esc(c.title)}</b>${c.label ? ` <span class="muted">${esc(c.label)}</span>` : ''}${c.demo ? ' <span class="pill">demo</span>' : ''}</div>
+        <label class="lk-path">into <select data-cpath="${esc(c.id)}">${pathOptions(c.path)}</select></label><div class="lk-st">${st}</div></div>
+      <div class="lk-act"><button class="btn sm2" data-csync="${esc(c.id)}">Sync</button><button class="btn sm2 ghost" data-cdel="${esc(c.id)}">Remove</button></div></div>`;
+  }
+  function linkPane(d, kinds) {
+    const spec = d.connectors[linkKind];
+    if (!spec) return '<div class="muted small">Loading the list of services…</div>';
+    const since = new Date(Date.now() - 90 * 86400e3).toISOString().slice(0, 10);
+    return `<div class="tiles">${kinds.map(([k, c]) => `<button type="button" class="tile${k === linkKind ? ' on' : ''}" data-kind="${k}" style="--c:${BRAND[k] || '#8fb0ff'}"><span class="t-ic">${esc(c.title[0])}</span><span><b>${esc(c.title)}</b><small>${esc(c.blurb)}</small></span></button>`).join('')}</div>
+      <form id="f-link" class="sy-form" style="--c:${BRAND[linkKind] || '#8fb0ff'}" autocomplete="off">
+        <div class="how"><b>Get a read-only key</b><ol>${spec.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${spec.link ? `<a class="btn" href="${esc(spec.link)}" target="_blank" rel="noopener noreferrer">Open ${esc(spec.title)} ↗</a>` : ''}</div>
+        ${spec.fields.map((fd) => `<label class="field"><span>${esc(fd.label)}</span><input name="f_${fd.key}" type="${fd.secret ? 'password' : 'text'}" autocomplete="off" spellcheck="false" placeholder="${esc(fd.placeholder || '')}" required></label>`).join('')}
+        <div class="row2"><label class="field"><span>Counts toward</span><select name="path">${pathOptions(defaultPath())}</select></label><label class="field"><span>Import payments since</span><input name="since" type="date" value="${since}"></label></div>
+        <label class="field"><span>Nickname (optional)</span><input name="label" placeholder="e.g. salon clients" maxlength="60"></label>
+        <button class="btn go">${ic('bolt')}Test the key and link ${esc(spec.title)}</button><div class="msg"></div>
+        <div class="muted small">The key is saved in data/connections.json on this computer only. It never goes into the ledger and the station never shows it again (only its last 4 characters).</div>
+      </form>`;
+  }
+  function importPane(d) {
+    const srcs = Object.entries(d.csvSources || {});
+    const cur = d.csvSources[csv.source] || { title: csv.source, steps: [] };
+    if (!csv.path || !roomById(csv.path)) csv.path = SOURCE_PATH[csv.source] && roomById(SOURCE_PATH[csv.source]) ? SOURCE_PATH[csv.source] : defaultPath();
+    const pv = csv.preview;
+    const col = (i) => (pv && i >= 0 ? pv.headers[i] : null);
+    return `<div class="tiles small">${srcs.map(([k, c]) => `<button type="button" class="tile${k === csv.source ? ' on' : ''}" data-src="${k}"><b>${esc(c.title)}</b></button>`).join('')}</div>
+      <div class="how"><b>Export from ${esc(cur.title)}</b><ol>${(cur.steps || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${cur.link ? `<a class="btn" href="${esc(cur.link)}" target="_blank" rel="noopener noreferrer">Open ${esc(cur.title)} ↗</a>` : ''}</div>
+      <label class="drop${csv.text ? ' has' : ''}" data-drop><input type="file" accept=".csv,text/csv,text/plain" data-file>${ic('note')}<span>${csv.text ? `<b>${esc(csv.file)}</b><small>drop or click to use a different file</small>` : '<b>Drop the CSV here</b><small>or click to choose it. Nothing is written until you press Import.</small>'}</span></label>
+      ${pv ? `
+        <div class="row2"><label class="field"><span>Counts toward</span><select data-ipath>${pathOptions(csv.path)}</select></label>
+        <label class="field"><span>Source name</span><input data-ititle value="${esc(csv.title || cur.title)}" maxlength="40"></label></div>
+        <details class="mapping"${pv.mapping.amount < 0 || pv.mapping.date < 0 ? ' open' : ''}><summary>Reading <b>${esc(col(pv.mapping.date) || 'no date column')}</b> as the date and <b>${esc(col(pv.mapping.amount) || 'no amount column')}</b> as the amount. <span class="lnk">Change columns</span></summary>
+          <div class="map">${pv.fields.map((fd) => `<label class="field"><span>${fd}</span><select data-map="${fd}"><option value="-1">none</option>${pv.headers.map((h, i) => `<option value="${i}"${pv.mapping[fd] === i ? ' selected' : ''}>${esc(h)}</option>`).join('')}</select></label>`).join('')}</div></details>
+        <div class="sum"><b>${pv.newCount} new payment${pv.newCount === 1 ? '' : 's'} · ${usd2(pv.newUsd)}</b><span>${pv.duplicates} already on the ledger</span><span>${pv.skipped} skipped (money out, pending, fees, transfers, not USD)</span></div>
+        <div class="tbl"><table><thead><tr><th></th><th>Date</th><th>From</th><th class="r">Amount</th></tr></thead><tbody>
+          ${pv.rows.slice(0, 80).map((r) => `<tr class="${r.status}"><td><span class="stb ${r.status}">${r.status === 'new' ? 'new' : r.status === 'duplicate' ? 'dup' : 'skip'}</span></td><td>${esc(String(r.at || '').slice(0, 10))}</td><td>${esc(String(r.who || '').slice(0, 44))}${r.reason ? `<small>${esc(r.reason)}</small>` : ''}</td><td class="r">${Number.isFinite(r.usd) ? (r.usd < 0 ? '−' + usd2(-r.usd) : usd2(r.usd)) : ''}</td></tr>`).join('')}
+        </tbody></table>${pv.total > 80 ? `<div class="muted small" style="padding:6px 8px">…and ${pv.total - 80} more rows</div>` : ''}</div>
+        <button class="btn go" data-import${pv.newCount ? '' : ' disabled'}>${ic('coin')}Import ${pv.newCount} payment${pv.newCount === 1 ? '' : 's'} · ${usd2(pv.newUsd)}</button><div class="msg" data-imsg></div>` : ''}`;
+  }
+  function renderSync() {
+    const box = $('#syncbox .box');
+    if (!snap || $('#syncbox').hidden) return;
+    const d = syncData || { connectors: {}, csvSources: {}, connections: (snap.sync && snap.sync.connections) || [] };
+    const s = syncStatus();
+    const conns = d.connections || [];
+    const kinds = Object.entries(d.connectors || {});
+    if (!linkKind || !(d.connectors || {})[linkKind]) linkKind = kinds.length ? kinds[0][0] : null;
+    const groups = importedGroups();
+    box.innerHTML = `
+      <button class="cbtn glass x" data-close title="Close (Esc)">${ic('close')}</button>
+      <div class="sy-head"><div class="sy-mast" style="--c:${s.color}"><i></i><i></i><i></i></div>
+        <div style="flex:1;min-width:0"><h2>Income sync</h2><p class="lead">Link the places you get paid, or drop in a statement. Every payment lands on the ledger with the platform's own transaction id, so nothing is ever counted twice, and the station updates on its own.</p>
+        <div class="sy-status" style="color:${s.color}">● ${esc(s.text)}${conns.length ? ' · checks every 15 minutes while the station is open' : ''}</div></div>
+        ${conns.length ? `<button class="btn" data-syncall>${ic('bolt')}Sync all now</button>` : ''}</div>
+      <div class="sy-grid">
+        <section>
+          <h3>Linked accounts</h3>
+          ${conns.length ? conns.map(connCard).join('') : `<div class="sy-empty">${ic('bolt')}<div><b>Nothing linked yet.</b><br>Pick a service on the right. Once linked, new payments show up here, in the vault and on the ledger without you logging anything.</div></div>`}
+          <h3 style="margin-top:18px">Imported statements</h3>
+          ${groups.length ? groups.map((g) => `<div class="imp"><span>${esc(viaTitle(g.via))}</span><span class="muted">${g.n} payment${g.n === 1 ? '' : 's'} · last ${ago(g.last)}</span><b>${usd(g.usd)}</b></div>`).join('') : '<div class="muted small">None yet. Upwork, Fiverr, Etsy, Amazon Associates, PayPal, Venmo or any bank export works. Import the same file again next month: only the new lines are added.</div>'}
+        </section>
+        <section class="sy-right">
+          <div class="tabs" style="grid-template-columns:1fr 1fr"><button type="button" data-stab="link" class="${syncTab === 'link' ? 'on' : ''}">Link an account</button><button type="button" data-stab="import" class="${syncTab === 'import' ? 'on' : ''}">Import a statement</button></div>
+          ${syncTab === 'link' ? linkPane(d, kinds) : importPane(d)}
+        </section>
+      </div>`;
+    wireSync(box, d);
+  }
+  function wireSync(box, d) {
+    box.querySelector('[data-close]').addEventListener('click', closeSync);
+    box.querySelectorAll('[data-stab]').forEach((b) => b.addEventListener('click', () => { syncTab = b.dataset.stab; renderSync(); }));
+    box.querySelectorAll('[data-kind]').forEach((b) => b.addEventListener('click', () => { linkKind = b.dataset.kind; renderSync(); }));
+    box.querySelectorAll('[data-src]').forEach((b) => b.addEventListener('click', () => { csv.source = b.dataset.src; csv.title = null; csv.path = null; csv.mapping = null; if (csv.text) dryRun(); else renderSync(); }));
+    const all = box.querySelector('[data-syncall]');
+    if (all) all.addEventListener('click', () => runSync(null, all));
+    box.querySelectorAll('[data-csync]').forEach((b) => b.addEventListener('click', () => runSync(b.dataset.csync, b)));
+    box.querySelectorAll('[data-cdel]').forEach((b) => b.addEventListener('click', async () => {
+      if (b.dataset.armed !== '1') {
+        b.dataset.armed = '1'; b.textContent = 'Really remove?'; b.classList.add('danger');
+        setTimeout(() => { if (b.isConnected) { b.dataset.armed = ''; b.textContent = 'Remove'; b.classList.remove('danger'); } }, 4000);
+        return;
+      }
+      try { await post('/api/connections', { id: b.dataset.cdel, remove: true }); toast('status', 'Link removed', 'Its key was deleted from this computer. Payments already imported stay on the ledger.', '#9aa4b8', 'unlock'); await loadSync(); await poll(); renderSync(); }
+      catch (e) { toast('status', 'Could not remove it', e.message, '#ff5c6c', 'warn'); }
+    }));
+    box.querySelectorAll('[data-cpath]').forEach((sel) => sel.addEventListener('change', async () => {
+      try { await post('/api/connections', { id: sel.dataset.cpath, path: sel.value }); toast('run', 'Link re-pointed', `new payments now count toward ${shortOf(sel.value)}`, '#5fd4ff', 'bolt'); await loadSync(); await poll(); renderSync(); }
+      catch (e) { toast('status', 'Could not change it', e.message, '#ff5c6c', 'warn'); await loadSync(); renderSync(); }
+    }));
+    const lf = box.querySelector('#f-link');
+    if (lf) lf.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const spec = d.connectors[linkKind], msg = lf.querySelector('.msg'), btn = lf.querySelector('.btn.go');
+      const secret = {};
+      for (const fd of spec.fields) secret[fd.key] = lf.elements['f_' + fd.key].value.trim();
+      msg.className = 'msg'; msg.textContent = `checking the key with ${spec.title}, then pulling your payments…`; btn.disabled = true;
+      try {
+        const j = await post('/api/connections', { kind: linkKind, path: lf.elements.path.value, since: lf.elements.since.value, label: lf.elements.label.value, secret });
+        const r = j.sync || {};
+        toast('money', `${spec.title} linked`, r.ok ? `${r.imported} payment${r.imported === 1 ? '' : 's'} imported${r.usd ? ' · +' + usd(r.usd) : ''}. It keeps syncing on its own.` : `linked, but the first sync failed: ${r.error || 'unknown'}`, r.ok ? '#3ddc97' : '#f5a623', 'bolt');
+        await loadSync(); await poll(); renderSync();
+      } catch (err) { msg.className = 'msg err'; msg.textContent = err.message; btn.disabled = false; }
+    });
+    const fileIn = box.querySelector('[data-file]'), drop = box.querySelector('[data-drop]');
+    if (fileIn && drop) {
+      const readFile = (fl) => {
+        if (!fl) return;
+        if (fl.size > 7.5e6) { toast('status', 'That file is too big', 'Export a shorter date range (under 7 MB) and try again.', '#ff5c6c', 'warn'); return; }
+        const rd = new FileReader();
+        rd.onload = () => { csv.text = String(rd.result || ''); csv.file = fl.name; csv.mapping = null; dryRun(); };
+        rd.readAsText(fl);
+      };
+      fileIn.addEventListener('change', () => readFile(fileIn.files[0]));
+      drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+      drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+      drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); readFile(e.dataTransfer.files[0]); });
+    }
+    const ip = box.querySelector('[data-ipath]'); if (ip) ip.addEventListener('change', () => { csv.path = ip.value; });
+    const it = box.querySelector('[data-ititle]'); if (it) it.addEventListener('input', () => { csv.title = it.value; });
+    box.querySelectorAll('[data-map]').forEach((sel) => sel.addEventListener('change', () => { csv.mapping = { ...(csv.preview ? csv.preview.mapping : {}), [sel.dataset.map]: Number(sel.value) }; dryRun(); }));
+    const imp = box.querySelector('[data-import]');
+    if (imp) imp.addEventListener('click', async () => {
+      const m = box.querySelector('[data-imsg]'); imp.disabled = true; m.className = 'msg'; m.textContent = 'importing…';
+      const title = csv.title || (d.csvSources[csv.source] || {}).title || 'Statement';
+      try {
+        const j = await post('/api/import/csv', { text: csv.text, path: csv.path, source: csv.source, title, mapping: csv.mapping || undefined });
+        toast('money', `${title} imported`, `${j.imported} payment${j.imported === 1 ? '' : 's'} · +${usd(j.usd)}${j.duplicates ? ` · ${j.duplicates} were already there` : ''}`, '#ffcf5a', 'coin');
+        csv.text = ''; csv.file = ''; csv.preview = null; csv.mapping = null;
+        await poll(); renderSync();
+      } catch (err) { m.className = 'msg err'; m.textContent = err.message; imp.disabled = false; }
+    });
+  }
+  async function dryRun() {
+    try { csv.preview = await post('/api/import/csv', { text: csv.text, path: csv.path || defaultPath(), source: csv.source, mapping: csv.mapping || undefined, dryRun: true }); }
+    catch (e) { csv.preview = null; toast('status', 'Could not read that file', e.message, '#ff5c6c', 'warn'); }
+    renderSync();
+  }
+  async function runSync(id, btn) {
+    const was = btn.innerHTML; btn.disabled = true; btn.textContent = 'syncing…';
+    try {
+      const j = await post('/api/sync', id ? { id } : {});
+      const rs = j.results || [], got = rs.reduce((a, r) => a + (r.imported || 0), 0), usdIn = rs.reduce((a, r) => a + (r.usd || 0), 0), bad = rs.filter((r) => !r.ok);
+      toast(bad.length ? 'status' : 'money', bad.length ? 'Sync finished with a problem' : 'Synced', bad.length ? bad.map((r) => r.error).join(' · ') : `${got} new payment${got === 1 ? '' : 's'}${usdIn ? ' · +' + usd(usdIn) : ''}`, bad.length ? '#ff5c6c' : '#3ddc97', 'bolt');
+      await loadSync(); await poll(); renderSync();
+    } catch (e) { toast('status', 'Sync failed', e.message, '#ff5c6c', 'warn'); btn.disabled = false; btn.innerHTML = was; }
+  }
+
   // ======================================================================= field guide
   function openGuide() {
     const g = $('#guide');
@@ -2401,7 +2847,7 @@
         <div><h3>Bound to the ledger</h3><dl>
           <dt>Room</dt><dd>One money path. Lit means active; amber beacons and hazard stripes mean gated; red emergency light means killed.</dd>
           <dt>Six desks</dt><dd>The six stages. Green screen: target met. Blinking blue: the next stage. Dots on the desk edge: progress.</dd>
-          <dt>Crew</dt><dd>A real agent run. No run, no crew. They walk in when a run starts, sit and type at a desk, and walk out when it ends, carrying a crate if it logged outcomes.</dd>
+          <dt>Visiting crew</dt><dd>A one-off agent run. It beams in at Command when the run starts, sits and types at a desk, and beams out when it ends, carrying a crate if it logged outcomes.</dd>
           <dt>Code on a screen</dt><dd>A crew member is working at that desk right now.</dd>
           <dt>Hall pulses</dt><dd>A live run on that path reporting back to Command.</dd>
           <dt>Crates</dt><dd>Evidenced outcomes on that path, one each (display capped at 16).</dd>
@@ -2410,9 +2856,11 @@
           <dt>Flying coins</dt><dd>A new payment logged on that path, flying to the vault.</dd>
           <dt>Posters</dt><dd>Posts you published with a live URL. A gold corner means that post has earned money.</dd>
           <dt>Outbox shelves</dt><dd>One sheet per draft an agent wrote. Nothing is sent without you.</dd>
+          <dt>Standing crew</dt><dd>One per agent you hired (an enabled job). They live in their room, wander between runs, and sit at a desk while their run is live. Hire or send them off shift in a room's Crew section.</dd>
+          <dt>Comm mast</dt><dd>Your income links. Green: synced. Amber: syncing. Red: a link failed. Grey: nothing linked. Waves leave the dish when a sync brings in money. Click it, or press I.</dd>
           <dt>Gold figure</dt><dd>You, the Commander.</dd>
         </dl></div>
-        <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">Wall screens, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the comm mast, the docking shuttle, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
+        <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">Wall screens, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the docking shuttle, where idle crew wander, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
           <h3>Controls</h3><div class="kb">
             <kbd>click</kbd><span>open a room, the vault (roster) or the outbox dock</span>
             <kbd>double-click</kbd><span>zoom into a room</span>
@@ -2421,6 +2869,7 @@
             <kbd>1 – 8</kbd><span>jump to room by rank</span>
             <kbd>0 / H</kbd><span>station roster</span>
             <kbd>O</kbd><span>outbox dock</span>
+            <kbd>I</kbd><span>income sync: link accounts, import statements</span>
             <kbd>F</kbd><span>fit the whole station</span>
             <kbd>+ / −</kbd><span>zoom in or out</span>
             <kbd>arrows · WASD</kbd><span>pan</span>
@@ -2473,7 +2922,8 @@
     if (wasDrag || ev.type === 'pointercancel' || !snap) return;
     const r = view.getBoundingClientRect();
     const hit = pick(ev.clientX - r.left, ev.clientY - r.top);
-    if (hit) select(hit.kind === 'crew' ? (hit.agent.role === 'commander' ? 'hub' : hit.agent.path) : hit.t.id);
+    if (hit && hit.kind === 'mast') openSync();
+    else if (hit) select(hit.kind === 'crew' ? (hit.agent.role === 'commander' ? 'hub' : hit.agent.path) : hit.t.id);
   };
   cv.addEventListener('pointerup', endPointer);
   cv.addEventListener('pointercancel', endPointer);
@@ -2495,7 +2945,11 @@
   $('#panel').addEventListener('click', (ev) => { const el = ev.target.closest('[data-sel]'); if (el) { ev.preventDefault(); select(el.dataset.sel); } });
   $('#zin').innerHTML = ic('zin'); $('#zout').innerHTML = ic('zout'); $('#zhome').innerHTML = ic('fit'); $('#help').innerHTML = ic('help');
   $('#insToggle').innerHTML = ic('chevR');
-  $('#navTerm').innerHTML = ic('term') + 'Terminal'; $('#navLedger').innerHTML = ic('chart') + 'Ledger'; $('#navGuide').innerHTML = ic('book') + 'Guide';
+  $('#navSync').innerHTML = '<span class="sdot"></span>' + ic('bolt') + 'Sync';
+  $('#navSync').addEventListener('click', (e) => { e.preventDefault(); openSync(); });
+  $('#syncbox').addEventListener('click', (e) => { if (e.target.id === 'syncbox') closeSync(); });
+  $('#navTerm').innerHTML = ic('term') + '<span class="lbl">Terminal</span>'; $('#navLedger').innerHTML = ic('chart') + '<span class="lbl">Ledger</span>'; $('#navGuide').innerHTML = ic('book') + '<span class="lbl">Guide</span>';
+  $('#navTerm').title = 'Production terminal'; $('#navLedger').title = 'Money dashboard'; $('#navGuide').title = 'Field guide (?)';
   $('#zin').addEventListener('click', () => zoomBy(1.35));
   $('#zout').addEventListener('click', () => zoomBy(1 / 1.35));
   $('#zhome').addEventListener('click', () => { camT.x = home.x; camT.y = home.y; camT.z = 1; });
@@ -2511,17 +2965,19 @@
     const typing = tgt && (/INPUT|SELECT|TEXTAREA/.test(tgt.tagName) || tgt.isContentEditable);
     if (ev.key === 'Escape') {
       if (!$('#guide').hidden) { closeGuide(); return; }
+      if (!$('#syncbox').hidden) { closeSync(); return; }
       if (typing) { tgt.blur(); return; }
       select('hub'); return;
     }
     if (typing || ev.metaKey || ev.ctrlKey || ev.altKey) return;
-    if (!$('#guide').hidden) return;
+    if (!$('#guide').hidden || !$('#syncbox').hidden) return;
     const k = ev.key;
     if (/^[1-8]$/.test(k)) { const room = rooms.find((m) => m.spec.rank === Number(k)); if (room) select(room.id); ev.preventDefault(); return; }
     const panStep = 60 / (fitS * camT.z);
     switch (k) {
       case '0': case 'h': case 'H': select('hub'); break;
       case 'o': case 'O': select('dock'); break;
+      case 'i': case 'I': openSync(); break;
       case 'f': case 'F': camT.x = home.x; camT.y = home.y; camT.z = 1; break;
       case '+': case '=': zoomBy(1.35); break;
       case '-': case '_': zoomBy(1 / 1.35); break;

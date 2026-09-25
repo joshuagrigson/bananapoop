@@ -18,6 +18,10 @@ export function seedDemo(ledger, dataDir, now = Date.now()) {
     { kind: 'path.status', path: 'coparent-hq', status: 'killed', reason: 'demo: kill test failed, 0 of 5 practices', ts: at(19) },
     { kind: 'job', jobId: 'job_demo_creator', role: 'creator', path: 'content-channel', everyHours: 24, maxUsd: 1, enabled: true, ts: at(18) },
     { kind: 'job', jobId: 'job_demo_audit', role: 'auditor', path: 'gbp-management', everyHours: 24, maxUsd: 1, enabled: true, ts: at(18) },
+    { kind: 'job', jobId: 'job_demo_manager', role: 'manager', path: 'gbp-management', everyHours: 24, maxUsd: 2, enabled: true, ts: at(17) },
+    { kind: 'job', jobId: 'job_demo_scout', role: 'scout', path: 'freelance-desk', everyHours: 2, maxUsd: 0.5, enabled: true, ts: at(17) },
+    { kind: 'job', jobId: 'job_demo_fulfiller', role: 'fulfiller', path: 'freelance-desk', everyHours: 2, maxUsd: 2, enabled: true, ts: at(17) },
+    { kind: 'job', jobId: 'job_demo_prospect', role: 'prospector', path: 'cohort-course', everyHours: 48, maxUsd: 1, enabled: true, ts: at(16) },
   ];
   const shops = ['Demo Salon One', 'Demo Med Spa', 'Demo Groomers', 'Demo Barber Co', 'Demo Nail Bar', 'Demo Lash Studio', 'Demo Brow House', 'Demo Day Spa', 'Demo Skin Clinic', 'Demo Hair Loft', 'Demo Pet Spa', 'Demo Wax Bar'];
   shops.forEach((s, i) => lines.push({ kind: 'outcome', path: 'gbp-management', stage: 'prospect', ref: s, evidence: `https://example.com/demo/${i}`, by: 'agent', ts: at(15, i) }));
@@ -39,14 +43,14 @@ export function seedDemo(ledger, dataDir, now = Date.now()) {
   lines.push({ kind: 'outcome', path: 'content-channel', stage: 'prospect', ref: 'demo DM from a salon owner', evidence: 'demo: DM', by: 'user', ts: at(4) });
   lines.push({ kind: 'money.in', usd: 42.5, path: 'content-channel', source: 'Demo affiliate program', evidence: 'demo payout 77', postId: 'post_demo_2', ts: at(3) });
   // two finished runs and one in progress, with real-looking per-iteration spend lines
-  const run = (id, role, pathId, d, usd, reason, open = false) => {
-    lines.push({ kind: 'agent.run.start', runId: id, path: pathId, role, model: 'claude-opus-5', maxUsd: 2, ts: at(d) });
+  const run = (id, role, pathId, d, usd, reason, open = false, jobId = undefined) => {
+    lines.push({ kind: 'agent.run.start', runId: id, path: pathId, role, model: 'claude-opus-5', maxUsd: 2, ...(jobId ? { jobId } : {}), ts: at(d) });
     lines.push({ kind: 'money.out', usd, category: 'api', path: pathId, runId: id, evidence: 'demo iteration', ts: at(d, 0.1) });
     if (!open) lines.push({ kind: 'agent.run.end', runId: id, path: pathId, role, model: 'claude-opus-5', usd, iterations: 4, reason, ts: at(d, 0.2) });
   };
   run('run_demo_1', 'auditor', 'gbp-management', 15, 0.41, 'done');
   run('run_demo_2', 'creator', 'content-channel', 2, 0.18, 'done');
-  run('run_demo_3', 'creator', 'content-channel', 0, 0.06, 'done', true);
+  run('run_demo_3', 'creator', 'content-channel', 0, 0.06, 'done', true, 'job_demo_creator');
   lines.push({ kind: 'money.out', usd: 12, category: 'tool', path: 'gbp-management', evidence: 'demo domain + hosting', ts: at(14) });
   // freelance desk: scored posts, sent proposals, one won and paid job with the operator's hours
   ['Demo client: lead list for HVAC', 'Demo client: GBP posts for a dentist', 'Demo client: Zapier missed-call flow', 'Demo client: dedupe 4k leads'].forEach((ref, i) => {
@@ -55,7 +59,8 @@ export function seedDemo(ledger, dataDir, now = Date.now()) {
   });
   lines.push({ kind: 'outcome', path: 'freelance-desk', stage: 'demo', ref: 'Demo client: lead list for HVAC', evidence: 'demo: client replied', by: 'user', ts: at(5) });
   lines.push({ kind: 'outcome', path: 'freelance-desk', stage: 'pilot', ref: 'Demo client: lead list for HVAC', evidence: 'demo: contract started', by: 'user', ts: at(4) });
-  lines.push({ kind: 'money.in', usd: 120, path: 'freelance-desk', source: 'Demo client (Upwork)', evidence: 'demo payout 5531', tag: 'lead research', hours: 1.5, ts: at(1) });
+  lines.push({ kind: 'money.in', usd: 120, path: 'freelance-desk', source: 'Demo client (Upwork)', evidence: 'Upwork demo-5531 (imported)', ext: 'upwork:demo-5531', via: 'csv:upwork', tag: 'lead research', hours: 1.5, ts: at(1) });
+  lines.push({ kind: 'money.in', usd: 193.9, path: 'gbp-management', source: 'Demo Groomers', evidence: 'Stripe txn_demo_1 (synced)', ext: 'stripe:txn_demo_1', via: 'stripe', ts: at(2) });
   run('run_demo_4', 'scout', 'freelance-desk', 7, 0.09, 'done');
   for (const l of lines) ledger.append(l);
   addItem(dataDir, 'freelance-desk', { type: 'post', url: 'https://example.com/demo/job/9', text: 'DEMO POST. Need 40 roofing contractors in Dallas with emails and phone numbers. Budget $80. Payment verified.' });
@@ -76,5 +81,11 @@ export function seedDemo(ledger, dataDir, now = Date.now()) {
   const out = path.join(dataDir, 'outbox', 'content-channel');
   fs.mkdirSync(out, { recursive: true });
   for (let i = 1; i <= 3; i++) fs.writeFileSync(path.join(out, `post-demo-${i}.md`), `# DEMO draft ${i}\n\nFictional preview content.\n`);
+  // a labeled demo income link: no key, never contacted, only there so the sync panel has something to show
+  fs.writeFileSync(path.join(dataDir, 'connections.json'), JSON.stringify([{
+    id: 'conn_stripe_demo', kind: 'stripe', label: 'DEMO account', path: 'gbp-management', enabled: true, demo: true,
+    since: at(90), createdAt: at(10), secret: {}, cursor: at(0.02),
+    lastSync: { at: at(0.02), ok: true, imported: 1, usd: 193.9, seen: 3, skipped: 0 },
+  }], null, 2));
   return lines.length;
 }

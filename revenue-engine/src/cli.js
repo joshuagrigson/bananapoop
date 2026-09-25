@@ -16,6 +16,7 @@ import { seedDemo } from './demo.js';
 import { addItem, listItems } from './inbox.js';
 import { addClient, listClients, updateClient, isDue } from './clients.js';
 import { harvest, DEFAULT_COUNTIES } from './harvest.js';
+import { CONNECTORS, CSV_SOURCES, listConnections, upsertConnection, removeConnection, syncConnection, syncAll, testConnection, csvRecords, classify, knownExt, importRecords } from './sync.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(here, '..');
@@ -42,9 +43,16 @@ const HELP = `revenue-engine
   job add <role> --path P --every HOURS --max-usd N    a standing order the scheduler runs
   job off <jobId>                                      disable a job
   jobs                                                 list jobs
+  connections                                          income links and when each last synced
+  connect <stripe|square|paypal|gumroad> --path P --key K [--secret S] [--label L] [--since 2026-06-01]
+                                                       link where you get paid (PayPal: --key CLIENT_ID --secret SECRET)
+  disconnect <connectionId>                            forget a link and its key
+  sync [connectionId]                                  pull new payments now (serve does this every 15 minutes)
+  import-csv <file> --path P --source upwork|fiverr|etsy|amazon|paypal|venmo|bank|other [--dry-run]
+                                                       import a statement export; the same file twice never counts twice
   seed-demo                                            fill an EMPTY data dir with labeled demo data
   run <role> --path P [--max-usd 2] [--model ${DEFAULT_MODEL}] [--provider anthropic|replay --script file.json]
-  serve [--port 8790] [--host 127.0.0.1] [--daily-cap 5] [--no-scheduler] [--harvest-daily] [--open]
+  serve [--port 8790] [--host 127.0.0.1] [--daily-cap 5] [--no-scheduler] [--harvest-daily] [--sync-every 15] [--open]
   paths                                    the catalog
   help
 
@@ -102,6 +110,7 @@ async function main(argv) {
       every: { type: 'string' }, type: { type: 'string' }, days: { type: 'string' }, counties: { type: 'string' },
       name: { type: 'string' }, city: { type: 'string' }, category: { type: 'string' }, website: { type: 'string' },
       monthly: { type: 'string' }, notes: { type: 'string' }, services: { type: 'string' }, 'harvest-daily': { type: 'boolean' }, open: { type: 'boolean' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
+      key: { type: 'string' }, secret: { type: 'string' }, label: { type: 'string' }, since: { type: 'string' }, 'dry-run': { type: 'boolean' }, 'sync-every': { type: 'string' },
     },
   });
   const [cmd, ...rest] = pos;
@@ -231,11 +240,60 @@ async function main(argv) {
       });
       console.log(result.skipped ? `skipped: ${result.reason}. Nothing was spent.` : JSON.stringify(result, null, 2)); return;
     }
+    case 'connections': {
+      const list = listConnections(DATA_DIR);
+      if (!list.length) { console.log('no income links yet. Link one: node src/cli.js connect stripe --path <path> --key rk_live_...'); return; }
+      for (const c of list) {
+        const ls = c.lastSync;
+        console.log(`${c.id}  ${c.title}${c.label ? ` (${c.label})` : ''} -> ${c.path}${c.enabled ? '' : ' [off]'}  ${ls ? (ls.ok ? `synced ${ls.at}: ${ls.imported} new, ${usd(ls.usd)}` : `FAILED ${ls.at}: ${ls.error}`) : 'never synced'}`);
+      }
+      return;
+    }
+    case 'connect': {
+      const kind = rest[0];
+      const spec = CONNECTORS[kind];
+      if (!spec) throw new LedgerError(`connect what? one of: ${Object.keys(CONNECTORS).join(', ')}`);
+      const secret = {};
+      spec.fields.forEach((f, i) => { secret[f.key] = i === 0 ? v.key : v.secret; });
+      console.log(`checking the key with ${spec.title}...`);
+      await testConnection({ kind, secret });
+      const c = upsertConnection(DATA_DIR, { kind, path: v.path, label: v.label, since: v.since, secret }, CATALOG);
+      const r = await syncConnection({ ledger, dataDir: DATA_DIR, id: c.id });
+      console.log(r.ok ? `linked ${c.id}: ${r.imported} payments imported (${usd(r.usd)}), ${r.skipped} skipped. "serve" keeps it in sync.` : `linked ${c.id}, but the first sync failed: ${r.error}`);
+      return;
+    }
+    case 'disconnect':
+      removeConnection(DATA_DIR, rest[0]); console.log(`removed ${rest[0]} and its key`); return;
+    case 'sync': {
+      const results = rest[0] ? [await syncConnection({ ledger, dataDir: DATA_DIR, id: rest[0] })] : await syncAll({ ledger, dataDir: DATA_DIR });
+      if (!results.length) console.log('no income links yet (see: connect)');
+      for (const r of results) console.log(r.ok ? `${r.id}: ${r.imported} new payments, ${usd(r.usd)}${r.skipped ? `, ${r.skipped} skipped` : ''}` : `${r.id}: FAILED ${r.error}`);
+      return;
+    }
+    case 'import-csv': {
+      if (!rest[0]) throw new LedgerError('import-csv <file> --path P --source upwork');
+      if (!CATALOG.some((p) => p.id === v.path)) throw new LedgerError(`--path must be one of: ${CATALOG.map((p) => p.id).join(', ')}`);
+      const source = String(v.source || 'other').toLowerCase();
+      const title = (CSV_SOURCES[source] || { title: v.source || 'CSV' }).title;
+      const parsed = csvRecords(fs.readFileSync(rest[0], 'utf8'), { source });
+      const rows = classify(parsed.records, knownExt(ledger));
+      const cols = Object.entries(parsed.mapping).filter(([, i]) => i >= 0).map(([k, i]) => `${k}="${parsed.headers[i]}"`).join(' ');
+      console.log(`columns: ${cols}`);
+      for (const r of rows.slice(0, 15)) console.log(`  ${r.status.padEnd(9)} ${String(r.at || '').slice(0, 10)}  ${usd(r.usd).padStart(10)}  ${String(r.who).slice(0, 40)}${r.reason ? `  (${r.reason})` : ''}`);
+      if (rows.length > 15) console.log(`  ... ${rows.length - 15} more`);
+      const fresh = rows.filter((r) => r.status === 'new');
+      if (v['dry-run']) { console.log(`dry run: ${fresh.length} new payments (${usd(fresh.reduce((s, r) => s + r.usd, 0))}) would be added to ${v.path}. Nothing was written.`); return; }
+      const res = importRecords(ledger, parsed.records, { path: v.path, via: 'csv:' + source, sourceTitle: title, verb: 'imported' });
+      console.log(`imported ${res.added.length} payments (${usd(res.usd)}) into ${v.path}; ${rows.filter((r) => r.status === 'duplicate').length} were already on the ledger.`);
+      return;
+    }
     case 'serve': {
       const port = Number(v.port || process.env.PORT || 8790);
       const host = v.host || '127.0.0.1';
+      const loopback = ['127.0.0.1', 'localhost', '::1'].includes(host);
+      if (!loopback) console.error(`note: listening on ${host}, so the localhost-only check is off. Anyone who can reach this address can use the station.`);
       const server = createServer({
-        ledger, dataDir: DATA_DIR, runAgent,
+        ledger, dataDir: DATA_DIR, runAgent, checkHost: loopback,
         makeProvider: () => { if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN && !process.env.ANTHROPIC_PROFILE) console.error('note: no ANTHROPIC_API_KEY in env; the SDK will try an ant auth profile'); return makeAnthropicProvider(); },
       });
       server.listen(port, host, () => {
@@ -253,6 +311,13 @@ async function main(argv) {
           tick();
           setInterval(tick, 24 * 3600e3).unref();
           console.log('harvest on: pulls new Texas permits once a day into the gbp-management inbox ($0)');
+        }
+        const syncEvery = Number(v['sync-every'] ?? 15);
+        if (syncEvery > 0) {
+          const tick = () => syncAll({ ledger, dataDir: DATA_DIR }).then((rs) => rs.forEach((r) => { if (!r.ok) console.error(`[sync] ${r.id}: ${r.error}`); else if (r.imported) console.error(`[sync] ${r.id}: ${r.imported} new payments, ${usd(r.usd)}`); })).catch((e) => console.error(`[sync] ${e.message}`));
+          setTimeout(tick, 15e3).unref();
+          setInterval(tick, syncEvery * 60e3).unref();
+          console.log(`income sync on: pulls new payments from your linked accounts every ${syncEvery} minutes (--sync-every 0 to turn off)`);
         }
         console.log(`scheduler on: checks jobs every minute, stops dispatching after $${dailyCapUsd} spent in a day (--daily-cap to change, --no-scheduler to turn off)`);
       }

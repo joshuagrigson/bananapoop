@@ -38,6 +38,9 @@ export function validate(input) {
       if (ev.postId !== undefined && !isText(ev.postId)) fail('money.in postId must be a post event id');
       if (ev.tag !== undefined && !isText(ev.tag)) fail('money.in tag must be text, e.g. the gig type');
       if (ev.hours !== undefined && !(typeof ev.hours === 'number' && ev.hours > 0 && ev.hours < 1000)) fail('money.in hours must be a positive number');
+      // synced or imported payments carry the platform's own transaction id, so the same payment is never counted twice
+      if (ev.ext !== undefined && !(isText(ev.ext, 3) && ev.ext.length <= 200)) fail('money.in ext must be the platform transaction id (3-200 chars)');
+      if (ev.via !== undefined && !(isText(ev.via) && ev.via.length <= 40)) fail('money.in via must name the connector, e.g. stripe');
       break;
     case 'post':
       if (!isText(ev.path)) fail('post needs a path id');

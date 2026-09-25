@@ -12,6 +12,7 @@ import { snapshot, listOutbox } from '../src/server.js';
 import { CATALOG } from '../src/paths.js';
 import { listItems } from '../src/inbox.js';
 import { listClients, isDue } from '../src/clients.js';
+import { connectorSpecs, CSV_SOURCES, listConnections } from '../src/sync.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
@@ -21,8 +22,8 @@ const ledger = new Ledger(path.join(data, 'ledger.jsonl'));
 seedDemo(ledger, data);
 // Two more crew members on the job so the preview shows agents at work (still demo data, still labeled).
 const now = new Date().toISOString();
-ledger.append({ kind: 'agent.run.start', runId: 'run_demo_5', path: 'gbp-management', role: 'auditor', model: 'claude-sonnet-5', maxUsd: 1, ts: now });
-ledger.append({ kind: 'agent.run.start', runId: 'run_demo_6', path: 'freelance-desk', role: 'scout', model: 'claude-sonnet-5', maxUsd: 0.5, ts: now });
+ledger.append({ kind: 'agent.run.start', runId: 'run_demo_5', path: 'gbp-management', role: 'auditor', model: 'claude-sonnet-5', maxUsd: 1, jobId: 'job_demo_audit', ts: now });
+ledger.append({ kind: 'agent.run.start', runId: 'run_demo_6', path: 'freelance-desk', role: 'scout', model: 'claude-sonnet-5', maxUsd: 0.5, jobId: 'job_demo_scout', ts: now });
 
 const inbox = {};
 const clients = {};
@@ -59,6 +60,7 @@ write('api/outbox', JSON.stringify(listOutbox(data, CATALOG)));
 write('api/inbox', JSON.stringify(inbox));
 write('api/clients', JSON.stringify(clients));
 write('api/runs', '[]');
+write('api/connections', JSON.stringify({ connectors: connectorSpecs(), csvSources: CSV_SOURCES, connections: listConnections(data), syncing: false }));
 write('_headers', '/api/*\n  Content-Type: application/json; charset=utf-8\n  Cache-Control: no-store\n');
 fs.rmSync(data, { recursive: true, force: true });
 console.log(`preview built in ${out}`);

@@ -13,6 +13,7 @@ import { ROLES, DEFAULT_MODEL } from './agent.js';
 import { addItem, listItems } from './inbox.js';
 import { addClient, listClients, updateClient, isDue } from './clients.js';
 import { harvest as runHarvest } from './harvest.js';
+import { connectorSpecs, CSV_SOURCES, listConnections, upsertConnection, removeConnection, publicConnection, syncConnection, syncAll, syncing, testConnection, csvRecords, classify, knownExt, importRecords } from './sync.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const LEDGER_HTML = fs.readFileSync(path.join(here, 'dashboard.html'), 'utf8');
@@ -58,6 +59,8 @@ export function snapshot(ledger, catalog = CATALOG, dataDir = null) {
     quests: q,
     questSummary: summary(q),
     catalog: catalog.map((p) => ({ ...p, stageList: stagesFor(p) })),
+    // income links, without any secret: the station's comm mast and sync panel read this
+    sync: { syncing: syncing(), connections: dataDir ? listConnections(dataDir).map(({ secret, ...c }) => c) : [] },
     gates: GATES,
     roles: Object.fromEntries(Object.entries(ROLES).map(([k, v]) => [k, { title: v.title, logs: v.logs }])),
     defaultModel: DEFAULT_MODEL,
@@ -85,12 +88,29 @@ const send = (res, code, body, type = 'application/json') => {
   res.end(type === 'application/json' ? JSON.stringify(body) : body);
 };
 
+// Only answer requests addressed to this machine by name (blocks DNS-rebinding pages from reading the ledger), and only
+// accept writes from this station's own pages (blocks any other website from spending money or logging fake revenue).
+const LOOPBACK = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+function hostName(h) { const s = String(h || '').toLowerCase(); return s.startsWith('[') ? s.slice(0, s.indexOf(']') + 1) : s.split(':')[0]; }
+function guard(req, checkHost) {
+  if (checkHost && !LOOPBACK.has(hostName(req.headers.host))) return 'this station only answers on localhost';
+  if (req.method !== 'GET' && req.method !== 'HEAD' && req.headers.origin !== undefined) {
+    let ok = false;
+    try { ok = new URL(req.headers.origin).host === String(req.headers.host || ''); } catch { ok = false; }
+    if (!ok) return 'writes are only accepted from the station\'s own pages';
+  }
+  return null;
+}
+
 // opts.runAgent(args) -> Promise<result>; opts.makeProvider() -> provider for live runs (may throw if no credentials)
-export function createServer({ ledger, catalog = CATALOG, dataDir, runAgent, makeProvider, harvestImpl = null }) {
+// opts.fetchImpl is what income sync uses to reach Stripe, Square, PayPal and Gumroad (swapped out in tests).
+export function createServer({ ledger, catalog = CATALOG, dataDir, runAgent, makeProvider, harvestImpl = null, fetchImpl = globalThis.fetch, checkHost = true }) {
   const runs = new Map(); // runId -> { status, started, result?, error? }
 
   return http.createServer(async (req, res) => {
     const url = new URL(req.url, 'http://localhost');
+    const refused = guard(req, checkHost);
+    if (refused) return send(res, 403, { ok: false, error: refused });
     try {
       if (req.method === 'GET' && url.pathname === '/') return send(res, 200, STATION_HTML, 'text/html');
       if (req.method === 'GET' && url.pathname === '/terminal') return send(res, 200, TERMINAL_HTML, 'text/html');
@@ -172,6 +192,55 @@ export function createServer({ ledger, catalog = CATALOG, dataDir, runAgent, mak
           if (e instanceof LedgerError) return send(res, 400, { ok: false, error: e.message });
           throw e;
         }
+      }
+
+      // ---- income sync
+      if (req.method === 'GET' && url.pathname === '/api/connections') {
+        return send(res, 200, { connectors: connectorSpecs(), csvSources: CSV_SOURCES, connections: dataDir ? listConnections(dataDir) : [], syncing: syncing() });
+      }
+      if (req.method === 'POST' && url.pathname === '/api/connections') {
+        if (!dataDir) return send(res, 501, { ok: false, error: 'no data dir' });
+        const body = await readJson(req);
+        try {
+          if (body.remove) { removeConnection(dataDir, body.id); return send(res, 200, { ok: true }); }
+          const fresh = !body.id || Object.values(body.secret || {}).some((v) => typeof v === 'string' && v.trim() && !v.startsWith('••••'));
+          if (fresh && body.test !== false) {
+            const kind = body.kind || (listConnections(dataDir).find((c) => c.id === body.id) || {}).kind;
+            try { await testConnection({ kind, secret: body.secret || {}, fetchImpl }); } catch (e) { return send(res, 400, { ok: false, error: e.message }); }
+          }
+          const c = upsertConnection(dataDir, body, catalog);
+          const first = body.syncNow === false ? null : await syncConnection({ ledger, dataDir, id: c.id, fetchImpl });
+          return send(res, 201, { ok: true, connection: publicConnection({ ...c, lastSync: first ? { ...first } : c.lastSync }), sync: first });
+        } catch (e) {
+          if (e instanceof LedgerError) return send(res, 400, { ok: false, error: e.message });
+          throw e;
+        }
+      }
+      if (req.method === 'POST' && url.pathname === '/api/sync') {
+        if (!dataDir) return send(res, 501, { ok: false, error: 'no data dir' });
+        const body = await readJson(req);
+        try {
+          const results = body.id ? [await syncConnection({ ledger, dataDir, id: body.id, fetchImpl })] : await syncAll({ ledger, dataDir, fetchImpl });
+          return send(res, 200, { ok: true, results });
+        } catch (e) {
+          if (e instanceof LedgerError) return send(res, 400, { ok: false, error: e.message });
+          throw e;
+        }
+      }
+      if (req.method === 'POST' && url.pathname === '/api/import/csv') {
+        const body = await readJson(req, 8_000_000);
+        if (!catalog.some((p) => p.id === body.path)) return send(res, 400, { ok: false, error: `pick which money path this income belongs to (unknown path "${body.path}")` });
+        const source = String(body.source || 'csv').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24) || 'csv';
+        const title = String(body.title || CSV_SOURCES[source]?.title || body.source || 'CSV').slice(0, 40);
+        const parsed = csvRecords(body.text || '', { source, mapping: body.mapping || undefined });
+        if (!parsed.headers.length) return send(res, 400, { ok: false, error: 'that file has no rows. Export it as CSV and try again.' });
+        if (body.dryRun) {
+          const rows = classify(parsed.records, knownExt(ledger));
+          const n = (st) => rows.filter((r) => r.status === st).length;
+          return send(res, 200, { ok: true, headers: parsed.headers, mapping: parsed.mapping, fields: parsed.fields, rows: rows.slice(0, 200), total: rows.length, newCount: n('new'), duplicates: n('duplicate'), skipped: n('skip'), newUsd: Math.round(rows.filter((r) => r.status === 'new').reduce((s, r) => s + r.usd, 0) * 100) / 100 });
+        }
+        const r = importRecords(ledger, parsed.records, { path: body.path, via: 'csv:' + source, sourceTitle: title, verb: 'imported' });
+        return send(res, 201, { ok: true, imported: r.added.length, usd: r.usd, duplicates: r.rows.filter((x) => x.status === 'duplicate').length, skipped: r.rows.filter((x) => x.status === 'skip').length });
       }
 
       if (req.method === 'POST' && url.pathname === '/api/run') {

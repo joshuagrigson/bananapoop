@@ -25,6 +25,26 @@ Paste this into PowerShell. It downloads or updates the code, checks Node, asks 
 cd $HOME; if (Test-Path bananapoop) { git -C bananapoop pull } else { git clone -b claude/amazing-edison-n9ydsa https://github.com/joshuagrigson/bananapoop }; powershell -ExecutionPolicy Bypass -File .\bananapoop\revenue-engine\setup.ps1
 ```
 
+## Income sync (so the station updates itself)
+
+Open **Sync** in the top bar (or press `I`, or click the comm mast). Two ways to get your real income in:
+
+- **Link an account**: Stripe, Square, PayPal, Gumroad. Paste a read-only key (the panel shows exactly where to get it), pick which money path it counts toward, done. The station pulls new payments every 15 minutes while it is open, net of the platform's fees.
+- **Import a statement**: Upwork, Fiverr, Etsy, Amazon Associates, PayPal, Venmo, any bank. Download the CSV from the site, drop it in, check the preview (new, already there, skipped and why), press Import.
+
+Every payment is stored with the platform's own transaction id, so syncing or importing the same thing twice never counts a dollar twice. Withdrawals, fees, transfers, refunds, pending and non-USD lines are skipped. Keys live only in `data/connections.json` on your computer; they never go into the ledger and the station only ever shows their last 4 characters. The same thing from the command line:
+
+```bash
+node src/cli.js connect stripe --path gbp-management --key rk_live_...
+node src/cli.js import-csv ~/Downloads/upwork.csv --path freelance-desk --source upwork --dry-run
+node src/cli.js sync
+node src/cli.js connections
+```
+
+## Crew
+
+Every agent you hire (a standing job) is a character who lives in its room: it wanders between runs and sits at a desk while its run is live. Hire one from a room's **Crew** section (role, how often, max per run); flip its switch to send it off shift. One-off runs from **Act → Dispatch** beam in from Command and leave when done.
+
 ## Run it
 
 Requirements: Node 22+. One dependency (`@anthropic-ai/sdk`).
@@ -32,7 +52,7 @@ Requirements: Node 22+. One dependency (`@anthropic-ai/sdk`).
 ```bash
 cd revenue-engine
 npm install
-npm test                       # 51 tests, zero spend (replay provider)
+npm test                       # 59 tests, zero spend (replay provider, fake payment APIs)
 REVENUE_ENGINE_DATA=./demo node src/cli.js seed-demo   # optional: labeled fake data to preview the station
 node src/cli.js status         # headline numbers, level, open quests
 node src/cli.js paths          # the catalog
@@ -145,6 +165,7 @@ src/agent.js      roles, tools, the budgeted run loop, replay provider
 src/scheduler.js  jobs: due logic, daily cap, one-at-a-time dispatch, skips inbox jobs with no work
 src/inbox.js      the job inbox: posts to score, won jobs to fulfill, local leads to audit
 src/harvest.js    free Texas new-permit feed (data.texas.gov jrea-zgmq) into the GBP inbox
+src/sync.js       income sync: Stripe, Square, PayPal, Gumroad links and CSV statement import, deduped by transaction id
 src/clients.js    client roster with monthly pack due dates
 src/demo.js       labeled demo data (refuses a real ledger)
 src/server.js     localhost HTTP: station, /ledger, /api/state, /api/events, /api/run, /api/runs, /api/jobs, /api/outbox
