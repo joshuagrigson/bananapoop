@@ -13,6 +13,7 @@ import { runAgent, ROLES, DEFAULT_MODEL } from './agent.js';
 import { createServer } from './server.js';
 import { createScheduler } from './scheduler.js';
 import { seedDemo } from './demo.js';
+import { addItem, listItems } from './inbox.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(here, '..');
@@ -24,12 +25,14 @@ const usd = (n) => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractio
 const HELP = `revenue-engine
 
   status                                   headline numbers, level, open quests
-  log-in <usd> --path P --source S --evidence E [--post POST_ID]   real money received
+  log-in <usd> --path P --source S --evidence E [--post ID] [--tag GIG] [--hours H]   real money received
   log-out <usd> --category C [--path P] --evidence E  real money spent (api|tool|ads|capital|other)
   outcome <path> <stage> --ref R --evidence E         prospect|conversation|demo|pilot|paid|retained
   gate <name> --cleared|--blocked --evidence E        e.g. gate employment-agreement --cleared --evidence "read 2026-09-26, no non-compete"
   path-status <path> <active|paused|killed> --reason R
   post <path> --platform X --url U --title T          a post you published (live URL required)
+  inbox add <path> --type post|job --file F [--url U]   hand a job post (to score) or a won job (to do) to the agents
+  inbox <path>                                         list pending and handled inbox items
   job add <role> --path P --every HOURS --max-usd N    a standing order the scheduler runs
   job off <jobId>                                      disable a job
   jobs                                                 list jobs
@@ -84,7 +87,7 @@ async function main(argv) {
       'max-usd': { type: 'string' }, model: { type: 'string' }, provider: { type: 'string' }, script: { type: 'string' },
       port: { type: 'string' }, host: { type: 'string' }, 'max-iterations': { type: 'string' },
       platform: { type: 'string' }, url: { type: 'string' }, title: { type: 'string' }, post: { type: 'string' },
-      every: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
+      every: { type: 'string' }, type: { type: 'string' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
     },
   });
   const [cmd, ...rest] = pos;
@@ -101,7 +104,7 @@ async function main(argv) {
       console.log('GATES'); for (const [k, g] of Object.entries(GATES)) console.log(`   ${k}: ${g.title}`);
       return;
     case 'log-in': {
-      const ev = ledger.append({ kind: 'money.in', usd: Number(rest[0]), path: v.path, source: v.source, evidence: v.evidence, ...(v.post ? { postId: v.post } : {}) });
+      const ev = ledger.append({ kind: 'money.in', usd: Number(rest[0]), path: v.path, source: v.source, evidence: v.evidence, ...(v.post ? { postId: v.post } : {}), ...(v.tag ? { tag: v.tag } : {}), ...(v.hours ? { hours: Number(v.hours) } : {}) });
       console.log(`appended money.in ${ev.id}: ${usd(ev.usd)} on ${ev.path} from ${ev.source}`); return;
     }
     case 'log-out': {
@@ -149,6 +152,21 @@ async function main(argv) {
       for (const j of jobs) console.log(`${j.jobId} ${j.enabled ? 'ON ' : 'off'} ${j.role} -> ${j.path} every ${j.everyHours}h max $${j.maxUsd} · runs ${j.runs} · last ${j.lastRunAt || 'never'}`);
       return;
     }
+    case 'inbox': {
+      if (rest[0] === 'add') {
+        if (!CATALOG.some((p) => p.id === rest[1])) throw new LedgerError('inbox add needs a known path, e.g. freelance-desk');
+        if (!v.file) throw new LedgerError('inbox add needs --file with the pasted post or brief');
+        const item = addItem(DATA_DIR, rest[1], { type: v.type, url: v.url, text: fs.readFileSync(path.resolve(v.file), 'utf8') });
+        console.log(`added ${item.id} (${item.type}) to ${rest[1]}: ${item.title}`); return;
+      }
+      const pid = rest[0] || 'freelance-desk';
+      const pending = listItems(DATA_DIR, pid);
+      const done = listItems(DATA_DIR, pid, { status: 'done' });
+      console.log(`${pid}: ${pending.length} waiting, ${done.length} handled`);
+      for (const i of pending) console.log(`  [ ] ${i.id} ${i.type} ${i.title}`);
+      for (const i of done.slice(-10)) console.log(`  [x] ${i.id} ${i.type} ${i.title} -> ${i.verdict}`);
+      return;
+    }
     case 'seed-demo': {
       const n = seedDemo(ledger, DATA_DIR);
       console.log(`seeded ${n} demo lines into ${LEDGER_FILE}. The station shows a DEMO banner. Delete ${DATA_DIR} to start real.`); return;
@@ -164,7 +182,7 @@ async function main(argv) {
         maxIterations: v['max-iterations'] ? Number(v['max-iterations']) : undefined,
         log: (e) => console.error(`[${e.type}] ${JSON.stringify({ ...e, type: undefined })}`),
       });
-      console.log(JSON.stringify(result, null, 2)); return;
+      console.log(result.skipped ? `skipped: ${result.reason}. Nothing was spent.` : JSON.stringify(result, null, 2)); return;
     }
     case 'serve': {
       const port = Number(v.port || process.env.PORT || 8790);

@@ -36,6 +36,8 @@ export function validate(input) {
       if (!isText(ev.source)) fail('money.in needs a source (who paid)');
       if (!isText(ev.evidence, 3)) fail('money.in needs evidence (invoice id, Stripe charge, bank line). No evidence, no revenue.');
       if (ev.postId !== undefined && !isText(ev.postId)) fail('money.in postId must be a post event id');
+      if (ev.tag !== undefined && !isText(ev.tag)) fail('money.in tag must be text, e.g. the gig type');
+      if (ev.hours !== undefined && !(typeof ev.hours === 'number' && ev.hours > 0 && ev.hours < 1000)) fail('money.in hours must be a positive number');
       break;
     case 'post':
       if (!isText(ev.path)) fail('post needs a path id');

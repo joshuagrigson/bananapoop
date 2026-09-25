@@ -10,6 +10,7 @@ import { commanderLevel } from './level.js';
 import { CATALOG, GATES, stagesFor } from './paths.js';
 import { LedgerError } from './ledger.js';
 import { ROLES, DEFAULT_MODEL } from './agent.js';
+import { addItem, listItems } from './inbox.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const LEDGER_HTML = fs.readFileSync(path.join(here, 'dashboard.html'), 'utf8');
@@ -95,6 +96,25 @@ export function createServer({ ledger, catalog = CATALOG, dataDir, runAgent, mak
       if (req.method === 'GET' && url.pathname === '/api/state') return send(res, 200, snapshot(ledger, catalog, dataDir));
       if (req.method === 'GET' && url.pathname === '/api/runs') return send(res, 200, [...runs.values()]);
       if (req.method === 'GET' && url.pathname === '/api/outbox') return send(res, 200, listOutbox(dataDir, catalog));
+      if (req.method === 'GET' && url.pathname === '/api/inbox') {
+        const out = {};
+        for (const p of catalog) {
+          const pending = dataDir ? listItems(dataDir, p.id) : [];
+          const done = dataDir ? listItems(dataDir, p.id, { status: 'done' }).slice(-20) : [];
+          if (pending.length || done.length) out[p.id] = { pending, done };
+        }
+        return send(res, 200, out);
+      }
+      if (req.method === 'POST' && url.pathname === '/api/inbox') {
+        const body = await readJson(req);
+        if (!catalog.some((p) => p.id === body.path)) return send(res, 400, { ok: false, error: `unknown path "${body.path}"` });
+        try {
+          return send(res, 201, { ok: true, item: addItem(dataDir, body.path, body) });
+        } catch (e) {
+          if (e instanceof LedgerError) return send(res, 400, { ok: false, error: e.message });
+          throw e;
+        }
+      }
 
       if (req.method === 'POST' && url.pathname === '/api/jobs') {
         const body = await readJson(req);

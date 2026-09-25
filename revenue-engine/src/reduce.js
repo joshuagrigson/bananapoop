@@ -40,6 +40,7 @@ export function reduce(events, catalog = CATALOG) {
     posts: [],
     jobs: {},
     byPlatform: {},
+    byTag: {},
     unattributedUsd: 0,
     notes: [],
     demo: false,
@@ -65,6 +66,13 @@ export function reduce(events, catalog = CATALOG) {
         st.earnedUsd += ev.usd;
         st.moneyIn.push(ev);
         if (ev.postId) pendingAttrib.push(ev); else st.unattributedUsd += ev.usd;
+        if (ev.tag) {
+          const key = String(ev.tag).trim().toLowerCase();
+          const t = st.byTag[key] || (st.byTag[key] = { path: ev.path, jobs: 0, earnedUsd: 0, hours: 0, timedUsd: 0 });
+          t.jobs += 1;
+          t.earnedUsd += ev.usd;
+          if (ev.hours) { t.hours += ev.hours; t.timedUsd += ev.usd; }
+        }
         break;
       }
       case 'post': {

@@ -9,6 +9,7 @@ import { reduce } from './reduce.js';
 import { CATALOG, getPath, stagesFor } from './paths.js';
 import { costUsd, priceFor } from './cost.js';
 import { LedgerError, STAGES } from './ledger.js';
+import { listItems, markDone } from './inbox.js';
 
 // Token efficiency: routine work runs on the cheapest model that does it well, at modest effort.
 // Pass --model claude-opus-5 for a run that needs more judgment. Opus/Fable get server-side refusal fallbacks.
@@ -96,6 +97,65 @@ ${list(spec.constraints)}
 
 Finish with write_note("post-index.md") listing each file, platform, hook and CTA. You never publish anything. The operator posts, then logs the live URL.`,
   },
+  lister: {
+    title: 'Gig lister',
+    logs: [],
+    webSearch: 3,
+    model: 'claude-sonnet-5',
+    effort: 'medium',
+    directive: (spec) => `Path: ${spec.name} (${spec.id}).
+Write the storefront the operator will publish by hand.
+
+1. Three Fiverr gigs, one file each: write_note("gig-<short-slug>.md"). Pick the three strongest from this menu:
+${list(spec.gigMenu)}
+Each gig file has: title (under 80 characters, starts with "I will"), category and subcategory, three packages (Basic / Standard / Premium) with price, delivery days and exactly what is included, a description under 1,200 characters, 5 FAQ with answers, the questions to ask the buyer at order time, and 5 search tags.
+2. write_note("upwork-profile.md"): profile title, an overview under 1,200 characters written in first person, and three Project Catalog entries with scope, price and delivery time.
+
+Pricing: check what comparable gigs charge with web_search and cite each URL. Price slightly under the middle of the market for the first five reviews and say so. Mark any price you could not check as a guess.
+Write from the operator's real background: call-center operations, lead management, dialers, CRM automations, AI tools built as a non-developer, local small-business websites. Never invent reviews, clients, results or credentials; use [bracketed placeholders] for real examples.
+
+Constraints (hard limits):
+${list(spec.constraints)}`,
+  },
+  scout: {
+    title: 'Job scout',
+    logs: ['prospect'],
+    inbox: 'post',
+    webSearch: 0,
+    model: 'claude-sonnet-5',
+    effort: 'medium',
+    directive: (spec) => `Path: ${spec.name} (${spec.id}).
+Call read_inbox. It holds job posts the operator pasted from Upwork or Fiverr. For EACH post:
+1. Score fit 0-10 against what this desk sells:
+${list(spec.gigMenu)}
+Score down for: budget under $30, no payment method verified, vague scope, requests for unpaid test work, payment or contact off-platform, anything needing employer data or call recordings.
+2. If the score is 7 or more: write_note("proposal-<short-slug>.md") with a proposal under 150 words. First two lines name their exact problem in their words. Then how you would do it in 3 short steps, one [your real proof point here] placeholder, the price and delivery time, and one question that shows you read the post. No fluff, no "I hope this finds you well".
+   If the post has a URL, log_outcome(stage="prospect", ref="<client or job title>", evidence=<post URL>).
+3. mark_done(id, verdict) with the score and a one-line reason, for every post, fit or not.
+Finish with write_note("scout-report.md"): a table of every post with score, verdict and reason, best first.
+
+Constraints (hard limits):
+${list(spec.constraints)}`,
+  },
+  fulfiller: {
+    title: 'Deliverable drafter',
+    logs: [],
+    inbox: 'job',
+    webSearch: 4,
+    maxIterations: 14,
+    model: 'claude-sonnet-5',
+    effort: 'medium',
+    directive: (spec) => `Path: ${spec.name} (${spec.id}).
+Call read_inbox. It holds jobs the operator WON, each with the client's brief. For EACH job:
+1. Draft the complete deliverable: write_note("deliverable-<short-slug>.md"). Do the actual work (research, list, copy, sequence, automation spec with exact steps), not an outline of it. For research, use web_search and put the source URL next to every fact, lead or number.
+2. write_note("delivery-note-<short-slug>.md"): a short message to the client that hands over the work, says what is included, and asks one question that could lead to repeat work.
+3. At the top of the deliverable, add a REVIEW CHECKLIST: every fact, link, number or claim the operator must verify before sending.
+4. mark_done(id, verdict) with what you delivered and anything you could not finish.
+If a brief is too vague to do well, write the questions to ask the client instead of guessing, and mark it done with verdict "needs client answers".
+
+Constraints (hard limits):
+${list(spec.constraints)}`,
+  },
   pricing: {
     title: 'Offer designer',
     logs: [],
@@ -116,7 +176,7 @@ const textOf = (message) => (message.content || [])
   .join('\n')
   .trim();
 
-export function buildTools({ spec, ledger, runId, dataDir, allowedStages, log = () => {} }) {
+export function buildTools({ spec, ledger, runId, dataDir, allowedStages, inboxType = null, log = () => {} }) {
   const outboxDir = path.join(dataDir, 'outbox', spec.id);
 
   const readPath = betaTool({
@@ -188,7 +248,39 @@ export function buildTools({ spec, ledger, runId, dataDir, allowedStages, log = 
     },
   });
 
-  return { readPath, logOutcome, writeNote, outboxDir };
+  const readInbox = betaTool({
+    name: 'read_inbox',
+    description: 'Read the pending items the operator put in this path\'s inbox for you (job posts to score, or won jobs to fulfill).',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    run: async () => {
+      const items = inboxType ? listItems(dataDir, spec.id, { type: inboxType }).slice(0, 10) : [];
+      if (!items.length) return 'inbox is empty';
+      return JSON.stringify(items.map((i) => ({ id: i.id, url: i.url, title: i.title, text: i.text.slice(0, 6000) })), null, 2);
+    },
+  });
+
+  const markDoneTool = betaTool({
+    name: 'mark_done',
+    description: 'Mark one inbox item handled, with your verdict (score and reason, or what you delivered).',
+    inputSchema: {
+      type: 'object',
+      properties: { id: { type: 'string' }, verdict: { type: 'string' } },
+      required: ['id', 'verdict'],
+      additionalProperties: false,
+    },
+    run: async (input) => {
+      try {
+        const item = markDone(dataDir, spec.id, input.id, input.verdict);
+        log({ type: 'inbox', id: item.id, verdict: item.verdict });
+        return `marked ${item.id} done`;
+      } catch (e) {
+        if (e instanceof LedgerError) return `error: ${e.message}`;
+        throw e;
+      }
+    },
+  });
+
+  return { readPath, logOutcome, writeNote, readInbox, markDone: markDoneTool, outboxDir };
 }
 
 // Provider adapters. Both expose { iterate(): AsyncIterable<message>, pushMessages(...) }.
@@ -226,12 +318,12 @@ function replayRunner(provider, params, toolList) {
 export async function runAgent(opts) {
   const { role: roleId, pathId, ledger, dataDir, provider, log = () => {} } = opts;
   const maxUsd = opts.maxUsd ?? 1;
-  const maxIterations = opts.maxIterations ?? 8;
   const catalog = opts.catalog || CATALOG;
 
   const role = ROLES[roleId];
   if (!role) throw new Error(`unknown role "${roleId}" (${Object.keys(ROLES).join(', ')})`);
   const model = opts.model || role.model || DEFAULT_MODEL;
+  const maxIterations = opts.maxIterations ?? role.maxIterations ?? 8;
   const spec = getPath(pathId, catalog);
   if (!spec) throw new Error(`unknown path "${pathId}" (${catalog.map((p) => p.id).join(', ')})`);
   if (!provider || !['anthropic', 'replay'].includes(provider.kind)) throw new Error('provider must be { kind: "anthropic", client } or { kind: "replay", script }');
@@ -250,10 +342,16 @@ export async function runAgent(opts) {
     throw new Error(`no price on file for model "${model}". Pass price {in,out} in USD per 1M tokens so spend is never recorded as $0.`);
   }
 
+  // Inbox roles with nothing to do skip before any model call: a scheduled scout on an empty inbox costs $0.
+  if (role.inbox && !listItems(dataDir, spec.id, { type: role.inbox }).length) {
+    log({ type: 'skipped', reason: `inbox has no pending ${role.inbox} items` });
+    return { skipped: true, reason: `inbox has no pending ${role.inbox} items`, usd: 0, iterations: 0 };
+  }
+
   const cap = Math.min(maxUsd, remaining);
   const runId = opts.runId || crypto.randomBytes(6).toString('hex');
-  const tools = buildTools({ spec, ledger, runId, dataDir, allowedStages: role.logs, log });
-  const toolList = [tools.readPath, tools.logOutcome, tools.writeNote];
+  const tools = buildTools({ spec, ledger, runId, dataDir, allowedStages: role.logs, inboxType: role.inbox || null, log });
+  const toolList = [tools.readPath, tools.logOutcome, tools.writeNote, ...(role.inbox ? [tools.readInbox, tools.markDone] : [])];
   if (role.webSearch > 0 && provider.kind === 'anthropic') {
     toolList.push({ type: 'web_search_20260209', name: 'web_search', max_uses: role.webSearch });
   }

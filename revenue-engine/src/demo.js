@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { LedgerError } from './ledger.js';
+import { addItem, markDone } from './inbox.js';
 
 export function seedDemo(ledger, dataDir, now = Date.now()) {
   const existing = ledger.readAll();
@@ -46,7 +47,23 @@ export function seedDemo(ledger, dataDir, now = Date.now()) {
   run('run_demo_2', 'creator', 'content-channel', 2, 0.18, 'done');
   run('run_demo_3', 'creator', 'content-channel', 0, 0.06, 'done', true);
   lines.push({ kind: 'money.out', usd: 12, category: 'tool', path: 'local-growth-bundle', evidence: 'demo domain + hosting', ts: at(14) });
+  // freelance desk: scored posts, sent proposals, one won and paid job with the operator's hours
+  ['Demo client: lead list for HVAC', 'Demo client: GBP posts for a dentist', 'Demo client: Zapier missed-call flow', 'Demo client: dedupe 4k leads'].forEach((ref, i) => {
+    lines.push({ kind: 'outcome', path: 'freelance-desk', stage: 'prospect', ref, evidence: `https://example.com/demo/job/${i}`, by: 'agent', ts: at(7, i) });
+    if (i < 3) lines.push({ kind: 'outcome', path: 'freelance-desk', stage: 'conversation', ref, evidence: 'demo: proposal sent', by: 'user', ts: at(6, i) });
+  });
+  lines.push({ kind: 'outcome', path: 'freelance-desk', stage: 'demo', ref: 'Demo client: lead list for HVAC', evidence: 'demo: client replied', by: 'user', ts: at(5) });
+  lines.push({ kind: 'outcome', path: 'freelance-desk', stage: 'pilot', ref: 'Demo client: lead list for HVAC', evidence: 'demo: contract started', by: 'user', ts: at(4) });
+  lines.push({ kind: 'money.in', usd: 120, path: 'freelance-desk', source: 'Demo client (Upwork)', evidence: 'demo payout 5531', tag: 'lead research', hours: 1.5, ts: at(1) });
+  run('run_demo_4', 'scout', 'freelance-desk', 7, 0.09, 'done');
   for (const l of lines) ledger.append(l);
+  addItem(dataDir, 'freelance-desk', { type: 'post', url: 'https://example.com/demo/job/9', text: 'DEMO POST. Need 40 roofing contractors in Dallas with emails and phone numbers. Budget $80. Payment verified.' });
+  addItem(dataDir, 'freelance-desk', { type: 'post', text: 'DEMO POST. Write 12 Google Business Profile posts for a med spa, one per week. Budget $60.' });
+  const handled = addItem(dataDir, 'freelance-desk', { type: 'post', url: 'https://example.com/demo/job/0', text: 'DEMO POST. Need a lead list of HVAC companies in Houston with owner names. Budget $120.' });
+  markDone(dataDir, 'freelance-desk', handled.id, 'demo: 8/10, proposal drafted');
+  const fo = path.join(dataDir, 'outbox', 'freelance-desk');
+  fs.mkdirSync(fo, { recursive: true });
+  fs.writeFileSync(path.join(fo, 'proposal-demo-hvac.md'), '# DEMO proposal\n\nFictional preview content.\n');
   const out = path.join(dataDir, 'outbox', 'content-channel');
   fs.mkdirSync(out, { recursive: true });
   for (let i = 1; i <= 3; i++) fs.writeFileSync(path.join(out, `post-demo-${i}.md`), `# DEMO draft ${i}\n\nFictional preview content.\n`);

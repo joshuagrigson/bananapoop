@@ -49,7 +49,7 @@
   .badge.gated { border-color: var(--warn); color: var(--warn); }
   form { display: grid; gap: 6px; }
   form label { display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
-  input, select, textarea, button { font: inherit; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+  input, select, textarea, button { font: inherit; width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
   button { cursor: pointer; background: #1f2633; }
   button:hover { border-color: var(--accent); }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -78,6 +78,24 @@
   <div class="grid2">
     <section><h2>Money by platform</h2><div id="m-platform"></div></section>
     <section><h2>Posts, best earners first</h2><div id="m-posts"></div></section>
+  </div>
+  <div class="grid2">
+    <section>
+      <h2>Freelance inbox: hand work to the agents</h2>
+      <div class="empty" style="margin-bottom:8px">Paste a job post to score (the Job scout drafts a proposal if it fits), or a job you won (the Deliverable drafter does the work). Agents never touch Upwork or Fiverr; you copy posts in and send everything out.</div>
+      <form id="f-inbox">
+        <div class="row">
+          <label>Kind <select name="type"><option value="post">job post to score</option><option value="job">job I won: do the work</option></select></label>
+          <label>Path <select name="path" data-paths data-default="freelance-desk"></select></label>
+        </div>
+        <label>Post URL (optional, needed to count it on the ledger) <input name="url" placeholder="https://www.upwork.com/jobs/..."></label>
+        <label>Full post or client brief <textarea name="text" rows="6" required placeholder="Paste the whole post, including budget and client details"></textarea></label>
+        <button>Add to inbox</button>
+        <div class="msg"></div>
+      </form>
+      <div id="inbox" style="margin-top:10px"></div>
+    </section>
+    <section><h2>Money by gig type</h2><div id="m-tag"></div></section>
   </div>
   <section>
     <h2>Outbox: drafts waiting for you to publish or send</h2>
@@ -130,6 +148,10 @@
         <label>Who paid <input name="source" required placeholder="Acme Dental, Stripe customer cus_..."></label>
         <label>Evidence <input name="evidence" required placeholder="invoice #, Stripe charge id, bank line"></label>
         <label>Earned by post (optional) <select name="postId" data-posts></select></label>
+        <div class="row">
+          <label>Gig type (optional) <input name="tag" placeholder="lead research"></label>
+          <label>Your hours on it (optional) <input name="hours" type="number" step="0.25" min="0.25"></label>
+        </div>
         <button>Append money.in</button>
         <div class="msg"></div>
       </form>
@@ -256,7 +278,7 @@
 
   function fillSelects(s) {
     const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
-    document.querySelectorAll('[data-paths]').forEach((el) => { const cur = el.value; el.innerHTML = s.catalog.map((p) => opt(p.id, '#' + p.rank + ' ' + p.name)).join(''); if (cur) el.value = cur; });
+    document.querySelectorAll('[data-paths]').forEach((el) => { const cur = el.value; el.innerHTML = s.catalog.map((p) => opt(p.id, '#' + p.rank + ' ' + p.name)).join(''); if (cur) el.value = cur; else if (el.dataset.default) el.value = el.dataset.default; });
     document.querySelectorAll('[data-stages]').forEach((el) => { if (!el.options.length) el.innerHTML = ['prospect', 'conversation', 'demo', 'pilot', 'paid', 'retained'].map((x) => opt(x, x)).join(''); });
     document.querySelectorAll('[data-gates]').forEach((el) => { if (!el.options.length) el.innerHTML = Object.entries(s.gates).map(([k, g]) => opt(k, g.title)).join(''); });
     document.querySelectorAll('[data-roles]').forEach((el) => { if (!el.options.length) el.innerHTML = Object.entries(s.roles).map(([k, r]) => opt(k, r.title + (r.logs.length ? ' (logs ' + r.logs.join(',') + ')' : ' (drafts only)'))).join(''); });
@@ -277,10 +299,26 @@
       + (st.unattributedUsd > 0 ? `<div class="empty" style="margin-top:6px">${usd(st.unattributedUsd)} earned is not tied to any post.</div>` : '');
     const posts = [...st.posts].sort((a, b) => b.earnedUsd - a.earnedUsd || (a.ts < b.ts ? 1 : -1)).slice(0, 15);
     $('#m-posts').innerHTML = table(['post', 'platform', 'earned', 'id'], posts.map((p) => [`<a href="${esc(p.url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(p.title)}</a>`, esc(p.platform), usd(p.earnedUsd), `<span class="cite">${esc(p.id)}</span>`]));
+    const tags = Object.entries(st.byTag).sort((a, b) => b[1].earnedUsd - a[1].earnedUsd);
+    $('#m-tag').innerHTML = table(['gig type', 'jobs', 'earned', 'your hours', 'per hour'], tags.map(([k, v]) => [esc(k), v.jobs, usd(v.earnedUsd), v.hours ? v.hours : 'not logged', v.hours ? usd(v.timedUsd / v.hours) : 'n/a']))
+      + '<div class="empty" style="margin-top:6px">Log revenue with a gig type and your hours to see which gigs pay best for your time.</div>';
     const jobs = Object.values(st.jobs);
     $('#jobs').innerHTML = table(['job', 'role', 'path', 'every', 'max', 'runs', 'last', ''], jobs.map((j) => [esc(j.jobId), esc(j.role), esc(j.path), j.everyHours + 'h', usd(j.maxUsd), j.runs, esc((j.lastRunAt || 'never').slice(0, 16).replace('T', ' ')), `<button data-job="${esc(j.jobId)}" data-on="${j.enabled ? '0' : '1'}">${j.enabled ? 'turn off' : 'turn on'}</button>`]));
     $('#jobs').querySelectorAll('button[data-job]').forEach((b) => b.onclick = async () => { const j = st.jobs[b.dataset.job]; await post('/api/jobs', { jobId: j.jobId, role: j.role, path: j.path, everyHours: j.everyHours, maxUsd: j.maxUsd, enabled: b.dataset.on === '1' }); refresh(); });
     document.querySelectorAll('[data-posts]').forEach((el) => { const cur = el.value; el.innerHTML = '<option value="">not from a post</option>' + st.posts.map((p) => `<option value="${esc(p.id)}">${esc(p.platform + ': ' + p.title)}</option>`).join(''); el.value = cur; });
+  }
+  let inboxSig = '';
+  async function inbox() {
+    const data = await (await fetch('/api/inbox', { cache: 'no-store' })).json();
+    const sig = JSON.stringify(Object.values(data).map((v) => [v.pending.length, v.done.length]));
+    if (sig === inboxSig) return;
+    inboxSig = sig;
+    const rows = [];
+    for (const [pid, v] of Object.entries(data)) {
+      for (const it of v.pending) rows.push([esc(pid), it.type === 'post' ? 'score' : 'do the work', esc(it.title), '<span class="cite">waiting</span>']);
+      for (const it of v.done.slice().reverse().slice(0, 8)) rows.push([esc(pid), it.type === 'post' ? 'score' : 'do the work', esc(it.title), esc(it.verdict || 'done')]);
+    }
+    $('#inbox').innerHTML = rows.length ? table(['path', 'kind', 'item', 'verdict'], rows) : '<div class="empty">inbox is empty</div>';
   }
   let outboxSig = '';
   async function outbox() {
@@ -297,7 +335,7 @@
     try {
       const r = await fetch('/api/state', { cache: 'no-store' });
       snap = await r.json();
-      fillSelects(snap); tiles(snap); money(snap); quests(snap); paths(snap); tail(snap); outbox();
+      fillSelects(snap); tiles(snap); money(snap); quests(snap); paths(snap); tail(snap); outbox(); inbox();
     } catch (e) { $('#tiles').innerHTML = `<div class="tile"><div class="k">error</div><div class="s">${esc(e.message)}</div></div>`; }
   }
 
@@ -323,7 +361,8 @@
     });
   }
 
-  wire('#f-money', async (d) => { const j = await post('/api/events', { kind: 'money.in', usd: Number(d.usd), path: d.path, source: d.source, evidence: d.evidence, ...(d.postId ? { postId: d.postId } : {}) }); return 'appended ' + j.event.id; });
+  wire('#f-money', async (d) => { const j = await post('/api/events', { kind: 'money.in', usd: Number(d.usd), path: d.path, source: d.source, evidence: d.evidence, ...(d.postId ? { postId: d.postId } : {}), ...(d.tag ? { tag: d.tag } : {}), ...(d.hours ? { hours: Number(d.hours) } : {}) }); return 'appended ' + j.event.id; });
+  wire('#f-inbox', async (d) => { const j = await post('/api/inbox', { type: d.type, path: d.path, url: d.url || undefined, text: d.text }); inboxSig = ''; return 'added ' + j.item.id + '. Run the ' + (d.type === 'post' ? 'Job scout' : 'Deliverable drafter') + ' or let its job pick it up.'; });
   wire('#f-post', async (d) => { const j = await post('/api/events', { kind: 'post', path: d.path, platform: d.platform, url: d.url, title: d.title, by: 'user' }); return 'appended post ' + j.event.id; });
   wire('#f-job', async (d) => { const j = await post('/api/jobs', { role: d.role, path: d.path, everyHours: Number(d.everyHours), maxUsd: Number(d.maxUsd) }); return 'job ' + j.event.jobId + ' added; it runs while serve is up'; });
   wire('#f-outcome', async (d) => { const j = await post('/api/events', { kind: 'outcome', path: d.path, stage: d.stage, ref: d.ref, evidence: d.evidence, by: 'user' }); return 'appended ' + j.event.id; });

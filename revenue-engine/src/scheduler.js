@@ -4,6 +4,8 @@
 // gates, kill switches and path budgets still apply to every dispatch.
 import { reduce } from './reduce.js';
 import { CATALOG } from './paths.js';
+import { ROLES } from './agent.js';
+import { listItems } from './inbox.js';
 
 const HOUR = 3600e3;
 
@@ -28,7 +30,9 @@ export function createScheduler({ ledger, runAgent, makeProvider, dataDir, catal
   async function tick(now = new Date()) {
     const state = reduce(ledger.readAll(), catalog);
     const spent = spentOnDay(state, now);
-    const due = dueJobs(state, now).filter((j) => !inFlight.has(j.jobId));
+    // Inbox roles with an empty inbox have nothing to do; drop them here so they never block other jobs.
+    const hasWork = (j) => { const r = ROLES[j.role]; return !(r && r.inbox) || listItems(dataDir, j.path, { type: r.inbox }).length > 0; };
+    const due = dueJobs(state, now).filter((j) => !inFlight.has(j.jobId) && hasWork(j));
     if (!due.length) return { dispatched: null, reason: 'nothing due' };
     if (spent >= dailyCapUsd) {
       const msg = `daily cap reached: $${spent.toFixed(2)} of $${dailyCapUsd} spent today`;

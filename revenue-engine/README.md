@@ -18,7 +18,7 @@ Requirements: Node 22+. One dependency (`@anthropic-ai/sdk`).
 ```bash
 cd revenue-engine
 npm install
-npm test                       # 38 tests, zero spend (replay provider)
+npm test                       # 44 tests, zero spend (replay provider)
 REVENUE_ENGINE_DATA=./demo node src/cli.js seed-demo   # optional: labeled fake data to preview the station
 node src/cli.js status         # headline numbers, level, open quests
 node src/cli.js paths          # the catalog
@@ -67,6 +67,24 @@ node src/cli.js jobs
 4. When money arrives, log it with evidence and, if a post earned it, the post id: `log-in 42.50 --path content-channel --source "Affiliate" --evidence "payout 77" --post <id>`
 5. The dashboard shows earned, spent, net and yield by path, month, platform and post.
 
+## The Freelance desk (agent-staffed gigs)
+
+Room #8. Clients on Upwork and Fiverr pay for finished work; agents do most of it, you are the face and the quality check.
+
+1. `node src/cli.js run lister --path freelance-desk` writes three Fiverr gig listings and an Upwork profile to the outbox, priced against comparables it cites. You publish them by hand.
+2. Paste job posts into the dashboard's Freelance inbox (or `inbox add freelance-desk --type post --file post.txt --url https://...`). The `scout` scores each one 0-10, drafts a proposal under 150 words for anything 7+, and logs the post as a prospect. You read, edit and send.
+3. When you win a job, paste the client's brief as "job I won". The `fulfiller` drafts the full deliverable plus a delivery note, with a checklist of what to verify. You review and deliver.
+4. Log the payout with the gig type and your hours: `log-in 120 --path freelance-desk --source "Client (Upwork)" --evidence "payout 5531" --tag "lead research" --hours 1.5`. The dashboard ranks gig types by dollars per hour of your time.
+
+Agents never log into Upwork or Fiverr, submit proposals or message clients; Upwork bans automated bidding. The scout and fulfiller skip before spending anything when their inbox is empty, so a scheduled scout costs $0 on a quiet day:
+
+```bash
+node src/cli.js job add scout     --path freelance-desk --every 2 --max-usd 0.5
+node src/cli.js job add fulfiller --path freelance-desk --every 2 --max-usd 2
+```
+
+Kill test: 3 Fiverr gigs live or 20 Upwork proposals sent within 30 days; fewer than 2 paid orders means change the gig type or kill the path.
+
 ## Token efficiency
 
 Routine roles run on the cheapest model that does them well: Sonnet 5 at medium effort for prospecting, content and offers, Haiku 4.5 for outreach drafts. Defaults are $1 per run and 8 loop iterations. Web searches are capped per role, and the system prompt is cached. Pass `--model claude-opus-5` for a run that needs more judgment.
@@ -78,6 +96,9 @@ Routine roles run on the cheapest model that does them well: Sonnet 5 at medium 
 | `prospector` | `prospect` outcomes with a live URL each | yes | `outbox/<path>/prospects.md` |
 | `outreach` | nothing | no | one draft per logged prospect plus an index |
 | `pricing` | nothing | yes | `outbox/<path>/offer-sheet.md` |
+| `lister` | nothing | yes (3) | three `gig-*.md` Fiverr listings and `upwork-profile.md` |
+| `scout` | `prospect` (the job post URL) | no | `proposal-*.md` for posts scoring 7+, plus `scout-report.md`; reads the inbox |
+| `fulfiller` | nothing | yes (4) | `deliverable-*.md` with a review checklist and `delivery-note-*.md`; reads the inbox |
 | `creator` | nothing | yes (2) | three `post-*.md` packages: platform, hook, full text or script, caption, visual brief, one CTA, sources |
 
 Default model is `claude-sonnet-5`. Pricing lives in `src/cost.js` and is marked volatile; an unpriced model is refused rather than recorded as $0.
@@ -92,7 +113,8 @@ src/quests.js     pure projection: gates, stages, ladder, yield
 src/level.js      Commander ladder with citations
 src/cost.js       model prices (volatile) and cost reconciliation
 src/agent.js      roles, tools, the budgeted run loop, replay provider
-src/scheduler.js  jobs: due logic, daily cap, one-at-a-time dispatch
+src/scheduler.js  jobs: due logic, daily cap, one-at-a-time dispatch, skips inbox jobs with no work
+src/inbox.js      the job inbox: posts to score and won jobs to fulfill
 src/demo.js       labeled demo data (refuses a real ledger)
 src/server.js     localhost HTTP: station, /ledger, /api/state, /api/events, /api/run, /api/runs, /api/jobs, /api/outbox
 src/station.html  the pixel-art station (canvas, no assets, every object bound to ledger state)

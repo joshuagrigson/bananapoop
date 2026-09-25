@@ -210,6 +210,43 @@ export const CATALOG = Object.freeze([
       retained: { target: 3, label: 'months with a content payout' },
     },
   },
+  {
+    id: 'freelance-desk',
+    short: 'Freelance desk',
+    rank: 8,
+    name: 'Freelance desk: agent-staffed gigs on Upwork and Fiverr',
+    bucket: 'freelance services',
+    thesis: 'Clients pay for finished work. Agents write the gig listings, score job posts you paste in, draft '
+      + 'proposals, and draft the deliverable; you send, review, deliver and own the client. Your review time is the '
+      + 'ceiling, so the dashboard tracks earnings per gig type and per hour of your time.',
+    month12Usd: [1000, 4000],
+    firstDollarWeeks: [1, 4],
+    budgetUsd: 15,
+    // Starting prices are guesses to test, not market research. The lister checks comparables before you publish.
+    gigMenu: [
+      'Lead research: 50 qualified leads in one niche, each with website, contact channel and a fit note ($60-150)',
+      'Lead list cleanup: dedupe, fix formatting, flag bad phones and emails ($40-120)',
+      'Google Business Profile posts: a month of posts, ready to paste ($50-100)',
+      'Missed-call text-back or Zapier/GoHighLevel automation build ($100-300)',
+      'Cold email or SMS sequence: 5 steps written for their offer ($60-150)',
+    ],
+    constraints: [
+      'Agents never submit proposals, message clients, or log into Upwork or Fiverr. Upwork bans automated bidding; you send everything yourself.',
+      'Disclose AI assistance whenever the client or the platform asks for it.',
+      'Every deliverable is reviewed by the operator before it ships. Drafts include a checklist of what to verify.',
+      'No employer data. Call-scoring and coaching gigs wait until the employment-agreement gate is cleared.',
+      'Skip posts that ask for unpaid test work, payment off-platform, or contact outside the platform before a contract.',
+    ],
+    killTest: '3 Fiverr gigs live or 20 Upwork proposals sent within 30 days. Fewer than 2 paid orders = change the gig type or kill.',
+    stages: {
+      prospect: { target: 20, label: 'job posts scored as a fit' },
+      conversation: { target: 20, label: 'proposals you sent or gigs you listed' },
+      demo: { target: 3, label: 'client replies or interviews' },
+      pilot: { target: 2, label: 'jobs won' },
+      paid: { target: 2, label: 'jobs paid' },
+      retained: { target: 2, label: 'repeat clients' },
+    },
+  },
 ]);
 
 export function getPath(id, catalog = CATALOG) {
