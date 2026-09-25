@@ -11,6 +11,24 @@ Keep Templa. Change four things:
 3. **Go after shops that never bought a laser, not shops that did.** The 9,000+ LT owners have already paid for their machine. The real market is the cardboard-and-tape shops, and trades where no templating rig exists at all (shower glass, marine canvas).
 4. **Fix the competitor list.** Camera-based templating already exists. Laser Products' ScanTemplater uses photogrammetry at about $10-18K and ±1/8 inch, and Flexijet has a phone app. So the claim that "nobody sells photo templating" is false. What is actually new: **no hardware at all, and anyone on the crew can do it.**
 
+## Update: Steve's app (Vista) is already very accurate
+
+Josh reports that Vista, Steve's measuring app, is "extremely accurate" on phone LiDAR. It also does photo mapping that exports to 3D printers and renders full rooms in AR. If that holds up, three things change:
+
+1. **The kill test becomes a confirmation, not a research project.** Weeks 1-2 go straight to the shop-grade test protocol below instead of a 60-day build. Cut moves up to be the lead product. Quote stays in as the sales hook, not as the backup plan.
+2. **The laser measure becomes insurance, not a requirement.** Keep it as an optional "certified" mode for stone and glass, where one bad cut costs $800-2,500.
+3. **One scan runs the whole sale.** The same capture produces the quote, an **AR preview** of the chosen slab, glass or shutter in the customer's own room, and then the cut file. Most fabricators quote from a sketch and a showroom sample. A shop that shows a homeowner their own kitchen with the new top in it, on the first visit, closes more jobs. That upgrades Templa from a measuring tool (a cost line) to a sales tool (a revenue line), and shops pay more for revenue.
+
+**What "extremely accurate" has to mean for fabrication (the test protocol):**
+
+- Error on **edges and corners**, not just point-to-point distances. Stone is cut along edges.
+- Measured against a trusted reference: a tape plus a laser measure, or the shop's own LT or Proliner file.
+- Run by **someone other than Steve**, on rooms Steve has never scanned. The product only works if any installer gets the same result.
+- **Pass:** 95% of edges within 1/16 inch (1.6 mm) for stone and glass, 1/8 inch for shutters, 1/4 inch for canvas, repeated across at least 10 rooms.
+- Why this bar: published iPhone LiDAR tests land at 7 mm to 3 cm, and the depth sensor itself is low resolution (about 256×192). If Vista beats that, the edge detail almost certainly comes from the photo mapping fused with depth, which is exactly the kind of engine a competitor can't copy in a weekend. Proving it in writing becomes the core of the pitch.
+
+**Focus rule:** the 3D-print and AR outputs are real assets, but Pocket Studio and Scanfit stay on the shelf until Templa has paying shops. Steve's engine powers them later, not in parallel.
+
 ## 1. What the original gets wrong
 
 | Claim in Round 3 | Problem | What it means |
