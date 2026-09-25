@@ -1,0 +1,653 @@
+[I001] Recurring-route pest control company built to 80%+ contract revenue (PE-exit spec) | type=evergreen form=business cat=route-based home services
+  thesis: Launch for $15-65K all-in, break even in 6-14 months, and take home $80-140K by year two as a solo operator in a 200K+ metro (https://oncallclerk.com/blog/how-to-start-a-pest-control-business); 150 quarterly accounts at $80-120/visit is $480-720 per customer p
+  numbers: median-y2 $100,000 | top-decile $200,000 | p(median)=0.6 | EV $60,000 | first$ 2mo | capital $40,000 | durability 9/10 | openness 6/10 | fit 7/10
+  evidence: solo take-home $80-140K by year 2, gross $135-300K, 25-50% margin once routed (https://www.fieldroutes.com/blog/how-profitable-is-pest-control-business; oncallclerk.com)
+  skeptic: Route density and a TDA applicator license are the gates; metros are crowded but Ark-La-Tex is not. Numbers hold. Survives.
+
+[I002] Rural septic pumping + real-estate septic inspection + aerobic-maintenance contract route | type=evergreen form=business cat=essential sanitation services
+  thesis: A used vacuum truck runs $40-120K (https://www.septictrucks.com/how-much-does-a-septic-truck-cost-in-2026-real-prices-and-buyer-guide/), each residential pump-out bills $300-600, and owner-operators run 50-65% gross / 20-35% net margins (https://www.septictank
+  numbers: median-y2 $90,000 | top-decile $250,000 | p(median)=0.6 | EV $54,000 | first$ 2mo | capital $90,000 | durability 9/10 | openness 7/10 | fit 5/10
+  evidence: solo owners $50-150K, net margin 20-35%, $400-500 per pump-out, used truck $70-110K (https://www.curbwaste.com/owning-a-septic-pumping-business-salary; servicecore.com)
+  skeptic: Dirty, physical, truck-capital business; disposal fees eat margin. Income claim holds at the low-100s. Survives.
+
+[I003] Direct-cremation storefront with online arrangement (contracted crematory, no retort) | type=trend form=business cat=death care
+  thesis: Cremation hit 63.4% nationally in 2025 and is projected past 70% by 2030 (https://us-funerals.com/2026-us-cremation-rate/); direct cremation at $1,000-3,000 is the fastest-growing category in the industry (https://www.localcremationguide.com/blog/cremation-ind
+  numbers: median-y2 $80,000 | top-decile $300,000 | p(median)=0.4 | EV $32,000 | first$ 6mo | capital $100,000 | durability 9/10 | openness 6/10 | fit 5/10
+  evidence: cremation 63.4% of US deaths 2025 (us-funerals.com); direct cremation $1,000-3,000 retail
+  skeptic: Texas requires a licensed funeral establishment and funeral director on staff; online players (Tulip, Solace) already sell direct. Licensing is the wall, not demand. Weakened.
+
+[I004] Mobile diesel fleet-maintenance contractor on the I-30 freight corridor (Texarkana) | type=unsolved form=hybrid cat=fleet services
+  thesis: Diesel labor bills ~$190/hr (https://www.fullbay.com/blog/diesel-repair-shop-profit/), mobile operators in high-demand corridors bill $125-200/hr and experienced operators clear $150K+ (https://heavydutyjournal.com/how-to-start-a-mobile-diesel-repair-business-
+  numbers: median-y2 $95,000 | top-decile $200,000 | p(median)=0.5 | EV $47,500 | first$ 3mo | capital $60,000 | durability 8/10 | openness 7/10 | fit 3/10
+  evidence: diesel labor $190/hr shop, $125-200/hr mobile (fullbay.com)
+  skeptic: Only works if you are, or can hire, a diesel tech; techs are the scarcest input. Money is real; fit is poor. Survives.
+
+[I005] 6G-certified pipeline / LNG welder (Gulf Coast and Local 798 travel work) | type=evergreen form=job cat=industrial skilled trade job
+  thesis: Pipeline welders earn $50-125K, and 6G-combo welders who travel earn $80-150K+ with overtime; Pipeliners Local 798's 2025-26 scale is $52.07-53.00/hr journeyman plus $165/day per diem (https://www.westernweldingacademy.com/blog/what-is-the-average-pipeline-wel
+  numbers: median-y2 $90,000 | top-decile $150,000 | p(median)=0.4 | EV $36,000 | first$ 12mo | capital $10,000 | durability 7/10 | openness 7/10 | fit 2/10
+  evidence: Local 798 journeyman $52-53/hr plus per diem; 6G travel welders $80-150K (generator source)
+  skeptic: Two years to become a competent 6G welder from zero; travel-heavy; cyclical with LNG capex. 24-month income for a novice is well below the headline. Weakened.
+
+[I006] GEO/AEO agency: get brands cited by ChatGPT, Gemini and Google AI Overviews | type=trend form=business cat=marketing services
+  thesis: The click era is ending and CMOs are moving budget to being the answer inside AI engines, a service line that barely existed in 2023 and now commands SEO-agency-level retainers with a fraction of the competition.
+  numbers: median-y2 $90,000 | top-decile $400,000 | p(median)=0.4 | EV $36,000 | first$ 2mo | capital $5,000 | durability 5/10 | openness 6/10 | fit 8/10
+  evidence: retainers $2-8K/mo mid-market, $1-2.5K entry (https://thedigitalelevator.com/blog/aeo-and-geo-pricing-guide/; webfx.com)
+  skeptic: Measurement standards do not exist yet, platforms change monthly, and every SEO agency is relabeling itself GEO. Churn risk high. Survives at reduced durability.
+
+[I007] Prediction-market liquidity provider + edge-tooling builder (Kalshi/Polymarket) | type=trend form=hybrid cat=fintech / trading
+  thesis: Prediction markets went from under $5B to ~$50B monthly volume in ten months and the exchanges are paying cash rewards for resting liquidity, so a disciplined market-making book plus sellable data/terminal tools earns spreads, subsidies and subscriptions on a 
+  numbers: median-y2 $30,000 | top-decile $500,000 | p(median)=0.15 | EV $4,500 | first$ 1mo | capital $25,000 | durability 4/10 | openness 5/10 | fit 6/10
+  evidence: Kalshi/Polymarket volume ~$50B/month, exchange liquidity rebates (generator source)
+  skeptic: Market-making against informed flow is negative-EV for most retail participants; regulatory posture shifts; drawdowns. Probability of reaching a real median income is low. Near-fatal.
+
+[I008] Drone inspection + drone light-show company (Part 107 now, Part 108 BVLOS next) | type=trend form=business cat=drone services
+  thesis: Utilities, solar farms, insurers and data-center builders all need eyes in the air at $300-$700/hour, and drone shows are replacing fireworks at $15K-$100K+ per show with 60-65% margins, so one Part 107 operator can stack recurring inspection revenue with high
+  numbers: median-y2 $70,000 | top-decile $250,000 | p(median)=0.4 | EV $28,000 | first$ 4mo | capital $60,000 | durability 7/10 | openness 5/10 | fit 5/10
+  evidence: inspection $300-700/hr, shows $15-100K each (generator source)
+  skeptic: Inspection rates are commoditizing as Part 107 pilots multiply; light shows need 100-300 drones ($150K+) and event sales. Weakened.
+
+[I009] AI UGC video-ad factory for DTC and local-service brands | type=trend form=business cat=creative services / ad production
+  thesis: Brands are shifting from $150-$300 human creator clips to AI-generated UGC at a tenth of the cost, so a shop that ships 30-50 tested ad variations per client per month on retainer keeps the margin agencies used to pay out to creators.
+  numbers: median-y2 $80,000 | top-decile $300,000 | p(median)=0.4 | EV $32,000 | first$ 2mo | capital $5,000 | durability 5/10 | openness 5/10 | fit 8/10
+  evidence: AI UGC at a tenth of $150-300 human clip cost (generator source)
+  skeptic: The same tools let brands do it in-house; agencies flooded in 2025-26; retainers churn. Survives at low durability.
+
+[I010] Men's hormone-optimization telehealth brand (TRT + peptides), cash-pay membership | type=trend form=business cat=telehealth
+  thesis: TRT pulls ~246,000 US searches a month, 40% of men under 40 say they want it but only 14% have tried it, and white-label telehealth stacks let a marketer-operator run a cash-pay membership clinic just as the compounded-GLP-1 crowd lost its product and needs a 
+  numbers: median-y2 $100,000 | top-decile $1,000,000 | p(median)=0.3 | EV $30,000 | first$ 6mo | capital $60,000 | durability 5/10 | openness 4/10 | fit 6/10
+  evidence: TRT ~246K monthly searches; 40% of men under 40 interested (generator source)
+  skeptic: Crowded (Hone, Fountain, Marek); 2025-26 FDA/DEA action on compounded peptides; CAC high; needs prescribing partner and 503A pharmacy. Weakened.
+
+[I011] Used cooking oil collection + grease trap pumping route | type=trend form=business cat=commercial waste / commodity arbitrage
+  thesis: Restaurants pay you to pump their grease traps, then you collect their used cooking oil for free and sell it into the renewable-diesel supply chain at roughly $0.40-0.55 per pound, so a 200-restaurant route produces two revenue streams off one truck and one dr
+  numbers: median-y2 $70,000 | top-decile $200,000 | p(median)=0.5 | EV $35,000 | first$ 3mo | capital $80,000 | durability 7/10 | openness 6/10 | fit 4/10
+  evidence: UCO $0.40-0.55/lb into renewable diesel (generator source)
+  skeptic: UCO price rides renewable-diesel policy (RIN/45Z), which changed in 2025; restaurants already have collectors. Survives, volatile.
+
+[I012] Diesel generator load-bank testing and fuel polishing for data centers, hospitals and telecom sites | type=trend form=business cat=industrial services / critical power
+  thesis: NFPA 110 and Joint Commission rules require annual load-bank tests and clean fuel on every backup generator, each visit bills $1,500-6,000, and there are thousands of new generators being installed across Texas and the South with almost no independent local te
+  numbers: median-y2 $110,000 | top-decile $350,000 | p(median)=0.5 | EV $55,000 | first$ 4mo | capital $80,000 | durability 9/10 | openness 8/10 | fit 5/10
+  evidence: NFPA 110 annual load-bank tests; $1,500-6,000 per visit (generator source)
+  skeptic: Needs generator/electrical competence and facility-manager relationships; safety liability. Mandated recurring demand is real and growing with data centers. Survives.
+
+[I013] Regulated medical waste pickup route (sharps, red-bag, pharma) for small clinics | type=evergreen form=business cat=regulated waste / route business
+  thesis: Dentists, vets, tattoo shops, dialysis centers, urgent cares and nursing homes each pay $80-400 per month on multi-year contracts for a legally mandated pickup, so 300 accounts on a cargo-van route is $500K+ of subscription revenue with a licensing moat that k
+  numbers: median-y2 $80,000 | top-decile $250,000 | p(median)=0.45 | EV $36,000 | first$ 6mo | capital $100,000 | durability 9/10 | openness 6/10 | fit 5/10
+  evidence: $125-2,500/mo contracts, 300 stops at $60 = ~$216K/route (https://www.medprodisposal.com/medical-waste-disposal-cost-2026-pricing-guide/)
+  skeptic: Permits (TCEQ), a disposal partner, and Stericycle/Sharps incumbents; 300 dense stops takes 2+ years. Survives, slow.
+
+[I014] AI-assisted payer credentialing and enrollment service for independent clinics | type=unsolved form=business cat=healthcare back office / micro-agency
+  thesis: Every new provider has to be enrolled with 10-25 insurance payers before they can bill, each enrollment takes 90-180 days of forms, CAQH upkeep and follow-up calls, practices pay $150-400 per application plus $50-100 per provider per month for maintenance, and
+  numbers: median-y2 $75,000 | top-decile $250,000 | p(median)=0.5 | EV $37,500 | first$ 2mo | capital $5,000 | durability 7/10 | openness 6/10 | fit 7/10
+  evidence: 90-180 days per enrollment, 10-25 payers per provider (generator source)
+  skeptic: Low-ticket ($200-500 per payer) and partially automatable; CAQH/Verifiable-style software squeezes it. Survives as a modest service.
+
+[I015] Estate cleanout, hoarder and unattended-death cleanup company | type=trend form=business cat=dirty jobs / death-adjacent services
+  thesis: Heirs, executors, landlords and realtors pay $2K-$15K per job to make a house empty and sellable fast, hoarder and biohazard jobs run $5K-$30K with insurance often covering them, and the labor is a trailer, a dumpster account, PPE and two crew members.
+  numbers: median-y2 $90,000 | top-decile $300,000 | p(median)=0.5 | EV $45,000 | first$ 2mo | capital $40,000 | durability 9/10 | openness 6/10 | fit 5/10
+  evidence: $2-15K per cleanout, $5-30K biohazard, insurance often pays (generator source)
+  skeptic: Unglamorous but proven; competition from Aftermath/Bio-One franchises; needs biohazard training. Survives.
+
+[I016] Fiber-optic splicing technician on BEAD-funded rural broadband builds | type=trend form=job cat=skilled trade job / telecom construction
+  thesis: Certified fusion splicers earn $35-70 per hour or $150-300 per splice case on contract, with per-diem and overtime pushing experienced techs past $120K a year, and the skill is learnable in weeks through a splicing course or an ISP's own training, not a degree
+  numbers: median-y2 $75,000 | top-decile $130,000 | p(median)=0.6 | EV $45,000 | first$ 4mo | capital $5,000 | durability 6/10 | openness 7/10 | fit 3/10
+  evidence: splicers $35-70/hr, $150-300 per case, per-diem pushes experienced techs past $120K (generator source)
+  skeptic: BEAD builds end ~2030 and 2025 program changes cut fiber's share; income is job-grade, not ownership. Survives with a clock on it.
+
+[I017] Show-rate guarantee desk: performance-based no-show reduction and dormant-patient reactivation for high-ticket consult businesses | type=unsolved form=business cat=appointment ops / outsourced BPO
+  thesis: Med spas, dental-implant and ortho centers, LASIK, solar/roofing/HVAC-replacement sales, and membership-tour operators lose 25-40% of booked consults to no-shows; an outsourced confirmation-and-rescue desk (AI voice + SMS first-pass confirmations, deposit capt
+  numbers: median-y2 $120,000 | top-decile $500,000 | p(median)=0.45 | EV $54,000 | first$ 2mo | capital $10,000 | durability 7/10 | openness 6/10 | fit 10/10
+  evidence: no-shows 20-40% of high-ticket consults; performance fee per recovered show (generator source)
+  skeptic: Attribution disputes on performance pricing; AI confirmation bots erode the labor moat; clients churn once rates improve. Fit is perfect, moat is thin. Survives.
+
+[I018] Contingency denial-recovery and appeals shop for independent practices | type=unsolved form=business cat=healthcare revenue cycle
+  thesis: Claim denial rates run 12-15% and most denied claims are never re-worked because the practice cannot afford the 45 minutes per appeal; a firm that takes only aged and denied claims, writes payer-specific, clinically cited appeals with AI, and has humans work t
+  numbers: median-y2 $100,000 | top-decile $400,000 | p(median)=0.45 | EV $45,000 | first$ 4mo | capital $10,000 | durability 7/10 | openness 6/10 | fit 6/10
+  evidence: denials 12-15% of claims, two-thirds never appealed (generator source)
+  skeptic: Needs a certified biller/coder on staff; RCM AI vendors (Waystar, Adonis) sell to the same practices. Survives.
+
+[I019] Small-landlord maintenance-coordination desk with vetted-vendor dispatch | type=unsolved form=business cat=property services / dispatch
+  thesis: Individual landlords own roughly 40% of US rental units and have no maintenance desk, so tenants text the owner at 11pm and contractors ghost; a 24/7 line (AI triage, dispatch of pre-vetted tradespeople who post a deposit and get photo-verified completion, own
+  numbers: median-y2 $60,000 | top-decile $200,000 | p(median)=0.35 | EV $21,000 | first$ 3mo | capital $10,000 | durability 7/10 | openness 6/10 | fit 8/10
+  evidence: individual landlords own ~40% of US rentals (generator source)
+  skeptic: Willingness to pay per door is low ($20-40) and property managers already bundle it. Weakened.
+
+[I020] Remote permit-expediting service for small contractors across TX/AR/LA/OK | type=evergreen form=hybrid cat=construction admin services
+  thesis: Every solar, pool, roof, ADU, sign, restaurant build-out and remodel job waits weeks on permits and contractors despise the desk work; an expediter who files, tracks, and chases across dozens of municipal portals at $350-2,500 per permit or a $500-1,500/mo per
+  numbers: median-y2 $70,000 | top-decile $200,000 | p(median)=0.45 | EV $31,500 | first$ 2mo | capital $3,000 | durability 7/10 | openness 7/10 | fit 7/10
+  evidence: permits delay every solar, pool, roof, ADU and build-out (generator source)
+  skeptic: Low ticket ($150-500 per permit) and jurisdiction-specific knowledge; scales only with staff. Survives, modest.
+
+[I021] Executor's Assistant: flat-fee estate-settlement admin ('death admin') service | type=unsolved form=business cat=family admin / concierge
+  thesis: Settling an estate takes an executor hundreds of hours over 12-18 months of calls to banks, SSA, DMV, utilities, brokerages, subscriptions and creditors; a non-legal executor's-assistant service that runs the checklist, makes the calls, closes accounts, and pa
+  numbers: median-y2 $60,000 | top-decile $200,000 | p(median)=0.35 | EV $21,000 | first$ 3mo | capital $3,000 | durability 8/10 | openness 8/10 | fit 6/10
+  evidence: executors spend hundreds of hours over 12-18 months (generator source)
+  skeptic: Unproven willingness to pay, unauthorized-practice-of-law lines, marketing to the bereaved. Weakened.
+
+[I022] Contingency B2B collections / AR-recovery agency for contractors, trucking and medical practices | type=evergreen form=business cat=B2B collections / small-business admin
+  thesis: Construction carries roughly a quarter-trillion dollars in late receivables and the average subcontractor waits 80+ days to get paid; a pre-litigation AR desk that runs AI-written dunning cadences, files preliminary lien and bond-claim notices, and makes human
+  numbers: median-y2 $90,000 | top-decile $400,000 | p(median)=0.45 | EV $40,500 | first$ 4mo | capital $20,000 | durability 8/10 | openness 6/10 | fit 9/10
+  evidence: 25-35% contingency on $5K-100K commercial invoices; construction AR waits 80+ days (generator source)
+  skeptic: Texas requires a $10K surety bond; recovery rates 20-30%; slow ramp to a book of clients. Survives.
+
+[I023] Workers'-comp premium-audit recovery consultancy (contingency) for SMBs | type=evergreen form=hybrid cat=insurance / business-cost recovery
+  thesis: A large share of workers'-comp policies contain class-code, payroll, subcontractor, or experience-mod errors that overcharge employers by $5-50K a year; a recovery consultant who audits the last three to five years, files for refunds and mod corrections with t
+  numbers: median-y2 $80,000 | top-decile $300,000 | p(median)=0.35 | EV $28,000 | first$ 4mo | capital $5,000 | durability 8/10 | openness 7/10 | fit 6/10
+  evidence: class-code and payroll errors overcharge $5-50K/yr (generator source)
+  skeptic: Requires workers-comp underwriting knowledge; brokers already offer audits free to win accounts. Weakened.
+
+[I024] Orphaned-solar rescue: O&M, repair and warranty-claim service for abandoned residential solar systems | type=trend form=business cat=home services / energy
+  thesis: The 2024-26 installer bankruptcy wave (SunPower, Lumio, Titan, Sunnova, Meyer Burger and thousands of local dealers) orphaned hundreds of thousands of residential systems whose owners still owe 20-year loans on panels nobody will service; a diagnostics-and-rep
+  numbers: median-y2 $90,000 | top-decile $300,000 | p(median)=0.45 | EV $40,500 | first$ 3mo | capital $40,000 | durability 7/10 | openness 8/10 | fit 5/10
+  evidence: 2024-26 installer bankruptcies orphaned hundreds of thousands of systems (generator source)
+  skeptic: Needs a licensed electrician/NABCEP tech; warranty claims against dead companies pay nothing; homeowners cash-strapped. Survives with a clock.
+
+[I025] Workforce-housing RV park / crew lodging next to megaprojects (lithium corridor, data centers), converting to a resort after the build | type=trend form=business cat=workforce lodging / RV park development
+  thesis: Three lithium plants and an $18B data-center hub are about to drop 2,000+ construction workers into counties with almost no lodging, and a workforce RV park rents pads at $525-875/month all-in (https://www.vintonrvresort.com/workforce-housing-near-lake-charles
+  numbers: median-y2 $150,000 | top-decile $600,000 | p(median)=0.3 | EV $45,000 | first$ 12mo | capital $900,000 | durability 6/10 | openness 7/10 | fit 7/10
+  evidence: $110/night GSA per diem per traveling tradesman; 60-80 pads (generator source)
+  skeptic: Capital is $10-15K per pad plus land: $800K-1.5M, 15-30x the stated budget, and revenue dies when the build ends. Fatal at the stated capital.
+
+[I026] Septic (OSSF) + water-well installation company for the west Bowie County / Miller County subdivision sprawl | type=evergreen form=business cat=home services / rural infrastructure
+  thesis: Texarkana's housing review says west-side subdivisions are being forced onto wells and septic because utility expansion hasn't kept pace (https://www.txkmag.com/news/community-culture/housing-texarkana/), and every one of those lots is a $10-20K aerobic septic
+  numbers: median-y2 $110,000 | top-decile $350,000 | p(median)=0.45 | EV $49,500 | first$ 4mo | capital $150,000 | durability 8/10 | openness 7/10 | fit 4/10
+  evidence: west-side subdivisions forced onto wells and septic (txkmag.com)
+  skeptic: Excavator plus OSSF installer license and a driller partner; established local installers. Survives.
+
+[I027] Secured monthly truck yard + on-site mobile DOT inspection/PM shop at the I-30 / US-59 / TexAmericas Center hub | type=unsolved form=business cat=logistics services / industrial real estate
+  thesis: There is roughly one legal truck parking space for every 11 drivers nationally (https://www.newsnationnow.com/politics/trump-veteran-trucker-shortage/), TxDOT is spending $10.6M to add only 175 public spaces west of Texarkana and won't finish until Feb 2028 (h
+  numbers: median-y2 $120,000 | top-decile $400,000 | p(median)=0.35 | EV $42,000 | first$ 9mo | capital $500,000 | durability 8/10 | openness 8/10 | fit 5/10
+  evidence: 1 legal truck parking space per 11 drivers (newsnationnow.com)
+  skeptic: Land and site work run $500K+; a land-development play, not a $50K business. Fatal at the stated capital.
+
+[I028] Buy a retiring owner's trades shop (HVAC / plumbing / septic / pest) with SBA 7(a), modernize marketing + dispatch, exit to a PE platform | type=evergreen form=hybrid cat=small-business acquisition / home services
+  thesis: Trades businesses sell at 2.5-3.2x seller's discretionary earnings with the median deal at $350K on $165K SDE (https://joinaccredited.com/blog/best-small-businesses-to-buy-2026), SBA 7(a) allows 10% down on deals up to $5M (https://joinaccredited.com/blog/best
+  numbers: median-y2 $150,000 | top-decile $1,500,000 | p(median)=0.4 | EV $60,000 | first$ 6mo | capital $120,000 | durability 9/10 | openness 6/10 | fit 8/10
+  evidence: median HVAC sale $800K, owner shops trade 2-3.5x SDE, $1M+ EBITDA shops clear 5-10x, Champions Group went at 18.5x (https://www.bizbuysell.com/learning-center/valuation-benchmarks/hvac/; dealprospectors.com)
+  skeptic: SBA needs 10-20% down ($80-160K) and a personal guarantee; search-to-close 6-18 months; PE exit requires reaching $1M+ EBITDA. The arbitrage is real and his exact edge (marketing, dispatch, phones). Survives as the highest-ceiling reachable play.
+
+[I029] BEAD last-mile fiber subcontractor: directional-boring and drop-bury crews for the Texas and Arkansas broadband build | type=trend form=business cat=telecom construction
+  thesis: Texas's $3.31B BEAD program is the largest fiber build in US history with 8,000-12,000 peak construction workers and builds running through 2030 (https://buildermuse.com/infrastructure/broadband-infrastructure-42-billion-bead-program-finally/), Arkansas's $1.0
+  numbers: median-y2 $120,000 | top-decile $500,000 | p(median)=0.4 | EV $48,000 | first$ 4mo | capital $250,000 | durability 6/10 | openness 7/10 | fit 4/10
+  evidence: Texas BEAD $3.31B, 8-12K peak workers (buildermuse.com)
+  skeptic: Directional drill $150-300K; primes squeeze subs; program ends 2030. Survives with a clock and heavy capital.
+
+[I030] Acquire an existing Medicare-certified home health or hospice agency in the Texarkana trade area while the CMS moratorium blocks all new entrants | type=unsolved form=business cat=healthcare services acquisition
+  thesis: CMS froze all new Medicare enrollments for home health and hospice nationwide on May 13, 2026, for six months extendable in six-month increments (https://www.hklaw.com/en/insights/publications/2026/05/cms-announces-nationwide-enrollment-moratoria), law firms s
+  numbers: median-y2 $150,000 | top-decile $600,000 | p(median)=0.3 | EV $45,000 | first$ 9mo | capital $800,000 | durability 7/10 | openness 5/10 | fit 5/10
+  evidence: CMS moratorium on new HH/hospice enrollments from May 13, 2026, extendable (https://achc.org/2026-cms-home-health-and-hospice-enrollment-moratorium/)
+  skeptic: The same moratorium blocks re-enrollment after a majority-ownership change within 36 months; agencies trade at 4-8x EBITDA, so $500K-2M; Medicare rate pressure. Fatal at the stated capital.
+
+[I031] Telepharmacy remote-dispensing sites in Texas pharmacy-desert towns around Texarkana (New Boston, De Kalb, Atlanta, Linden, Queen City corridor), partnered with a Class A pharmacy | type=unsolved form=hybrid cat=rural healthcare access
+  thesis: Sixty percent of Texas counties had no pharmacy in 2023, 4.3 million Texans lived in pharmacy deserts in 2025, and one Texas pharmacy closes every week (https://spectrumlocalnews.com/tx/south-texas-el-paso/news/2026/03/26/rural-texas-pharmacies-seek-new-surviv
+  numbers: median-y2 $60,000 | top-decile $200,000 | p(median)=0.25 | EV $15,000 | first$ 12mo | capital $150,000 | durability 7/10 | openness 8/10 | fit 4/10
+  evidence: 4.3M Texans in pharmacy deserts, one Texas pharmacy closes weekly (spectrumlocalnews)
+  skeptic: Pharmacies are closing because PBM reimbursement is below cost; a remote site inherits the same economics. Weakened badly.
+
+[I032] Per-diem CNA/LVN/RN staffing pool for Ark-La-Tex hospitals, nursing homes and home-health agencies (run like a call center) | type=evergreen form=business cat=healthcare staffing
+  thesis: Healthcare staffing agencies bill a 40-60% markup over base wages (https://boostpoint.com/industries-healthcare/nurse-staffing-agency-costs/), paying a worker $25/hr and billing $38-45/hr yields a $13-20/hr spread or ~$31K gross margin per full-time-equivalent
+  numbers: median-y2 $100,000 | top-decile $500,000 | p(median)=0.4 | EV $40,000 | first$ 4mo | capital $60,000 | durability 7/10 | openness 5/10 | fit 8/10
+  evidence: 40-60% markup over base wage (boostpoint.com)
+  skeptic: Payroll float: you pay nurses weekly, facilities pay in 45-60 days (needs factoring); vendor-management systems gate hospitals; rates fell 2023-25. Survives.
+
+[I033] Ag-drone spray service for pasture, hay, pine plantations and poultry-region row crops across NE Texas and SW Arkansas | type=trend form=business cat=ag services
+  thesis: US spray drones treated 16.4 million acres in 2025 with only 1,710 FAA Part 137 operators nationwide, and the average operator sprayed 9,584 acres at $13/acre for roughly $125K gross per rig (https://agdronedirectory.com/guides/agricultural-drone-spraying-stat
+  numbers: median-y2 $45,000 | top-decile $200,000 | p(median)=0.4 | EV $18,000 | first$ 8mo | capital $60,000 | durability 6/10 | openness 5/10 | fit 5/10
+  evidence: average Part 137 operator 9,584 acres at $13/acre (~$125K gross); price fell from $21 to $13 in one year (https://agdronedirectory.com/guides/agricultural-drone-spraying-statistics-2026)
+  skeptic: A 38% per-acre price drop in a year is the signature of a flooded market; net after $30-50K costs is $40-75K. Weakened.
+
+[I034] Lithium brine / fiber / transmission landman and right-of-way agent for Bowie, Miller, Lafayette and Columbia counties (job that becomes a contract land-services shop) | type=trend form=job cat=land services / energy leasing job
+  thesis: ExxonMobil holds well over 120,000 acres, Chevron bought 125,000 acres from TerraVolta and East Texas Natural Resources, Standard/Equinor ~30,000, Pantera ~26,000, Occidental ~6,000, and EnergyX sits on former depot land in Bowie County (https://txktoday.com/g
+  numbers: median-y2 $90,000 | top-decile $200,000 | p(median)=0.4 | EV $36,000 | first$ 3mo | capital $2,000 | durability 5/10 | openness 6/10 | fit 5/10
+  evidence: ROW agents ~$89K in Smackover AR, landman $92.5K (https://www.salary.com/research/salary/benchmark/right-of-way-agent-salary/ar)
+  skeptic: The lithium leasing rush is largely done (300K+ acres already leased by majors); ROW for fiber/transmission continues but is job-grade. Survives as a job.
+
+[I035] IUEC elevator mechanic apprentice (Texas local, with option to travel to metro scale) | type=evergreen form=job cat=union trade
+  thesis: Elevator installer/repairer is the best-paid blue-collar path in the US — $106K median (https://tradecolleges.org/blog/trade-programs/elevator-installer-repairer-careers), journeymen at $76-96/hr in major metros with apprentices starting at 50% of scale and au
+  numbers: median-y2 $60,000 | top-decile $150,000 | p(median)=0.2 | EV $12,000 | first$ 12mo | capital $0 | durability 9/10 | openness 3/10 | fit 3/10
+  evidence: elevator mechanics highest-paid trade, mean $109,820 May 2025 (https://www.bls.gov/news.release/pdf/ocwage.pdf); selective NEIEP process (https://www.neiep.org/iuec-apprenticeship-faq/)
+  skeptic: Acceptance is the wall (limited application windows, aptitude test, interview); Texas locals rarely open; 4-5 years to journeyman, so 24-month income is apprentice pay. Weakened.
+
+[I036] Enterprise Account Executive selling AI voice/chat agents into contact centers | type=trend form=job cat=tech sales (AI)
+  thesis: Enterprise AE median OTE is $280K as of September 2026 (https://www.repvue.com/salaries/enterprise-account-executive) and AI-agent vendors such as Decagon are posting Enterprise AE roles at $230K-$320K (https://builtin.com/job/enterprise-account-executive/7280
+  numbers: median-y2 $180,000 | top-decile $500,000 | p(median)=0.35 | EV $63,000 | first$ 3mo | capital $0 | durability 7/10 | openness 5/10 | fit 7/10
+  evidence: Enterprise AE median OTE $280K, top performers $677K, 12,819 submissions (https://www.repvue.com/salaries/enterprise-account-executive)
+  skeptic: Enterprise AE hires want a closing record; a first AI-vendor role is more likely mid-market ($120-160K OTE) with his contact-center domain as the hook. Survives at reduced probability.
+
+[I037] Forward-deployed AI engineer / AI implementation contractor (voice and contact-center AI vendors) | type=trend form=hybrid cat=AI implementation / solutions engineering
+  thesis: FDE job listings spiked ~800% with total comp of $200K-$630K+ (https://www.paraform.com/insights/forward-deployed-ai-engineer), a competent mid-level FDE earns $180-260K (https://www.recruitingfromscratch.com/blog/forward-deployed-engineer-salary-in-2026-full-
+  numbers: median-y2 $170,000 | top-decile $400,000 | p(median)=0.35 | EV $59,500 | first$ 3mo | capital $0 | durability 7/10 | openness 6/10 | fit 7/10
+  evidence: FDE median base $190-207K, mid-level TC $180-260K, postings up ~800% (https://www.levels.fyi/t/software-engineer/title/forward-deployed-engineer; recruitingfromscratch.com)
+  skeptic: Technical interviews screen for real engineering depth, not AI-assisted shipping; equity-heavy at the top. The 1099 implementation-contractor path ($100-200/hr) is the reachable version. Survives.
+
+[I038] Texas storm-restoration roofing sales (1099 commission closer who also runs his own appointment pipeline) | type=evergreen form=hybrid cat=home services sales
+  thesis: Texas roofing sales self-reports at a $206,421 average with a $354K 90th percentile on Glassdoor (https://www.glassdoor.com/Salaries/texas-roofing-sales-salary-SRCH_IL.0,5_IS1347_KO6,19.htm) while ZipRecruiter puts storm-damage roofing sales at a more sober $7
+  numbers: median-y2 $85,000 | top-decile $250,000 | p(median)=0.5 | EV $42,500 | first$ 1mo | capital $2,000 | durability 6/10 | openness 5/10 | fit 7/10
+  evidence: $75K is the floor for a decent fit, $150K mid-range target; Glassdoor's $206K average is self-reported (https://blog.theroofstrategist.com/roofing-sales-income-how-much-you-really-should-make/)
+  skeptic: Texas insurers moving to ACV roof schedules and higher wind/hail deductibles shrink the supplement-driven model; hail-year dependent. Survives with the headline cut in half.
+
+[I039] Federal immigration enforcement officer (ICE Deportation Officer / CBP Border Patrol) under the 2025-26 OBBBA hiring surge | type=trend form=job cat=government / federal law enforcement
+  thesis: ICE is adding 10,000 officers with up to $50K signing bonuses, up to $60K in student-loan repayment and starting salaries reaching ~$90K (https://www.bloomberg.com/news/articles/2025-08-07/trump-dangles-50-000-bonuses-debt-relief-in-ice-staffing-push, https://
+  numbers: median-y2 $85,000 | top-decile $130,000 | p(median)=0.6 | EV $51,000 | first$ 8mo | capital $0 | durability 5/10 | openness 9/10 | fit 3/10
+  evidence: GL-5/7 posting $51,632-84,277; $50K signing bonus paid over years, up to 25% premium pay, $10K/yr retention bonus (https://www.ice.gov/careers/deportation-officer; newsweek.com)
+  skeptic: Base pay is modest; academy and relocation; reduced civil-service protections make it the least secure federal job; politically contentious. Survives on money, weak on durability.
+
+[I040] Nuclear reactor operator via non-licensed operator (NLO) entry → NRC reactor operator license | type=evergreen form=job cat=energy / licensed role
+  thesis: Nuclear power reactor operators carry a ~$122,890 national median with a $99K-$153K range and need only a high-school diploma plus employer-paid training and an NRC license (https://nuclear-jobs.com/nuclear-salary-guide, https://www.salary.com/research/salary/
+  numbers: median-y2 $95,000 | top-decile $160,000 | p(median)=0.35 | EV $33,250 | first$ 6mo | capital $0 | durability 9/10 | openness 6/10 | fit 4/10
+  evidence: non-licensed operator avg $94.7K; RO median ~$122.9K; 3 years plant experience plus 18-24 month program to license (https://www.glassdoor.com/Salaries/non-licensed-nuclear-operator-salary-SRCH_KO0,29.htm)
+  skeptic: Relocation (nearest plants 170-200 miles), competitive hiring classes, 5+ years to a license. Survives as a solid job, poor fit.
+
+[I041] Regional airline first officer via accelerated zero-to-ATP, then flow-through to a major | type=trend form=job cat=aviation
+  thesis: First-year regional first officers now earn roughly $85-110K total with $20-50K new-hire signing bonuses (https://www.rotatepilot.com/blog/regional-airline-pilot-guide-2026, https://simpleflying.com/hourly-pay-us-regional-airline-first-officers-2026/) on the w
+  numbers: median-y2 $40,000 | top-decile $300,000 | p(median)=0.35 | EV $14,000 | first$ 18mo | capital $100,000 | durability 7/10 | openness 5/10 | fit 3/10
+  evidence: regional FO avg $62K, new-hire bonuses; training $80-100K+, 12-15 months as a CFI to 1,500 hours (https://pilotinstitute.com/pilot-license-cost/; ziprecruiter)
+  skeptic: 24-month net is negative after training debt; regional hiring slowed in 2024-26. Weakened for a 24-month horizon.
+
+[I042] Licensed independent catastrophe (CAT) adjuster, Texas all-lines (season-deployable, keeps the day job otherwise) | type=evergreen form=hybrid cat=insurance claims
+  thesis: A ~$1,200 Texas all-lines adjuster license (https://www.howtogetlicensed.com/insurance-adjuster/texas/) unlocks $500-600/day standard deployments, $700-900/day during storms, $1,000-2,000+/day on major events, and $100K+ in a six-month deployment season (https
+  numbers: median-y2 $60,000 | top-decile $200,000 | p(median)=0.45 | EV $27,000 | first$ 3mo | capital $3,000 | durability 7/10 | openness 5/10 | fit 6/10
+  evidence: $500-900/day deployments; ~$1,200 Texas all-lines license (howtogetlicensed.com)
+  skeptic: Feast or famine; new roster adjusters deploy last; carriers shifting to desk and drone adjusting. Survives as a side lane.
+
+[I043] Voice-writing (stenomask) court reporter → freelance realtime deposition reporter | type=unsolved form=hybrid cat=legal services
+  thesis: Court-reporter retirements are outrunning new entrants by more than 5-to-1 and some courts have gone years without a full verbatim record (https://verbatimprep.com/blog/court-reporter-salary-guide); freelancers (62% of the workforce) average ~$85K with major-m
+  numbers: median-y2 $55,000 | top-decile $150,000 | p(median)=0.35 | EV $19,250 | first$ 18mo | capital $10,000 | durability 6/10 | openness 8/10 | fit 4/10
+  evidence: retirements outrun entrants 5-to-1 (verbatimprep.com)
+  skeptic: 18-24 months to certify; AI transcription pressures non-certified work; freelance income builds slowly. Weakened for 24 months.
+
+[I044] Outbound-Consent Compliance Engine for dialer shops (state mini-TCPA rules engine + consent-proof vault + litigator scrub) | type=unsolved form=business cat=compliance micro-SaaS
+  thesis: Every outbound floor now faces a 50-state patchwork of mini-TCPA laws plus $500-$1,500-per-call statutory damages, so a rules engine + consent-evidence vault + litigator scrub that sits between the CRM and the dialer is a $1K-$5K/month insurance policy that ce
+  numbers: median-y2 $60,000 | top-decile $500,000 | p(median)=0.3 | EV $18,000 | first$ 6mo | capital $10,000 | durability 7/10 | openness 7/10 | fit 9/10
+  evidence: median profitable micro-SaaS ~$4.2K MRR, 70% under $1K MRR, only 6% clear $10K (https://bigideasdb.com/solo-developer-saas-monthly-revenue-examples); $500-1,500 per-call statutory damages drive demand
+  skeptic: Compliance buyers prefer incumbents (DNC.com, Contact Center Compliance, Gryphon); solo SaaS median is $50K/yr. Survives at low probability, high fit.
+
+[I045] Chargeback Evidence Autopilot for Shopify/Stripe merchants | type=evergreen form=business cat=payments micro-SaaS
+  thesis: Merchants lose most disputes because assembling compelling evidence takes 30-45 minutes per case, so an app that auto-builds Visa CE3.0 / Mastercard-compliant response packets from order, shipping, device and login data and files them through Stripe/Shopify AP
+  numbers: median-y2 $40,000 | top-decile $300,000 | p(median)=0.25 | EV $10,000 | first$ 4mo | capital $5,000 | durability 6/10 | openness 3/10 | fit 7/10
+  evidence: disputes take 30-45 min each (generator source)
+  skeptic: Chargeflow, Disputifier and Chargebacks911 already own the category. Weakened badly.
+
+[I046] Commission Reconciliation Agent for independent insurance agencies | type=unsolved form=business cat=vertical AI / insurtech
+  thesis: Independent agencies leak an estimated 3-8% of commissions to carrier statement errors, missed renewals and unpaid overrides because nobody reconciles hundreds of PDF and portal statements by hand, so an agent that logs into carrier portals, parses statements,
+  numbers: median-y2 $60,000 | top-decile $400,000 | p(median)=0.3 | EV $18,000 | first$ 6mo | capital $5,000 | durability 7/10 | openness 6/10 | fit 6/10
+  evidence: agencies leak 3-8% of commissions (generator source)
+  skeptic: Comulate and AgencyBloc are funded incumbents; agencies are slow buyers. Weakened.
+
+[I047] Denial-Appeal Factory for independent PT, chiro, behavioral-health and DME clinics | type=evergreen form=business cat=healthcare RCM software
+  thesis: Payers deny roughly 10-15% of claims and about two-thirds of denials are never appealed because small clinics cannot staff it, so software that ingests 835 remittances, drafts payer-specific appeal letters with the clinical documentation attached and files the
+  numbers: median-y2 $50,000 | top-decile $500,000 | p(median)=0.25 | EV $12,500 | first$ 8mo | capital $10,000 | durability 6/10 | openness 4/10 | fit 5/10
+  evidence: 10-15% denial rate, two-thirds never appealed (generator source)
+  skeptic: Crowded funded RCM-AI field; long healthcare sales cycles; solo-SaaS base rate. Weakened.
+
+[I048] Aged-Lead Reactivation AI SDR billed per booked appointment | type=trend form=hybrid cat=automation-as-a-service
+  thesis: Every appointment-driven sales org sits on tens of thousands of paid-for, unconverted leads carried at $0, so an AI SMS/voice agent that re-engages them under compliant consent and books appointments, billed $25-$150 per show with zero upfront, converts sunk c
+  numbers: median-y2 $100,000 | top-decile $500,000 | p(median)=0.4 | EV $40,000 | first$ 2mo | capital $5,000 | durability 6/10 | openness 5/10 | fit 10/10
+  evidence: tens of thousands of paid, unconverted leads per sales org (generator source)
+  skeptic: Aged leads carry consent-expiry and TCPA exposure; carrier spam-labeling crushes contact rates; dozens of shops sell the same thing. Survives on fit.
+
+[I049] AI Call-QA and Rep-Coaching Scorer for small sales floors, distributed through GoHighLevel/Convoso marketplaces | type=trend form=business cat=sales-tooling micro-SaaS
+  thesis: Enterprise conversation intelligence (Gong, Observe.ai) costs $100+/seat and ignores 5-50 rep floors, so a $29-$59/rep/month tool that transcribes every call, scores it against the manager's own benchmark script and emails coaching cards to reps sells itself t
+  numbers: median-y2 $50,000 | top-decile $300,000 | p(median)=0.3 | EV $15,000 | first$ 4mo | capital $5,000 | durability 6/10 | openness 4/10 | fit 10/10
+  evidence: Gong/Observe.ai $100+/seat ignore 5-50 rep floors (generator source)
+  skeptic: GoHighLevel and Convoso are shipping native AI QA; platform risk is the whole business. Weakened.
+
+[I050] Spreadsheet-to-App Studio: fixed-price internal tool replacement for mid-size companies | type=trend form=hybrid cat=custom software / internal tools
+  thesis: Mid-size companies run on Excel plus email plus a $40K/year per-seat SaaS they hate; a solo builder using agentic coding can replace one workflow with a custom web app in two weeks for a $15K-$40K fixed fee plus $1-3K/month hosting and support, and 12-18 proje
+  numbers: median-y2 $120,000 | top-decile $400,000 | p(median)=0.45 | EV $54,000 | first$ 2mo | capital $2,000 | durability 6/10 | openness 6/10 | fit 9/10
+  evidence: $15-40K fixed-price internal-tool projects (generator source)
+  skeptic: Every agency now claims this; buyers can vibe-code too; needs a local business network to sell. Survives.
+
+[I051] New-Entity Lead Feed: daily secretary-of-state filings, AI-enriched and territory-scored | type=evergreen form=business cat=data product
+  thesis: Roughly 5 million new business applications are filed in the U.S. every year and every new LLC immediately needs insurance, payroll, bookkeeping, a website, merchant services and a phone system, so a daily feed that scrapes state filings, enriches them with ow
+  numbers: median-y2 $40,000 | top-decile $300,000 | p(median)=0.3 | EV $12,000 | first$ 3mo | capital $5,000 | durability 6/10 | openness 3/10 | fit 7/10
+  evidence: ~5M new business applications per year (generator source)
+  skeptic: Many incumbent feeds sell the same data cheaply. Weakened.
+
+[I052] Paid AI Connectors (hosted MCP servers) for legacy vertical software | type=trend form=business cat=AI integration product
+  thesis: Companies want Claude, ChatGPT and Copilot to read and act inside the legacy systems they actually run (dialers, campground reservation systems, dealership DMS, practice management, insurance AMS), the vendors will not build it, and a solo dev who ships a host
+  numbers: median-y2 $40,000 | top-decile $500,000 | p(median)=0.25 | EV $10,000 | first$ 3mo | capital $2,000 | durability 5/10 | openness 6/10 | fit 9/10
+  evidence: companies want AI inside legacy dialers, reservation systems, DMS (generator source)
+  skeptic: Vendors ship their own official connectors within months; the protocol layer commoditizes. Weakened.
+
+[I053] AI Voice Booking Agent for independent campgrounds and RV parks | type=unsolved form=business cat=vertical AI / hospitality
+  thesis: Roughly 13,000 privately owned U.S. campgrounds still book heavily by phone with aging owners who miss calls all peak season, so a voice agent that answers, quotes availability from the reservation system and books the site, priced at $249/month plus $1-2 per 
+  numbers: median-y2 $50,000 | top-decile $300,000 | p(median)=0.3 | EV $15,000 | first$ 4mo | capital $5,000 | durability 6/10 | openness 6/10 | fit 9/10
+  evidence: ~13,000 privately owned campgrounds book by phone (generator source)
+  skeptic: Small ACV ($100-300/mo), aging slow-adopting owners, Campspot/Newbook adding AI. Weakened.
+
+[I054] Roll-off dumpster rental fleet with online self-booking | type=evergreen form=business cat=waste / equipment rental
+  thesis: One used hook-lift truck (~$80-100K) and fifteen steel cans (~$5-6K each) throw off $450-650 per haul plus tonnage overage, so a single driver-owner can gross $250-400K a year at 50%+ margins in a secondary market the national haulers ignore for small jobs.
+  numbers: median-y2 $130,000 | top-decile $300,000 | p(median)=0.55 | EV $71,500 | first$ 2mo | capital $90,000 | durability 9/10 | openness 6/10 | fit 6/10
+  evidence: one-truck owner earnings $120-250K, $350-450K revenue with a driver, ~$90K to start, 18-24 month payback (https://www.curbwaste.com/dumpster-rental-business-profitability; quipli.com)
+  skeptic: Tipping fees, truck downtime and WM/Republic pricing; still one of the best-documented cash businesses at this capital level. Survives.
+
+[I055] Forestry-mulching, land-clearing and pasture-conversion crew (high-flow skid steer + mulcher) | type=trend form=business cat=land services / heavy equipment
+  thesis: A $130-160K financed skid-steer-and-mulcher package bills $175-275 per hour or $1,500-3,500 per acre with one operator, so 25 billable hours a week grosses $250-350K with fuel and cutter teeth as the only real cost of goods.
+  numbers: median-y2 $100,000 | top-decile $300,000 | p(median)=0.5 | EV $50,000 | first$ 2mo | capital $150,000 | durability 8/10 | openness 6/10 | fit 4/10
+  evidence: $175-275/hr or $1,500-3,500/acre, $130-160K financed package (generator source)
+  skeptic: Equipment breakdowns, weather, and pasture demand tied to record cattle prices. Survives.
+
+[I056] Unattended shipping-container self-storage yard on leased rural land | type=trend form=business cat=self-storage / real-estate-adjacent
+  thesis: Twenty wind-and-watertight containers at $4-5K each on a $500-800/month leased gravel lot with an app-controlled gate rent at $135-185 apiece, turning ~$100K into $35-45K a year of nearly labor-free cash flow that scales twenty units at a time and can add RV/b
+  numbers: median-y2 $35,000 | top-decile $150,000 | p(median)=0.5 | EV $17,500 | first$ 3mo | capital $100,000 | durability 8/10 | openness 6/10 | fit 6/10
+  evidence: 20 containers at $135-185/mo on a leased lot (generator source)
+  skeptic: Small absolute income per yard; zoning. Survives as a side asset, not a top-10 income.
+
+[I057] Commercial ice-machine subscription leasing (local all-inclusive Easy Ice clone) | type=unsolved form=business cat=B2B equipment leasing
+  thesis: Buy $3-5K commercial ice machines and lease them all-inclusive at $175-325 per month with cleaning, repairs and loaner coverage bundled; a $50K fleet of 12-15 machines returns roughly $40K a year recurring and each additional $4K machine pays back in about 15 
+  numbers: median-y2 $45,000 | top-decile $200,000 | p(median)=0.5 | EV $22,500 | first$ 2mo | capital $50,000 | durability 8/10 | openness 6/10 | fit 6/10
+  evidence: $175-325/mo all-inclusive leases per machine (generator source)
+  skeptic: Easy Ice is national; service calls eat the margin; slow to scale. Survives as a side asset.
+
+[I058] Delivered, set-up stationary RV rental fleet at campgrounds and RV resorts | type=trend form=hybrid cat=outdoor hospitality / rental fleet
+  thesis: A $25-35K used bunkhouse travel trailer delivered and set up on a campsite rents for $165-250 a night with the guest never towing it (so damage and wear stay low), producing $25-40K a year per unit and $150-200K on a five-unit fleet run from a phone.
+  numbers: median-y2 $60,000 | top-decile $250,000 | p(median)=0.45 | EV $27,000 | first$ 2mo | capital $150,000 | durability 7/10 | openness 6/10 | fit 9/10
+  evidence: $165-250/night delivered trailers (generator source)
+  skeptic: Campground consent, seasonality, 5-unit capital $150K; possible conflict with his employer. Survives as a side asset.
+
+[I059] Mobile RV repair technician (RVTI-certified) serving resorts and long-term residents | type=unsolved form=hybrid cat=skilled trade / mobile service
+  thesis: RV techs are so scarce that a mobile tech with a $15-25K van-and-tools kit bills $135-185 per hour plus parts markup and a $75-125 trip fee, clearing $120-180K solo before adding a second van.
+  numbers: median-y2 $100,000 | top-decile $180,000 | p(median)=0.5 | EV $50,000 | first$ 6mo | capital $25,000 | durability 8/10 | openness 8/10 | fit 6/10
+  evidence: $135-185/hr plus trip fee, RV techs scarce (generator source)
+  skeptic: Needs RVTI certification and hands-on skill (6-12 months); physical work. Survives.
+
+[I060] Doorstep trash-valet service for apartment communities | type=unsolved form=business cat=multifamily services / real-estate-adjacent
+  thesis: Apartment owners pay $8-15 per unit per month (and pass $20-35 through to tenants as an amenity fee) for five-night-a-week doorstep pickup, so 1,500 doors across six to eight properties grosses $150-250K a year with a pickup truck, a trailer and two part-time 
+  numbers: median-y2 $70,000 | top-decile $250,000 | p(median)=0.45 | EV $31,500 | first$ 3mo | capital $15,000 | durability 8/10 | openness 5/10 | fit 7/10
+  evidence: $8-15 per door per month, 1,500 doors (generator source)
+  skeptic: Valet Living holds national contracts; Texarkana door count is limited; nightly labor churn. Survives, capped locally.
+
+[I061] Hot-shot trucking owner-operator (1-ton dually + 40-ft gooseneck) on the I-30 / I-20 corridors | type=evergreen form=hybrid cat=trucking / logistics
+  thesis: A $60-90K financed truck-and-trailer combo hauling expedited LTL freight, equipment and oilfield loads at $1.50-2.50 per mile grosses $150-250K a year as an owner-operator, with a clear path to a second truck and driver.
+  numbers: median-y2 $55,000 | top-decile $120,000 | p(median)=0.4 | EV $22,000 | first$ 1mo | capital $80,000 | durability 6/10 | openness 4/10 | fit 3/10
+  evidence: $1.50-2.50/mile, $150-250K gross (generator source)
+  skeptic: 2023-26 freight recession, insurance spikes; net after truck and fuel is $40-70K in a flooded lane. Weakened.
+
+[I062] Bagged-ice-and-water vending kiosk (Everest / Kooler Ice style) at a high-traffic gas station or boat ramp | type=evergreen form=business cat=unattended retail / vending
+  thesis: A $140-190K financed ice house sells 10-lb bags at $2.50-3.50 with roughly $0.30 of water and power in each, producing $60-120K a year per unit in Texas heat with under five hours a week of labor, and a second or third unit is effectively a retirement plan.
+  numbers: median-y2 $40,000 | top-decile $120,000 | p(median)=0.5 | EV $20,000 | first$ 3mo | capital $150,000 | durability 8/10 | openness 6/10 | fit 6/10
+  evidence: $60-120K/yr per unit, $0.30 cost per bag (generator source)
+  skeptic: $140-190K financed per unit; site-dependent; return per dollar is low. Survives as an asset play, not top-10.
+
+[I063] Luxury restroom-trailer plus standard porta-john event and construction rental | type=evergreen form=business cat=event / site rentals
+  thesis: A $45-65K luxury restroom trailer rents for $1,200-2,200 per weekend and 40-60 events a year repays it in 12-18 months, while a $25K fleet of 35-40 porta-johns at $150-225 per month on construction sites provides the recurring base that makes the business sell
+  numbers: median-y2 $70,000 | top-decile $250,000 | p(median)=0.5 | EV $35,000 | first$ 2mo | capital $80,000 | durability 8/10 | openness 6/10 | fit 5/10
+  evidence: luxury trailer $1,200-2,200/weekend, 40-60 events/yr (generator source)
+  skeptic: Event seasonality; service logistics; local competitors. Survives.
+
+[I064] Campground amenity-vending concessionaire (ice merchandisers, firewood-bundle vending, propane exchange, smart snack coolers) across RV resorts | type=trend form=hybrid cat=vending route / outdoor hospitality
+  thesis: Place unattended ice merchandisers, firewood-bundle vending machines, propane cylinder-exchange cages and cashless smart coolers at 10-20 RV resorts and campgrounds on a 15-25% revenue share, and each site produces $1,500-4,000 a month of margin from one weekl
+  numbers: median-y2 $40,000 | top-decile $150,000 | p(median)=0.4 | EV $16,000 | first$ 3mo | capital $60,000 | durability 7/10 | openness 7/10 | fit 9/10
+  evidence: ice, firewood, propane, smart coolers at 10-20 resorts (generator source)
+  skeptic: Small revenue per site, seasonal; employer conflict. Survives as a side asset.
+
+[I065] Storm-restoration roofing company for hail country, FORTIFIED-roof-first and sold on insurance savings | type=trend form=business cat=home services / climate adaptation
+  thesis: Texas homeowners' insurance premiums have nearly doubled since 2019 (https://www.liveinsurancenews.com/texas-400-million-grant-program/8574559/), carriers commonly discount the wind/hail portion 10-35% for an IBHS FORTIFIED designation, FHLB Dallas grants up t
+  numbers: median-y2 $100,000 | top-decile $500,000 | p(median)=0.4 | EV $40,000 | first$ 3mo | capital $60,000 | durability 6/10 | openness 4/10 | fit 7/10
+  evidence: roofing net margins 5-12%, elite 15%; gross 25-40% (https://profitabilitypartners.io/roofing-profit-margins/)
+  skeptic: Texas has no roofing license so everyone competes; insurer ACV shift; cash-flow strain on insurance jobs. The FORTIFIED angle is real but the base business nets thin. Survives, weakened.
+
+[I066] Senior Living Placement Agency (facility-paid referral fees, run like a call-center booking desk) | type=evergreen form=business cat=aging services / referral commissions
+  thesis: Assisted-living communities pay placement agencies 70-80% of a resident's first month's rent, typically $3,000-5,000 per move-in, in a U.S. senior-living market on pace to pass $980B in 2026 with more than 32,000 assisted-living communities competing for move-
+  numbers: median-y2 $90,000 | top-decile $300,000 | p(median)=0.45 | EV $40,500 | first$ 3mo | capital $5,000 | durability 6/10 | openness 5/10 | fit 9/10
+  evidence: 70-80% of first month's rent, $3-5K per placement; APFM charges $3.5-12K (https://www.seniorliving.org/placement-agencies/)
+  skeptic: FTC ANPRM March 2026 and state disclosure laws; A Place for Mom dominance; lead cost. Survives with regulatory risk.
+
+[I067] Non-medical home-care agency with a caregiver-recruiting dialer engine and a Medicaid CDS/FMSA arm | type=evergreen form=business cat=healthcare services / home care
+  thesis: The U.S. home care market grew from $77B in 2020 to an estimated $113B in 2026 while BLS projects 17% employment growth and ~765,800 openings a year for home health and personal care aides through 2034 (https://www.aveecare.com/resources/home-care-industry-sta
+  numbers: median-y2 $100,000 | top-decile $300,000 | p(median)=0.4 | EV $40,000 | first$ 6mo | capital $60,000 | durability 8/10 | openness 5/10 | fit 8/10
+  evidence: owner average $102.8K, top independents $270K, median net margin 9.7% (https://clarifycapital.com/blog/home-care-agency-owner-income-2025)
+  skeptic: Thin margins, 77% caregiver turnover, Texas HCSSA licensing 4-6 months, thousands of Texas agencies. Survives; the recruiting-engine edge is real.
+
+[I068] Non-emergency medical transportation (NEMT) wheelchair-van fleet with a diversified payer mix | type=evergreen form=business cat=healthcare logistics / transportation
+  thesis: NEMT is a $12.36B market in 2026 growing ~7% a year to $18.61B by 2032 (https://www.researchandmarkets.com/report/global-non-emergency-medical-transportation-market); one van grosses $120,000-195,000 a year at 12-15 trips/day and $28-45 per trip, a two-to-thre
+  numbers: median-y2 $60,000 | top-decile $170,000 | p(median)=0.4 | EV $24,000 | first$ 4mo | capital $120,000 | durability 7/10 | openness 5/10 | fit 6/10
+  evidence: net $21.6-32.4K per van; Texas HHSC pays $18-32 per trip; 4 vans -> $130-170K owner (https://routegenie.com/blog/how-much-do-nemt-companies-make/)
+  skeptic: Texas trip rates are among the lowest; broker (ModivCare) pressure and payment lag. Survives at the low end.
+
+[I069] CAPS-Certified Aging-in-Place Remodeling Firm that bills Medicare Advantage home-safety benefits | type=trend form=business cat=home services / aging in place
+  thesis: Only about 7,000 active Certified Aging-in-Place Specialists exist nationwide in 2026, aging-in-place work prices 10-25% above comparable general remodeling, and some Medicare Advantage plans now require a CAPS holder for any funded modification over $500 (htt
+  numbers: median-y2 $90,000 | top-decile $300,000 | p(median)=0.4 | EV $36,000 | first$ 3mo | capital $30,000 | durability 8/10 | openness 7/10 | fit 4/10
+  evidence: ~7,000 CAPS nationally; 10-25% price premium (generator source)
+  skeptic: It is remodeling: needs a contractor's skills and crew; MA home-safety benefits are small. Survives, poor fit.
+
+[I070] Journeyman power lineman via paid apprenticeship (storm-restoration and data-center interconnect overtime) | type=trend form=job cat=skilled trade job / grid buildout
+  thesis: Electrical power-line installers carry a $95,320 median wage (https://www.bls.gov/ooh/installation-maintenance-and-repair/line-installers-and-repairers.htm; https://lineman-jobs.com/lineman-salary), a journeyman at $48/hr grosses ~$99,840 on 40 hours and ~$149
+  numbers: median-y2 $55,000 | top-decile $180,000 | p(median)=0.45 | EV $24,750 | first$ 4mo | capital $15,000 | durability 9/10 | openness 8/10 | fit 3/10
+  evidence: BLS median $95,320 May 2025 (https://www.bls.gov/news.release/pdf/ocwage.pdf); storm work adds $15-45K, storm specialists $150-200K (https://www.powerlinemanjobs.com/storm-pay-for-linemen-how-much-linemen-make-chasing-storms)
+  skeptic: 3-4 year apprenticeship, so 24-month pay is apprentice pay ($55-75K); dangerous; travel. Top-tier durability and ceiling, slow start. Survives.
+
+[I071] Data-center / industrial electrician apprentice -> licensed electrical contractor (Texas hyperscale buildout) | type=trend form=hybrid cat=skilled trade to contracting business / grid and data-center buildout
+  thesis: Fortune reports self-employed electricians in Plano, Texas earning $240,000-280,000 a year, data-center construction workers averaging ~$81,800 (~32% above standard builds), electrical work at 45-70% of data-center construction cost, and a need for ~300,000 ne
+  numbers: median-y2 $75,000 | top-decile $250,000 | p(median)=0.5 | EV $37,500 | first$ 1mo | capital $5,000 | durability 9/10 | openness 9/10 | fit 3/10
+  evidence: journeymen $38-46/hr straight time in Texas, $130-170K with data-center overtime, per diem $140-210/day (https://www.rinvio.com/blog/data-center-electrician-salary; Fortune: self-employed Plano electricians $240-280K)
+  skeptic: Apprentice years pay $45-65K (more with DC overtime); the contractor money is 5-7 years out; a career restart into a physical trade. Best-documented shortage in the pool. Survives.
+
+[I072] Contract Water/Wastewater Operations Company for Small Rural Systems (TCEQ-licensed, multi-system, feeding Prop 4-funded upgrades) | type=unsolved form=hybrid cat=water infrastructure services / utility operations
+  thesis: Texas voters approved a $20B, $1B-per-year Texas Water Fund (Prop 4, Nov 4, 2025; deposits begin Sept 1, 2027) for new supply, repair and flood projects (https://www.texaswater.org/news/voters-approve-prop-4-dedicating-20b-to-water-infrastructure; https://www.
+  numbers: median-y2 $90,000 | top-decile $300,000 | p(median)=0.3 | EV $27,000 | first$ 12mo | capital $30,000 | durability 9/10 | openness 8/10 | fit 4/10
+  evidence: $20B Texas Water Fund (Prop 4), rural systems short of licensed operators (generator source)
+  skeptic: TCEQ Class C/B licenses need years of experience, so you must hire licensed operators first. Weakened for 24 months.
+
+[I073] Domestic Small-Drone Component Supplier (motors, battery packs, frames) for Drone Dominance prime vendors | type=trend form=business cat=defense manufacturing / sub-tier supply
+  thesis: The War Department's Drone Dominance Program is spending ~$1.1B over 18 months to buy 200,000+ small drones (https://dronelife.com/2026/03/06/pentagon-drone-dominance-program-small-attack-drones/), the Army says ~340,000 small UAS over two years (https://www.a
+  numbers: median-y2 $50,000 | top-decile $1,000,000 | p(median)=0.15 | EV $7,500 | first$ 12mo | capital $250,000 | durability 6/10 | openness 6/10 | fit 3/10
+  evidence: $1.1B Drone Dominance buy of 200K+ small drones (dronelife.com)
+  skeptic: Manufacturing, NDAA-compliant supply chains, capital, and prime-vendor qualification. Fatal at the stated capital and skill set.
+
+[I074] Modular ADU Dealer-Builder for Multi-Generational Households (prefab casitas sold to families housing aging parents) | type=trend form=business cat=housing / modular construction
+  thesis: The U.S. ADU market is valued at $23.45B in 2026 heading to $68.72B by 2034 (14.4% CAGR) against a housing shortage exceeding 4.5M units (https://www.skymarketinsights.com/report/united-states-accessory-dwelling-unit-market; https://www.mesocore.com/blog/adu-m
+  numbers: median-y2 $80,000 | top-decile $400,000 | p(median)=0.35 | EV $28,000 | first$ 6mo | capital $100,000 | durability 7/10 | openness 6/10 | fit 6/10
+  evidence: ADU market $23.5B in 2026 (skymarketinsights.com)
+  skeptic: Local demand thin, buyer financing, contractor licensing and zoning in Texarkana. Weakened.
+
+[I075] Outbound contact-rate and TCPA / mini-TCPA compliance managed service for lead-gen call centers (DID reputation, branded calling, litigator scrub, Texas SB 140 desk) | type=unsolved form=business cat=telecom ops managed service
+  thesis: Outbound call centers lose half their answers to 'Spam Likely' labels and cannot run number-reputation operations themselves, so a boutique that owns DID inventory strategy, carrier registrations, Rich Call Data / branded caller ID setup, remediation tickets, 
+  numbers: median-y2 $130,000 | top-decile $600,000 | p(median)=0.45 | EV $58,500 | first$ 2mo | capital $5,000 | durability 7/10 | openness 7/10 | fit 10/10
+  evidence: contact centers lose half their answers to spam labels; DID reputation ops sold as a managed service (generator source; his own DID dashboard is the product)
+  skeptic: Numeracle and Caller ID Reputation sell tooling, not ops, so the boutique gap is real; clients must be found outside his employer; attribution of contact-rate lift. Survives; strongest fit in the pool.
+
+[I076] Book-Rate Turnaround and Booked-Appointment Desk for PE-Backed Home-Services Platforms | type=trend form=hybrid cat=home services ops outsourcing
+  thesis: PE platforms that bought roughly 800 HVAC/plumbing/electrical shops run CSR book rates of 50-75% with only 35% of agents asking for the booking, so a 90-day book-rate turnaround ($25K-60K per platform) followed by a managed overflow/after-hours/outbound rehash
+  numbers: median-y2 $120,000 | top-decile $400,000 | p(median)=0.4 | EV $48,000 | first$ 3mo | capital $2,000 | durability 7/10 | openness 7/10 | fit 9/10
+  evidence: PE platforms bought ~800 shops; book rates 50-75% (generator source)
+  skeptic: Nexstar/CertainPath and ServiceTitan analytics sell the same fix; needs a PE-platform network. Survives.
+
+[I077] Ex-Solar Sales Force Redeployed into a Pay-Per-Appointment Call Center for Roofing, Foundation and Home-Battery Installers | type=trend form=business cat=lead-gen for trades
+  thesis: The residential solar tax credit died Dec 31, 2025 and dumped thousands of trained setters, closers and idle dialer seats onto the market; hire them cheap and run a pay-per-sat-appointment factory at $150-400 per sat appointment for hail-belt roofers, foundati
+  numbers: median-y2 $100,000 | top-decile $500,000 | p(median)=0.35 | EV $35,000 | first$ 2mo | capital $30,000 | durability 6/10 | openness 5/10 | fit 10/10
+  evidence: residential solar credit ended Dec 31, 2025, freeing trained setters and closers (generator source)
+  skeptic: Pay-per-appointment margins are thin, contact rates collapsing, and TCPA suits target exactly this model. Survives, risky.
+
+[I078] Nearshore Agent Staffing Reseller (Colombia/Mexico/Jamaica seats for US SMB call centers) | type=evergreen form=business cat=BPO / staffing
+  thesis: Bilingual nearshore agents cost roughly $8-12/hr loaded and bill $15-22/hr or $2,300-2,900 per seat per month, so a 50-seat book throws off $300K-600K/yr in gross margin and 200 seats is a $1M-2M+/yr business with no office and no dialer of your own.
+  numbers: median-y2 $90,000 | top-decile $600,000 | p(median)=0.35 | EV $31,500 | first$ 3mo | capital $20,000 | durability 6/10 | openness 4/10 | fit 9/10
+  evidence: $8-12/hr loaded cost billed at $15-22/hr; 50 seats = $300-600K margin (generator source)
+  skeptic: AI agents are replacing seat-based BPO work; hundreds of resellers. Survives, eroding.
+
+[I079] 2026 Midterm Political Dialing and P2P Texting Vendor for Down-Ballot Campaigns and PACs | type=trend form=business cat=political services
+  thesis: The 2026 midterms are the most expensive non-presidential cycle ever ($10B-11.6B in media, $150M+ on texting alone) and phone banking bills $0.75-3.50 per completed contact, so a dialer-native shop selling paid phone banking, P2P texting, voter ID and GOTV to 
+  numbers: median-y2 $80,000 | top-decile $500,000 | p(median)=0.25 | EV $20,000 | first$ 1mo | capital $20,000 | durability 4/10 | openness 5/10 | fit 9/10
+  evidence: 2026 midterms $10-11.6B media, $0.75-3.50 per completed contact (generator source)
+  skeptic: The 2026 midterm is five weeks away and already contracted; the next cycle is 2028. The timing thesis has expired. Near-fatal.
+
+[I080] Medicare AEP and ACA OEP Seasonal Overflow Call Center with Built-In CMS Compliance | type=evergreen form=business cat=healthcare insurance telesales BPO
+  thesis: Every Oct 15-Dec 7 FMOs and Medicare agencies need surge capacity that already does CMS-compliant full-call recording with 10-year retention, TPMO disclaimers, scope-of-appointment capture and county-qualified transfers; a turnkey compliant desk bills $35-55/h
+  numbers: median-y2 $90,000 | top-decile $400,000 | p(median)=0.35 | EV $31,500 | first$ 1mo | capital $40,000 | durability 7/10 | openness 5/10 | fit 10/10
+  evidence: AEP Oct 15-Dec 7 surge capacity with CMS recording and TPMO rules (generator source)
+  skeptic: 2026 AEP starts in three weeks, too soon for a new vendor; seasonal 8-week revenue; agents must be licensed for sales calls. Survives for the 2027 cycle.
+
+[I081] Membership Retention and Dues-Recovery Desk for Recurring-Membership Businesses | type=unsolved form=business cat=retention outsourcing
+  thesis: Membership businesses lose 15-30% of dues to silent churn, failed payments and unworked cancellation requests, so an outsourced save-and-recovery desk paid 15-25% of recovered dues plus a per-save bounty is found money for the client and scales across every re
+  numbers: median-y2 $80,000 | top-decile $300,000 | p(median)=0.4 | EV $32,000 | first$ 2mo | capital $5,000 | durability 7/10 | openness 6/10 | fit 10/10
+  evidence: 15-30% of dues lost to silent churn and failed payments (generator source)
+  skeptic: ABC Fitness and dunning software handle payment failures; the human save-desk sells slowly. Survives.
+
+[I082] Fractional Head of Contact Center / RevOps for PE-Backed Multi-Location Healthcare (DSOs, med spas, PT, vet) | type=trend form=job cat=fractional executive
+  thesis: PE-backed multi-location practices are centralizing scheduling and phones but cannot justify a $200K contact-center director per platform, so a fractional operator at $8K-15K/mo per platform running 3-5 platforms earns $300K-600K/yr plus equity kickers while d
+  numbers: median-y2 $150,000 | top-decile $400,000 | p(median)=0.4 | EV $60,000 | first$ 3mo | capital $0 | durability 7/10 | openness 7/10 | fit 10/10
+  evidence: $8-15K/mo fractional retainers for PE-backed DSOs, med spas, PT, vet (generator source)
+  skeptic: Relationship-sold; without a PE network the ramp is slow; competes with bigger-name ex-executives. Survives; among the highest reachable incomes for his exact resume.
+
+[I083] Lead Vendor Audit and Clawback Service (contingency-fee lead-quality forensics) | type=unsolved form=business cat=revenue assurance / audit
+  thesis: Call centers buying $50K-2M per month of leads routinely eat 10-30% junk (duplicates, dead numbers, missing consent artifacts, out-of-geo, litigator-list hits) and never file for credits, so an audit shop that scores every lead against consent, contactability 
+  numbers: median-y2 $80,000 | top-decile $400,000 | p(median)=0.35 | EV $28,000 | first$ 3mo | capital $5,000 | durability 7/10 | openness 8/10 | fit 10/10
+  evidence: buyers eat 10-30% junk on $50K-2M/mo lead spend (generator source)
+  skeptic: Clawbacks depend on contract terms; buyers may not antagonize vendors; trust-heavy. Survives.
+
+[I084] AI voice receptionist / missed-call recovery implementation partner for trades and dealership service departments, with a human overflow desk | type=trend form=business cat=done-for-you AI automation
+  thesis: Build and operate after-hours, overflow and appointment-confirmation voice agents at $8K-20K setup plus $1.5K-5K/mo managed fee and a per-minute markup, backed by a small human fallback desk; 25 clients is $600K-1.2M/yr at software-like margins with a services
+  numbers: median-y2 $100,000 | top-decile $500,000 | p(median)=0.4 | EV $40,000 | first$ 2mo | capital $5,000 | durability 5/10 | openness 4/10 | fit 9/10
+  evidence: managed voice-agent deals $500-3K setup plus $300-1,500/mo; 50-80% gross margin claimed (https://trillet.ai/blogs/voice-agent-pricing-strategy-guide)
+  skeptic: Platforms (ServiceTitan, Avoca, Goodcall) sell direct and thousands of AI agencies launched in 2025-26; churn is the killer. Survives, low durability.
+
+[I085] Dialer Migration and Telecom Cost-Audit Practice (CCaaS implementation plus contingency carrier-bill recovery) | type=evergreen form=hybrid cat=call-center systems integrator
+  thesis: Every call center replatforms its dialer/CCaaS every 3-5 years and overpays carriers 10-25% on SIP trunks, DIDs and unused seats, so charge $15K-60K per migration (Convoso, Five9, Readymode, Genesys, HubSpot/GHL integrations), take 30-50% contingency on teleco
+  numbers: median-y2 $110,000 | top-decile $400,000 | p(median)=0.4 | EV $44,000 | first$ 2mo | capital $2,000 | durability 7/10 | openness 6/10 | fit 10/10
+  evidence: $15-60K per migration plus 10-25% carrier-bill recovery (generator source; his own Convoso dialer-impact work)
+  skeptic: Vendor partner networks and SIs compete; a few migrations a year; employer conflict. Survives.
+
+[I086] Ark-La-Tex Local Newsletter Network (Texarkana, then Shreveport, Tyler, Longview, Hot Springs) | type=evergreen form=business cat=local media / hyperlocal newsletter
+  thesis: A free daily 5-minute local email with ~18K subscribers sells ~$200K/yr of local advertising in a single small city (Naptown Scoop, Annapolis: ~$200K/yr from ~18K subs, 80%+ from ads — https://www.sidehustlenation.com/local-newsletter-business/), and 6AM City 
+  numbers: median-y2 $45,000 | top-decile $200,000 | p(median)=0.4 | EV $18,000 | first$ 6mo | capital $5,000 | durability 7/10 | openness 7/10 | fit 8/10
+  evidence: ~$1 per subscriber per month at maturity; 10K subs ~ $5K/mo (https://stormy.ai/blog/scaling-local-newsletters-hyperlocal-marketing); Naptown Scoop ~$200K/yr at 18K subs
+  skeptic: Texarkana metro ~150K people: 10K subs takes 2-3 years; local ad sales is a grind against TV and the Gazette. Survives, slow.
+
+[I087] HubSpot / GoHighLevel / Convoso Tutorial Channel — B2B SaaS YouTube with recurring affiliate back end | type=evergreen form=hybrid cat=B2B YouTube / SaaS affiliate
+  thesis: B2B software tutorial content earns the highest RPM on YouTube — $15–45 per 1,000 views after YouTube's 45% cut, because enterprise-software advertisers pay $30–80 CPM (https://outlierkit.com/blog/highest-paying-youtube-niches) — and the tools themselves pay r
+  numbers: median-y2 $30,000 | top-decile $300,000 | p(median)=0.35 | EV $10,500 | first$ 6mo | capital $1,000 | durability 6/10 | openness 5/10 | fit 9/10
+  evidence: B2B software RPM $15-45; GHL 40% recurring affiliate (generator source)
+  skeptic: Crowded affiliate field; slow to compound. Weakened for 24 months.
+
+[I088] UGC + Whitelisting Creator Studio for DTC brands (manage 25 creators, sell the ad-account rights) | type=trend form=business cat=creator ad production / UGC agency
+  thesis: Brands pay $150–300 base per UGC video, $100–800 more for usage rights, and the real recurring money is whitelisting/Spark Ads at $500–2,000 per creator per month on top of production (https://ppc.io/blog/ugc-pricing; https://influee.co/blog/ugc-price); a stud
+  numbers: median-y2 $70,000 | top-decile $300,000 | p(median)=0.4 | EV $28,000 | first$ 2mo | capital $5,000 | durability 5/10 | openness 4/10 | fit 7/10
+  evidence: $150-300 per UGC video plus $500-2K/mo whitelisting (generator source)
+  skeptic: AI UGC undercuts human creators; brand budgets shifting. Survives, eroding.
+
+[I089] TikTok Shop Affiliate-Management Agency (outbound creator seeding for sellers) | type=trend form=business cat=social commerce / affiliate management
+  thesis: eMarketer forecasts TikTok Shop US sales of $23.41B in 2026, up 48% YoY (https://www.dashboardly.io/statistics/tiktok-shop-affiliate-creator-statistics), affiliate creator content drives ~42% of that GMV (https://www.hamstergarage.com/article/tiktok-shop-affil
+  numbers: median-y2 $70,000 | top-decile $500,000 | p(median)=0.35 | EV $24,500 | first$ 2mo | capital $5,000 | durability 5/10 | openness 4/10 | fit 8/10
+  evidence: TikTok Shop US $23.4B in 2026 (dashboardly.io)
+  skeptic: Platform-ownership risk and thousands of affiliate agencies. Survives, fragile.
+
+[I090] Video-first podcast in a high-CPM vertical (insurance / finance / small-business ops), dual-monetized on YouTube and Spotify | type=trend form=hybrid cat=video podcast
+  thesis: Host-read mid-rolls pay $25–50 CPM for mid-tier shows and $60–120 for top-100 titles (https://www.millionpodcasts.com/blog/podcast-advertising-cost-cpm-rates-by-genre-size/), video podcasts earn ~24% higher CPM than audio-only (https://www.digitalapplied.com/b
+  numbers: median-y2 $25,000 | top-decile $500,000 | p(median)=0.2 | EV $5,000 | first$ 12mo | capital $5,000 | durability 6/10 | openness 4/10 | fit 6/10
+  evidence: host-read mid-rolls $25-50 CPM mid-tier (millionpodcasts.com)
+  skeptic: Audience building takes years; the median podcast earns almost nothing. Weakened.
+
+[I091] Preschool Learning IP Studio built for streaming licensing and toys, not AdSense | type=trend form=business cat=kids media IP / licensing
+  thesis: Made-for-kids AdSense is close to dead — RPM ~$1–3, CPM often $0.25–0.35, and revenue drops >95% once a video is flagged made-for-kids (https://gyre.pro/blog/how-to-monetize-a-youtube-kids-channel) — so the 2026 money is licensing: Ms. Rachel's non-exclusive N
+  numbers: median-y2 $20,000 | top-decile $2,000,000 | p(median)=0.1 | EV $2,000 | first$ 18mo | capital $30,000 | durability 6/10 | openness 4/10 | fit 8/10
+  evidence: kids AdSense RPM ~$1-3; licensing needs scale (https://korpi.ai/blog/how-much-do-faceless-youtube-channels-make); he already built the BabyLoop factory
+  skeptic: Cocomelon-scale outcomes are lottery odds; made-for-kids monetization is near dead; licensing deals need audience first. Near-fatal on probability despite perfect fit.
+
+[I092] AI-Training Footage Broker for small rights-holders (event videographers, drone pilots, churches, dashcams) | type=unsolved form=business cat=content licensing / AI training data
+  thesis: AI labs pay $1–4 per minute for unpublished, rights-clean video (https://www.artificialintelligence-news.com/news/ai-giants-pay-thousands-for-creators-unused-footage-to-train-models/), marketplaces like Troveo have paid out $20M+ to 7,000+ rights holders (http
+  numbers: median-y2 $30,000 | top-decile $300,000 | p(median)=0.25 | EV $7,500 | first$ 3mo | capital $2,000 | durability 4/10 | openness 6/10 | fit 7/10
+  evidence: labs pay $1-4/min for unpublished rights-clean video (generator source)
+  skeptic: Labs contract with Troveo/Protege directly; demand may evaporate; thin broker margin. Weakened.
+
+[I093] Founder & Executive LinkedIn Ghostwriting Shop (vertical-specialized) | type=evergreen form=hybrid cat=B2B content services
+  thesis: Founders and executives pay $2,000–5,000/month for ghostwriting that produces pipeline (https://windmillgrowth.com/blogseo/linkedin-ghostwriter-cost), agency tiers run $2K–4K for 4–8 posts up to $8K–15K+/month (https://www.foundera.co/blog/linkedin-ghostwritin
+  numbers: median-y2 $90,000 | top-decile $300,000 | p(median)=0.45 | EV $40,500 | first$ 1mo | capital $0 | durability 5/10 | openness 4/10 | fit 7/10
+  evidence: founders pay $2-5K/mo for ghostwriting (windmillgrowth.com)
+  skeptic: AI commoditizes drafting; crowded; churn. Survives, eroding.
+
+[I094] Corporate AI-Literacy Training for regional businesses (workshops + retainers) | type=trend form=hybrid cat=B2B training / courses
+  thesis: Half-day team workshops bill $3,000–8,000 and full days $6,000–15,000 (https://bluecarrot.io/blog/corporate-training-rates/; https://tightslice.com/blog/ai-training-cost-2026), per-employee AI training runs $200–1,000 (https://www.pertamapartners.com/insights/
+  numbers: median-y2 $80,000 | top-decile $300,000 | p(median)=0.4 | EV $32,000 | first$ 1mo | capital $1,000 | durability 5/10 | openness 6/10 | fit 8/10
+  evidence: half-day workshops $3-8K, full days $6-15K (bluecarrot.io)
+  skeptic: The window closes as literacy rises and vendors give training away; needs credibility. Survives, short clock.
+
+[I095] Own-the-Audience Lead-Gen Channel in a high-LTV local vertical ('Moving to Texarkana / Ark-La-Tex' real estate first, Medicare second) | type=evergreen form=hybrid cat=lead-gen media / local vertical video
+  thesis: A tiny local real-estate YouTube channel (85K total views) produces 10–12 closings a year for a Killeen, TX agent (https://faribai.com/2026/09/19/you-dont-need-50000-subscribers-to-close-deals-on-youtube-heres-proof/); at the $429,300 May-2026 median price and
+  numbers: median-y2 $50,000 | top-decile $300,000 | p(median)=0.35 | EV $17,500 | first$ 9mo | capital $2,000 | durability 7/10 | openness 7/10 | fit 8/10
+  evidence: a tiny local real-estate channel produced 10-12 closings/yr (faribai.com)
+  skeptic: Monetizing RE leads needs a license or referral deals; Medicare leads are TPMO-regulated; slow. Survives, slow.
+
+[I096] Owned-Catalog 24/7 Ambient Stream Network (lofi / sleep / nature / campfire) with Content ID | type=evergreen form=business cat=YouTube livestream network / music catalog
+  thesis: Lofi Girl is roughly a $3.5M/yr media business (https://podcasts.apple.com/us/podcast/ai-music-gold-rush-how-lofi-girl-earns-%243-5-million/id1821580447?i=1000745078276); 24/7 streams earn on watch-hours rather than clicks — a 2026 study of 300 monetized chann
+  numbers: median-y2 $30,000 | top-decile $3,500,000 | p(median)=0.15 | EV $4,500 | first$ 6mo | capital $10,000 | durability 5/10 | openness 3/10 | fit 8/10
+  evidence: Lofi Girl ~$3.5M/yr (podcast source)
+  skeptic: YouTube's July 2025 inauthentic/repetitive-content policy and thousands of lofi channels; winner-take-most. Near-fatal on probability.
+
+[I097] Buy-and-Operate Media Assets: acquire cash-flowing newsletters and YouTube channels at 12–36x monthly profit | type=evergreen form=business cat=media roll-up / micro private equity
+  thesis: YouTube channels sell for 12–36x monthly profit — 1–3x annual — with faceless evergreen channels at the top and gaming/personality channels at the bottom (https://flippa.com/blog/buy-youtube-channel/), and real deals close below that (a faceless channel that h
+  numbers: median-y2 $60,000 | top-decile $500,000 | p(median)=0.35 | EV $21,000 | first$ 2mo | capital $100,000 | durability 5/10 | openness 6/10 | fit 8/10
+  evidence: channels sell at 12-36x monthly profit (flippa.com)
+  skeptic: Returns cap near 3-4x annual; seller fraud; algorithm decay; needs $100K+ to matter. Survives as a capital allocator's play.
+
+[I098] Texas property-tax protest firm (contingency, dialer-driven mass enrollment, own comps engine) | type=evergreen form=business cat=tax-recovery services
+  thesis: Texas local governments levied a record $125.05B in property taxes in 2024 (https://www.texaspolicyresearch.com/texas-property-tax-levies-1998-2025/); protest firms keep 25% (Ownwell) to 35-50% (traditional firms) of first-year savings with zero upfront fee (h
+  numbers: median-y2 $90,000 | top-decile $1,000,000 | p(median)=0.4 | EV $36,000 | first$ 6mo | capital $20,000 | durability 8/10 | openness 5/10 | fit 9/10
+  evidence: firms charge 25-50% of first-year savings (https://www.ownwell.com/blog/property-tax-protest-companies-cost); Texas levied $125B in 2024 (texaspolicyresearch.com)
+  skeptic: TDLR property-tax-consultant registration; Ownwell/O'Connor own the metros; Bowie County values are low so fees per account are small; 2025 homestead exemption raise cut homeowner savings. Survives as a volume business.
+
+[I099] IEEPA tariff-refund and duty-drawback recovery firm (contingency filings for importers) | type=trend form=business cat=trade compliance / claims recovery
+  thesis: On Feb 20, 2026 the Supreme Court ruled 6-3 that IEEPA never authorized tariffs, making every IEEPA duty paid from Feb 2025 through Feb 24, 2026 refundable (https://www.flexport.com/blog/the-supreme-courts-ieepa-tariff-ruling-next-steps-potential-refunds-and/)
+  numbers: median-y2 $60,000 | top-decile $500,000 | p(median)=0.25 | EV $15,000 | first$ 1mo | capital $5,000 | durability 3/10 | openness 4/10 | fit 6/10
+  evidence: CAPE automated refund phases from April 20, 2026; Phase 3 only for importers who sued at the CIT (https://www.hklaw.com/en/insights/publications/2026/06/ieepa-tariff-refund-update-government-appeals; nortonrosefulbright.com)
+  skeptic: The automated CAPE process removed the need for a middleman; brokers and law firms already own the rest; the event ends in 2027. Near-fatal.
+
+[I100] Medicare Advantage telesales agency building a renewal book (CMS fixed commissions) | type=evergreen form=business cat=insurance distribution / call center
+  thesis: CMS sets the maximum broker payment at $694 per new Medicare Advantage enrollment plus $347/yr renewal for 2026, rising to $725/$363 in 2027, with PDP at $114/$57 (https://ritterim.com/blog/2027-maximum-broker-commissions-for-medicare-advantage-and-medicare-pa
+  numbers: median-y2 $90,000 | top-decile $500,000 | p(median)=0.4 | EV $36,000 | first$ 3mo | capital $30,000 | durability 8/10 | openness 5/10 | fit 10/10
+  evidence: CMS 2026 max $694 initial / $347 renewal per MA member; 500-member book = ~$173K/yr renewals; 10 apps/month compounds to $150K+ by year 4 (https://ritterim.com/blog/2027-maximum-broker-commissions-for-medicare-advantage-and-medicare-part-d/; medicareagentshub.com)
+  skeptic: Lead costs $30-60, carriers cutting commissions on some plans, TPMO recording rules, rapid-disenrollment chargebacks; year-2 net is modest but the book compounds and is sellable. Survives; best fit-plus-durability pairing in the pool.
+
+[I101] Texas public-adjusting firm for hail, wind, freeze and water claims (10% statutory fee) | type=evergreen form=hybrid cat=insurance claims
+  thesis: Texas caps public-adjuster fees at 10% of the settlement under Tex. Ins. Code 4102.104 (https://insuranceclaimrecoverysupport.com/public-adjuster-in-texas/), and U.S. severe convective storms produced $51B in insured losses in 2025 - the third straight year ab
+  numbers: median-y2 $90,000 | top-decile $500,000 | p(median)=0.4 | EV $36,000 | first$ 4mo | capital $10,000 | durability 7/10 | openness 6/10 | fit 7/10
+  evidence: Texas caps PA fees at 10%; salaried PAs average $67-70K (https://www.ziprecruiter.com/Salaries/Public-Insurance-Adjuster-Salary--in-Texas)
+  skeptic: Claim cycles run 6-12 months before a fee lands; Texas solicitation restrictions; hail-year dependence; insurers' appraisal tactics. Survives, lumpy.
+
+[I102] Asset-recovery finder firm: Texas unclaimed property (10% cap) plus foreclosure and tax-sale surplus funds | type=evergreen form=business cat=claims recovery
+  thesis: Texas is holding nearly $11B in unclaimed property (https://www.kbtx.com/2026/03/23/texas-has-nearly-11b-unclaimed-property-about-487m-is-linked-bryan-college-station/) and returned more than $450M in FY2025 (https://www.recordinglaw.com/us-laws/unclaimed-prop
+  numbers: median-y2 $50,000 | top-decile $300,000 | p(median)=0.35 | EV $17,500 | first$ 2mo | capital $3,000 | durability 8/10 | openness 5/10 | fit 8/10
+  evidence: Texas holds ~$11B unclaimed (kbtx.com); finder fee capped at 10%
+  skeptic: Most unclaimed amounts are small, counties pay slowly, many finders and heir-search firms. Weakened.
+
+[I103] DOT / FMCSA compliance-in-a-box C/TPA for 1-20 truck micro-fleets (drug consortium, Clearinghouse, DQ files, audit readiness) | type=evergreen form=business cat=regulatory compliance services
+  thesis: About 580,000 active carriers are registered with FMCSA and 91.5% run 10 or fewer trucks (https://maxdispatchservice.com/how-many-trucking-companies-in-the-us/; https://www.freightwaves.com/news/there-are-292000-shippers-in-america-and-97-of-carriers-have-10-t
+  numbers: median-y2 $80,000 | top-decile $400,000 | p(median)=0.4 | EV $32,000 | first$ 3mo | capital $10,000 | durability 8/10 | openness 5/10 | fit 8/10
+  evidence: 91.5% of 580K carriers run 10 or fewer trucks (maxdispatchservice.com)
+  skeptic: DISA, Foley and J.J. Keller are large and cheap; micro-fleets die in freight recessions. Survives, modest.
+
+[I104] Court-Mandated Ignition-Interlock Service Center (multi-county TX/AR) | type=evergreen form=business cat=court-ordered compliance
+  thesis: Texas judges must order interlocks for repeat DWI offenders and commonly do for first offenses at 0.15+ BAC, with installation due within 30 days of conviction (https://www.intoxalock.com/state-requirements/texas; https://www.dps.texas.gov/section/ignition-int
+  numbers: median-y2 $60,000 | top-decile $200,000 | p(median)=0.4 | EV $24,000 | first$ 4mo | capital $20,000 | durability 7/10 | openness 5/10 | fit 5/10
+  evidence: Texas lease $60-100/mo per device, install $70-150 (https://www.intoxalock.com/state-requirements/texas/pricing)
+  skeptic: You would be a service center for Smart Start/Intoxalock, not the provider; margins set by them. Weakened.
+
+[I105] ADAS Calibration Center (insurance-paid sublet work for body and glass shops) | type=trend form=business cat=auto aftermarket / insurance-reimbursed service
+  thesis: 28.3% of collision repairs now require ADAS calibration per Q4 2025 CCC data (https://pennypincher.com/articles/insurance/auto/adas-repair-costs-insurance-windshield-calibration) at $300-$600 per calibration (https://www.caliber.com/services/auto-glass/auto-gl
+  numbers: median-y2 $120,000 | top-decile $400,000 | p(median)=0.4 | EV $48,000 | first$ 4mo | capital $80,000 | durability 8/10 | openness 7/10 | fit 4/10
+  evidence: shops average $21.5K/mo ADAS revenue, $350-500 per calibration, ~70% margin, equipment ~$55K (https://www.revvhq.com/blog/adas-calibration-profitable-service-collision-shops); 28.3% of repairs need calibration (CCC)
+  skeptic: Texarkana has perhaps 25-30 body/glass shops; needs technical skill; insurers push shops in-house; $18K/yr equipment refresh. Survives.
+
+[I106] Cost-Segregation Study Firm riding permanent 100% bonus depreciation | type=trend form=business cat=specialty tax services
+  thesis: The One Big Beautiful Bill (P.L. 119-21) made 100% bonus depreciation permanent for property placed in service after Jan 19, 2025 and created 100% expensing for Qualified Production Property, both of which require a cost-segregation study as the substantiating
+  numbers: median-y2 $120,000 | top-decile $1,000,000 | p(median)=0.35 | EV $42,000 | first$ 4mo | capital $10,000 | durability 8/10 | openness 5/10 | fit 6/10
+  evidence: $5-13K per residential/small-multifamily study, $12-60K commercial; 100% bonus depreciation now permanent under OBBBA (https://www.baselane.com/resources/cost-segregation-bonus-depreciation)
+  skeptic: Needs engineering-based credibility (or a partner); national firms and $99 AI estimates compress the small end; sold through CPAs. Survives; strong ceiling.
+
+[I107] Fire and life-safety inspection company (code-mandated recurring ITM routes: sprinklers, alarms, extinguishers, backflow) | type=evergreen form=business cat=commercial services / compliance
+  thesis: OSHA 29 CFR 1910.157 and NFPA standards require every commercial building to have extinguishers, sprinklers, and alarms inspected on fixed schedules, which is why the fire-protection testing, inspection, and certification market was $1B in 2025 and heads to $1
+  numbers: median-y2 $100,000 | top-decile $400,000 | p(median)=0.4 | EV $40,000 | first$ 4mo | capital $30,000 | durability 9/10 | openness 7/10 | fit 5/10
+  evidence: backflow businesses $100-600K at ~35% margin; sprinkler ITM gross margin 50%+; shops valued 3-5x SDE with premiums for recurring ITM (https://bizbite.io/businesses/backflow-testing)
+  skeptic: Texas SFM licensing tiers (RME with NICET II for sprinkler inspection) mean starting with backflow and extinguishers and hiring licensed staff. Survives; consolidator exit (Pye-Barker) is the upside.
+
+[I108] TEFA-Approved Education Vendor (microschool, tutoring, and therapy network) | type=trend form=business cat=government-funded education
+  thesis: Texas launched a $1B Education Freedom Account program for 2026-27 paying up to $10,474 per private-school student, up to $30,000 for students with disabilities, and $2,000 per homeschooler (https://gov.texas.gov/news/post/texas-opens-applications-for-texas-ed
+  numbers: median-y2 $60,000 | top-decile $300,000 | p(median)=0.3 | EV $18,000 | first$ 6mo | capital $30,000 | durability 6/10 | openness 6/10 | fit 5/10
+  evidence: TEFA pays up to $10,474 per student, $30K for disabilities (generator source)
+  skeptic: Year-one program, oversubscribed by existing private schools, and running a school is an operating burden. Weakened.
+
+[I109] Rural Health Transformation Program Implementation Vendor / Grant-Compliance Consultant | type=trend form=hybrid cat=government-funded healthcare / grant consulting
+  thesis: OBBBA created a $50B Rural Health Transformation Program paying $10B a year from FY2026-2030, and Texas won the largest first-year award at $281.3M for its 'Rural Texas Strong' plan covering AI/telehealth, workforce, and infrastructure (https://www.morganlewis
+  numbers: median-y2 $100,000 | top-decile $400,000 | p(median)=0.3 | EV $30,000 | first$ 3mo | capital $2,000 | durability 5/10 | openness 7/10 | fit 5/10
+  evidence: $50B Rural Health Transformation Program; Texas $281.3M first-year award (generator source)
+  skeptic: States hire Deloitte/Guidehouse-class firms; hospitals use existing grant writers; five-year clock. Weakened.
