@@ -11,6 +11,10 @@ It is a small, honest machine for driving one operator from $0 to a first dollar
 - **Agents never contact anyone.** They log evidenced prospects and write drafts to an outbox. A human sends.
 - **Gates are legal, not cosmetic.** Paths that stand on day-job expertise are blocked from agent spend until the employment-agreement gate is cleared with evidence.
 
+## Look first
+
+Live preview on demo data, buttons switched off: https://revenue-station-preview.netlify.app (station), `/terminal/` (production terminal), `/ledger/` (money dashboard). Rebuild it with `npm run preview`, which writes a static copy to `preview/`.
+
 ## One-paste start (Windows)
 
 Paste this into PowerShell. It downloads or updates the code, checks Node, asks for your Anthropic key once (hidden), pulls new local businesses, adds Randi as client #1, sets the auditor and manager jobs, and opens the station. Run the same line again any day to update and restart.

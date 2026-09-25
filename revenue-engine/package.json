@@ -4,11 +4,14 @@
   "private": true,
   "type": "module",
   "description": "Truthful, quest-driven revenue engine: real agents, real ledger, no simulated money.",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "test": "node --test test/*.test.js",
     "start": "node src/cli.js serve",
-    "status": "node src/cli.js status"
+    "status": "node src/cli.js status",
+    "preview": "node scripts/build-preview.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest"
