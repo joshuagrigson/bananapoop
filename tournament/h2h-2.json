@@ -1,0 +1,72 @@
+[
+ {
+  "challenger_id": "I107",
+  "incumbent_id": "I001",
+  "challenger_wins": false,
+  "steelman": "Fire ITM is legally mandated (OSHA 1910.157/NFPA), carries 50%+ sprinkler gross margin and 3-5x SDE exits with Pye-Barker-style consolidators paying premiums for recurring ITM, so a route-dense shop has a 2x higher ceiling ($400K vs $200K top decile) than pest at the same $100K median.",
+  "decisive_evidence": "Same $100K y2 median but 0.4 vs 0.6 probability (EV $40K vs $60K), 4 vs 2 months to first dollar, and the NICET II / RME licensing gate that forces a backflow-and-extinguisher start; the higher ceiling does not offset a one-third lower chance of reaching the median."
+ },
+ {
+  "challenger_id": "I032",
+  "incumbent_id": "I082",
+  "challenger_wins": false,
+  "steelman": "A 40-60% bill-rate markup yields ~$31K gross margin per FTE placement, so 40 placements is $1.2M+ gross margin with a $500K top decile, and recruiting/dialing/no-show management is literally Joshua's day job with a consolidated CHRISTUS system openly short on nurses.",
+  "decisive_evidence": "Incumbent posts $150K y2 median vs $100K at the identical 0.4 probability with $0 capital vs $60K plus factoring float on 45-60 day facility payment terms and VMS gatekeeping; the staffing ceiling ($500K vs $400K) is not enough to beat a 50% higher median at equal odds."
+ },
+ {
+  "challenger_id": "I067",
+  "incumbent_id": "I001",
+  "challenger_wins": false,
+  "steelman": "$113B market, 17% BLS employment growth, $7-15K launch cost, and a CDS/FMSA admin-fee stream on Medicaid family caregivers ($2,205/mo) give home care a $300K top decile versus pest's $200K, and 77% caregiver turnover is exactly the recruiting problem Joshua solves daily.",
+  "decisive_evidence": "Median net margin 9.7% (owner average $102.8K) versus pest's 25-50% margins once routed; same $100K median but 0.4 vs 0.6 probability, 6 vs 2 months to first dollar, and a 4-6 month HCSSA license against thousands of existing Texas agencies."
+ },
+ {
+  "challenger_id": "I105",
+  "incumbent_id": "I012",
+  "challenger_wins": false,
+  "steelman": "ADAS has the better-sourced unit economics in the pair: 28.3% of collision repairs need calibration (CCC), $350-500 per job at ~70% margin, $21.5K/mo per shop, ~$55K equipment, insurer-paid, market $1.3B to $2.5B by 2033, and a $120K median with a $400K ceiling beats load bank's $110K/$350K on paper.",
+  "decisive_evidence": "Only 25-30 body/glass shops in the Texarkana market with insurers pushing calibration in-house caps a standalone bay's volume, giving 0.4 vs 0.5 probability (EV $48K vs $55K) at identical $80K capital; load bank's NFPA 110 mandate plus 100 GW ERCOT large-load queue is a growing captive base with $1,500-6,000 per visit."
+ },
+ {
+  "challenger_id": "I048",
+  "incumbent_id": "I075",
+  "challenger_wins": false,
+  "steelman": "Pay-per-show ($25-150) on leads carried at $0 removes all buyer risk, so a dialer operator can close clients in weeks, bill six figures per client per year, and hit a $500K top decile on $5K capital and a fit score of 10.",
+  "decisive_evidence": "Incumbent's $130K median at 0.45 vs $100K at 0.4 (EV $58.5K vs $40K), $600K vs $500K ceiling, 7 vs 6 durability, at the same $5K capital and 2-month ramp; the challenger's own skeptic line (spam-labeling crushes contact rates, TCPA exposure on aged consent) describes the exact problem the incumbent gets paid $3-10K/mo to solve."
+ },
+ {
+  "challenger_id": "I055",
+  "incumbent_id": "I054",
+  "challenger_wins": false,
+  "steelman": "$175-275/hr or $1,500-3,500/acre with fuel and teeth as the only COGS means 25 billable hours a week grosses $250-350K for one operator, on elevated East Texas raw-land sales to DFW and out-of-state buyers.",
+  "decisive_evidence": "Dumpster posts $130K median at 0.55 vs $100K at 0.5 (EV $71.5K vs $50K) with $90K vs $150K capital, an equal $300K ceiling, 9 vs 8 durability, and third-party owner earnings data ($120-250K one-truck, 18-24 month payback) versus mulching's generator-sourced rates tied to weather and cattle-price pasture demand."
+ },
+ {
+  "challenger_id": "I101",
+  "incumbent_id": "I028",
+  "challenger_wins": false,
+  "steelman": "$51B in 2025 SCS insured losses (third straight $50B+ year) with Texas the hail epicenter, a statutory 10% fee, and $10K capital make 100 claims x $40K uplift = $400K/yr plausible for a PA with a call center running intake, and the $500K ceiling comes with no SBA personal guarantee.",
+  "decisive_evidence": "Incumbent's $150K median vs $90K at the same 0.4 probability, $1.5M vs $500K top decile, 9 vs 7 durability, and a sourced $165K SDE median deal at 2.5-3.2x on 10% down; the challenger's $400K rests on an assumed uplift while salaried Texas PAs average $67-70K and fees land 6-12 months after signing."
+ },
+ {
+  "challenger_id": "I026",
+  "incumbent_id": "I054",
+  "challenger_wins": false,
+  "steelman": "Locally sourced demand (west-side subdivisions forced onto wells and septic), $10-20K aerobic tickets plus $300-500/yr mandatory maintenance contracts, and an entry license with no experience prerequisite give a $350K ceiling and a two-crew $1.5-3M/yr revenue path that dumpsters cannot match.",
+  "decisive_evidence": "Dumpster's $130K median at 0.55 beats septic's $110K at 0.45 (EV $71.5K vs $49.5K) on $90K vs $150K capital, 2 vs 4 months to first dollar, and fit 6 vs 4; septic's $1.5-3M figure is an unsourced estimate that needs an excavator, an OSSF license, a driller partner and displacing established installers."
+ },
+ {
+  "challenger_id": "I038",
+  "incumbent_id": "I036",
+  "challenger_wins": false,
+  "steelman": "First dollar in one month on $2K capital at 0.5 probability, first-year reps averaging ~$150K and top closers $250K+ when lead flow is the differentiator, which is what Joshua sells for a living, against an AE role where the skeptic concedes the first hire is likely mid-market.",
+  "decisive_evidence": "Incumbent's $180K median (EV $63K) vs $85K (EV $42.5K) with a $500K vs $250K ceiling; even the skeptic-discounted mid-market AI-vendor AE at $120-160K OTE exceeds roofing's median, while ZipRecruiter's $73,891 and the ACV-roof-schedule squeeze cut the Glassdoor $206K self-report in half."
+ },
+ {
+  "challenger_id": "I059",
+  "incumbent_id": "I037",
+  "challenger_wins": false,
+  "steelman": "A multi-thousand-tech shortage, $135-185/hr plus trip fees, a $15-25K kit, 0.5 probability and a captive referral network of resort residents make $120-180K solo the most reachable six figures in the pair, with no technical interview gate.",
+  "decisive_evidence": "FDE's $170K median and $400K ceiling versus RV tech's $100K/$180K (EV $59.5K vs $50K) with $0 vs $25K capital and 3 vs 6 months to first dollar; even the skeptic's fallback 1099 implementation path at $100-200/hr clears the RV tech's entire top decile, and RVTI certification adds 6-12 months of physical trade work before the first dollar."
+ }
+]

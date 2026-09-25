@@ -1,0 +1,90 @@
+[
+  {
+    "challenger_id": "I076",
+    "incumbent_id": "I017",
+    "challenger_wins": false,
+    "steelman": "If PE sponsors really are 18 months from a forced exit, one platform contract ($25-60K turnaround plus $15-40 per booked job across dozens of shops) would out-earn a dozen med-spa retainers, and ~800 acquired shops is a concentrated, EBITDA-motivated buyer list. But the dossier gives no evidence Joshua can reach PE operating partners, and Nexstar/CertainPath/ServiceTitan already sell the same fix into that channel.",
+    "decisive_evidence": "I017 leads on every money number: EV $54K vs $48K, prob-to-median 0.45 vs 0.40, top decile $500K vs $400K, first dollar 2 vs 3 months, and it is the function he already runs (fit 10 vs 9). Same operating model with a harder-to-reach buyer is not more money more likely.",
+    "same_business": true
+  },
+  {
+    "challenger_id": "I085",
+    "incumbent_id": "I075",
+    "challenger_wins": false,
+    "steelman": "Migration fees are large and immediate ($15-60K each) with contingency telecom recovery and $2-5K/mo admin retainers layered on, and his own Convoso dialer-impact work is direct proof of competence. But the skeptic line concedes only a few migrations a year, vendor SI networks compete for them, and the employer conflict is sharper than for a reputation desk.",
+    "decisive_evidence": "I075 EV $58.5K vs $44K, top decile $600K vs $400K, prob 0.45 vs 0.40, same 2-month first dollar and same fit 10; I075's recurring $3-10K/mo per client with sourced 62% vs 20% branded answer-rate lift beats a lumpy project practice.",
+    "same_business": null
+  },
+  {
+    "challenger_id": "I050",
+    "incumbent_id": "I037",
+    "challenger_wins": false,
+    "steelman": "I050 has the higher probability (0.45 vs 0.35), no interview gate, and 12-18 projects at $15-40K plus $1-3K/mo hosting plausibly clears $400K with zero employees, which would beat a $170K contract income. But the pricing and deal flow are generator-sourced, the skeptic notes every agency now claims this and buyers can vibe-code, and closing depends on a local business network he does not yet have.",
+    "decisive_evidence": "I037's $170K median is backed by multiple cited comp sources (FDE median $190-207K, contractor $60-86/hr to $100-200/hr) versus I050's unsourced $15-40K project economics; EV $59.5K vs $54K, and a $50K median gap outweighs a 10-point probability edge that itself rests on unsourced numbers.",
+    "same_business": null
+  },
+  {
+    "challenger_id": "I015",
+    "incumbent_id": "I054",
+    "challenger_wins": false,
+    "steelman": "Cleanouts need less than half the capital ($40K vs $90K), biohazard jobs bill $5-30K with insurance often paying, and the demographic driver (boomer mortality peak, absentee heirs) is durable for a decade. But every number is generator-sourced, Aftermath/Bio-One franchises hold the high-margin end, and the median income is $90K versus a sourced $120-250K for a dumpster owner-operator.",
+    "decisive_evidence": "I054 EV $71.5K vs $45K, median $130K vs $90K, prob 0.55 vs 0.50, with cited one-truck earnings of $120-250K and an 18-24 month payback; I015's $2-15K per job and 0.50 probability are uncited.",
+    "same_business": null
+  },
+  {
+    "challenger_id": "I106",
+    "incumbent_id": "I012",
+    "challenger_wins": true,
+    "steelman": "Permanent 100% bonus depreciation (P.L. 119-21, cited) makes a cost-seg study the mandatory substantiating document for every 2025-2029 acquisition and QPP build; studies bill $5-15K each (cited), engineering subcontracts, and the sales motion is outbound to CPAs and investors, which is Joshua's actual skill. With $10K capital and a $1M top decile, the money case does not depend on him learning a trade.",
+    "decisive_evidence": "I106 has cited per-study pricing ($5-15K, ~$10K per $1M property, 4-10x owner ROI) and a cited permanent statutory driver, top decile $1M vs $350K, capital $10K vs $80K, fit 6 vs 5; I012's $1,500-6,000 per visit and its 0.50 probability are generator-sourced and presume electrical/generator competence and $40-70K of gear he does not have, so its probability edge (0.50 vs 0.35) is not evidence-backed while I106's ceiling and cost are.",
+    "same_business": null
+  },
+  {
+    "challenger_id": "I100",
+    "incumbent_id": "I001",
+    "challenger_wins": false,
+    "steelman": "CMS fixed commissions are cited ($694 new / $347 renewal for 2026, rising in 2027), Peak 65 is cited, fit is 10, and a 500-member book throws off ~$173K/yr in renewals and is sellable, so on a 5-year horizon the annuity could pass a solo pest route. But the skeptic's $30-60 leads, chargebacks, carrier commission cuts and TPMO rules push year-2 net to $90K at 0.40 probability, and the compounding is projected, not evidenced.",
+    "decisive_evidence": "I001 EV $60K vs $36K, prob 0.60 vs 0.40, median $100K vs $90K, capital $40K vs $30K, with cited solo take-home $80-140K by year 2 and cited 6.5-8x EBITDA exit multiples; pest control also compounds (85%-recurring book) and does so more reliably.",
+    "same_business": null
+  },
+  {
+    "challenger_id": "I022",
+    "incumbent_id": "I017",
+    "challenger_wins": false,
+    "steelman": "A quarter-trillion in construction receivables, lien-notice leverage, and 15-25% contingency on $5-100K invoices means one recovered invoice pays more than a month of kept appointments, and the phone labor is the same Texarkana desk. But recovery rates are 20-30%, Texas requires a surety bond, first dollar is 4 months out, and the client book ramps slowly.",
+    "decisive_evidence": "I017 EV $54K vs $40.5K, median $120K vs $90K, top decile $500K vs $400K, first dollar 2 vs 4 months, fit 10 vs 9; both are generator-sourced so the dossier numbers decide it outright.",
+    "same_business": null
+  },
+  {
+    "challenger_id": "I002",
+    "incumbent_id": "I054",
+    "challenger_wins": false,
+    "steelman": "Septic has the slightly higher probability (0.60 vs 0.55), a cited legally mandated $200-500/yr aerobic maintenance subscription with TCEQ fines behind it, cited 2.6M Texas systems, and the RV resort as a built-in commercial account, all at identical $90K capital. But the cited solo income is $50-150K versus $120-250K for a dumpster owner-operator, and disposal fees eat septic margin.",
+    "decisive_evidence": "I054 EV $71.5K vs $54K, median $130K vs $90K, top decile $300K vs $250K on the same $90K capital; a 5-point probability edge does not close a $40K median gap when both sides are sourced.",
+    "same_business": null
+  },
+  {
+    "challenger_id": "I098",
+    "incumbent_id": "I001",
+    "challenger_wins": false,
+    "steelman": "Cited 60-80% statewide win rates, 25-50% contingency, a $125B and growing levy pool, 71% non-filers, near-zero COGS, an annual recurring campaign and a $1M top decile make this the exact dialer machine Joshua runs; if he reaches DFW/Houston volume it out-earns any pest route. But Ownwell/O'Connor own those metros, Bowie County values make local fees tiny, the 2025 homestead raise cut savings, and first dollar is 6 months out.",
+    "decisive_evidence": "I001 EV $60K vs $36K, prob 0.60 vs 0.40, median $100K vs $90K, first dollar 2 vs 6 months, and I001's exit multiples are cited; I098's ceiling is real but its median path is blocked by the incumbents named in its own skeptic line.",
+    "same_business": null
+  },
+  {
+    "challenger_id": "I066",
+    "incumbent_id": "I017",
+    "challenger_wins": false,
+    "steelman": "Cited $3-5K per placement (70-80% of first month's rent), 61M seniors and 32,000 communities under occupancy pressure, $5K capital and a booking-desk motion he already runs mean 10 placements a month is $360-600K with almost no fixed cost. But APFM dominates lead flow, the FTC ANPRM and state disclosure laws threaten the fee model (durability 6), and lead cost is unquantified.",
+    "decisive_evidence": "I017 EV $54K vs $40.5K, median $120K vs $90K, top decile $500K vs $300K, durability 7 vs 6, fit 10 vs 9; I066's regulatory exposure lowers both money and probability relative to a desk with no pending rulemaking.",
+    "same_business": null
+  },
+  {
+    "challenger_id": "I018",
+    "incumbent_id": "I017",
+    "challenger_wins": false,
+    "steelman": "Denials of 12-15% with two-thirds never appealed is a structurally growing pool as payers auto-deny with AI, 20-30% of recovered dollars on 30-50 practices reaches $2-5M, and LLMs collapse a 45-minute appeal to 5 minutes. But it needs a certified biller/coder he is not, Waystar/Adonis sell to the same practices, fit is 6 versus 10, and first dollar is 4 months out.",
+    "decisive_evidence": "I017 EV $54K vs $45K, median $120K vs $100K, top decile $500K vs $400K, first dollar 2 vs 4 months, fit 10 vs 6; both generator-sourced, and the incumbent leads on every number.",
+    "same_business": null
+  }
+]
