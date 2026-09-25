@@ -44,7 +44,7 @@ const HELP = `revenue-engine
   jobs                                                 list jobs
   seed-demo                                            fill an EMPTY data dir with labeled demo data
   run <role> --path P [--max-usd 2] [--model ${DEFAULT_MODEL}] [--provider anthropic|replay --script file.json]
-  serve [--port 8790] [--host 127.0.0.1] [--daily-cap 5] [--no-scheduler] [--harvest-daily]
+  serve [--port 8790] [--host 127.0.0.1] [--daily-cap 5] [--no-scheduler] [--harvest-daily] [--open]
   paths                                    the catalog
   help
 
@@ -53,6 +53,12 @@ Data dir: ${DATA_DIR}  (override with REVENUE_ENGINE_DATA)`;
 function makeAnthropicProvider() {
   // Lazy import so status/log commands never load the SDK. Zero-arg client resolves ANTHROPIC_API_KEY or an ant profile.
   return import('@anthropic-ai/sdk').then(({ default: Anthropic }) => ({ kind: 'anthropic', client: new Anthropic(), noFallback: Boolean(process.env.REVENUE_ENGINE_NO_FALLBACK) }));
+}
+
+// Open the station in the default browser. Failure is harmless: the URL is printed either way.
+function openBrowser(url) {
+  const cmd = process.platform === 'win32' ? `start "" "${url}"` : process.platform === 'darwin' ? `open "${url}"` : `xdg-open "${url}"`;
+  import('node:child_process').then(({ exec }) => exec(cmd, () => {})).catch(() => {});
 }
 
 async function providerFrom(v) {
@@ -95,7 +101,7 @@ async function main(argv) {
       platform: { type: 'string' }, url: { type: 'string' }, title: { type: 'string' }, post: { type: 'string' },
       every: { type: 'string' }, type: { type: 'string' }, days: { type: 'string' }, counties: { type: 'string' },
       name: { type: 'string' }, city: { type: 'string' }, category: { type: 'string' }, website: { type: 'string' },
-      monthly: { type: 'string' }, notes: { type: 'string' }, services: { type: 'string' }, 'harvest-daily': { type: 'boolean' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
+      monthly: { type: 'string' }, notes: { type: 'string' }, services: { type: 'string' }, 'harvest-daily': { type: 'boolean' }, open: { type: 'boolean' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
     },
   });
   const [cmd, ...rest] = pos;
@@ -232,7 +238,10 @@ async function main(argv) {
         ledger, dataDir: DATA_DIR, runAgent,
         makeProvider: () => { if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN && !process.env.ANTHROPIC_PROFILE) console.error('note: no ANTHROPIC_API_KEY in env; the SDK will try an ant auth profile'); return makeAnthropicProvider(); },
       });
-      server.listen(port, host, () => console.log(`revenue station: http://${host}:${port}   money dashboard: http://${host}:${port}/ledger   (ledger ${LEDGER_FILE})`));
+      server.listen(port, host, () => {
+        console.log(`revenue station: http://${host}:${port}   money dashboard: http://${host}:${port}/ledger   (ledger ${LEDGER_FILE})`);
+        if (v.open) openBrowser(`http://${host}:${port}`);
+      });
       if (!v['no-scheduler']) {
         const dailyCapUsd = Number(v['daily-cap'] || process.env.REVENUE_ENGINE_DAILY_CAP || 5);
         createScheduler({

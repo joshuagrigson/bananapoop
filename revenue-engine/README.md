@@ -11,6 +11,14 @@ It is a small, honest machine for driving one operator from $0 to a first dollar
 - **Agents never contact anyone.** They log evidenced prospects and write drafts to an outbox. A human sends.
 - **Gates are legal, not cosmetic.** Paths that stand on day-job expertise are blocked from agent spend until the employment-agreement gate is cleared with evidence.
 
+## One-paste start (Windows)
+
+Paste this into PowerShell. It downloads or updates the code, checks Node, asks for your Anthropic key once (hidden), pulls new local businesses, adds Randi as client #1, sets the auditor and manager jobs, and opens the station. Run the same line again any day to update and restart.
+
+```powershell
+cd $HOME; if (Test-Path bananapoop) { git -C bananapoop pull } else { git clone -b claude/amazing-edison-n9ydsa https://github.com/joshuagrigson/bananapoop }; powershell -ExecutionPolicy Bypass -File .\bananapoop\revenue-engine\setup.ps1
+```
+
 ## Run it
 
 Requirements: Node 22+. One dependency (`@anthropic-ai/sdk`).
