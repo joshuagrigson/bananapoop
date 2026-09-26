@@ -12,7 +12,8 @@
     "start": "node src/cli.js serve",
     "status": "node src/cli.js status",
     "preview": "node scripts/build-preview.mjs",
-    "export-art": "node scripts/export-art.mjs"
+    "export-art": "node scripts/export-art.mjs",
+    "export-folk": "node scripts/export-folk.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest"

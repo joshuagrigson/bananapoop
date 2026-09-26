@@ -87,7 +87,7 @@ function characterModule(src) {
 //   drawCharacter(ctx, {
 //     kind: 'person' | 'kid' | 'agent' | 'client' | 'lead' | 'animal',
 //     name: 'Tasha',                 // the name picks skin tone, hair and clothes (same name, same look)
-//     col: '#8fb0ff',                // their colour: shirt for folk and kids, glow for agents
+//     col: '#8fb0ff',                // their color: shirt for folk and kids, glow for agents
 //     pose: 'stand' | 'walk' | 'sit' | 'sleep' | 'serve' | 'chore' | 'tinker' | 'chat' | 'carry',
 //     t: 0,                          // seconds into the animation
 //     face: 1,                       // 1 faces right, -1 faces left
@@ -182,7 +182,7 @@ async function main() {
         if (!entry) {
           const animal = c.who === 'animal';
           const nm = animal ? `${c.resident || c.name}` : `${c.name}${c.costume ? '-' + c.costume : ''}${c.who === 'person' || c.who === 'kid' ? '-' + c.theme : ''}`;
-          entry = await sheetFor(c.id, animal ? ANIMAL_ROWS : PERSON_ROWS, 'cast', nm, { who: c.who, label: c.label, role: c.role, colour: c.col, theme: c.theme, costume: c.costume, animal: c.animal });
+          entry = await sheetFor(c.id, animal ? ANIMAL_ROWS : PERSON_ROWS, 'cast', nm, { who: c.who, label: c.label, role: c.role, color: c.col, theme: c.theme, costume: c.costume, animal: c.animal });
           if (!entry) continue;
           sigs.set(c.sig, entry);
         }
@@ -249,7 +249,7 @@ async function main() {
     if (world === 'space') {
       for (const c of await X(() => window.__PF_EXPORT.costumes())) await sheetFor({ kind: 'folk', name: `Sample ${c.id}`, costume: { id: c.id, res: true }, tint: '#8fb0ff' }, PERSON_ROWS, 'costumes', c.id, { who: 'person', costume: c.id, theme: 'office' });
       for (const c of await X(() => window.__PF_EXPORT.clientNames())) await sheetFor({ kind: 'guest', name: c.name, tint: '#9ec5ff', ev: { source: c.name } }, PERSON_ROWS, 'clients', `client-hair-${c.style < 0 ? 'm' + -c.style : c.style}`, { who: 'client', theme: 'barber' });
-      for (const r of (await X(() => window.__PF_EXPORT.roles())).filter((r) => r.id !== 'commander')) await sheetFor({ kind: 'job', role: r.id, name: r.title }, PERSON_ROWS, 'agents', r.id, { who: 'agent', role: r.id, label: r.title, colour: r.col, theme: 'office' });
+      for (const r of (await X(() => window.__PF_EXPORT.roles())).filter((r) => r.id !== 'commander')) await sheetFor({ kind: 'job', role: r.id, name: r.title }, PERSON_ROWS, 'agents', r.id, { who: 'agent', role: r.id, label: r.title, color: r.col, theme: 'office' });
       for (const [id, nm] of ANIMALS) await sheetFor({ kind: 'res', lk: { id, resident: nm }, name: nm }, ANIMAL_ROWS, 'animals', nm, { who: 'animal', animal: id, theme: 'office' });
     }
   }
@@ -318,7 +318,7 @@ function writeDocs(M) {
   const L = fs.existsSync(legacyFile) ? JSON.parse(fs.readFileSync(legacyFile, 'utf8')) : null;
   write('manifest.js', 'window.MANIFEST = ' + JSON.stringify(M) + ';\nwindow.LEGACY = ' + JSON.stringify(L) + ';\n');
   const count = (f) => M.characters.filter(f).length;
-  const groups = [['cast', 'every character in the three demo stations, once per distinct look (a costume in a castle, cyber or alien room, a room\'s work clothes, a kid\'s colour); appearsIn says where each one shows up'], ['costumes', 'each world costume on a sample person'], ['clients', 'every client hairstyle (the game picks one from the client\'s name)'], ['agents', 'the hologram AI agent of every role, in its role colour'], ['animals', 'the farm and ocean stock']];
+  const groups = [['cast', 'every character in the three demo stations, once per distinct look (a costume in a castle, cyber or alien room, a room\'s work clothes, a kid\'s color); appearsIn says where each one shows up'], ['costumes', 'each world costume on a sample person'], ['clients', 'every client hairstyle (the game picks one from the client\'s name)'], ['agents', 'the hologram AI agent of every role, in its role color'], ['animals', 'the farm and ocean stock']];
   const md = `# Proxyfolk art handoff
 
 Every character, room, backdrop and map of Proxyfolk as PNG, drawn by the game's own renderer, with the code behind them.
@@ -377,7 +377,7 @@ ${L ? `
 ## Legacy pixel art
 
 The pixel engine as it stood at commit a9eba0c, before the smooth renderer replaced it (the look of the old castle with its towers).
-- legacy-pixel/characters/<world>/: every role in that world's outfit, the family's kids (shorter, in their colour), and the residents of the room looks (skeletons, cows, clownfish...). Each sheet has rows front, back and seated; columns stand, step A, step B (seated: resting, typing). Native size and @8x with hard pixel edges.
+- legacy-pixel/characters/<world>/: every role in that world's outfit, the family's kids (shorter, in their color), and the residents of the room looks (skeletons, cows, clownfish...). Each sheet has rows front, back and seated; columns stand, step A, step B (seated: resting, typing). Native size and @8x with hard pixel edges.
 - legacy-pixel/maps/<station>/: the pixel world of each station in each world, on its own (clear) and over its sky, native (960x600) and @3x.
 - legacy-pixel/backgrounds/: each world's pixel sky.
 ` : ''}

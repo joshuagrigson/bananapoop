@@ -114,7 +114,7 @@ const baseSpec = (id) => CATALOG.find((p) => p.id === id) || null;
 
 // Validate and normalize a station design. Throws LedgerError with a sentence a person can act on.
 const HEX = /^#[0-9a-f]{6}$/i;
-// The folk: named people who work the rooms (kids in an allowance chart, barbers in a shop, you). Each has a colour and,
+// The folk: named people who work the rooms (kids in an allowance chart, barbers in a shop, you). Each has a color and,
 // optionally, the rooms they work; without rooms they go wherever their last logged work was. AI agents are folk too,
 // but they come from the ledger's jobs, not from this list.
 function normalizeFolk(list) {

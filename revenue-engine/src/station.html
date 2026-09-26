@@ -857,7 +857,7 @@
     'content-channel': { accent: '#f472b6', screen: 'play', prop: 'camera' },
     'freelance-desk': { accent: '#22d3ee', screen: 'jobs', prop: 'coffee' },
   };
-  // A room's look: what its designer chose (colour, furniture style, wall screen, prop), else the built-in theme.
+  // A room's look: what its designer chose (color, furniture style, wall screen, prop), else the built-in theme.
   const themeOf = (id) => {
     const t = THEME[id] || { accent: '#7aa2ff', screen: 'bars', prop: 'plant' };
     const r = rooms.find((m) => m.id === id);
@@ -1609,9 +1609,9 @@
   function popValue(x, y, text, col) { pops.push({ kind: 'text', x, y, text, col, t0: T }); pops.push({ kind: 'ring', x, y, col, t0: T }); pops.push({ kind: 'ring', x, y, col: '#ffffff', t0: T + 0.12 }); }
   let hoverAgentId = null;
 
-  // a character's portrait for the hover card: their sprite, smoothed and big, on a glow of their colour
+  // a character's portrait for the hover card: their sprite, smoothed and big, on a glow of their color
   const portraitCache = new Map();
-  // the hover card's portrait: the character drawn smooth, on a glow of their colour
+  // the hover card's portrait: the character drawn smooth, on a glow of their color
   function portraitOf(a) {
     const id = identity(a);
     const key = `${skinId()}|${id.kind}|${a.id}|${a.tint || ''}|${a.costume ? a.costume.id : ''}`;
@@ -2802,7 +2802,7 @@
           <div class="km"><b>${esc(k.name)}</b><small>${usd(s.period)} this week · ${s.done} chore${s.done === 1 ? '' : 's'} · ${usd(s.earned)} all time</small></div>
           <div class="ko"><b>${usd(Math.max(0, s.owed))}</b><small>owed</small></div>
           <button class="btn sm2${payArm === k.name ? ' go' : ''}" type="button" data-pay="${esc(k.name)}"${s.owed > 0 ? '' : ' disabled'}>${payArm === k.name ? `Confirm ${usd2(s.owed)}` : 'Pay'}</button>
-        </div>`).join('') : `<div class="callout"><b>No kids yet</b>Add each kid's name (and a colour) and they appear on the station. <a href="#" data-rooms="" style="color:var(--cyan)">Add kids</a></div>`}
+        </div>`).join('') : `<div class="callout"><b>No kids yet</b>Add each kid's name (and a color) and they appear on the station. <a href="#" data-rooms="" style="color:var(--cyan)">Add kids</a></div>`}
         <div class="muted small" style="margin-top:6px">Pay hands over what a kid is owed and records it, so their balance goes back to zero. It never moves real money.</div></div>
       ${rk.length ? `<div class="sec"><h3>Chore rankings</h3><div class="segs">${segHtml('data-rdays', PERIODS.slice(0, 3).concat([[0, 'All']]), rankDays)}${segHtml('data-metric', METRICS_A, metric)}</div>
         ${rk.map((r, i) => { const acc = themeOf(r.room.id).accent, lead1 = i === 0 && r.s.count > 0, w = Number.isFinite(r.value) ? Math.max(0, 100 * r.value / rkMax) : 0;
@@ -3133,10 +3133,10 @@
   const FOLK_WORD = { allowance: ['Kids', 'kid'], service: ['Team', 'person'], agents: ['Folk', 'person'] };
   function kidsHtml(kids) {
     const [title, one] = FOLK_WORD[rd.draft.mode] || FOLK_WORD.agents;
-    const blurb = rd.draft.mode === 'allowance' ? 'Each kid is a character with their own colour. Check a chore off for a kid and they walk to that room and do it; their earnings and payouts are tracked by name.'
+    const blurb = rd.draft.mode === 'allowance' ? 'Each kid is a character with their own color. Check a chore off for a kid and they walk to that room and do it; their earnings and payouts are tracked by name.'
       : rd.draft.mode === 'service' ? 'Everyone who works here is a character on the map. Log a sale with who did it and they walk to that room and do it. Pick the rooms each person works in the room settings below.'
       : 'People who work the rooms alongside your AI agents. Agents you hire appear on their own, one character per agent.';
-    return `<h3>${title} <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· each one is a character</span></h3><div class="kids-ed">${kids.map((k, i) => `<div class="kr" style="--kc:${k.color}"><button type="button" class="kc" data-kidcol="${i}" title="Change colour"></button><input data-kidname="${i}" value="${esc(k.name)}" maxlength="24" placeholder="Name"><input class="kro" data-kidrole="${i}" value="${esc(k.role || '')}" maxlength="24" placeholder="${rd.draft.mode === 'allowance' ? 'Kid' : rd.draft.template === 'barber' ? 'Barber' : 'Role'}" title="What they are, shown under their name"><button type="button" class="kx" data-kiddel="${i}" title="Remove">${ic('trash')}</button></div>`).join('')}
+    return `<h3>${title} <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· each one is a character</span></h3><div class="kids-ed">${kids.map((k, i) => `<div class="kr" style="--kc:${k.color}"><button type="button" class="kc" data-kidcol="${i}" title="Change color"></button><input data-kidname="${i}" value="${esc(k.name)}" maxlength="24" placeholder="Name"><input class="kro" data-kidrole="${i}" value="${esc(k.role || '')}" maxlength="24" placeholder="${rd.draft.mode === 'allowance' ? 'Kid' : rd.draft.template === 'barber' ? 'Barber' : 'Role'}" title="What they are, shown under their name"><button type="button" class="kx" data-kiddel="${i}" title="Remove">${ic('trash')}</button></div>`).join('')}
       ${kids.length < (rd.data.maxFolk || rd.data.maxKids || 12) ? `<button type="button" class="btn sm2" data-kidadd>${ic('plus')}Add a ${one}</button>` : ''}</div>
       <div class="muted small" style="margin-top:6px">${blurb}</div>`;
   }
@@ -3151,7 +3151,7 @@
     return `<div class="rd-form" style="--c:${r.accent}">
       <h3>${isBase ? 'Built-in path' : chores ? 'Chore' : 'Room'} ${rd.sel + 1}</h3>
       <div class="row2"><label class="field"><span>Name</span><input data-f="name" maxlength="60" value="${esc(r.name)}"></label><label class="field"><span>Short label</span><input data-f="short" maxlength="22" value="${esc(r.short || '')}" placeholder="${esc(String(r.name || '').slice(0, 22))}"></label></div>
-      <div class="field" style="margin-top:10px"><span>Colour</span><div class="swatches">${d.palette.map((c) => `<button type="button" data-color="${c}" class="${c === r.accent ? 'on' : ''}" style="--sc:${c}" title="${c}"></button>`).join('')}</div></div>
+      <div class="field" style="margin-top:10px"><span>Color</span><div class="swatches">${d.palette.map((c) => `<button type="button" data-color="${c}" class="${c === r.accent ? 'on' : ''}" style="--sc:${c}" title="${c}"></button>`).join('')}</div></div>
       ${dr.mode !== 'allowance' && dr.kids.some((k) => k.name.trim()) ? `<div class="field" style="margin-top:10px"><span>Who works here</span><div class="kids-ed">${dr.kids.map((k, i) => k.name.trim() ? `<button type="button" class="kr wk${(k.rooms || []).includes(roomKey(r)) ? ' on' : ''}" data-worker="${i}" style="--kc:${k.color}"><span class="kc"></span>${esc(k.name)}</button>` : '').join('')}</div></div>` : ''}
       ${looks ? `<div class="field" style="margin-top:10px"><span>${COSTUME_SKINS.has(dr.skin) ? 'What the folk here become' : 'What lives here'} · ${esc((d.skins[dr.skin] || {}).title || dr.skin)}</span><div class="looks">${looks.map((l) => `<button type="button" class="tile${curLook === l.id ? ' on' : ''}" data-look="${l.id}" style="--c:${r.accent}"><span><b>${esc(l.resident)}</b><small>${esc(l.title)}</small></span></button>`).join('')}</div></div>`
         : `<div class="field" style="margin-top:10px"><span>Furniture</span><div class="styles">${Object.entries(d.styles).map(([k, t]) => `<button type="button" class="tile${(r.style || 'office') === k ? ' on' : ''}" data-style="${k}" style="--c:${r.accent}">${ic(STYLE_ICON[k] || 'rooms')}<span><b>${esc(k[0].toUpperCase() + k.slice(1))}</b><small>${esc(t)}</small></span></button>`).join('')}</div></div>
@@ -3359,11 +3359,11 @@
           <dt>Room</dt><dd>One money path. Lit means active; amber beacons and hazard stripes mean gated; red emergency light means killed.</dd>
           <dt>Service room</dt><dd>In a station built from your own services (Rooms, or press C), each room is one service. Mirror bulbs lit: sales today, one chair per sale up to six. Towel stack: sales this month. Tube: this month against the room's goal, gold once it is met. The crown marks the most profit per hour of chair time over 30 days.</dd>
           <dt>Chore room</dt><dd>In an allowance station each room is one chore. Check it off in its room, pick the kid who did it, and they earn the chore's price. Tube: this month against the chore's goal.</dd>
-          <dt>Folk</dt><dd>One character per person on the roster (a kid, a barber, you), in their colour with a name tag, living in the room of their latest logged work. Pick who did a sale or a chore and they walk to that room and do it. Customize (<kbd>C</kbd>) sets who works which rooms.</dd>
+          <dt>Folk</dt><dd>One character per person on the roster (a kid, a barber, you), in their color with a name tag, living in the room of their latest logged work. Pick who did a sale or a chore and they walk to that room and do it. Customize (<kbd>C</kbd>) sets who works which rooms.</dd>
           <dt>Agents</dt><dd>One character per AI agent on a job, in its job's room. Sits at a desk with a ring overhead while its run is live; carries crates of logged outcomes when it ends.</dd>
           <dt>How many in a room</dt><dd>The number of characters in a room is the number working it (the count on the room's label). An empty room has no one assigned: a flickering outline marks the open spot.</dd>
           <dt>Level badge</dt><dd>The number in front of a name: how much that person did in 30 days (or how many runs an agent has made), on the same 1, 5, 15, 40, 100 steps as room tiers.</dd>
-          <dt>Rings and rims</dt><dd>Everyone who works here stands on a ring of their own colour and is edged in it, so you can tell who is who on any floor, in any world.</dd>
+          <dt>Rings and rims</dt><dd>Everyone who works here stands on a ring of their own color and is edged in it, so you can tell who is who on any floor, in any world.</dd>
           <dt>Floor medallion</dt><dd>What a room is, painted big on its floor: scissors, a plate, a bed, a book, a laptop. Taken from the room's name.</dd>
           <dt>Coin bubble</dt><dd>A room that took money today (or had chores done today) shows it in a bubble with a coin over the room.</dd>
           <dt>Gold marker, bubble</dt><dd>The diamond over a head turns gold and a bubble pops (coin, star, check) when a real event is theirs: a sale, a chore, a finished run.</dd>
@@ -3393,7 +3393,7 @@
             <kbd>drag</kbd><span>pan the camera</span>
             <kbd>scroll · pinch</kbd><span>zoom</span>
             <kbd>1 – 9</kbd><span>jump to room by rank</span>
-            <kbd>C</kbd><span>customize: purpose, world, folk, rooms, colours, keywords</span>
+            <kbd>C</kbd><span>customize: purpose, world, folk, rooms, colors, keywords</span>
             <kbd>click a room</kbd><span>fly into its close-up, walls up; the panel becomes that room's hub</span>
             <kbd>click a character</kbd><span>follow them: the camera tracks them and the panel says what they are doing</span>
             <kbd>R</kbd><span>replay the last 24 hours</span>
@@ -3744,10 +3744,10 @@
     let rx0 = 0, ry0 = 0;                          // origin for room-local drawing
     let us = 12, LOD = 2, px1 = 1, tt = 0, curTheme = 'office';
     const wallH = new Map();                       // per cell: current wall height (animated)
-    const lights = [];                             // [worldX, worldY, radius(world px), colour, strength]
+    const lights = [];                             // [worldX, worldY, radius(world px), color, strength]
     let hits = [];
 
-    // ---- colour helpers (local to the renderer)
+    // ---- color helpers (local to the renderer)
     const hx = (c) => { let s = String(c || '#888').replace('#', ''); if (s.length === 3) s = s.split('').map((k) => k + k).join(''); const n = parseInt(s.slice(0, 6), 16) || 0; return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
     const rgb = (r, gg, b, a = 1) => `rgba(${Math.round(clamp(r, 0, 255))},${Math.round(clamp(gg, 0, 255))},${Math.round(clamp(b, 0, 255))},${a})`;
     const shade = (c, k, a = 1) => { const [r, gg, b] = hx(c); return k >= 0 ? rgb(r + (255 - r) * k, gg + (255 - gg) * k, b + (255 - b) * k, a) : rgb(r * (1 + k), gg * (1 + k), b * (1 + k), a); };
@@ -3880,7 +3880,7 @@
         else { g.strokeStyle = 'rgba(0,0,0,0.2)'; g.lineWidth = lw(0.018); g.stroke(); for (const [a, b] of [[0.12, 0.12], [0.88, 0.12], [0.12, 0.88], [0.88, 0.88]]) { const [px, py] = Pl(x + a, y + b); g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(px - px1, py - px1, px1 * 2, px1 * 2); } }
       }
     }
-    // a cell's floor: a raised plate with its tiles, contact shadows along the walls, a trim in the room's colour
+    // a cell's floor: a raised plate with its tiles, contact shadows along the walls, a trim in the room's color
     function drawFloor(kind, rm, th, S, acc, look) {
       const T0 = 0.28;
       poly([Pl(0, N, 0), Pl(N, N, 0), Pl(N, N, -T0), Pl(0, N, -T0)]); g.fillStyle = S.slab; g.fill();
@@ -4889,7 +4889,7 @@
     }
 
 
-    // far away, a character is a simple figure: body, head, hair, the colour that says who they are
+    // far away, a character is a simple figure: body, head, hair, the color that says who they are
     function simpleFigure(a, id, L) {
       const holo = id.kind === 'agent', k = L.small ? 0.82 : 1;
       g.scale(k, k);
@@ -5510,15 +5510,15 @@
   const HELP = [
     ["What it's for", 'The purpose. Service station: one room per service you sell; sales from Square or Stripe split into rooms by item name and rank by profit per hour. Allowance tracker: one room per chore; a parent checks chores off and kids earn. Command center: AI agents work money paths from prospect to paid. Switching never touches the ledger, it only changes what the screens lead with.'],
     ['World', 'Only the look: space, castle, farm, city, ship or sea. Any world fits any purpose: a barber can run a castle, a chore chart can be cyberpunk. Click one to try it on; nothing changes until you save.'],
-    ['Your ', 'Each name becomes a character who lives in the world. Their colour is their shirt and name tag, their role (Barber, Colorist) shows on the tag. When a sale or chore names them, they walk to that room and do it, and their level rises with the work.'],
-    ['Kids', 'Each kid becomes a character in the world with their own colour. When you check off a chore for them, they walk to that room and do it, and their pay adds up until you pay them out.'],
-    ['Folk', 'Each name becomes a character who lives in the world, with their own colour and role.'],
+    ['Your ', 'Each name becomes a character who lives in the world. Their color is their shirt and name tag, their role (Barber, Colorist) shows on the tag. When a sale or chore names them, they walk to that room and do it, and their level rises with the work.'],
+    ['Kids', 'Each kid becomes a character in the world with their own color. When you check off a chore for them, they walk to that room and do it, and their pay adds up until you pay them out.'],
+    ['Folk', 'Each name becomes a character who lives in the world, with their own color and role.'],
     ['Station name', 'Shown in the title bar, the browser tab and the vault in the middle of the world.'],
     ['Rooms ·', 'Each room is one thing you track, up to ten. Click one to edit it on the right. Order matters when two rooms share a keyword: the higher one wins.'],
     ['Chores ·', 'Each chore is a room in the world with its own price. Up to ten. Click one to edit it.'],
     ['Name', "The room's name: on its sign in the close-up, its label in the world and in every list."],
     ['Short label', 'A shorter name for tight spots such as the map labels. Leave it empty to use the name.'],
-    ['Colour', "The room's accent colour: its label, floor trim, rug, charts and the sign in its close-up."],
+    ['Color', "The room's accent color: its label, floor trim, rug, charts and the sign in its close-up."],
     ['Who works here', "Pin people to this room. Pinned folk stay here between jobs. Folk who aren't pinned live in the room of their most recent work."],
     ['What the folk here become', 'Only in this world: the costume folk wear while they work this room, such as a skeleton in the crypt or a hacker in the den. Pure looks.'],
     ['What lives here', 'Only in this world: the animals that live in this room, such as cows in the pasture or crabs in the wreck. More of them appear as the room gets busier.'],

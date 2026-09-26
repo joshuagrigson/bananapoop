@@ -8,7 +8,7 @@ import path from 'node:path';
 
 const [previewDir, out] = process.argv.slice(2).map((p) => path.resolve(p));
 const WORLDS = ['space', 'castle', 'farm', 'cyber', 'alien', 'ocean'];
-const STATIONS = [['family', '/family/'], ['barber', '/barber/'], ['business', '/']];   // family first: the kids' colours come from it
+const STATIONS = [['family', '/family/'], ['barber', '/barber/'], ['business', '/']];   // family first: the kids' colors come from it
 const write = (rel, data) => { const f = path.join(out, rel); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, data); return rel; };
 const writePng = (rel, url) => write(rel, Buffer.from(url.slice(url.indexOf(',') + 1), 'base64'));
 function serve(dir) {
@@ -80,7 +80,7 @@ for (const world of WORLDS) {
       const nm = role === 'commander' ? 'you-commander' : role;
       M.characters.push({ world, name: nm, role, native: writePng(`legacy-pixel/characters/${world}/${nm}.png`, s.native), x8: writePng(`legacy-pixel/characters/${world}/${nm}@8x.png`, s.big), cell: [s.cw, s.ch], rows: ROWS.map(([n, fr]) => ({ name: n, frames: fr.map(([, f]) => f) })) });
     }
-    // kids: the family's children, shorter, in their own colour
+    // kids: the family's children, shorter, in their own color
     for (const kid of kids) {
       const cells = [];
       for (const [, fr] of ROWS) cells.push(await Promise.all(fr.map(([v, f]) => page.evaluate(([v2, f2, t]) => window.__PF_LEGACY.crew(v2, f2, 'prospector', t, true), [v, f, kid.color]))));

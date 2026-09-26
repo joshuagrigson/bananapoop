@@ -74,7 +74,7 @@ test('rooms.json round trip, and the catalog the engine runs on', () => {
   assert.equal(braids.goalUsd, 1200);
   assert.equal(braids.budgetUsd, 5);
   assert.deepEqual(braids.stages, {});
-  // a built-in path inside a custom station keeps its stages, gate and budget, and takes the new name and colour
+  // a built-in path inside a custom station keeps its stages, gate and budget, and takes the new name and color
   assert.equal(base.name, 'My path');
   assert.equal(base.accent, '#123456');
   assert.deepEqual(base.stages, CATALOG[0].stages);
