@@ -448,6 +448,8 @@
   .rmi .u small { display: block; margin-top: 4px; font-family: var(--f-ui); }
   #toasts { position: absolute; z-index: 7; left: 50%; top: calc(var(--top) + 4px); transform: translateX(-50%); width: min(430px, 92%); display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
   .toast { display: grid; grid-template-columns: 34px 1fr; gap: 11px; align-items: center; padding: 10px 14px 10px 10px; animation: tin .55s cubic-bezier(.2,.9,.3,1.25) both; }
+  .toast:has(.ta) { grid-template-columns: 34px 1fr auto; }
+  .toast .ta { align-self: center; margin-left: 6px; pointer-events: auto; cursor: pointer; font: 700 11px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: #06080f; background: var(--c); border: 0; border-radius: 6px; padding: 7px 10px; }
   .toast .ti { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent), 0 0 18px color-mix(in srgb, var(--c) 30%, transparent); }
   .toast .tt { font: 700 13px/1.2 var(--f-display); color: #fff; letter-spacing: .02em; }
   .toast .ts { font-size: 11px; color: var(--muted); margin-top: 2px; }
@@ -587,6 +589,7 @@
   .rd-form > h3:first-child { margin-top: 0; }
   .rd-foot { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
   .rd-foot .msg { flex: 1; min-width: 160px; }
+  #roomsbox .msg.top { margin: 12px 0 0; font-size: 12.5px; min-height: 0; }
   .wel .tiles { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
   .wel .tile { padding: 12px; } .wel .tile .t-ic { width: 40px; height: 40px; }
   .rd-top { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.4fr); gap: 20px; margin-bottom: 6px; }
@@ -685,7 +688,7 @@
     #areaTitle .lg { display: none; } #areaTitle .sm { display: inline; }
     #areaTitle .aa { flex-wrap: nowrap; }
     #rail { background: #080b16; }
-    .toast { padding: 7px 10px 7px 8px; grid-template-columns: 26px 1fr; gap: 8px; } .toast .ti { width: 26px; height: 26px; border-radius: 8px; } .toast .tt { font-size: 12px; } .toast .ts { font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .toast { padding: 7px 10px 7px 8px; grid-template-columns: 26px 1fr; gap: 8px; } .toast .ti { width: 26px; height: 26px; border-radius: 8px; } .toast .tt { font-size: 12px; } .toast .ts { font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .toast:has(.ta) { grid-template-columns: 26px 1fr auto; }
     #toasts .toast:nth-child(n+2) { display: none; }
     #toasts { width: calc(100% - 16px); }
   }
@@ -859,6 +862,15 @@
   const iso = (x, y) => [OX + (x - y) * HW, OY + (x + y) * HH];
   const P = (x, y, z = 0) => { const [sx, sy] = iso(x, y); return [sx, sy - z]; };
   const cellOrigin = (c, r) => [c * CELL + 1, r * CELL + 1];
+  // the station's back walls: as in a dollhouse (or the Sims), the two walls behind everything stay up. They stand on a
+  // ledge of their own just behind the back rooms, so the rooms still float. World units.
+  const BACK = { gap: 2.4, ledge: 1.7, h: 6.2 };
+  function backdropBounds() {
+    let c0 = Infinity, r0 = Infinity, c1 = -Infinity, r1 = -Infinity;
+    for (const key of cells.keys()) { const [c, r] = key.split(',').map(Number); c0 = Math.min(c0, c); r0 = Math.min(r0, r); c1 = Math.max(c1, c); r1 = Math.max(r1, r); }
+    if (!isFinite(c0)) return null;
+    return { x0: c0 * CELL + 1 - BACK.gap, y0: r0 * CELL + 1 - BACK.gap, x1: Math.max(c1 * CELL + 1 + ROOM + 0.8, MAST[0] + 1.3), y1: r1 * CELL + 1 + ROOM + 0.8 };
+  }
   const cellCenter = (c, r) => [c * CELL + 1 + 3.5, r * CELL + 1 + 3.5];
 
 
@@ -912,7 +924,7 @@
   // furniture style instead and return null.
   function lookDef(room) {
     const sk = SK();
-    if (!sk.looks || !room) return null;
+    if (!sk.looks || !sk.looks.length || !room) return null;
     const want = room.spec && room.spec.looks && room.spec.looks[skinId()];
     const idx = Math.max(0, rooms.indexOf(room));
     return sk.looks.find((l) => l.id === want) || sk.looks[idx % sk.looks.length];
@@ -988,7 +1000,7 @@
   // ---- navigation: a fine walk grid over floors and halls, furniture blocked, A* plus string-pulling
   const NR = 4, NGW = 44 * NR, NGH = 34 * NR;
   const HUB_SPAWN = [1.9, 1.9];                             // hub-local spot where crew beam in and out
-  const MAST = [29, 0];                                    // world spot of the comm mast (income sync)
+  const MAST = [29, -0.35];                                 // world spot of the comm mast (income sync)
   // Income sync health, read from the snapshot: drives the mast beacon, the Sync button and the mast tooltip.
   function syncStatus() {
     const list = (snap && snap.sync && snap.sync.connections) || [];
@@ -1817,6 +1829,8 @@
       const [c, r] = key.split(',').map(Number); const [ox, oy] = cellOrigin(c, r);
       for (const [x, y, z] of [[ox, oy, WH + 30], [ox + ROOM, oy, WH + 20], [ox, oy + ROOM, WH], [ox + ROOM, oy + ROOM, -SLAB]]) { const [sx, sy] = P(x, y, z); x0 = Math.min(x0, sx); y0 = Math.min(y0, sy); x1 = Math.max(x1, sx); y1 = Math.max(y1, sy); }
     }
+    const bk = backdropBounds();
+    if (bk) for (const [x, y, z] of [[bk.x0, bk.y0, BACK.h * HW + 58], [bk.x1, bk.y0, BACK.h * HW + 50], [bk.x0, bk.y1, BACK.h * HW + 50]]) { const [sx, sy] = P(x, y, z); x0 = Math.min(x0, sx); y0 = Math.min(y0, sy); x1 = Math.max(x1, sx); y1 = Math.max(y1, sy); }
     return { x0: x0 - 12, y0: y0 - 6, x1: x1 + 12, y1: y1 + 10 };
   }
 
@@ -2204,12 +2218,13 @@
   }
 
   // ======================================================================= toasts and announcements
-  function toast(kind, title, sub, color, icon) {
+  function toast(kind, title, sub, color, icon, action = null) {
     const box = $('#toasts');
     const el = document.createElement('div');
     el.className = 'toast glass' + (kind === 'big' ? ' big' : '');
     el.style.setProperty('--c', color || '#8fb0ff');
-    el.innerHTML = `<div class="ti">${ic(icon || 'bolt')}</div><div><div class="tt">${esc(title)}</div>${sub ? `<div class="ts">${esc(sub)}</div>` : ''}</div>`;
+    el.innerHTML = `<div class="ti">${ic(icon || 'bolt')}</div><div><div class="tt">${esc(title)}</div>${sub ? `<div class="ts">${esc(sub)}</div>` : ''}</div>${action ? `<button type="button" class="ta">${esc(action.label)}</button>` : ''}`;
+    if (action) el.querySelector('.ta').addEventListener('click', () => { el.remove(); action.fn(); });
     box.prepend(el);
     while (box.children.length > 4) box.lastChild.remove();
     setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 480); }, kind === 'big' ? 6500 : 5200);
@@ -2900,7 +2915,7 @@
     ocean: 'linear-gradient(104deg, transparent 28%, rgba(170,235,255,.2) 31% 37%, transparent 40%), linear-gradient(180deg, #0e6a96, #062a4a 68%, #c9b07a 68%, #a08858)',
   };
   const normKw = (v) => String(v || '').toLowerCase().replace(/[\s_]+/g, ' ').trim().slice(0, 40);
-  const rd = { data: null, draft: null, sel: 0, armed: null, welcome: false, msg: '', err: false, step: 1, wmode: null, wtpl: null, wskin: null };
+  const rd = { data: null, draft: null, orig: '', byMode: {}, sel: 0, armed: null, welcome: false, msg: '', err: false, step: 1, wmode: null, wtpl: null, wskin: null };
   let welcomed = false;
   function draftFrom(d) {
     const cfg = d.config || {};
@@ -2917,12 +2932,63 @@
     if (!rd.data || !rd.data.templates) { box.innerHTML = `<button class="cbtn glass x" data-close title="Close (Esc)">${ic('close')}</button><div class="muted" style="padding:20px">Could not load the room design. Is the station running?</div>`; wireRooms(box); return; }
     if (!rd.data.skins) rd.data.skins = { space: { title: 'Space station', blurb: '' } };
     if (!rd.data.modes) rd.data.modes = { agents: { title: 'Command center', blurb: '' }, service: { title: 'Service station', blurb: '' }, allowance: { title: 'Allowance tracker', blurb: '' } };
-    rd.draft = draftFrom(rd.data);
+    rd.draft = draftFrom(rd.data); rd.orig = draftSig(rd.draft); rd.byMode = {};
     const want = opts.room ? rd.draft.rooms.findIndex((r) => (r.id || r.base) === opts.room) : -1;
     rd.sel = want >= 0 ? want : 0;
     renderRooms();
   }
-  const closeRooms = () => { $('#roomsbox').hidden = true; if (rd.welcome) sset('rs-welcome', '1'); if (skinTry) trySkin(null); };
+  // closing keeps what was changed (X, Esc or a click outside); Cancel is the one way to throw a change away
+  const draftSig = (dr) => JSON.stringify({ name: dr.name, mode: dr.mode, skin: dr.skin, template: dr.template, kids: dr.kids, rooms: dr.rooms });
+  const discardRooms = () => { $('#roomsbox').hidden = true; if (rd.welcome) sset('rs-welcome', '1'); if (skinTry) trySkin(null); };
+  function closeRooms() {
+    if (rd.welcome || !rd.draft || !rd.data || !rd.data.templates || draftSig(rd.draft) === rd.orig) { discardRooms(); return; }
+    saveRooms();
+  }
+  // the rooms a mode starts with: its first template, or the built-in paths for the command center
+  function roomsForMode(mode) {
+    const d = rd.data, key = Object.keys(d.templates).find((k) => d.templates[k].mode === mode && k !== 'blank') || 'blank', t = d.templates[key];
+    const rooms = t.list ? t.list.map((r) => ({ ...r, match: [...(r.match || [])], looks: { ...(r.looks || {}) } }))
+      : d.builtIn.map((b) => { const th = THEME[b.id] || {}; return { base: b.id, name: b.name, short: b.short, accent: th.accent || '#8fb0ff', style: 'office', screen: th.screen, prop: th.prop, match: [], looks: {} }; });
+    return { key, t, rooms };
+  }
+  // what it's for changed: the rooms become that kind of room (a barbershop's cuts become chores), ready to edit.
+  // Going back to a mode brings back what it had in this sitting.
+  function swapMode(mode) {
+    const dr = rd.draft, d = rd.data;
+    if (mode === dr.mode) return;
+    rd.byMode[dr.mode] = { rooms: dr.rooms, template: dr.template, name: dr.name, kidRooms: dr.kids.map((k) => k.rooms), roles: dr.kids.map((k) => k.role) };
+    const oldDefault = (d.templates[dr.template] || {}).name || '', back = rd.byMode[mode];
+    // the station's title follows when it was the old template's own name ("The Shop (demo)"); a name you gave it stays
+    const retitle = (to) => { if (!dr.name.trim()) dr.name = to; else if (oldDefault && dr.name.includes(oldDefault)) dr.name = dr.name.replace(oldDefault, to); };
+    let label;
+    if (back) {
+      dr.rooms = back.rooms; dr.template = back.template; retitle(back.name.replace(/\s*\(.*\)$/, '') || back.name);
+      dr.kids.forEach((k, i) => { k.rooms = back.kidRooms[i]; k.role = back.roles[i]; });
+      label = 'Your ' + (mode === 'allowance' ? 'chores' : 'rooms') + ' for this are back.';
+    } else {
+      const { key, t, rooms } = roomsForMode(mode);
+      dr.rooms = rooms; dr.template = key; if (t.name) retitle(t.name);
+      // who works where, and what they are called (Master barber, Colorist), belonged to the old kind of station
+      dr.kids.forEach((k) => { k.rooms = undefined; k.role = undefined; });
+      label = `${rooms.length} ${mode === 'allowance' ? 'chores' : 'rooms'} drafted from the ${t.title} template. Rename or reprice anything.`;
+    }
+    dr.mode = mode; rd.sel = 0; rd.armed = null;
+    rd.msg = `${d.modes[mode].title}: ${label} Closing saves it.`; rd.err = false;
+  }
+  async function saveRooms() {
+    const dr = rd.draft;
+    const bad = dr.rooms.findIndex((x) => !String(x.name || '').trim());
+    if (bad >= 0) { rd.sel = bad; rd.msg = `Room ${bad + 1} needs a name before this can be saved.`; rd.err = true; renderRooms(); return; }
+    const kids = dr.kids.filter((k) => k.name.trim());
+    const config = { name: dr.name.trim() || 'Proxyfolk', template: dr.template, mode: dr.mode, skin: dr.skin, folk: kids, rooms: dr.rooms.map((x) => JSON.parse(JSON.stringify(x))) };
+    const before = rd.data.config && rd.data.config.rooms ? JSON.parse(JSON.stringify(rd.data.config)) : null;
+    try {
+      await post('api/rooms', { config }); $('#roomsbox').hidden = true;
+      await afterRoomsSaved(`Saved · ${rd.data.modes[dr.mode].title} · ${(rd.data.skins[dr.skin] || {}).title || dr.skin}`, {
+        label: 'Undo', fn: async () => { try { await post('api/rooms', before ? { config: before } : { reset: true }); await afterRoomsSaved('Put back the way it was'); } catch (e) { toast('status', 'Could not undo', e.message, '#ff5d6c', 'close'); } },
+      });
+    } catch (e) { roomsError(e); renderRooms(); }
+  }
   function claimPreview() {
     const items = new Map();
     for (const e of snap.state.moneyIn) { if (!e.item) continue; const k = String(e.item).trim(); const x = items.get(k) || { item: k, n: 0, usd: 0 }; x.n += e.qty || 1; x.usd += e.usd; items.set(k, x); }
@@ -2953,7 +3019,7 @@
   function roomFormHtml(r) {
     const d = rd.data, dr = rd.draft, isBase = Boolean(r.base), cp = claimPreview(), mine = cp.by.get(rd.sel) || [];
     const opt = (list, names, cur) => list.map((k) => `<option value="${k}"${cur === k ? ' selected' : ''}>${esc(names[k] || k)}</option>`).join('');
-    const sk = SKINS[dr.skin], looks = sk && sk.looks;
+    const sk = SKINS[dr.skin], looks = sk && sk.looks && sk.looks.length ? sk.looks : null;
     const curLook = looks ? ((r.looks && r.looks[dr.skin]) || looks[rd.sel % looks.length].id) : null;
     const chores = dr.mode === 'allowance';
     return `<div class="rd-form" style="--c:${r.accent}">
@@ -3002,13 +3068,14 @@
     const addBase = d.builtIn.filter((b) => !onStation.has(b.id)).map((b) => `<option value="${esc(b.id)}">${esc(b.short || b.name)}</option>`).join('');
     const full = dr.rooms.length >= d.maxRooms, chores = dr.mode === 'allowance';
     box.innerHTML = `
-      <button class="cbtn glass x" data-close title="Close (Esc)">${ic('close')}</button>
+      <button class="cbtn glass x" data-close title="Save and close (Esc). Cancel at the bottom throws changes away.">${ic('close')}</button>
       <label class="xall"><span class="tog"><input type="checkbox" data-explain${explainAll() ? ' checked' : ''}><i></i></span>Explain every field</label>
-      <div class="sy-head"><div class="rd-ic">${ic('rooms')}</div><div style="flex:1;min-width:0"><h2>Customize the world</h2><p class="lead">What it's for, what world it lives in, who works in it, and every room. ${chores ? 'Each room is one chore with a price; kids earn it when a parent checks it off.' : 'A synced sale lands in the first room whose keyword appears in its item name, so Square\'s "Skin Fade" goes to the room that claims <i>fade</i>.'} Every dollar still totals in the vault.</p></div></div>
+      <div class="sy-head"><div class="rd-ic">${ic('rooms')}</div><div style="flex:1;min-width:0"><h2>Customize the world</h2><p class="lead">What it's for, what world it lives in, who works in it, and every room. Closing saves your changes. ${chores ? 'Each room is one chore with a price; kids earn it when a parent checks it off.' : 'A synced sale lands in the first room whose keyword appears in its item name, so Square\'s "Skin Fade" goes to the room that claims <i>fade</i>.'} Every dollar still totals in the vault.</p></div></div>
       <div class="rd-top">
         <div><h3>What it's for</h3><div class="modes">${modeTiles(dr.mode, 'data-mode', false)}</div></div>
         <div><h3>World <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· click to try it on</span></h3><div class="skins">${skinTiles(dr.skin, 'data-skin')}</div></div>
       </div>
+      ${rd.msg ? `<div class="msg top ${rd.err ? 'err' : 'ok'}">${esc(rd.msg)}</div>` : ''}
       ${kidsHtml(dr.kids)}
       <div class="rd-grid" style="margin-top:16px">
         <div>
@@ -3022,20 +3089,21 @@
         </div>
         <div>${r ? roomFormHtml(r) : ''}</div>
       </div>
-      <div class="rd-foot"><button class="btn go" type="button" data-save>${ic('check')}Save station</button><button class="btn ghost" type="button" data-close>Cancel</button><div class="msg ${rd.err ? 'err' : rd.msg ? 'ok' : ''}">${esc(rd.msg)}</div><button class="btn ghost danger sm2" type="button" data-reset>${rd.armed === '__reset' ? 'Click again to reset' : 'Reset to built-in paths'}</button></div>`;
+      <div class="rd-foot"><button class="btn go" type="button" data-save>${ic('check')}Save station</button><button class="btn ghost" type="button" data-discard title="Close without saving">Cancel</button><div class="msg ${rd.err ? 'err' : rd.msg ? 'ok' : ''}">${esc(rd.msg)}</div><button class="btn ghost danger sm2" type="button" data-reset>${rd.armed === '__reset' ? 'Click again to reset' : 'Reset to built-in paths'}</button></div>`;
     wireRooms(box);
     decorateHelp(box);
     const xa = box.querySelector('[data-explain]');
     if (xa) xa.addEventListener('change', () => { lset('pf-explain', xa.checked ? '1' : '0'); box.classList.toggle('explain', xa.checked); });
   }
   function roomsError(e) { rd.msg = /HTTP 40[45]|Failed to fetch|NetworkError/.test(e.message) ? 'This preview is read-only. Run the station on your computer to save rooms.' : e.message; rd.err = true; }
-  async function afterRoomsSaved(text) {
+  async function afterRoomsSaved(text, action = null) {
     skinTry = null;
     await poll();
-    toast('status', text, `${stationName() === 'Station roster' ? 'Proxyfolk' : stationName()} · ${rooms.length} room${rooms.length === 1 ? '' : 's'}`, '#ffcf5a', 'rooms');
+    toast('status', text, `${stationName() === 'Station roster' ? 'Proxyfolk' : stationName()} · ${rooms.length} room${rooms.length === 1 ? '' : 's'}`, '#ffcf5a', 'rooms', action);
   }
   function wireRooms(box) {
     box.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', closeRooms));
+    box.querySelectorAll('[data-discard]').forEach((b) => b.addEventListener('click', discardRooms));
     if (!rd.data || !rd.data.templates) return;
     const dr = rd.draft, cur = () => dr.rooms[rd.sel];
     const nameIn = box.querySelector('#rd-name');
@@ -3058,7 +3126,7 @@
       return;
     }
     nameIn.addEventListener('input', () => { dr.name = nameIn.value; });
-    box.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { dr.mode = b.dataset.mode; renderRooms(); }));
+    box.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { swapMode(b.dataset.mode); renderRooms(); }));
     box.querySelectorAll('[data-skin]').forEach((b) => b.addEventListener('click', () => { dr.skin = b.dataset.skin; trySkin(dr.skin); renderRooms(); }));
     // kids
     box.querySelectorAll('[data-kidname]').forEach((inp) => inp.addEventListener('input', () => { dr.kids[Number(inp.dataset.kidname)].name = inp.value; }));
@@ -3104,7 +3172,7 @@
       const name = dr.name.trim() && dr.name.trim() !== (rd.data.config && rd.data.config.name) ? dr.name.trim() : '';
       try {
         await post('api/rooms', { template: k, skin: dr.skin, ...(name ? { name } : {}), ...(dr.kids.length ? { folk: dr.kids.filter((x) => x.name.trim()) } : {}) });
-        rd.data = await (await fetch('api/rooms', { cache: 'no-store' })).json(); rd.draft = draftFrom(rd.data); rd.sel = 0;
+        rd.data = await (await fetch('api/rooms', { cache: 'no-store' })).json(); rd.draft = draftFrom(rd.data); rd.orig = draftSig(rd.draft); rd.byMode = {}; rd.sel = 0;
         rd.msg = `Rooms replaced with the ${rd.data.templates[k].title} template.`; rd.err = false;
         renderRooms(); afterRoomsSaved('Template applied');
       } catch (e) { roomsError(e); renderRooms(); }
@@ -3115,20 +3183,15 @@
       rd.armed = null;
       try { await post('api/rooms', { reset: true }); $('#roomsbox').hidden = true; await afterRoomsSaved('Back to the built-in paths'); } catch (e) { roomsError(e); renderRooms(); }
     });
-    box.querySelector('[data-save]').addEventListener('click', async () => {
-      const bad = dr.rooms.findIndex((x) => !String(x.name || '').trim());
-      if (bad >= 0) { rd.sel = bad; rd.msg = `Room ${bad + 1} needs a name.`; rd.err = true; renderRooms(); return; }
-      const kids = dr.kids.filter((k) => k.name.trim());
-      const config = { name: dr.name.trim() || 'Proxyfolk', template: dr.template, mode: dr.mode, skin: dr.skin, folk: kids, rooms: dr.rooms.map((x) => JSON.parse(JSON.stringify(x))) };
-      try { await post('api/rooms', { config }); $('#roomsbox').hidden = true; await afterRoomsSaved(`Saved · ${rd.data.modes[dr.mode].title} · ${(rd.data.skins[dr.skin] || {}).title || dr.skin}`); }
-      catch (e) { roomsError(e); renderRooms(); }
-    });
+    box.querySelector('[data-save]').addEventListener('click', saveRooms);
     const r = cur();
     if (!r) return;
     const form = box.querySelector('.rd-form');
     const rowOf = () => box.querySelector(`.rrow[data-i="${rd.sel}"]`);
     form.querySelectorAll('input[data-f]').forEach((inp) => inp.addEventListener('input', () => {
       const f = inp.dataset.f;
+      // a short label that was only the name's default follows the name
+      if (f === 'name') { const sh = form.querySelector('[data-f="short"]'); if (r.short && r.short === String(r.name || '').slice(0, 22)) { r.short = ''; if (sh) sh.value = ''; } if (sh) sh.placeholder = inp.value.slice(0, 22); }
       r[f] = inp.type === 'number' ? (inp.value === '' ? 0 : Number(inp.value)) : inp.value;
       if (f === 'name') { const b = rowOf() && rowOf().querySelector('b'); if (b) b.textContent = `${rd.sel + 1}. ${inp.value || 'Untitled'}`; }
     }));
@@ -4196,6 +4259,135 @@
       });
       return items;
     }
+
+    // ---- the back walls (see BACK): stone and towers in the castle, a hull with portholes in space, a barn on the farm,
+    // a lit block in the city, living ribs on the ship, viewports on the sea floor. Wall space: s along, v down from the top.
+    function backWall(side, b, fn) {
+      g.save();
+      if (side === 'R') g.transform(u, 0.5 * u, 0, u, ...P(b.x0, b.y0, BACK.h * u));
+      else g.transform(u, -0.5 * u, 0, u, ...P(b.x0, b.y1, BACK.h * u));
+      const len = side === 'R' ? b.x1 - b.x0 : b.y1 - b.y0;
+      g.beginPath(); g.rect(0, 0, len, BACK.h); g.clip();
+      fn(len);
+      g.restore();
+    }
+    const onBack = (side, b, s, v) => (side === 'R' ? P(b.x0 + s, b.y0, (BACK.h - v) * u) : P(b.x0, b.y1 - s, (BACK.h - v) * u));
+    function backDecor(side, b, len, id, S, dk) {
+      const HB = BACK.h, glow = (s, v, r, col, a) => { const [X, Y] = onBack(side, b, s, v); lights.push([X, Y, r * u, col, a]); };
+      g.lineWidth = 0.03;
+      if (id === 'castle') {
+        // stone courses; the joints only up close (a long wall of them is a lot of lines)
+        g.strokeStyle = 'rgba(0,0,0,0.2)'; g.beginPath();
+        for (let r = 0, v = 0; v < HB; r++, v += 0.4) { g.moveTo(0, v); g.lineTo(len, v); if (LOD === 2) for (let s = (r % 2) * 0.4; s < len; s += 0.8) { g.moveTo(s, v); g.lineTo(s, v + 0.4); } }
+        g.stroke();
+        for (let s = 1.6; s < len - 0.6; s += 3.2) { g.fillStyle = '#140f1c'; g.beginPath(); g.roundRect(s - 0.13, HB * 0.3, 0.26, 0.95, 0.13); g.fill(); g.fillStyle = `rgba(255,170,80,${(0.25 + dk * 0.6).toFixed(2)})`; g.fillRect(s - 0.06, HB * 0.3 + 0.16, 0.12, 0.62); glow(s, HB * 0.3 + 0.45, 1.6, '#ffb866', 0.35); }
+        for (let s = 4.8, k = 0; s < len - 1.2; s += 6.4, k++) {
+          const c = ['#8a1c2b', '#1c3a8a', '#6b1c8a'][k % 3], sw = Math.sin(tt * 1.3 + k) * 0.05;
+          g.fillStyle = '#5a4632'; g.fillRect(s - 0.6, 0.3, 1.2, 0.09);
+          g.fillStyle = c; g.beginPath(); g.moveTo(s - 0.45, 0.38); g.lineTo(s + 0.45, 0.38); g.lineTo(s + 0.45 + sw, 2.4); g.lineTo(s + sw, 2.05); g.lineTo(s - 0.45 + sw, 2.4); g.closePath(); g.fill();
+          g.fillStyle = '#e8c35a'; g.beginPath(); g.arc(s + sw * 0.5, 1.1, 0.2, 0, 7); g.fill();
+        }
+      } else if (id === 'space') {
+        g.strokeStyle = 'rgba(0,0,0,0.14)'; g.beginPath(); for (let s = 1.6; s < len; s += 1.6) { g.moveTo(s, 0); g.lineTo(s, HB); } g.moveTo(0, HB * 0.66); g.lineTo(len, HB * 0.66); g.stroke();
+        for (let s = 1.6; s < len - 0.8; s += 3.2) {
+          const v = HB * 0.38; g.fillStyle = S.trim; g.beginPath(); g.arc(s, v, 0.72, 0, 7); g.fill();
+          const gr = g.createRadialGradient(s - 0.15, v - 0.15, 0.05, s, v, 0.6); gr.addColorStop(0, '#1d2d63'); gr.addColorStop(1, '#070917'); g.fillStyle = gr; g.beginPath(); g.arc(s, v, 0.6, 0, 7); g.fill();
+          g.fillStyle = '#fff'; for (let k = 0; k < 4; k++) { const a = (hsh(s * 7 + k) % 628) / 100, r = (hsh(k * 13 + s * 3) % 45) / 100; g.fillRect(s + Math.cos(a) * r, v + Math.sin(a) * r, 0.05, 0.05); }
+          g.fillStyle = 'rgba(255,255,255,0.18)'; g.beginPath(); g.ellipse(s - 0.22, v - 0.26, 0.24, 0.08, -0.6, 0, 7); g.fill();
+        }
+        g.fillStyle = alpha(S.acc, 0.85); g.fillRect(0, HB - 0.55, len, 0.09); for (let s = 2; s < len; s += 4) glow(s, HB - 0.5, 1.8, S.acc, 0.3);
+      } else if (id === 'farm') {
+        g.strokeStyle = 'rgba(0,0,0,0.18)'; g.beginPath(); for (let s = 0.5; s < len; s += 0.5) { g.moveTo(s, 0); g.lineTo(s, HB); } g.stroke();
+        g.fillStyle = '#f3ead8'; g.fillRect(0, 0, len, 0.24);
+        const mid = len / 2, dw = 3.4, dh = 3.6;
+        g.fillStyle = shade('#a8322d', -0.2); g.fillRect(mid - dw / 2, HB - dh, dw, dh);
+        g.strokeStyle = '#f3ead8'; g.lineWidth = 0.13; g.strokeRect(mid - dw / 2, HB - dh, dw, dh);
+        g.beginPath(); for (const x0 of [mid - dw / 2, mid]) { g.moveTo(x0, HB - dh); g.lineTo(x0 + dw / 2, HB); g.moveTo(x0 + dw / 2, HB - dh); g.lineTo(x0, HB); } g.moveTo(mid, HB - dh); g.lineTo(mid, HB); g.stroke();
+        g.fillStyle = '#3a2414'; g.fillRect(mid - 0.75, 0.75, 1.5, 1.15); g.strokeRect(mid - 0.75, 0.75, 1.5, 1.15); g.fillStyle = '#e8c878'; g.fillRect(mid - 0.6, 1.4, 1.2, 0.4);
+      } else if (id === 'cyber') {
+        for (let s = 0.6; s < len - 0.5; s += 1.1) for (let v = 0.6; v < HB - 1.3; v += 1.0) {
+          const on = hsh(Math.round(s * 10) * 31 + Math.round(v * 10) * 7 + (side === 'L' ? 5 : 0)) % 6;
+          g.fillStyle = on > 2 ? alpha(on === 5 ? '#5fe8ff' : '#ffd08a', 0.3 + dk * 0.45) : 'rgba(0,0,0,0.35)'; g.fillRect(s, v, 0.62, 0.55);
+        }
+        const signs = side === 'R' ? [['NOODLES', '#ff3fa4', 0.28], ['24/7', '#00f0ff', 0.72]] : [['ARCADE', '#00f0ff', 0.35], ['BAR', '#ff3fa4', 0.75]];
+        for (const [txt, col, at] of signs) {
+          const s = len * at, flick = Math.sin(tt * 17 + at * 9) > 0.96 ? 0.35 : 1, w = txt.length * 0.52 + 0.6;
+          g.fillStyle = 'rgba(8,6,16,0.85)'; g.beginPath(); g.roundRect(s - w / 2, 1.2, w, 1.0, 0.15); g.fill(); g.strokeStyle = alpha(col, 0.9 * flick); g.lineWidth = 0.06; g.stroke();
+          utext(txt, s, 1.72, 0.62, { weight: 800, align: 'center', base: 'middle', col: shade(col, 0.35, flick), glow: LOD === 2 ? col : null });
+          glow(s, 1.7, 3, col, 0.5 * flick);
+        }
+      } else if (id === 'alien') {
+        for (let s = 0.8; s < len; s += 1.6) { g.fillStyle = alpha(shade(S.wall, -0.28), 0.85); g.beginPath(); g.moveTo(s - 0.18, HB); g.bezierCurveTo(s - 0.55, HB * 0.6, s + 0.35, HB * 0.3, s - 0.1, 0); g.lineTo(s + 0.18, 0); g.bezierCurveTo(s + 0.65, HB * 0.3, s - 0.25, HB * 0.6, s + 0.18, HB); g.closePath(); g.fill(); }
+        for (let s = 1.6; s < len - 0.5; s += 3.2) { const p = 0.5 + 0.5 * Math.sin(tt * 1.6 + s), v = HB * (0.3 + (hsh(s * 3) % 30) / 100); g.fillStyle = alpha(S.acc, 0.3 + p * 0.45); g.beginPath(); g.ellipse(s, v, 0.42, 0.58, 0, 0, 7); g.fill(); g.strokeStyle = alpha(S.acc, 0.9); g.lineWidth = 0.05; g.stroke(); glow(s, v, 1.8, S.acc, 0.2 + p * 0.2); }
+      } else if (id === 'ocean') {
+        g.strokeStyle = 'rgba(0,0,0,0.15)'; g.beginPath(); for (let s = 2; s < len; s += 2) { g.moveTo(s, 0); g.lineTo(s, HB); } g.stroke();
+        g.fillStyle = 'rgba(0,0,0,0.25)'; g.beginPath(); for (let s = 2; s < len; s += 2) for (let v = 0.4; v < HB; v += 0.8) { g.moveTo(s - 0.08, v); g.arc(s - 0.12, v, 0.04, 0, 7); g.moveTo(s + 0.16, v); g.arc(s + 0.12, v, 0.04, 0, 7); } g.fill();
+        for (let s = 3; s < len - 1.5; s += 6) {
+          const v = HB * 0.42, R = 1.25;
+          g.fillStyle = S.trim; g.beginPath(); g.arc(s, v, R + 0.18, 0, 7); g.fill();
+          g.save(); g.beginPath(); g.arc(s, v, R, 0, 7); g.clip();
+          const gr = g.createLinearGradient(0, v - R, 0, v + R); gr.addColorStop(0, '#1a8fb8'); gr.addColorStop(1, '#063a58'); g.fillStyle = gr; g.fillRect(s - R, v - R, R * 2, R * 2);
+          const fx = s - R - 0.5 + ((tt * 0.35 + s) % (R * 2 + 1)); g.fillStyle = '#ffb454'; g.beginPath(); g.ellipse(fx, v - 0.2, 0.22, 0.1, 0, 0, 7); g.fill(); g.beginPath(); g.moveTo(fx - 0.2, v - 0.2); g.lineTo(fx - 0.36, v - 0.3); g.lineTo(fx - 0.36, v - 0.1); g.fill();
+          g.fillStyle = 'rgba(255,255,255,0.5)'; for (let k = 0; k < 4; k++) { const by = v + R - ((tt * 0.5 + k * 0.6) % (R * 2)); g.beginPath(); g.arc(s + 0.5 - k * 0.3, by, 0.05, 0, 7); g.fill(); }
+          g.restore();
+          g.fillStyle = 'rgba(255,255,255,0.15)'; g.beginPath(); g.ellipse(s - 0.4, v - 0.5, 0.35, 0.12, -0.6, 0, 7); g.fill(); glow(s, v, 2.4, '#4ee6ff', 0.3);
+        }
+      }
+    }
+    function tower(x, y, S, dk) {
+      const R = 1.15, H = BACK.h + 2.2, W3 = (xx, yy, z) => P(xx, yy, z * u);
+      cyl(x, y, R, H, 0, S.wall2, { top: S.cap });
+      if (LOD) { g.strokeStyle = 'rgba(0,0,0,0.18)'; g.lineWidth = lw(0.03); for (let z = 0.5; z < H; z += 0.5) { const [cx, cy] = W3(x, y, z); g.beginPath(); g.ellipse(cx, cy, R * u * 1.414, R * u * 0.707, 0, 0.15, Math.PI - 0.15); g.stroke(); } }
+      const [cx, cy] = W3(x, y, H), [, ay] = W3(x, y, H + 2.8), rx = R * 1.25 * u * 1.414, ry = R * 1.25 * u * 0.707;
+      g.fillStyle = '#3a2440'; g.beginPath(); g.moveTo(cx - rx, cy); g.lineTo(cx, ay); g.lineTo(cx + rx, cy); g.ellipse(cx, cy, rx, ry, 0, 0, Math.PI); g.closePath(); g.fill();
+      if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke(); g.fillStyle = 'rgba(255,255,255,0.08)'; g.beginPath(); g.moveTo(cx - rx * 0.6, cy); g.lineTo(cx, ay); g.lineTo(cx - rx * 0.2, cy + ry * 0.4); g.closePath(); g.fill(); }
+      const [fx, fy] = [cx, ay], fl = Math.sin(tt * 3 + x) * u * 0.08;
+      g.strokeStyle = '#8a7a6a'; g.lineWidth = lw(0.05); g.beginPath(); g.moveTo(fx, fy); g.lineTo(fx, fy - u * 1.1); g.stroke();
+      g.fillStyle = '#8a1c2b'; g.beginPath(); g.moveTo(fx, fy - u * 1.1); g.lineTo(fx + u * 0.75, fy - u * 0.95 + fl); g.lineTo(fx, fy - u * 0.75); g.closePath(); g.fill();
+      const [wx, wy] = W3(x + R * 0.7, y + R * 0.7, H * 0.62);
+      g.fillStyle = `rgba(255,180,90,${(0.4 + dk * 0.5).toFixed(2)})`; g.beginPath(); g.roundRect(wx - u * 0.13, wy - u * 0.4, u * 0.26, u * 0.55, u * 0.13); g.fill();
+      lights.push([wx, wy, u * 2.2, '#ffb866', 0.4]);
+    }
+    function drawBackdrop(S) {
+      const b = backdropBounds(); if (!b) return;
+      rx0 = 0; ry0 = 0;
+      const HB = BACK.h, D = BACK.ledge, T0 = 0.28, t = 0.32, id = skinId(), dk = darkness(), W3 = (x, y, z = 0) => P(x, y, z * u);
+      // the ledge they stand on
+      poly([W3(b.x0 + D, b.y0 + D), W3(b.x1, b.y0 + D), W3(b.x1, b.y0 + D, -T0), W3(b.x0 + D, b.y0 + D, -T0)]); g.fillStyle = S.slab; g.fill();
+      poly([W3(b.x1, b.y0), W3(b.x1, b.y0 + D), W3(b.x1, b.y0 + D, -T0), W3(b.x1, b.y0, -T0)]); g.fillStyle = S.slab2; g.fill();
+      poly([W3(b.x0 + D, b.y0 + D), W3(b.x0 + D, b.y1), W3(b.x0 + D, b.y1, -T0), W3(b.x0 + D, b.y0 + D, -T0)]); g.fillStyle = S.slab2; g.fill();
+      poly([W3(b.x0, b.y1), W3(b.x0 + D, b.y1), W3(b.x0 + D, b.y1, -T0), W3(b.x0, b.y1, -T0)]); g.fillStyle = S.slab; g.fill();
+      poly([W3(b.x0, b.y0), W3(b.x1, b.y0), W3(b.x1, b.y0 + D), W3(b.x0 + D, b.y0 + D), W3(b.x0 + D, b.y1), W3(b.x0, b.y1)]); g.fillStyle = S.hall; g.fill();
+      if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke(); }
+      // the walls
+      const barn = id === 'farm' ? '#a8322d' : null;
+      for (const side of ['L', 'R']) backWall(side, b, (len) => {
+        g.fillStyle = side === 'R' ? barn || S.wall : barn ? shade(barn, -0.14) : S.wall2; g.fillRect(0, 0, len, HB);
+        if (LOD) backDecor(side, b, len, id, S, dk);
+        const gr = g.createLinearGradient(0, 0, 0, HB); gr.addColorStop(0, 'rgba(255,255,255,0.05)'); gr.addColorStop(1, 'rgba(0,0,0,0.2)'); g.fillStyle = gr; g.fillRect(0, 0, len, HB);
+        g.fillStyle = shade(S.trim, 0.08); g.fillRect(0, HB - 0.3, len, 0.3);
+        if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.03) / u; g.strokeRect(0, 0, len, HB); }
+      });
+      // their tops and ends
+      poly([W3(b.x0, b.y0, HB), W3(b.x1, b.y0, HB), W3(b.x1, b.y0 - t, HB), W3(b.x0 - t, b.y0 - t, HB)]); g.fillStyle = S.cap; g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); }
+      poly([W3(b.x0, b.y1, HB), W3(b.x0, b.y0, HB), W3(b.x0 - t, b.y0 - t, HB), W3(b.x0 - t, b.y1, HB)]); g.fill(); if (LOD) g.stroke();
+      g.fillStyle = shade(S.wall2, -0.35);
+      poly([W3(b.x1, b.y0, 0), W3(b.x1, b.y0 - t, 0), W3(b.x1, b.y0 - t, HB), W3(b.x1, b.y0, HB)]); g.fill();
+      poly([W3(b.x0, b.y1, 0), W3(b.x0 - t, b.y1, 0), W3(b.x0 - t, b.y1, HB), W3(b.x0, b.y1, HB)]); g.fill();
+      if (id === 'castle') {
+        // battlements: solid blocks up close, one flat outline further out
+        if (LOD === 2) {
+          for (let s = 0.3; s < b.x1 - b.x0 - 0.4; s += 1.0) box(b.x0 + s, b.y0 - t, 0.5, t, 0.5, HB, S.cap);
+          for (let s = 0.3; s < b.y1 - b.y0 - 0.4; s += 1.0) box(b.x0 - t, b.y0 + s, t, 0.5, 0.5, HB, S.cap);
+        } else if (LOD) {
+          g.beginPath();
+          for (let s = 0.3; s < b.x1 - b.x0 - 0.4; s += 1.0) { const q = [W3(b.x0 + s, b.y0, HB), W3(b.x0 + s + 0.5, b.y0, HB), W3(b.x0 + s + 0.5, b.y0, HB + 0.5), W3(b.x0 + s, b.y0, HB + 0.5)]; g.moveTo(...q[0]); for (const pt of q.slice(1)) g.lineTo(...pt); g.closePath(); }
+          for (let s = 0.3; s < b.y1 - b.y0 - 0.4; s += 1.0) { const q = [W3(b.x0, b.y0 + s, HB), W3(b.x0, b.y0 + s + 0.5, HB), W3(b.x0, b.y0 + s + 0.5, HB + 0.5), W3(b.x0, b.y0 + s, HB + 0.5)]; g.moveTo(...q[0]); for (const pt of q.slice(1)) g.lineTo(...pt); g.closePath(); }
+          g.fillStyle = S.cap; g.fill();
+        }
+        for (const [x, y] of [[b.x0 - t / 2, b.y0 - t / 2], [b.x1, b.y0 - t / 2], [b.x0 - t / 2, b.y1]]) tower(x, y, S, dk);
+      }
+    }
     // ---- halls between cells: a walkway with rails, guide lights, and data packets racing along during a live run
     function drawHall(c0, r0, c1, r1, S) {
       const horiz = r0 === r1;
@@ -4253,6 +4445,16 @@
       den: { body: 'hoodie', hair: 'hood', eyes: 'glasses' }, bar: { skin: '#b9c6d8', eyes: 'glow', body: 'panels', hair: 'none' }, dojo: { body: 'robe', hair: 'topknot' }, garage: { body: 'overalls', hair: 'cap' }, club: { hair: 'headphones', body: 'neon' }, clinic: { eyes: 'cyborg', body: 'panels' },
       lab: { skin: '#b9c0c8', eyes: 'almond', hair: 'none' }, hatchery: { blob: true, skin: '#7dffb0' }, bridge: { skin: '#b07ad8', hair: 'tentacles' }, garden: { skin: '#e8d6b8', hair: 'mushroom' }, probe: { skin: '#9ccf5a', hair: 'antennae', eyes: 'bug' }, lounge: { skin: '#9aa6ff', eyes: 'cyclops', hair: 'none' },
     };
+    // what people wear in each world (a room's costume, where it has one, wins; work clothes go on top)
+    const OUTFIT = {
+      space: { top: 'suit', legs: null, feet: '#e8eef8', head: 'headset' },
+      castle: { top: 'tunic', legs: '#5a4632', feet: '#4a3322', head: 'crown' },
+      farm: { top: 'overalls', legs: '#3e6fb0', feet: '#6b4322', head: 'straw' },
+      cyber: { top: 'jacket', legs: '#1b1d27', feet: '#f2f2f2', head: 'visor' },
+      alien: { top: 'uniform', legs: '#20222c', feet: '#b9c0c8', head: 'insignia' },
+      ocean: { top: 'wetsuit', legs: '#1d2a36', feet: '#1d2a36', head: 'mask' },
+    };
+    let curWorld = 'space';
     function lookFor(a, id) {
       const h = hsh(a.name || a.id);
       const small = id.kind === 'kid' || a.small;
@@ -4260,7 +4462,65 @@
       if (id.kind === 'client') { o.shirt = a.tint || '#9ec5ff'; o.style = (h >> 5) % 8; }
       if (id.kind === 'lead') { o.shirt = '#ffcf5a'; o.body = 'jacket'; }
       if (a.costume && a.costume.res && COSTUME[a.costume.id]) Object.assign(o, COSTUME[a.costume.id], { hairStyle: COSTUME[a.costume.id].hair || null });
+      else if (OUTFIT[curWorld] && id.kind !== 'agent') {
+        const f = OUTFIT[curWorld];
+        Object.assign(o, { outfit: curWorld, body: 'normal', lead: id.kind === 'lead', pants: f.legs || shade(o.shirt, -0.28), boots: f.feet, hat: f.head === 'straw' ? (id.kind === 'lead' || h % 3 !== 0) : true });
+      }
       return o;
+    }
+    // the world's outfit on the torso: drawn over the shirt, under the arms
+    function outfitTorso(L, tw, shY, hipY, id) {
+      const k = L.outfit, ink = 'rgba(18,14,30,0.6)';
+      g.lineWidth = 0.025;
+      if (k === 'suit') {
+        g.fillStyle = shade(L.shirt, -0.3); g.fillRect(-tw, hipY - 0.12, tw * 2, 0.08);
+        g.fillStyle = '#dfe6f2'; g.beginPath(); g.arc(-0.12, shY + 0.26, 0.07, 0, 7); g.fill(); g.fillStyle = L.lead ? '#ffcf5a' : '#5fd4ff'; g.beginPath(); g.arc(-0.12, shY + 0.26, 0.035, 0, 7); g.fill();
+        g.strokeStyle = '#c9d2e3'; g.lineWidth = 0.05; g.beginPath(); g.moveTo(-0.16, shY + 0.02); g.quadraticCurveTo(0, shY + 0.1, 0.16, shY + 0.02); g.stroke();
+        g.fillStyle = shade(L.shirt, 0.35); g.fillRect(tw - 0.1, shY + 0.14, 0.08, 0.1);
+      } else if (k === 'tunic') {
+        g.fillStyle = L.shirt; g.strokeStyle = ink; g.beginPath(); g.moveTo(-tw, hipY - 0.06); g.lineTo(tw, hipY - 0.06); g.lineTo(tw + 0.07, hipY + 0.2); g.lineTo(-tw - 0.07, hipY + 0.2); g.closePath(); g.fill(); g.stroke();
+        g.fillStyle = '#c9a36a'; g.fillRect(-tw, hipY - 0.1, tw * 2, 0.07); g.fillStyle = '#e8c35a'; g.fillRect(-0.04, hipY - 0.11, 0.08, 0.09);
+        g.strokeStyle = shade(L.shirt, -0.4); g.lineWidth = 0.02; g.beginPath(); for (let y = shY + 0.06; y < shY + 0.3; y += 0.07) { g.moveTo(-0.05, y); g.lineTo(0.05, y + 0.035); } g.stroke();
+        if (L.lead) { g.fillStyle = '#8a1c2b'; g.beginPath(); g.moveTo(-tw - 0.03, shY + 0.02); g.lineTo(-tw - 0.12, hipY + 0.3); g.lineTo(-tw + 0.04, hipY + 0.3); g.closePath(); g.fill(); g.beginPath(); g.moveTo(tw + 0.03, shY + 0.02); g.lineTo(tw + 0.12, hipY + 0.3); g.lineTo(tw - 0.04, hipY + 0.3); g.closePath(); g.fill(); }
+      } else if (k === 'overalls') {
+        g.fillStyle = '#3e6fb0'; g.fillRect(-tw * 0.8, shY + 0.3, tw * 1.6, hipY - shY - 0.22); g.fillRect(-tw * 0.7, shY, 0.07, 0.32); g.fillRect(tw * 0.7 - 0.07, shY, 0.07, 0.32);
+        g.fillStyle = '#e8c35a'; for (const x of [-tw * 0.66, tw * 0.66]) { g.beginPath(); g.arc(x, shY + 0.31, 0.03, 0, 7); g.fill(); }
+        g.strokeStyle = 'rgba(255,255,255,0.18)'; g.beginPath(); g.moveTo(-tw, shY + 0.16); g.lineTo(tw, shY + 0.16); g.stroke();
+      } else if (k === 'jacket') {
+        g.fillStyle = L.shirt; g.beginPath(); g.moveTo(-0.1, shY); g.lineTo(0.1, shY); g.lineTo(0.06, hipY); g.lineTo(-0.06, hipY); g.closePath(); g.fill();
+        g.strokeStyle = shade(id.col, 0.2); g.lineWidth = 0.035; g.beginPath(); g.moveTo(-0.1, shY); g.lineTo(-0.06, hipY); g.moveTo(0.1, shY); g.lineTo(0.06, hipY); g.moveTo(-tw, hipY - 0.02); g.lineTo(-0.08, hipY - 0.02); g.moveTo(tw, hipY - 0.02); g.lineTo(0.08, hipY - 0.02); g.stroke();
+        g.fillStyle = '#2b2f3c'; g.beginPath(); g.moveTo(-0.1, shY - 0.02); g.lineTo(-0.24, shY + 0.06); g.lineTo(-0.1, shY + 0.14); g.fill(); g.beginPath(); g.moveTo(0.1, shY - 0.02); g.lineTo(0.24, shY + 0.06); g.lineTo(0.1, shY + 0.14); g.fill();
+      } else if (k === 'uniform') {
+        g.fillStyle = '#20222c'; g.beginPath(); g.moveTo(-tw, shY - 0.02); g.lineTo(tw, shY - 0.02); g.lineTo(tw, shY + 0.16); g.lineTo(0, shY + 0.3); g.lineTo(-tw, shY + 0.16); g.closePath(); g.fill();
+        g.strokeStyle = shade(L.shirt, 0.3); g.lineWidth = 0.03; g.beginPath(); g.moveTo(tw, shY + 0.16); g.lineTo(0, shY + 0.3); g.lineTo(-tw, shY + 0.16); g.stroke();
+        g.fillStyle = '#ffcf5a'; g.beginPath(); g.moveTo(-0.16, shY + 0.26); g.lineTo(-0.1, shY + 0.4); g.lineTo(-0.13, shY + 0.36); g.lineTo(-0.16, shY + 0.4); g.lineTo(-0.19, shY + 0.36); g.lineTo(-0.22, shY + 0.4); g.closePath(); g.fill();
+      } else if (k === 'wetsuit') {
+        g.fillStyle = id.col; for (const x of [-tw + 0.02, tw - 0.08]) g.fillRect(x, shY + 0.06, 0.06, hipY - shY - 0.1);
+        g.strokeStyle = '#8a97a8'; g.lineWidth = 0.02; g.beginPath(); g.moveTo(0, shY + 0.02); g.lineTo(0, hipY - 0.06); g.stroke();
+      }
+    }
+    // and on the head: a headset, a crown, a straw hat, a visor, a dive mask
+    function headGear(L, id, showFace) {
+      const k = L.outfit, ink = 'rgba(18,14,30,0.65)';
+      g.lineWidth = 0.03;
+      if (k === 'space') {
+        g.strokeStyle = '#8a93a8'; g.lineWidth = 0.05; g.beginPath(); g.arc(0, -0.02, 0.47, Math.PI * 1.1, Math.PI * 1.9); g.stroke();
+        blob(0.44, 0.02, 0.1, '#c9d2e3');
+        if (showFace) { g.strokeStyle = '#8a93a8'; g.lineWidth = 0.025; g.beginPath(); g.moveTo(0.42, 0.08); g.quadraticCurveTo(0.34, 0.26, 0.12, 0.24); g.stroke(); blob(0.1, 0.24, 0.035, '#2b2f3c', false); }
+      } else if (k === 'castle' && L.lead) {
+        g.fillStyle = '#ffcf5a'; g.strokeStyle = '#a57a1c'; g.beginPath(); g.moveTo(-0.3, -0.32); g.lineTo(-0.3, -0.58); g.lineTo(-0.16, -0.44); g.lineTo(0, -0.64); g.lineTo(0.16, -0.44); g.lineTo(0.3, -0.58); g.lineTo(0.3, -0.32); g.closePath(); g.fill(); g.stroke();
+        blob(0, -0.4, 0.04, '#e0473c', false);
+      } else if (k === 'farm' && L.hat) {
+        g.fillStyle = '#e8c878'; g.strokeStyle = ink; g.beginPath(); g.ellipse(0, -0.3, 0.66, 0.13, 0, 0, 7); g.fill(); g.stroke();
+        g.beginPath(); g.ellipse(0, -0.42, 0.34, 0.2, 0, Math.PI, 0); g.lineTo(0.34, -0.32); g.lineTo(-0.34, -0.32); g.closePath(); g.fill(); g.stroke();
+        g.fillStyle = '#c0392b'; g.fillRect(-0.34, -0.38, 0.68, 0.06);
+      } else if (k === 'cyber' && showFace) {
+        g.fillStyle = alpha(id.col, 0.5); g.strokeStyle = shade(id.col, 0.3); g.beginPath(); g.roundRect(-0.36, -0.08, 0.72, 0.17, 0.08); g.fill(); g.stroke();
+        g.fillStyle = 'rgba(255,255,255,0.45)'; g.fillRect(-0.3, -0.05, 0.16, 0.03);
+      } else if (k === 'ocean') {
+        g.strokeStyle = '#1d2a36'; g.lineWidth = 0.05; g.beginPath(); g.arc(0, -0.02, 0.45, Math.PI * 0.95, Math.PI * 2.05); g.stroke();
+        if (showFace) { g.fillStyle = 'rgba(160,220,255,0.55)'; g.strokeStyle = '#ffcf5a'; g.lineWidth = 0.04; g.beginPath(); g.roundRect(-0.3, -0.36, 0.6, 0.2, 0.08); g.fill(); g.stroke(); }
+      }
     }
     // pose from what the sim says they are doing
     function poseOf(a) {
@@ -4302,30 +4562,31 @@
       } else if (sit) {
         limb(-0.15, hipY, -0.17, -0.34, 0.2, L.pants, -0.02); limb(0.15, hipY, 0.17, -0.34, 0.2, L.pants, 0.02);
         limb(-0.17, -0.34, -0.19, -0.04, 0.17, L.pants); limb(0.17, -0.34, 0.19, -0.04, 0.17, L.pants);
-        blob(-0.2, -0.02, 0.1, '#2b2522'); blob(0.2, -0.02, 0.1, '#2b2522');
+        blob(-0.2, -0.02, 0.1, L.boots || '#2b2522'); blob(0.2, -0.02, 0.1, L.boots || '#2b2522');
       } else {
         const sw = walk ? ph * 0.13 : 0;
         const lift = (s) => (walk ? Math.max(0, s) * 0.08 : 0);
         limb(-0.14, hipY, -0.15 + sw, -0.04 - lift(ph), 0.21, L.pants);
         limb(0.14, hipY, 0.15 - sw, -0.04 - lift(-ph), 0.21, L.pants);
-        g.fillStyle = '#2b2522'; g.strokeStyle = 'rgba(18,14,30,0.7)'; g.lineWidth = 0.03;
+        g.fillStyle = L.boots || '#2b2522'; g.strokeStyle = 'rgba(18,14,30,0.7)'; g.lineWidth = 0.03;
         for (const [fx, fy] of [[-0.16 + sw, -0.02 - lift(ph)], [0.16 - sw, -0.02 - lift(-ph)]]) { g.beginPath(); g.ellipse(fx, fy, 0.13, 0.07, 0, 0, 7); g.fill(); g.stroke(); }
       }
       // ---- torso
       const tw = L.small ? 0.28 : 0.31;
-      const shirt = holo ? alpha(id.col, 0.35) : L.body === 'ribs' ? '#3b3440' : L.body === 'hoodie' ? '#2b2f3c' : L.body === 'robe' ? '#2a2233' : L.body === 'panels' ? '#8fa0b8' : L.shirt;
+      const shirt = holo ? alpha(id.col, 0.35) : L.body === 'ribs' ? '#3b3440' : L.body === 'hoodie' ? '#2b2f3c' : L.body === 'robe' ? '#2a2233' : L.body === 'panels' ? '#8fa0b8' : L.outfit === 'cyber' ? '#1c1f2b' : L.outfit === 'ocean' ? '#1d2a36' : L.shirt;
       if (!L.blob) {
         g.beginPath(); g.roundRect(-tw, shY, tw * 2, hipY - shY + 0.08, [0.16, 0.16, 0.09, 0.09]);
         const gr = g.createLinearGradient(-tw, shY, tw, hipY); gr.addColorStop(0, holo ? alpha(id.col, 0.5) : shade(shirt, 0.22)); gr.addColorStop(1, holo ? alpha(id.col, 0.2) : shade(shirt, -0.15));
         g.fillStyle = gr; g.fill(); g.strokeStyle = holo ? id.col : 'rgba(18,14,30,0.7)'; g.lineWidth = 0.035; g.stroke();
         if (!holo) {
+          if (L.outfit) outfitTorso({ ...L, outfit: OUTFIT[L.outfit].top }, tw, shY, hipY, id);
           if (L.body === 'ribs') { g.strokeStyle = '#eeeadf'; g.lineWidth = 0.035; for (let k = 0; k < 3; k++) { g.beginPath(); g.moveTo(-0.18, shY + 0.18 + k * 0.13); g.quadraticCurveTo(0, shY + 0.24 + k * 0.13, 0.18, shY + 0.18 + k * 0.13); g.stroke(); } }
           else if (L.body === 'apron' || (id.kind === 'person' && (curTheme === 'barber' || curTheme === 'salon' || curTheme === 'kitchen'))) { g.fillStyle = curTheme === 'kitchen' ? '#f5f3ee' : '#23262e'; g.beginPath(); g.roundRect(-tw * 0.75, shY + 0.22, tw * 1.5, hipY - shY - 0.1, 0.06); g.fill(); g.strokeStyle = 'rgba(255,255,255,0.25)'; g.lineWidth = 0.02; g.beginPath(); g.moveTo(-tw * 0.75, shY + 0.22); g.lineTo(-0.1, shY); g.moveTo(tw * 0.75, shY + 0.22); g.lineTo(0.1, shY); g.stroke(); }
-          else if (L.body === 'overalls' || curTheme === 'yard') { g.fillStyle = '#3e6fb0'; g.fillRect(-tw * 0.8, shY + 0.3, tw * 1.6, hipY - shY - 0.22); g.fillRect(-tw * 0.7, shY, 0.07, 0.32); g.fillRect(tw * 0.7 - 0.07, shY, 0.07, 0.32); }
+          else if ((L.body === 'overalls' || curTheme === 'yard') && L.outfit !== 'farm') { g.fillStyle = '#3e6fb0'; g.fillRect(-tw * 0.8, shY + 0.3, tw * 1.6, hipY - shY - 0.22); g.fillRect(-tw * 0.7, shY, 0.07, 0.32); g.fillRect(tw * 0.7 - 0.07, shY, 0.07, 0.32); }
           else if (L.body === 'robe') { g.fillStyle = '#c0392b'; g.fillRect(-tw, hipY - 0.2, tw * 2, 0.1); }
           else if (L.body === 'neon') { g.strokeStyle = '#ff3fa4'; g.lineWidth = 0.04; g.beginPath(); g.moveTo(-tw, shY + 0.3); g.lineTo(tw, shY + 0.2); g.stroke(); }
           else if (L.body === 'jacket') { g.fillStyle = '#fff3c4'; g.beginPath(); g.moveTo(-0.08, shY); g.lineTo(0, shY + 0.3); g.lineTo(0.08, shY); g.fill(); g.fillStyle = '#b8740a'; g.beginPath(); g.arc(0.14, shY + 0.2, 0.05, 0, 7); g.fill(); }
-          else if (id.kind === 'person' && curTheme === 'office') { g.strokeStyle = '#5fd4ff'; g.lineWidth = 0.025; g.beginPath(); g.moveTo(-0.08, shY); g.lineTo(0, shY + 0.32); g.lineTo(0.08, shY); g.stroke(); g.fillStyle = '#f7f7f7'; g.fillRect(-0.06, shY + 0.3, 0.12, 0.14); }
+          else if (id.kind === 'person' && curTheme === 'office' && !L.outfit) { g.strokeStyle = '#5fd4ff'; g.lineWidth = 0.025; g.beginPath(); g.moveTo(-0.08, shY); g.lineTo(0, shY + 0.32); g.lineTo(0.08, shY); g.stroke(); g.fillStyle = '#f7f7f7'; g.fillRect(-0.06, shY + 0.3, 0.12, 0.14); }
           // collar
           g.fillStyle = shade(L.skin, -0.05); g.beginPath(); g.moveTo(-0.08, shY); g.lineTo(0, shY + 0.1); g.lineTo(0.08, shY); g.fill();
         }
@@ -4374,6 +4635,7 @@
         g.fillStyle = hg; g.fill(); g.strokeStyle = 'rgba(18,14,30,0.7)'; g.lineWidth = 0.035; g.stroke();
         if (showFace) face(a, L, pose, t);
         hairOn(L, !showFace);
+        if (L.outfit) headGear(L, id, showFace);
       }
       g.restore();
       if (!L.blob && armsBehind) drawArms();
@@ -4818,7 +5080,7 @@
 
     // ---- the frame
     function draw(dt, o = {}) {
-      g = o.ctx || dctx; tt = T;
+      g = o.ctx || dctx; tt = T; curWorld = skinId();
       us = u * S; LOD = us < 11 ? 0 : us < 26 ? 1 : 2; px1 = 1 / (S * dpr); ou = u * Math.max(1, 14 / us);
       const W = vwCss, H = vhCss;
       g.setTransform(dpr, 0, 0, dpr, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
@@ -4827,6 +5089,7 @@
       lights.length = 0; hits = [];
       const Smat = sk();
       const list = [...cells.entries()].map(([k, v]) => { const [c, r] = k.split(',').map(Number); return { c, r, kind: v }; });
+      drawBackdrop(Smat);
       // walls rise in the room you are looking at, and stay low everywhere else so you can see in
       const selRoom = selected && roomById(selected);
       for (const o of list) {
@@ -4937,7 +5200,7 @@
         const keep = { t: a.t, face: a.face, view: a.view, busy: a.busy, bubble: a.bubble, real: a.real, queue: a.queue, jz: a.jz, seatFront: a.seatFront }, keepTheme = curTheme;
         Object.assign(a, { t: o.t || 0, face: o.face || 1, view: o.back ? 'back' : null, busy: null, bubble: null, real: 0, queue: o.moving ? [[a.x || 0, a.y || 0]] : [], jz: 0, seatFront: Boolean(o.seatFront) });
         if (o.lod != null) LOD = o.lod;
-        tt = o.t || 0; curTheme = o.theme || roomThemeOf(a);
+        tt = o.t || 0; curTheme = o.theme || roomThemeOf(a); curWorld = skinId();
         try {
           const id = identity(a);
           if (o.shadow !== false) { g.fillStyle = 'rgba(0,0,0,0.28)'; g.beginPath(); g.ellipse(0, 0, u * 0.42, u * 0.18, 0, 0, 7); g.fill(); }
@@ -4998,7 +5261,7 @@
       finally { ({ S, dpr, vx0e, vy0e, vwCss, vhCss } = keep); wallH.clear(); for (const [k, v] of keepWalls) wallH.set(k, v); selected = keepSel; cam.x = cx; cam.y = cy; g = dctx; }
     }
     const exp = { figure: exportFigure, cell: exportCell, hall: exportHall, mast: exportMast, background: exportBackground, map: exportMap, themeOfRoom, hsh, COSTUME, SKIN_TONES, HAIR_COLS, PANTS };
-    return { exp, draw, pickAt, mastAt, silhouetteOf, footprints, wallHeight: (c, r) => wallH.get(c + ',' + r) || LOWH, FULLH, drawPerson: (gg, a, id, L, pose, t) => { const keep = g; g = gg; const top = drawPerson(a, id, L, pose, t); g = keep; return top; }, lookFor, drawAnimal: (gg, a, t) => { const keep = g; g = gg; const top = drawAnimal(a, t); g = keep; return top; } };
+    return { exp, draw, pickAt, mastAt, silhouetteOf, footprints, wallHeight: (c, r) => wallH.get(c + ',' + r) || LOWH, FULLH, drawPerson: (gg, a, id, L, pose, t) => { const keep = g; g = gg; curWorld = skinId(); const top = drawPerson(a, id, L, pose, t); g = keep; return top; }, lookFor, drawAnimal: (gg, a, t) => { const keep = g; g = gg; const top = drawAnimal(a, t); g = keep; return top; } };
   })();
   // ---- the close-up is a camera framing, not a mode: the same world, the room filling the view with its walls up
   let closeZ = 3;

@@ -77,7 +77,7 @@ function extract(src, name) {
   throw new Error('unbalanced: ' + name);
 }
 function characterModule(src) {
-  const parts = ['hx', 'rgb', 'shade', 'mixc', 'alpha', 'hsh', 'limb', 'blob', 'SKIN_TONES', 'HAIR_COLS', 'PANTS', 'COSTUME', 'lookFor',
+  const parts = ['hx', 'rgb', 'shade', 'mixc', 'alpha', 'hsh', 'limb', 'blob', 'SKIN_TONES', 'HAIR_COLS', 'PANTS', 'COSTUME', 'OUTFIT', 'lookFor', 'outfitTorso', 'headGear',
     'drawPerson', 'face', 'backHair', 'hairOn', 'drawTool', 'drawAnimal', 'simpleFigure', 'figure'].map((n) => extract(src, n));
   const costumes = [...extract(src, 'COSTUME').matchAll(/\b(\w+): \{/g)].map((m) => m[1]).join(', ');
   return `// Proxyfolk characters, standalone: the exact drawing code the game uses (lifted from src/station.html by
@@ -92,6 +92,7 @@ function characterModule(src) {
 //     face: 1,                       // 1 faces right, -1 faces left
 //     back: false,                   // seen from behind
 //     theme: 'barber',               // the room they work in: sets tools and work clothes (see THEMES)
+//     world: 'space',                // the world's outfit: space, castle, farm, cyber, alien, ocean
 //     costume: null,                 // a world costume: ${costumes}
 //     animal: null,                  // for kind 'animal': pasture (cow), pigpen (pig), coop (chicken), meadow (sheep), stable (horse), garden (bunny),
 //                                    //   reef (clownfish), kelp (seahorse), grotto (octopus), wreck (crab), deep (jellyfish); anything else is the sea turtle
@@ -104,12 +105,12 @@ function characterModule(src) {
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const u = 12;                                    // world pixels per floor unit, as in the game
-let g = null, us = 44, LOD = 2, dpr = 1, px1 = 1, T = 0, tt = 0, curTheme = 'office';
+let g = null, us = 44, LOD = 2, dpr = 1, px1 = 1, T = 0, tt = 0, curTheme = 'office', curWorld = 'space';
 export const THEMES = ${JSON.stringify(THEMES)};
 
 ${parts.join('\n\n')}
 
-export { COSTUME, SKIN_TONES, HAIR_COLS, PANTS, lookFor };
+export { COSTUME, OUTFIT, SKIN_TONES, HAIR_COLS, PANTS, lookFor };
 
 const KIND = { person: 'folk', kid: 'folk', agent: 'job', client: 'guest', lead: 'lead', animal: 'res' };
 export function drawCharacter(ctx, o) {
@@ -118,7 +119,7 @@ export function drawCharacter(ctx, o) {
     busy: null, bubble: null, real: 0, queue: o.moving ? [[0, 0]] : [], lk: o.animal ? { id: o.animal } : null, costume: o.costume ? { id: o.costume, res: true } : null,
     tint: o.tint || null, small: false, seatFront: Boolean(o.seatFront), x: 0, y: 0 };
   const id = { kind: kind === 'animal' ? 'animal' : kind, col: o.col || '#8fb0ff', name: o.name || '' };
-  g = ctx; us = ppu; dpr = 1; px1 = u / ppu; LOD = o.lod ?? 2; T = tt = o.t || 0; curTheme = o.theme || 'office';
+  g = ctx; us = ppu; dpr = 1; px1 = u / ppu; LOD = o.lod ?? 2; T = tt = o.t || 0; curTheme = o.theme || 'office'; curWorld = o.world || 'space';
   ctx.save();
   ctx.setTransform(ppu / u, 0, 0, ppu / u, o.x ?? ppu * 2.3, o.y ?? ppu * 3.45);
   if (o.shadow !== false) { ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.beginPath(); ctx.ellipse(0, 0, u * 0.42, u * 0.18, 0, 0, 7); ctx.fill(); }
@@ -265,7 +266,7 @@ async function main() {
       const spec = { kind: 'folk', name: 'Tasha', tint: '#ff7ab8' };
       const a = window.__PF_EXPORT.still(spec, { w: 200, h: 176, ppu: 44, x: 100, y: 152, pose, t: 0.3, theme: 'barber' });
       const c = document.createElement('canvas'); c.width = 200; c.height = 176;
-      m.drawCharacter(c.getContext('2d'), { kind: 'person', name: 'Tasha', id: 'sample:Tasha', col: '#ff7ab8', pose, t: 0.3, theme: 'barber', ppu: 44, x: 100, y: 152 });
+      m.drawCharacter(c.getContext('2d'), { kind: 'person', name: 'Tasha', id: 'sample:Tasha', col: '#ff7ab8', pose, t: 0.3, theme: 'barber', world: 'space', ppu: 44, x: 100, y: 152 });
       const img = new Image(); img.src = a; await img.decode();
       const c2 = document.createElement('canvas'); c2.width = 200; c2.height = 176; c2.getContext('2d').drawImage(img, 0, 0);
       const d1 = c.getContext('2d').getImageData(0, 0, 200, 176).data, d2 = c2.getContext('2d').getImageData(0, 0, 200, 176).data;

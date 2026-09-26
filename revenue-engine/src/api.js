@@ -69,7 +69,7 @@ export function roomsInfo(ledger, catalog, dataDir) {
   return {
     config: cfg || { name: 'Proxyfolk', template: 'paths', rooms: null },
     catalog: catalog.map((p) => ({ id: p.id, name: p.name, short: p.short, kind: p.kind || 'pipeline', accent: p.accent, style: p.style, screen: p.screen, prop: p.prop, match: p.match || [], minutes: p.minutes, priceUsd: p.priceUsd, costUsd: p.costUsd, goalUsd: p.goalUsd, looks: p.looks, base: p.kind === 'service' ? undefined : p.id })),
-    templates: Object.fromEntries(Object.entries(TEMPLATES).map(([k, t]) => { const c = fromTemplate(k); return [k, { title: t.title, blurb: t.blurb, rooms: t.rooms ? t.rooms.length : CATALOG.length, mode: c.mode, skin: c.skin, name: c.name }]; })),
+    templates: Object.fromEntries(Object.entries(TEMPLATES).map(([k, t]) => { const c = fromTemplate(k); return [k, { title: t.title, blurb: t.blurb, rooms: t.rooms ? t.rooms.length : CATALOG.length, mode: c.mode, skin: c.skin, name: c.name, list: c.rooms }]; })),
     modes: MODES, skins: SKINS, kidColors: KID_COLORS, maxKids: MAX_KIDS, folkColors: FOLK_COLORS, maxFolk: MAX_FOLK,
     builtIn: CATALOG.map((p) => ({ id: p.id, name: p.name, short: p.short })),
     styles: STYLES, screens: SCREENS, props: PROPS, palette: PALETTE, maxRooms: MAX_ROOMS,
