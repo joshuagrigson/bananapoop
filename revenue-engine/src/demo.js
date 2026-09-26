@@ -99,9 +99,13 @@ export function seedBarberDemo(ledger, dataDir, now = Date.now()) {
   // monthly goals so each room's tube has something to fill (placeholders, like the template's prices)
   const GOALS = { products: 300, 'skin-fade': 2000, 'beard-trim': 600, 'kids-cut': 500, 'hot-towel-shave': 500, 'line-up': 500, color: 600, haircut: 2000 };
   // three barbers: each character on the map is one of them, walking to the room of the service they just did
-  const BARBERS = [{ name: 'Dre', color: '#60a5fa', rooms: ['skin-fade', 'line-up', 'haircut', 'beard-trim'] }, { name: 'Kim', color: '#f472b6', rooms: ['color', 'kids-cut', 'haircut', 'products'] }, { name: 'Sal', color: '#ffb454', rooms: ['hot-towel-shave', 'beard-trim', 'haircut', 'products'] }];
+  const BARBERS = [
+    { name: 'Dre', color: '#60a5fa', rooms: ['skin-fade', 'line-up', 'haircut', 'beard-trim'] }, { name: 'Kim', color: '#f472b6', rooms: ['color', 'kids-cut', 'haircut', 'products'] },
+    { name: 'Sal', color: '#ffb454', rooms: ['hot-towel-shave', 'beard-trim', 'haircut', 'products'] }, { name: 'Marco', color: '#4ade80', rooms: ['haircut', 'kids-cut', 'line-up'] },
+    { name: 'Tasha', color: '#a78bfa', rooms: ['skin-fade', 'color', 'products'] },
+  ];
   saveConfig(dataDir, { ...cfg, name: 'The Shop (demo)', folk: BARBERS, rooms: cfg.rooms.map((r) => ({ ...r, goalUsd: GOALS[r.id] || 0 })) });
-  const BY = { 'Skin Fade': ['Dre'], 'Line Up': ['Dre'], 'Gray Blend': ['Kim'], 'Kids Cut (12 & under)': ['Kim'], 'Hot Towel Shave': ['Sal'], 'Beard Trim': ['Sal', 'Dre'] };
+  const BY = { 'Skin Fade': ['Dre', 'Tasha'], 'Line Up': ['Dre', 'Marco'], 'Gray Blend': ['Kim', 'Tasha'], 'Kids Cut (12 & under)': ['Kim', 'Marco'], 'Hot Towel Shave': ['Sal'], 'Beard Trim': ['Sal', 'Dre'], "Men's Haircut": ['Marco', 'Kim', 'Sal'] };
   let seed = 20260925;
   const rand = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
   const pick = (list) => { let t = rand() * list.reduce((s, x) => s + x.w, 0); for (const x of list) { t -= x.w; if (t <= 0) return x; } return list[list.length - 1]; };
@@ -132,7 +136,7 @@ export function seedBarberDemo(ledger, dataDir, now = Date.now()) {
       const total = items.reduce((s, x) => s + x.usd, 0);
       const fee = Math.round((total + tip) * 2.6 + 10) / 100;
       const who = clients[Math.floor(rand() * clients.length)];
-      const pool = BY[items[0].item] || ['Dre', 'Kim', 'Sal'], barber = pool[Math.floor(rand() * pool.length)];
+      const pool = BY[items[0].item] || ['Dre', 'Kim', 'Sal', 'Marco', 'Tasha'], barber = pool[Math.floor(rand() * pool.length)];
       let givenNet = 0, givenTip = 0;
       items.forEach((x, i) => {
         const last = i === items.length - 1, share = x.usd / total;

@@ -805,8 +805,8 @@
     dock: { key: 'dock', base: '#272d3a', dark: '#232834', light: '#2e3544', seam: '#1b2029', grate: '#1f242e', rivet: '#434d63', hi: '#394155', lo: '#181c25' },
     hall: { key: 'hall', base: '#1e232e', dark: '#1b1f29', light: '#242a36', seam: '#161a22', grate: '#171b24', rivet: '#353d4f', hi: '#2c3342', lo: '#12151c' },
     // barbershop checkerboard and shop planks (room styles)
-    checkA: { key: 'checkA', base: '#c7cad3', dark: '#bdc0c9', light: '#d2d5dd', seam: '#b3b6bf', grate: '#c7cad3', rivet: '#c7cad3', hi: '#dde0e6', lo: '#a4a7b0' },
-    checkB: { key: 'checkB', base: '#22252d', dark: '#1e2128', light: '#292d36', seam: '#1a1c22', grate: '#22252d', rivet: '#22252d', hi: '#343944', lo: '#16181d' },
+    checkA: { key: 'checkA', base: '#7d8494', dark: '#767d8c', light: '#848b9b', seam: '#6c7282', grate: '#7d8494', rivet: '#7d8494', hi: '#8c93a3', lo: '#646a79' },
+    checkB: { key: 'checkB', base: '#454b59', dark: '#414754', light: '#4a505e', seam: '#3b404c', grate: '#454b59', rivet: '#454b59', hi: '#50576a', lo: '#363a45' },
     wood: { key: 'wood', base: '#5b4130', dark: '#51392a', light: '#684b37', seam: '#3c2a1e', grate: '#533b2b', rivet: '#6e503a', hi: '#735540', lo: '#3a291d' },
   };
   // Floor patterns for the skins: (palette, u, w along the tile, noise, pixel x, y, variant) -> colour.
@@ -4059,6 +4059,17 @@
         const cols = glyphCols(String(room.spec.rank).padStart(2, '0'));
         const stencil = mix(tint, base, 0.62);
         quad(g, x0 + 5.1, y0 + 5.75, x0 + 6.85, y0 + 6.75, 0, (u, v) => { const ci = Math.floor(u * cols.length), ri = Math.floor(v * 5); const col = cols[ci]; return col && col[ri] ? stencil : null; });
+        // and what the room is, painted big beside it as a medallion: scissors, a plate, a book, a laptop.
+        if (look === 'active') {
+          const rows = BADGE[toolFor(room)] || BADGE.spark, disc = mix(tint, base, 0.55), ring = mix(tint, '#ffffff', 0.1), ink = mix(tint, '#ffffff', 0.72);
+          quad(g, x0 + 3.05, y0 + 5.2, x0 + 5.0, y0 + 7.0, 0, (u, v) => {
+            const du = u - 0.5, dv = v - 0.5, rr = Math.hypot(du, dv);
+            if (rr > 0.5) return null;
+            if (rr > 0.43) return ring;
+            const cx = Math.floor((u - 0.14) / 0.72 * 9), cy = Math.floor((v - 0.14) / 0.72 * 9);
+            return cx >= 0 && cy >= 0 && cx < 9 && cy < 9 && rows[cy][cx] === 'X' ? ink : disc;
+          });
+        }
         ao(g, x0, y0);
         for (let i = 0; i < 6; i++) {
           const [cx, cy] = deskCenter(room, i);
@@ -4678,6 +4689,21 @@
   }
 
   // ---- drawing the folk: sprites, costumes, tools, bubbles, markers and name tags
+  // 9x9 floor medallions: what each room is, legible from across the world
+  const BADGE = {
+    scissors: ['X.......X', '.X.....X.', '..X...X..', '...X.X...', '....X....', '...X.X...', '.XX...XX.', 'X..X.X..X', '.XX...XX.'],
+    sponge: ['.........', '..XXXXX..', '.X.....X.', 'X..XXX..X', 'X.X...X.X', 'X..XXX..X', '.X.....X.', '..XXXXX..', '.........'],
+    pillow: ['.........', 'X........', 'X.XX.....', 'X.XXXXXXX', 'XXXXXXXXX', 'X.......X', 'X.......X', '.........', '.........'],
+    broom: ['.......XX', '......XX.', '.....XX..', '....XX...', '..XXXX...', '.XXXXX...', 'XXXXX....', 'XXXX.....', 'XX.......'],
+    book: ['.........', 'XXX...XXX', 'X..X.X..X', 'X..X.X..X', 'X..X.X..X', 'X..X.X..X', 'XXXXXXXXX', '....X....', '.........'],
+    bag: ['...X.X...', '....X....', '..XXXXX..', '.XXXXXXX.', 'XXXXXXXXX', 'XXXXXXXXX', 'XXXXXXXXX', '.XXXXXXX.', '..XXXXX..'],
+    basket: ['.XX...XX.', 'XXXX.XXXX', 'XXXXXXXXX', '.XXXXXXX.', '..XXXXX..', '..XXXXX..', '..XXXXX..', '..XXXXX..', '.........'],
+    rake: ['......XXX', '....XXXXX', '...XXXXXX', '..XXXX.XX', '.XXX..XX.', '.XX..XX..', '.X.XXX...', 'X........', '.........'],
+    bowl: ['..X...X..', '.XXX.XXX.', 'X.X...X.X', 'XX.....XX', '...XXX...', '..XXXXX..', '.XXXXXXX.', '.XXXXXXX.', '..XX.XX..'],
+    box: ['...XXX...', '..X...X..', '..X...X..', 'XXXXXXXXX', 'X.......X', 'X.......X', 'X.......X', 'X.......X', 'XXXXXXXXX'],
+    laptop: ['.XXXXXXX.', '.X.....X.', '.X.....X.', '.X.....X.', '.XXXXXXX.', 'XXXXXXXXX', 'XXXXXXXXX', '.........', '.........'],
+    spark: ['....X....', '....X....', '...XXX...', 'XXXXXXXXX', '.XXXXXXX.', '..XXXXX..', '..XX.XX..', '.XX...XX.', 'X.......X'],
+  };
   // 5x5 icons for bubbles and tools, as rows of palette letters
   const PIXICON = {
     coin: [['.yyy.', 'yYyyy', 'yyYyy', 'yyyYy', '.yyy.'], { y: '#ffcf5a', Y: '#fff3b0' }],
@@ -4754,41 +4780,138 @@
   const HD_OFF = HD_PARAM === '0';
   const HD_SRC = HD_PARAM === '1' ? 2 : 3;          // Scale2x draws them at their pixel size, Scale3x half again as big
   const HDS = HD_SRC / 2;                            // size against the world
-  let hdOn = false;
+  const HD_MIN = (() => { try { return Number(new URLSearchParams(location.search).get('hdmin')) || 2; } catch { return 2; } })();
+  let hdOn = false, kUpLast = 1;
   const hdCache = new WeakMap();
   // Scale2x / Scale3x (AdvMAME): pixel-art upscaling that rounds diagonals without inventing colours
   function hdSprite(src) {
     let c = hdCache.get(src);
     if (c) return c;
-    const w = src.width, h = src.height, s = HD_SRC, d = sprData(src);
-    const px32 = new Uint32Array(d.buffer.slice(0));
+    c = pxScale(src, HD_SRC, sprData(src));
+    hdCache.set(src, c);
+    return c;
+  }
+  // Scale2x / Scale3x on packed RGBA pixels. Pure, so the world's copy can run in a worker.
+  function pxCore(w, h, s, px32) {
     const at = (x, y) => (x < 0 || y < 0 || x >= w || y >= h ? 0 : px32[y * w + x]);
-    const [oc, og] = mk(w * s, h * s);
-    const img = og.createImageData(w * s, h * s), out = new Uint32Array(img.data.buffer);
-    const put = (x, y, v) => { out[y * w * s + x] = v; };
+    const out = new Uint32Array(w * s * h * s), ow = w * s;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const E = at(x, y), A = at(x - 1, y - 1), B = at(x, y - 1), C = at(x + 1, y - 1), D = at(x - 1, y), F = at(x + 1, y), G = at(x - 1, y + 1), H2 = at(x, y + 1), I = at(x + 1, y + 1);
+      const E = at(x, y), B = at(x, y - 1), D = at(x - 1, y), F = at(x + 1, y), H2 = at(x, y + 1);
       const X = x * s, Y = y * s;
       if (s === 2) {
         let e0 = E, e1 = E, e2 = E, e3 = E;
         if (B !== H2 && D !== F) { e0 = D === B ? D : E; e1 = B === F ? F : E; e2 = D === H2 ? D : E; e3 = H2 === F ? F : E; }
-        put(X, Y, e0); put(X + 1, Y, e1); put(X, Y + 1, e2); put(X + 1, Y + 1, e3);
+        out[Y * ow + X] = e0; out[Y * ow + X + 1] = e1; out[(Y + 1) * ow + X] = e2; out[(Y + 1) * ow + X + 1] = e3;
         continue;
       }
-      let e = [E, E, E, E, E, E, E, E, E];
-      if (B !== H2 && D !== F) {
-        e = [
-          D === B ? D : E, (D === B && E !== C) || (B === F && E !== A) ? B : E, B === F ? F : E,
-          (D === B && E !== G) || (D === H2 && E !== A) ? D : E, E, (B === F && E !== I) || (H2 === F && E !== C) ? F : E,
-          D === H2 ? D : E, (D === H2 && E !== I) || (H2 === F && E !== G) ? H2 : E, H2 === F ? F : E,
-        ];
-      }
-      for (let k = 0; k < 9; k++) put(X + (k % 3), Y + ((k / 3) | 0), e[k]);
+      const o = Y * ow + X;
+      if (B === H2 || D === F) { out[o] = out[o + 1] = out[o + 2] = out[o + ow] = out[o + ow + 1] = out[o + ow + 2] = out[o + 2 * ow] = out[o + 2 * ow + 1] = out[o + 2 * ow + 2] = E; continue; }
+      const A = at(x - 1, y - 1), C = at(x + 1, y - 1), G = at(x - 1, y + 1), I = at(x + 1, y + 1);
+      out[o] = D === B ? D : E;
+      out[o + 1] = (D === B && E !== C) || (B === F && E !== A) ? B : E;
+      out[o + 2] = B === F ? F : E;
+      out[o + ow] = (D === B && E !== G) || (D === H2 && E !== A) ? D : E;
+      out[o + ow + 1] = E;
+      out[o + ow + 2] = (B === F && E !== I) || (H2 === F && E !== C) ? F : E;
+      out[o + 2 * ow] = D === H2 ? D : E;
+      out[o + 2 * ow + 1] = (D === H2 && E !== I) || (H2 === F && E !== G) ? H2 : E;
+      out[o + 2 * ow + 2] = H2 === F ? F : E;
     }
+    return out;
+  }
+  function pxScale(src, s, d) {
+    const w = src.width, h = src.height;
+    const out = pxCore(w, h, s, new Uint32Array(d.buffer.slice(d.byteOffset, d.byteOffset + d.byteLength)));
+    const [oc, og] = mk(w * s, h * s);
+    const img = new ImageData(new Uint8ClampedArray(out.buffer), w * s, h * s);
     og.putImageData(img, 0, 0);
     oc._d = img.data;
-    hdCache.set(src, oc);
     return oc;
+  }
+  // the world's upscale runs off the main thread when it can, so a new sale never stutters the view
+  let pxWorker = null, pxSeq = 0;
+  try {
+    const src = pxCore.toString() + '\nself.onmessage = (e) => { const { id, w, h, s, buf } = e.data; const out = pxCore(w, h, s, new Uint32Array(buf)); createImageBitmap(new ImageData(new Uint8ClampedArray(out.buffer), w * s, h * s)).then((bm) => self.postMessage({ id, bm }, [bm])); };';
+    pxWorker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+    pxWorker.onmessage = (e) => { if (e.data.id === pxSeq) finishWorldHD(e.data.bm); };
+    pxWorker.onerror = () => { pxWorker = null; };
+  } catch { pxWorker = null; }
+  // ---- the smoothed world: the unlit geometry upscaled once per bake (Scale3x), lit by the steady lights, and a mask of
+  // its shape for night and for dimming the rest while one room is inspected. Moving lights are added per frame.
+  let LIT3 = null, lit3g = null, M3 = null, m3g = null, worldHD = false, focusRoom = null;
+  function buildWorldHD() {
+    if (HD_OFF) { LIT3 = null; return; }
+    hdT0 = performance.now();
+    const d = sg.getImageData(0, 0, W, H).data;
+    if (pxWorker) { const buf = d.buffer.slice(0); pxWorker.postMessage({ id: ++pxSeq, w: W, h: H, s: 3, buf }, [buf]); return; }
+    finishWorldHD(pxScale(SC, 3, d));
+  }
+  let hdT0 = 0;
+  // every light at its average brightness (a flickering candle burns at 80% on average), so the smoothed world is lit
+  // like the pixel one; only beacons, blinks and pulses are added on top, frame by frame
+  const [LSH, lshg] = mk(LW, LH);
+  const AVG_LIGHT = { pulse: 0.55, beacon: 0.25, blink: 0.7, flicker: 0.8 };
+  function finishWorldHD(sc3) {
+    if (!LIT3) { [LIT3, lit3g] = mk(W * 3, H * 3); [M3, m3g] = mk(W * 3, H * 3); }
+    lshg.globalCompositeOperation = 'source-over'; lshg.drawImage(LS, 0, 0);
+    lshg.globalCompositeOperation = 'lighter';
+    for (const L of baked.animLights || []) {
+      const a = L.a * (AVG_LIGHT[L.mode] ?? 0.6); if (a <= 0.01) continue;
+      lshg.globalAlpha = Math.min(1, a); const r = L.r / 2;
+      lshg.drawImage(glow(L.color), L.sx / 2 - r, L.sy / 2 - r, r * 2, r * 2);
+    }
+    lshg.globalAlpha = 1; lshg.globalCompositeOperation = 'source-over';
+    lit3g.globalCompositeOperation = 'source-over'; lit3g.clearRect(0, 0, W * 3, H * 3);
+    lit3g.drawImage(sc3, 0, 0);
+    lit3g.globalCompositeOperation = 'multiply'; lit3g.imageSmoothingEnabled = true; lit3g.imageSmoothingQuality = 'high';
+    lit3g.drawImage(LSH, 0, 0, W * 3, H * 3);
+    lit3g.imageSmoothingEnabled = false; lit3g.globalCompositeOperation = 'destination-in';
+    lit3g.drawImage(sc3, 0, 0);
+    lit3g.globalCompositeOperation = 'source-over';
+    m3g.globalCompositeOperation = 'source-over'; m3g.clearRect(0, 0, W * 3, H * 3);
+    m3g.drawImage(sc3, 0, 0);
+    m3g.globalCompositeOperation = 'source-in'; m3g.fillStyle = '#070b22'; m3g.fillRect(0, 0, W * 3, H * 3);
+    m3g.globalCompositeOperation = 'source-over';
+    if (sc3.close) sc3.close();
+    perf.hdBake = performance.now() - hdT0;
+  }
+  function drawWorldHD(kUpL, wox, woy, uw, uh) {
+    const WW = W * kUpL, HHd = H * kUpL;
+    // the part of the world inside the frame, in native pixels
+    const x0 = clamp(Math.floor(-wox / kUpL) - 1, 0, W), y0 = clamp(Math.floor(-woy / kUpL) - 1, 0, H);
+    const x1 = clamp(Math.ceil((uw - wox) / kUpL) + 1, 0, W), y1 = clamp(Math.ceil((uh - woy) / kUpL) + 1, 0, H);
+    if (x1 <= x0 || y1 <= y0) return;
+    const part = (img) => ug.drawImage(img, x0 * 3, y0 * 3, (x1 - x0) * 3, (y1 - y0) * 3, wox + x0 * kUpL, woy + y0 * kUpL, (x1 - x0) * kUpL, (y1 - y0) * kUpL);
+    ug.imageSmoothingEnabled = kUpL !== 3; ug.imageSmoothingQuality = kUpL < 3 ? 'high' : 'low';
+    part(LIT3);
+    // the lights that move (beacons, pulses, desks in use, the vault flashing), added on top
+    ug.globalCompositeOperation = 'lighter';
+    for (const L of (baked.animLights || []).concat(dynLights)) {
+      let a = L.a, k = 0.3;
+      if (L.mode === 'pulse') a *= Math.max(0, 0.45 * Math.sin(T * 2.2 + L.phase));
+      else if (L.mode === 'beacon') a *= Math.max(0, Math.sin(T * 3 + L.phase)) ** 2 - 0.25;
+      else if (L.mode === 'blink') a *= Math.floor(T * 2) % 2 ? 0.3 : 0;
+      else if (L.mode === 'flicker') a *= 0.12 * Math.sin(T * 9.3 + L.phase * 3) + 0.08 * Math.sin(T * 23.7 + L.phase);
+      else k = 0.35;
+      if (a <= 0.01) continue;
+      ug.globalAlpha = Math.min(1, a * k);
+      const r = L.r * kUpL;
+      ug.drawImage(glow(L.color), wox + L.sx * kUpL - r, woy + L.sy * kUpL - r, r * 2, r * 2);
+    }
+    ug.globalAlpha = 1; ug.globalCompositeOperation = 'source-over';
+    const n = nightAmt();
+    if (n > 0.01) { ug.globalAlpha = n; part(M3); ug.globalAlpha = 1; }
+    if (focusA > 0.01 && focusRoom) {
+      ug.save(); ug.beginPath(); ug.rect(wox, woy, WW, HHd);
+      const sil = silhouette(focusRoom.x0, focusRoom.y0);
+      ug.moveTo(wox + sil[0][0] * kUpL, woy + sil[0][1] * kUpL);
+      for (let i = sil.length - 1; i > 0; i--) ug.lineTo(wox + sil[i][0] * kUpL, woy + sil[i][1] * kUpL);
+      ug.closePath(); ug.clip('evenodd');
+      ug.globalAlpha = 0.5 * focusA; part(M3);
+      ug.restore();
+    }
+    ug.imageSmoothingEnabled = false;
+    ug.drawImage(EMC, x0, y0, x1 - x0, y1 - y0, wox + x0 * kUpL, woy + y0 * kUpL, (x1 - x0) * kUpL, (y1 - y0) * kUpL);
   }
   // how a character moves up close: stretch as they hop, waddle as they walk, breathe as they stand
   function hdPose(a, d) {
@@ -4802,7 +4925,7 @@
   }
   // one character, resampled into half-pixel space with the pose, and hidden wherever a wall stands in front of it
   let hdBuf = null, hdBg = null;
-  function hdDrawSprite(spr, flip, fx, fy, pose, dcode, silCol, dim, kUpL, wox, woy) {
+  function hdDrawSprite(spr, flip, fx, fy, pose, dcode, silCol, dim, kUpL, wox, woy, rim = null) {
     const src = hdSprite(spr), sw = src.width, sh = src.height, sd = src._d;
     const sy = pose.sy, sxs = 1 / sy, k = pose.k;
     const DH = Math.ceil(sh * sy) + 2, DWr = Math.ceil(sw * sxs + Math.abs(k) * DH) + 4, DW = DWr + (DWr & 1);
@@ -4831,6 +4954,21 @@
       }
     }
     if (!any) return null;
+    if (rim) {
+      // a rim of light in the character's colour just outside the outline: whoever it is, on whatever floor, they read
+      const vis = new Uint8Array(DW * DH);
+      for (let q = 0; q < DW * DH; q++) vis[q] = out[q * 4 + 3] > 120 ? 1 : 0;
+      for (let j = 0; j < DH; j++) for (let i = 0; i < DW; i++) {
+        const q = j * DW + i;
+        if (vis[q] || out[q * 4 + 3]) continue;
+        let nb = 0;
+        if (i > 0 && vis[q - 1]) nb++; if (i < DW - 1 && vis[q + 1]) nb++; if (j > 0 && vis[q - DW]) nb++; if (j < DH - 1 && vis[q + DW]) nb++;
+        if (!nb) continue;
+        const NX = Math.floor(ox + (i + 0.5) / 2), NY = Math.floor(oy + (j + 0.5) / 2);
+        if (NX < 0 || NY < 0 || NX >= W || NY >= H || dbData[(NY * W + NX) * 4] > dcode) continue;
+        out[q * 4] = rim[0] * dim; out[q * 4 + 1] = rim[1] * dim; out[q * 4 + 2] = rim[2] * dim; out[q * 4 + 3] = nb > 1 ? 235 : 170;
+      }
+    }
     hdBg.putImageData(img, 0, 0);
     ug.drawImage(hdBuf, 0, 0, DW, DH, wox + ox * kUpL, woy + oy * kUpL, DW * kUpL / 2, DH * kUpL / 2);
     return { top: oy + (DH - sh * sy) , footX, footY };
@@ -4848,6 +4986,12 @@
     return lv;
   }
   // a name plate the way a village game writes it: chunky rounded letters with a dark outline, a level shield in front
+  function plateSize(g, text, lvl, scale) {
+    const fs = Math.max(8, Math.round(15 * scale));
+    g.font = `${fs}px "Lilita One", "Fredoka", "Nunito", sans-serif`;
+    const tw = g.measureText(text).width, sh = lvl ? fs * 1.15 : 0, gap = lvl ? fs * 0.3 : 0;
+    return { w: sh + gap + tw + fs * 0.4, h: fs * 1.25 };
+  }
   function plate(g, X, Y, text, col, lvl, scale) {
     const fs = Math.max(8, Math.round(15 * scale));
     g.font = `${fs}px "Lilita One", "Fredoka", "Nunito", sans-serif`;
@@ -4902,13 +5046,18 @@
           if (follow === a.id) {
             // the selected troop: a gold ring on the ground, breathing
             const pr = 1 + 0.12 * Math.sin(T * 5);
-            ug.strokeStyle = '#ffd23f'; ug.lineWidth = Math.max(1, kUpL * 0.8);
+            ug.strokeStyle = '#ffd23f'; ug.lineWidth = Math.max(1.5, kUpL * 1.1);
             ug.beginPath(); ug.ellipse(nx(gx), ny(gy + 0.5), rx * 1.5 * pr * kUpL, ry * 1.5 * pr * kUpL, 0, 0, 7); ug.stroke();
+          } else if (a.kind === 'folk' || a.kind === 'job' || a.kind === 'visit') {
+            // everyone who works here stands on a ring of their own colour: who is who, from any distance
+            ug.strokeStyle = rgba(col, (0.75 * dim).toFixed(3)); ug.lineWidth = Math.max(1.2, kUpL * 0.7);
+            ug.beginPath(); ug.ellipse(nx(gx), ny(gy + 0.5), rx * 1.25 * kUpL, ry * 1.25 * kUpL, 0, 0, 7); ug.stroke();
           }
         }
       }
       const fy = d.fy ?? (d.Y + d.spr.height);
-      const r = hdDrawSprite(d.spr, d.flip, d.sx, fy, pose, dcode, rgb(col), dim, kUpL, wox, woy);
+      const rimCol = a.kind === 'res' ? null : rgb(mix(col, '#ffffff', a.kind === 'guest' ? 0.55 : 0.35));
+      const r = hdDrawSprite(d.spr, d.flip, d.sx, fy, pose, dcode, rgb(col), dim, kUpL, wox, woy, rimCol);
       if (!r || a.kind === 'res') continue;
       const headY = r.top;
       const X = r.footX;
@@ -4927,7 +5076,12 @@
       }
       overlays.push({ a, X, headY, col, dim });
     }
-    // everything above heads last, so no body covers a name
+    // everything above heads last, so no body covers a name; nearer characters' names are placed first and the
+    // names behind them step up out of the way, so two people side by side never share a label
+    const placed = [];
+    const freeY = (x, y, w, h) => { for (let k = 0; k < 6; k++) { if (!placed.some((r) => Math.abs(r.x - x) < (r.w + w) / 2 && Math.abs(r.y - y) < (r.h + h) / 2)) return y; y -= h * 1.05; } return y; };
+    overlays.reverse();
+    const plates = [];
     for (const o of overlays) {
       const { a, X, col } = o;
       let y = o.headY - 2;
@@ -4948,16 +5102,24 @@
       }
       const named = a.kind === 'folk' || a.kind === 'job';
       const inArea = selRoom && a.path === selRoom.id;
-      if (named && (showTags || inArea || a.real > 0 || a.busy || follow === a.id)) {
+      if (named && (a.kind === 'folk' || showTags || inArea || a.real > 0 || a.busy || follow === a.id)) {
         const nm = a.kind === 'folk' ? a.name : roleTitle(a.role);
         ug.globalAlpha = o.dim;
-        const py = ny(y - 3) - 9 * cssK;
-        plate(ug, nx(X), py, nm, col, charLevel(a), cssK);
-        if (a.busy) { const b = a.busy, dur = b.chore ? 5 : 7.5; hdBar(ug, nx(X), py - 20 * cssK, 40 * cssK, 5 * cssK, b.t / dur, '#7ee85a'); }
-        else if (a.runId && a.run) { const el = (Date.now() - Date.parse(a.run.startedAt)) / 60000; hdBar(ug, nx(X), py - 20 * cssK, 40 * cssK, 5 * cssK, (el % 5) / 5, roleCol(a.role)); }
+        const lv = charLevel(a), sz = plateSize(ug, nm, lv, cssK);
+        const py = freeY(nx(X), ny(y - 3) - 9 * cssK, sz.w, sz.h);
+        placed.push({ x: nx(X), y: py, w: sz.w, h: sz.h });
+        const dimA = o.dim;
+        plates.push(() => {
+          ug.globalAlpha = dimA;
+          plate(ug, nx(X), py, nm, col, lv, cssK);
+          if (a.busy) { const b = a.busy, dur = b.chore ? 5 : 7.5; hdBar(ug, nx(X), py - 20 * cssK, 40 * cssK, 5 * cssK, b.t / dur, '#7ee85a'); }
+          else if (a.runId && a.run) { const el = (Date.now() - Date.parse(a.run.startedAt)) / 60000; hdBar(ug, nx(X), py - 20 * cssK, 40 * cssK, 5 * cssK, (el % 5) / 5, roleCol(a.role)); }
+          ug.globalAlpha = 1;
+        });
         ug.globalAlpha = 1;
       }
     }
+    for (const f of plates) f();
     // a room that took money today shows it the way a mine shows gold ready: a bubble with a coin, bobbing
     for (const room of rooms) {
       const sv = svcStatsToday(room);
@@ -5231,7 +5393,8 @@
 
   let focusA = 0;
   function composeWorld(dt) {
-    lightPass();
+    worldHD = hdOn && kUpLast >= HD_MIN && Boolean(LIT3);
+    if (!worldHD) lightPass();
     emg.clearRect(0, 0, W, H);
     emg.drawImage(EMS, 0, 0);
     for (const op of baked.surf) op.draw(emg);
@@ -5240,21 +5403,21 @@
 
     wbg.clearRect(0, 0, W, H);
     bsg.clearRect(0, 0, W, H);
-    wbg.drawImage(ST, 0, 0);
+    if (!worldHD) wbg.drawImage(ST, 0, 0);
     (SK().visitor || drawShuttle)(wbg, bsg);
     // focus: dim the rest of the station while one room is being inspected
     const selRoom = selected && roomById(selected);
     focusA += ((selRoom ? 1 : 0) - focusA) * Math.min(1, dt * 5);
-    if (focusA > 0.01 && (selRoom || lastFocus)) {
+    if (selRoom) lastFocus = selRoom;
+    focusRoom = focusA > 0.01 ? selRoom || lastFocus : null;
+    if (!worldHD && focusA > 0.01 && (selRoom || lastFocus)) {
       const r = selRoom || lastFocus;
-      if (selRoom) lastFocus = selRoom;
       wbg.save(); wbg.globalCompositeOperation = 'source-atop'; wbg.fillStyle = `rgba(2,4,10,${(0.42 * focusA).toFixed(3)})`;
       wbg.beginPath(); wbg.rect(0, 0, W, H);
       const s = silhouette(r.x0, r.y0); wbg.moveTo(s[0][0], s[0][1]); for (let i = s.length - 1; i > 0; i--) wbg.lineTo(s[i][0], s[i][1]); wbg.closePath();
       wbg.fill('evenodd'); wbg.restore();
     }
-    nightShade();
-    wbg.drawImage(EMC, 0, 0);
+    if (!worldHD) { nightShade(); wbg.drawImage(EMC, 0, 0); }
     bsg.drawImage(EMC, 0, 0);
     if (hoverT) drawOutline(wbg, hoverT, hoverT.accent, 0.85);
     const sel = selected && targetById(selected);
@@ -5528,9 +5691,10 @@
     { const n = nightAmt(), dk = darkness(); if (n > 0.01) { ug.fillStyle = `rgba(6,10,32,${Math.min(0.86, n * 1.3).toFixed(3)})`; ug.fillRect(0, 0, uw, uh);
       if (dk > 0.4 && (skinId() === 'farm' || skinId() === 'ocean')) for (let i = 0; i < 90; i++) { const sx2 = hash2(i, 7) * vw, sy2 = hash2(i, 11) * vh * 0.6, tw = 0.3 + 0.7 * Math.max(0, Math.sin(T * (0.5 + hash2(i, 3) * 2) + i)); dot(sx2, sy2, `rgba(235,240,255,${((dk - 0.4) * 1.6 * tw).toFixed(2)})`); } } }
     // the station
+    if (worldHD) drawWorldHD(kUp, wox, woy, uw, uh);
     ug.drawImage(WB, wox, woy, W * kUp, H * kUp);
     if (hdOn) drawCrewHD(kUp, wox, woy);
-    hdOn = !HD_OFF && kUp >= 2;
+    hdOn = !HD_OFF && kUp >= 2; kUpLast = kUp;
 
     // up to the display with a gentle filter: crisp pixels at any zoom, no uneven pixel widths
     dctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -6857,6 +7021,8 @@
           <dt>Agents</dt><dd>One character per AI agent on a job, in its job's room. Sits at a desk with a ring overhead while its run is live; carries crates of logged outcomes when it ends.</dd>
           <dt>How many in a room</dt><dd>The number of characters in a room is the number working it (the count on the room's label). An empty room has no one assigned: a flickering outline marks the open spot.</dd>
           <dt>Level badge</dt><dd>The number in front of a name: how much that person did in 30 days (or how many runs an agent has made), on the same 1, 5, 15, 40, 100 steps as room tiers.</dd>
+          <dt>Rings and rims</dt><dd>Everyone who works here stands on a ring of their own colour and is edged in it, so you can tell who is who on any floor, in any world.</dd>
+          <dt>Floor medallion</dt><dd>What a room is, painted big on its floor: scissors, a plate, a bed, a book, a laptop. Taken from the room's name.</dd>
           <dt>Coin bubble</dt><dd>A room that took money today (or had chores done today) shows it in a bubble with a coin over the room.</dd>
           <dt>Gold marker, bubble</dt><dd>The diamond over a head turns gold and a bubble pops (coin, star, check) when a real event is theirs: a sale, a chore, a finished run.</dd>
           <dt>Visitors</dt><dd>A real sale walks in: a visitor comes from the dock, sits, is served, pays (coins fly to the vault) and leaves.</dd>
@@ -7077,7 +7243,7 @@
       sync(); announce(); first = false;
       renderHud(); renderFeed(); buildLabels();
       const sig = signature();
-      if (sig !== bakedSig) { baked = bake(); bakeLights(); bakedSig = sig; }
+      if (sig !== bakedSig) { baked = bake(); bakeLights(); buildWorldHD(); bakedSig = sig; }
       renderPanel();
       finishBoot();
       if (!welcomed && snap.station && snap.station.configured === false && !snap.state.eventCount && !sget('rs-welcome')) { welcomed = true; openRooms({ welcome: true }); }
@@ -7102,7 +7268,7 @@
     if (!snap || !applySkin()) return;
     skinChanged(); sync();
     renderHud(); buildLabels(); renderPanel(true);
-    baked = bake(); bakeLights(); bakedSig = signature();
+    baked = bake(); bakeLights(); buildWorldHD(); bakedSig = signature();
   }
   const stationName = () => { const n = snap && snap.station && snap.station.name; return n && n !== 'Proxyfolk' && n !== 'Revenue Station' ? n : 'Station roster'; };
   let shownName = '';
