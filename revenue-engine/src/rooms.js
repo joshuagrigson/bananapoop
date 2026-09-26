@@ -127,13 +127,15 @@ function normalizeFolk(list) {
     seen.add(nm.toLowerCase());
     const color = k && typeof k === 'object' && HEX.test(k.color || '') ? k.color.toLowerCase() : FOLK_COLORS[out.length % FOLK_COLORS.length];
     const rooms = k && typeof k === 'object' && Array.isArray(k.rooms) ? [...new Set(k.rooms.filter((r) => typeof r === 'string' && /^[a-z0-9][a-z0-9-]{0,31}$/.test(r)))].slice(0, 10) : [];
-    out.push(rooms.length ? { name: nm, color, rooms } : { name: nm, color });
+    // what they are, in a word or three: Barber, Colorist, Apprentice, Owner. Shown under their name on the map.
+    const role = k && typeof k === 'object' ? String(k.role ?? '').trim().replace(/\s+/g, ' ').slice(0, 24) : '';
+    out.push({ name: nm, color, ...(role ? { role } : {}), ...(rooms.length ? { rooms } : {}) });
   }
   if (out.length > MAX_FOLK) throw new LedgerError(`a world keeps up to ${MAX_FOLK} folk`);
   return out;
 }
 // folk may only work rooms that exist
-const pinFolk = (folk, ids) => folk.map((f) => { if (!f.rooms) return f; const rooms = f.rooms.filter((r) => ids.has(r)); return rooms.length ? { ...f, rooms } : { name: f.name, color: f.color }; });
+const pinFolk = (folk, ids) => folk.map((f) => { if (!f.rooms) return f; const rooms = f.rooms.filter((r) => ids.has(r)); const { rooms: _drop, ...rest } = f; return rooms.length ? { ...rest, rooms } : rest; });
 // a room's look in each non-space skin ("crypt" in the castle, "coop" on the farm): a short slug the station draws
 function normalizeLooks(looks) {
   if (!looks || typeof looks !== 'object') return undefined;

@@ -123,7 +123,7 @@
   .fl span { position: absolute; left: 0; bottom: 0; transform: translateX(-50%); white-space: nowrap; font: 700 13px/1 var(--f-num); text-shadow: 0 0 10px currentColor, 0 2px 4px #000, 0 0 2px #000; animation: rise 2.6s cubic-bezier(.2,.8,.3,1) forwards; }
   @keyframes rise { 0% { opacity: 0; transform: translate(-50%, 8px) scale(.8); } 12% { opacity: 1; transform: translate(-50%, 0) scale(1.08); } 20% { transform: translate(-50%, -4px) scale(1); } 100% { opacity: 0; transform: translate(-50%, -54px); } }
   @keyframes blink { 50% { opacity: .25; } }
-  .tip { position: absolute; z-index: 8; pointer-events: none; display: none; min-width: 180px; max-width: 280px; padding: 9px 11px; border-radius: 9px; background: linear-gradient(180deg, var(--tip-a), var(--tip-b)); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); box-shadow: 0 12px 30px rgba(0,0,0,.6), 0 0 18px color-mix(in srgb, var(--c) 20%, transparent); font-size: 12px; }
+  .tip { position: absolute; z-index: 8; pointer-events: none; display: none; min-width: 180px; max-width: 340px; padding: 9px 11px; border-radius: 9px; background: linear-gradient(180deg, var(--tip-a), var(--tip-b)); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); box-shadow: 0 12px 30px rgba(0,0,0,.6), 0 0 18px color-mix(in srgb, var(--c) 20%, transparent); font-size: 12px; }
   .tip .h { display: flex; align-items: center; gap: 7px; font-weight: 600; letter-spacing: .03em; }
   .tip .h .sw { width: 8px; height: 8px; border-radius: 2px; background: var(--c); box-shadow: 0 0 8px var(--c); }
   .tip .s { color: var(--muted); font-size: 11px; margin-top: 3px; }
@@ -200,6 +200,12 @@
   .sec > h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 9px; font: 600 10px/1 var(--f-display); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
   .sec > h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tip .pcard { display: flex; gap: 10px; align-items: flex-start; }
+  .tip .pt { width: 64px; height: 64px; flex: none; image-rendering: pixelated; border-radius: 10px; background: rgba(0,0,0,.35); border: 1px solid var(--line2); }
+  .tip .pc { min-width: 0; }
+  .tip .kc { display: inline-block; font: 700 9.5px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; padding: 3px 7px; border-radius: 999px; margin-bottom: 5px; background: rgba(255,255,255,.08); color: var(--ink2); border: 1px solid var(--line2); }
+  .tip .kc.k-agent { color: #7ff3ff; border-color: #2bd4ff; background: rgba(0,200,255,.1); box-shadow: 0 0 10px rgba(0,220,255,.25); }
+  .tip .kc.k-person, .tip .kc.k-kid { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 60%, transparent); }
   .agrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 4px; }
   .ast { padding: 9px 11px; border-radius: 10px; background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid var(--line); display: grid; gap: 2px; }
   .ast span { font: 600 9.5px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
@@ -213,7 +219,8 @@
   #replay .rb i { display: block; height: 100%; width: 0; background: var(--gold); }
   #replay[hidden] { display: none; }
   /* the area view title, the way a village game names the building you tapped */
-  #areaTitle { position: absolute; top: calc(var(--top) + 8px); z-index: 6; transform: translateX(-50%); text-align: center; pointer-events: none; font-family: "Lilita One", "Fredoka", sans-serif; color: #fff; paint-order: stroke fill; -webkit-text-stroke: 5px #12131c; }
+  .lbl.area { opacity: 0; pointer-events: none; transition: opacity .3s; }
+  #areaTitle { position: absolute; top: calc(var(--top) + 8px + var(--toastH, 0px)); transition: top .25s ease; z-index: 6; transform: translateX(-50%); text-align: center; pointer-events: none; font-family: "Lilita One", "Fredoka", sans-serif; color: #fff; paint-order: stroke fill; -webkit-text-stroke: 5px #12131c; }
   #areaTitle[hidden] { display: none; }
   #areaTitle b { display: block; font-weight: 400; font-size: 30px; line-height: 1.05; letter-spacing: .01em; filter: drop-shadow(0 3px 0 rgba(0,0,0,.35)); }
   #areaTitle .lv { display: inline-block; margin-top: 4px; font-size: 16px; -webkit-text-stroke: 4px #12131c; color: #ffe07a; }
@@ -535,6 +542,7 @@
   .kr { display: flex; align-items: center; gap: 4px; padding: 3px 4px 3px 3px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--kc) 45%, var(--line)); background: color-mix(in srgb, var(--kc) 10%, var(--tile)); }
   .kr .kc { width: 24px; height: 24px; border-radius: 50%; border: 0; background: var(--kc); cursor: pointer; box-shadow: 0 0 8px var(--kc); }
   .kr input { width: 120px; padding: 6px 8px; }
+  .kr input.kro { width: 104px; font-size: 11.5px; color: var(--ink2); }
   .kr.wk { cursor: pointer; color: var(--ink2); font: 600 12px/1 var(--f-ui); padding: 5px 10px 5px 5px; gap: 7px; opacity: .55; }
   .kr.wk .kc { width: 14px; height: 14px; border-radius: 50%; background: var(--kc); display: inline-block; }
   .kr.wk.on { opacity: 1; color: var(--ink); box-shadow: 0 0 0 1px var(--kc); }
@@ -3517,7 +3525,7 @@
       if (first) { const [x, y] = idleSpot(room); a.x = x; a.y = y; }
       else {
         const sp = hubSpawn(); a.x = sp[0]; a.y = sp[1];
-        a.queue = findPath(sp, idleSpot(room)); a.state = 'arrive';
+        a.queue = findPath(sp, idleSpot(room)); a.state = 'arrive'; a.born = T;
         beam(sp[0], sp[1], roleCol(j.role)); sfx('hire');
         floatAt(sp[0], sp[1], 24, `${roleTitle(j.role)} hired`, roleCol(j.role));
       }
@@ -3575,7 +3583,7 @@
       const [cx, cy] = deskCenter(room, desk);
       const sp = hubSpawn();
       const a = baseAgent({ id: runId, kind: 'visit', role: r.role, name: roleTitle(r.role), path: r.path, run: r, runId, x: sp[0], y: sp[1], queue: [...findPath(sp, [cx, cy + 1.2]), [cx, cy + 0.62]], state: 'enter', act: 'run', desk, face: 1, costume: costumeFor(room) });
-      if (first) { a.x = cx; a.y = cy + 0.62; a.queue = []; a.state = 'work'; } else beam(sp[0], sp[1], roleCol(r.role));
+      if (first) { a.x = cx; a.y = cy + 0.62; a.queue = []; a.state = 'work'; } else { beam(sp[0], sp[1], roleCol(r.role)); a.born = T; }
       agents.set(runId, a);
     }
     for (const a of agents.values()) {
@@ -3664,6 +3672,7 @@
     spawnCoins(b.room, b.n);
     bubble(worker, b.chore ? 'star' : 'coin', 2.2, true);
     worker.jz = 1; worker.act = 'idle'; worker.actT = 1.5 + Math.random() * 2;
+    popValue(worker.x, worker.y, `+${usd(b.e.usd)}`, worker.tint || roleCol(worker.role));
     const [sx, sy] = P(worker.x, worker.y, 16);
     const col = worker.tint || roleCol(worker.role);
     for (let k = 0; k < 14; k++) particles.push({ x: sx, y: sy, vx: (Math.random() - 0.5) * 60, vy: -30 - Math.random() * 40, g: 90, life: 0.7 + Math.random() * 0.4, col: k % 3 ? col : '#fff3b0', glow: k % 2 === 0 });
@@ -4925,23 +4934,34 @@
   }
   // one character, resampled into half-pixel space with the pose, and hidden wherever a wall stands in front of it
   let hdBuf = null, hdBg = null;
-  function hdDrawSprite(spr, flip, fx, fy, pose, dcode, silCol, dim, kUpL, wox, woy, rim = null) {
+  // one character, resampled into half-pixel space with the pose, hidden wherever a wall stands in front of it.
+  // fx.holo turns it into a hologram (an AI agent): tinted, scanlined, a light band sweeping up, now and then a glitch.
+  // fx.reveal (0..1) builds it up from the feet with a bright scan edge (arriving) or takes it away (leaving).
+  function hdDrawSprite(spr, flip, fx0, fy, pose, dcode, silCol, dim, kUpL, wox, woy, rim = null, fx = null) {
     const src = hdSprite(spr), sw = src.width, sh = src.height, sd = src._d;
     const sy = pose.sy, sxs = 1 / sy, k = pose.k;
     const DH = Math.ceil(sh * sy) + 2, DWr = Math.ceil(sw * sxs + Math.abs(k) * DH) + 4, DW = DWr + (DWr & 1);
-    const footX = Math.round(fx * 2) / 2, footY = Math.round(fy * 2) / 2;
+    const footX = Math.round(fx0 * 2) / 2, footY = Math.round(fy * 2) / 2;
     const ox = footX - DW / 4, oy = footY - DH / 2;
     if (!hdBuf || hdBuf.width < DW || hdBuf.height < DH) { [hdBuf, hdBg] = mk(Math.max(DW, 64), Math.max(DH, 96)); }
     const img = hdBg.createImageData(DW, DH), out = img.data;
     const cx = DW / 2;
+    const holo = fx && fx.holo, reveal = fx ? fx.reveal ?? 1 : 1, t = fx ? fx.t || 0 : 0;
+    const scanShift = Math.floor(t * 16), sweep = DH - ((t * 34) % (DH + 24)) + 12;
+    const gl = fx && fx.glitch;
     let any = false;
     for (let j = 0; j < DH; j++) {
       const up = DH - j - 0.5, srow = Math.floor(sh - up / sy);
       if (srow < 0 || srow >= sh) continue;
+      const hf = up / DH;
+      if (hf > reveal + 0.02) continue;
+      const edge = reveal < 1 && hf > reveal - 0.05;
       const NY = Math.floor(oy + (j + 0.5) / 2);
       if (NY < 0 || NY >= H) continue;
+      const gshift = gl && j >= gl.y0 * DH && j <= gl.y1 * DH ? gl.dx : 0;
+      const stripe = holo && (j + scanShift) % 3 === 0, band = holo && Math.abs(j - sweep) < 1.6;
       for (let i = 0; i < DW; i++) {
-        const xc = ((i + 0.5 - cx) - k * up) / sxs;
+        const xc = ((i + 0.5 - cx - gshift) - k * up) / sxs;
         const scol = Math.floor(sw / 2 + (flip ? -xc : xc));
         if (scol < 0 || scol >= sw) continue;
         const si = (srow * sw + scol) * 4, al = sd[si + 3];
@@ -4950,7 +4970,15 @@
         if (NX < 0 || NX >= W) continue;
         const di = (j * DW + i) * 4;
         if (dbData[(NY * W + NX) * 4] > dcode) { if (silCol) { out[di] = silCol[0]; out[di + 1] = silCol[1]; out[di + 2] = silCol[2]; out[di + 3] = 80; any = true; } continue; }
-        out[di] = sd[si] * dim; out[di + 1] = sd[si + 1] * dim; out[di + 2] = sd[si + 2] * dim; out[di + 3] = al; any = true;
+        let r = sd[si], g = sd[si + 1], b = sd[si + 2], a = al;
+        if (holo) {
+          const lum = (r * 0.3 + g * 0.55 + b * 0.15) / 255;
+          r = holo[0] * (0.35 + lum * 0.9) + 20; g = holo[1] * (0.35 + lum * 0.9) + 20; b = holo[2] * (0.35 + lum * 0.9) + 26;
+          if (stripe) { r *= 1.28; g *= 1.28; b *= 1.28; a = al * 0.95; } else a = al * 0.8;
+          if (band) { r += 90; g += 90; b += 90; a = 255; }
+        }
+        if (edge) { const c = holo || [255, 255, 255]; r = c[0] * 0.5 + 128; g = c[1] * 0.5 + 128; b = c[2] * 0.5 + 128; a = 255; }
+        out[di] = Math.min(255, r * dim); out[di + 1] = Math.min(255, g * dim); out[di + 2] = Math.min(255, b * dim); out[di + 3] = a; any = true;
       }
     }
     if (!any) return null;
@@ -4971,7 +4999,7 @@
     }
     hdBg.putImageData(img, 0, 0);
     ug.drawImage(hdBuf, 0, 0, DW, DH, wox + ox * kUpL, woy + oy * kUpL, DW * kUpL / 2, DH * kUpL / 2);
-    return { top: oy + (DH - sh * sy) , footX, footY };
+    return { top: oy + (DH - sh * sy), footX, footY, w: DW / 2 };
   }
   // a character's level, from the ledger: how much they have done in 30 days (folk) or runs so far (agents)
   let lvlSig = '', lvlCache = new Map();
@@ -4985,35 +5013,101 @@
     lvlCache.set(a.id, lv);
     return lv;
   }
-  // a name plate the way a village game writes it: chunky rounded letters with a dark outline, a level shield in front
-  function plateSize(g, text, lvl, scale) {
+
+  // ---- identity: what each character is, at a glance. A person on the roster, an AI agent, a client, a kid, you.
+  const ROLE_ICON = { prospector: 'target', outreach: 'mail', pricing: 'tag', creator: 'camera', lister: 'list', scout: 'binoc', fulfiller: 'wrench', auditor: 'clip', manager: 'case' };
+  const DEFAULT_ROLE = { barber: 'Barber', salon: 'Stylist', freelance: 'Freelancer', chores: 'Kid' };
+  function identity(a) {
+    if (a.kind === 'folk') {
+      const f = folkByName(a.name) || {}, tpl = snap.station && snap.station.template, kid = MODE() === 'allowance';
+      return { kind: kid ? 'kid' : 'person', name: a.name, label: (f.role || DEFAULT_ROLE[tpl] || (kid ? 'Kid' : MODE() === 'service' ? 'Team' : 'Crew')).toUpperCase(), icon: kid ? 'kid' : 'person', col: a.tint || '#8fb0ff', lvl: charLevel(a) };
+    }
+    if (a.kind === 'job' || a.kind === 'visit') return { kind: 'agent', name: roleTitle(a.role), label: a.kind === 'job' ? 'AI AGENT' : 'AI AGENT · ONE RUN', icon: ROLE_ICON[a.role] || 'bot', col: roleCol(a.role), lvl: a.kind === 'job' ? charLevel(a) : 0 };
+    if (a.kind === 'guest') return { kind: 'client', name: (a.ev && a.ev.source) || 'Client', label: 'CLIENT', icon: 'coin', col: a.tint || '#cfd6e6', lvl: 0 };
+    if (a.kind === 'lead') return { kind: 'lead', name: 'You', label: NM().leader.toUpperCase(), icon: 'crown', col: '#ffcf5a', lvl: snap.level.level };
+    return { kind: 'animal', name: a.lk ? a.lk.resident : 'Stock', label: 'STOCK', icon: 'paw', col: '#9aa6c0', lvl: 0 };
+  }
+  // vector glyphs for the badges, drawn crisp at any zoom (24 x 24, stroked)
+  const VEC = Object.fromEntries(Object.entries({
+    person: 'M12 11.5a3.8 3.8 0 1 0 0-7.6 3.8 3.8 0 0 0 0 7.6zM4.8 20.5c.8-4 3.6-6.2 7.2-6.2s6.4 2.2 7.2 6.2',
+    kid: 'M12 12.5a3.3 3.3 0 1 0 0-6.6 3.3 3.3 0 0 0 0 6.6zM6.2 20.5c.6-3.3 2.9-5.1 5.8-5.1s5.2 1.8 5.8 5.1M12 1.8l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z',
+    bot: 'M6 8.5h12a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6.5a2 2 0 0 1 2-2zM12 8.5V5M12 4.2v-.1M9 13v1M15 13v1M9.8 16.6h4.4M2.5 12.5v2.5M21.5 12.5v2.5',
+    camera: 'M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1zM12 16.3a3.3 3.3 0 1 0 0-6.6 3.3 3.3 0 0 0 0 6.6z',
+    target: 'M12 20.5a8.5 8.5 0 1 0 0-17 8.5 8.5 0 0 0 0 17zM12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM12 12h.01',
+    mail: 'M3.5 6.5h17v11h-17zM3.5 6.5l8.5 6.5 8.5-6.5',
+    tag: 'M3.5 12.5V4.5h8l9 9-8 8zM8 8.6h.01',
+    list: 'M8.5 6.5h11.5M8.5 12h11.5M8.5 17.5h11.5M4.2 6.5h.01M4.2 12h.01M4.2 17.5h.01',
+    binoc: 'M3.8 16a3.2 3.2 0 1 0 6.4 0 3.2 3.2 0 0 0-6.4 0zM13.8 16a3.2 3.2 0 1 0 6.4 0 3.2 3.2 0 0 0-6.4 0zM10.2 15.5h3.6M4.6 13.5L7 6h3v7.8M19.4 13.5L17 6h-3v7.8',
+    wrench: 'M14.8 4.2a4.5 4.5 0 0 0 5 5.9L10 19.9a2 2 0 0 1-2.8-2.8L17 7.3a4.5 4.5 0 0 1-2.2-3.1z',
+    clip: 'M8.5 4h7v3h-7zM6.5 5.5H8.5M15.5 5.5h2v15h-11v-15h2M9 13l2 2 4-4',
+    case: 'M4 8h16v11H4zM9 8V5.5h6V8M4 13h16',
+    coin: 'M12 20.5a8.5 8.5 0 1 0 0-17 8.5 8.5 0 0 0 0 17zM14.6 9.3c-.6-.8-1.5-1.2-2.6-1.2-1.6 0-2.8.9-2.8 2.1 0 2.9 5.8 1.5 5.8 4.2 0 1.2-1.3 2.1-3 2.1-1.1 0-2.1-.5-2.7-1.3M12 6.3v11.4',
+    crown: 'M4 19h16M5 16L3.5 7l5 4L12 4.5l3.5 6.5 5-4L19 16z',
+    paw: 'M8 7.5a1.6 2 0 1 0 0-.01zM16 7.5a1.6 2 0 1 0 0-.01zM4.8 12a1.5 1.8 0 1 0 0-.01zM19.2 12a1.5 1.8 0 1 0 0-.01zM12 13c-3 0-5 3-5 5s2 2.5 5 2.5 5-.5 5-2.5-2-5-5-5z',
+  }).map(([k, d]) => [k, new Path2D(d)]));
+  function vecIcon(g, name, X, Y, size, col, lw = 2.3) {
+    g.save(); g.translate(X - size / 2, Y - size / 2); g.scale(size / 24, size / 24);
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    g.strokeStyle = 'rgba(8,10,20,0.9)'; g.lineWidth = lw + 2.4; g.stroke(VEC[name] || VEC.person);
+    g.strokeStyle = col; g.lineWidth = lw; g.stroke(VEC[name] || VEC.person);
+    g.restore();
+  }
+  // the badge in front of a name: a round medal for people, a hexagon chip for AI agents, a coin for clients
+  function idBadge(g, X, Y, r, id, t) {
+    g.save();
+    g.beginPath();
+    if (id.kind === 'agent') { for (let k = 0; k < 6; k++) { const an = k * Math.PI / 3; g.lineTo(X + Math.cos(an) * r, Y + Math.sin(an) * r); } g.closePath(); }
+    else g.arc(X, Y, r, 0, 7);
+    g.fillStyle = '#12131c'; g.lineWidth = r * 0.42; g.strokeStyle = '#12131c'; g.stroke();
+    const grd = g.createLinearGradient(0, Y - r, 0, Y + r);
+    if (id.kind === 'agent') { grd.addColorStop(0, shade(id.col, -10)); grd.addColorStop(1, shade(id.col, -70)); }
+    else { grd.addColorStop(0, shade(id.col, 45)); grd.addColorStop(1, shade(id.col, -35)); }
+    g.fillStyle = grd; g.fill();
+    // a glint that sweeps across the badge every few seconds
+    const gp = ((t * 0.35) % 1) * 3 - 1;
+    if (gp > -0.4 && gp < 1.4) { g.clip(); g.fillStyle = 'rgba(255,255,255,0.45)'; g.beginPath(); g.moveTo(X + (gp - 0.3) * r * 2, Y - r); g.lineTo(X + gp * r * 2, Y - r); g.lineTo(X + (gp - 0.5) * r * 2, Y + r); g.lineTo(X + (gp - 0.8) * r * 2, Y + r); g.fill(); }
+    g.restore();
+    vecIcon(g, id.icon, X, Y, r * 1.45, id.kind === 'agent' ? mix(id.col, '#ffffff', 0.55) : '#ffffff', 2.4);
+  }
+  // a name plate: the badge, the name in chunky outlined letters, and under it what they are
+  function plateSize(g, id, scale) {
     const fs = Math.max(8, Math.round(15 * scale));
     g.font = `${fs}px "Lilita One", "Fredoka", "Nunito", sans-serif`;
-    const tw = g.measureText(text).width, sh = lvl ? fs * 1.15 : 0, gap = lvl ? fs * 0.3 : 0;
-    return { w: sh + gap + tw + fs * 0.4, h: fs * 1.25 };
+    const nw = g.measureText(id.name).width;
+    g.font = `700 ${Math.round(fs * 0.6)}px "Oxanium", "Rajdhani", sans-serif`;
+    const cw = g.measureText(chipText(id)).width + fs * 0.9;
+    return { w: Math.max(fs * 1.5 + nw, cw) + fs * 0.4, h: fs * 2.15 };
   }
-  function plate(g, X, Y, text, col, lvl, scale) {
+  const chipText = (id) => (id.lvl ? `${id.label} · LV ${id.lvl}` : id.label);
+  function namePlate(g, X, Y, id, scale, t) {
     const fs = Math.max(8, Math.round(15 * scale));
     g.font = `${fs}px "Lilita One", "Fredoka", "Nunito", sans-serif`;
     g.textBaseline = 'middle'; g.lineJoin = 'round';
-    const tw = g.measureText(text).width, sh = lvl ? fs * 1.15 : 0, gap = lvl ? fs * 0.3 : 0, w = sh + gap + tw;
+    const nw = g.measureText(id.name).width, br = fs * 0.62, w = br * 2 + fs * 0.3 + nw;
     let x = X - w / 2;
-    if (lvl) {
-      const r = sh / 2, cx = x + r, cy = Y;
-      g.beginPath();
-      for (let k = 0; k < 6; k++) { const an = Math.PI / 6 + k * Math.PI / 3; g.lineTo(cx + Math.cos(an) * r, cy + Math.sin(an) * r); }
-      g.closePath();
-      g.fillStyle = '#12131c'; g.lineWidth = fs * 0.4; g.strokeStyle = '#12131c'; g.stroke();
-      const grd = g.createLinearGradient(0, cy - r, 0, cy + r); grd.addColorStop(0, shade(col, 50)); grd.addColorStop(1, shade(col, -30));
-      g.fillStyle = grd; g.fill();
-      g.font = `${Math.round(fs * 0.78)}px "Lilita One", "Fredoka", sans-serif`; g.textAlign = 'center';
-      g.lineWidth = fs * 0.22; g.strokeText(String(lvl), cx, cy + fs * 0.04); g.fillStyle = '#ffffff'; g.fillText(String(lvl), cx, cy + fs * 0.04);
-      g.font = `${fs}px "Lilita One", "Fredoka", "Nunito", sans-serif`;
-      x += sh + gap;
-    }
+    idBadge(g, x + br, Y, br, id, t + X * 0.001);
+    x += br * 2 + fs * 0.3;
     g.textAlign = 'left';
-    g.lineWidth = fs * 0.36; g.strokeStyle = '#12131c'; g.strokeText(text, x, Y);
-    g.fillStyle = '#ffffff'; g.fillText(text, x, Y);
+    g.lineWidth = fs * 0.36; g.strokeStyle = '#12131c'; g.strokeText(id.name, x, Y);
+    g.fillStyle = id.kind === 'agent' ? mix(id.col, '#ffffff', 0.75) : '#ffffff'; g.fillText(id.name, x, Y);
+    // the chip: what they are
+    const txt = chipText(id), cf = Math.round(fs * 0.6);
+    g.font = `700 ${cf}px "Oxanium", "Rajdhani", sans-serif`;
+    const cw = g.measureText(txt).width + fs * 0.9, ch = cf * 1.55, cy = Y + fs * 0.95;
+    const cx0 = X - cw / 2;
+    g.beginPath(); g.roundRect ? g.roundRect(cx0, cy - ch / 2, cw, ch, ch / 2) : g.rect(cx0, cy - ch / 2, cw, ch);
+    if (id.kind === 'agent') {
+      g.fillStyle = 'rgba(6,10,24,0.88)'; g.fill();
+      g.strokeStyle = id.col; g.lineWidth = Math.max(1, fs * 0.09); g.stroke();
+      g.fillStyle = mix(id.col, '#ffffff', 0.35);
+    } else if (id.kind === 'client') {
+      g.fillStyle = 'rgba(40,44,56,0.9)'; g.fill(); g.strokeStyle = '#12131c'; g.lineWidth = Math.max(1, fs * 0.12); g.stroke();
+      g.fillStyle = '#e8eefc';
+    } else {
+      g.fillStyle = shade(id.col, -55); g.fill(); g.strokeStyle = '#12131c'; g.lineWidth = Math.max(1, fs * 0.12); g.stroke();
+      g.fillStyle = mix(id.col, '#ffffff', 0.7);
+    }
+    g.textAlign = 'center'; g.fillText(txt, X, cy + cf * 0.05);
   }
   function hdBar(g, X, Y, w, h, f, col) {
     g.fillStyle = '#12131c'; g.fillRect(X - w / 2 - 1.5, Y - 1.5, w + 3, h + 3);
@@ -5021,6 +5115,12 @@
     g.fillStyle = col; g.fillRect(X - w / 2, Y, w * clamp(f, 0, 1), h);
     g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(X - w / 2, Y, w * clamp(f, 0, 1), Math.max(1, h * 0.35));
   }
+  const easeBack = (x) => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+  // value pops and shockwaves for real work: "+$45" rising in gold, a ring rolling out across the floor
+  const pops = [];
+  function popValue(x, y, text, col) { pops.push({ kind: 'text', x, y, text, col, t0: T }); pops.push({ kind: 'ring', x, y, col, t0: T }); pops.push({ kind: 'ring', x, y, col: '#ffffff', t0: T + 0.12 }); }
+  let hoverAgentId = null;
+
   // the whole troop pass, straight onto the upscaled frame
   function drawCrewHD(kUpL, wox, woy) {
     const list = [...agents.values()].sort((a, b) => (a.x + a.y) - (b.x + b.y));
@@ -5028,44 +5128,89 @@
     const nx = (x) => wox + x * kUpL, ny = (y) => woy + y * kUpL;
     const showTags = cam.z >= 1.35;
     ug.imageSmoothingEnabled = false;
+    // shockwave rings roll out on the floor, under everyone
+    for (let i = pops.length - 1; i >= 0; i--) {
+      const p = pops[i], f = (T - p.t0) / (p.kind === 'ring' ? 0.8 : 1.6);
+      if (f > 1) { pops.splice(i, 1); continue; }
+      if (p.kind !== 'ring' || f < 0) continue;
+      const [gx, gy] = P(p.x, p.y), rr = 4 + f * 26;
+      ug.strokeStyle = rgba(p.col, (0.9 * (1 - f)).toFixed(3)); ug.lineWidth = Math.max(1.5, kUpL * (1.6 - f));
+      ug.beginPath(); ug.ellipse(nx(gx), ny(gy), rr * kUpL, rr * 0.5 * kUpL, 0, 0, 7); ug.stroke();
+    }
     const overlays = [];
     for (const a of list) {
       const d = crewDraw(a);
       const dcode = depthCode(a.x + a.y);
-      const col = a.kind === 'res' ? (d.res.sil || '#9aa6c0') : a.tint || roleCol(a.role);
+      const id = identity(a), col = id.kind === 'animal' ? (d.res.sil || '#9aa6c0') : id.col;
       const dim = focusA > 0.01 && selRoom && a.path !== selRoom.id ? 1 - 0.45 * focusA : 1;
+      const agent = id.kind === 'agent';
       const pose = hdPose(a, d);
-      // soft blob shadow on the ground, smaller while hopping
       const [gx, gy] = P(a.x, a.y);
-      if (d.view !== 'seat' && !(d.res && d.res.noShadow)) {
-        const X0 = Math.round(gx), Y0 = Math.round(gy);
-        if (X0 > 0 && Y0 > 0 && X0 < W && Y0 < H && dbData[(Y0 * W + X0) * 4] <= dcode) {
-          const rx = d.spr.width * HDS * 0.42 * (a.jz > 0 ? 0.8 : 1), ry = rx * 0.4;
+      const X0 = Math.round(gx), Y0 = Math.round(gy);
+      const groundSeen = X0 > 0 && Y0 > 0 && X0 < W && Y0 < H && dbData[(Y0 * W + X0) * 4] <= dcode;
+      const rx = d.spr.width * HDS * 0.42 * (a.jz > 0 ? 0.8 : 1), ry = rx * 0.4;
+      // the trail an agent leaves as it glides: afterglow on the floor
+      if (agent) {
+        a.trail = a.trail || [];
+        if (a.queue.length && (!a.trail.length || T - a.trail[a.trail.length - 1].t > 0.05)) a.trail.push({ x: gx, y: gy, t: T });
+        while (a.trail.length && T - a.trail[0].t > 0.45) a.trail.shift();
+        ug.globalCompositeOperation = 'lighter';
+        for (const q of a.trail) { const f = 1 - (T - q.t) / 0.45; ug.fillStyle = rgba(col, (0.35 * f * dim).toFixed(3)); ug.beginPath(); ug.ellipse(nx(q.x), ny(q.y), rx * 0.7 * f * kUpL, ry * 0.7 * f * kUpL, 0, 0, 7); ug.fill(); }
+        ug.globalCompositeOperation = 'source-over';
+      }
+      if (d.view !== 'seat' && !(d.res && d.res.noShadow) && groundSeen) {
+        if (agent) {
+          // a hologram casts light, not shadow: a glowing disc it hovers over
+          ug.globalCompositeOperation = 'lighter';
+          const gl = ug.createRadialGradient(nx(gx), ny(gy), 0, nx(gx), ny(gy), rx * 1.5 * kUpL);
+          gl.addColorStop(0, rgba(col, (0.55 * dim).toFixed(3))); gl.addColorStop(1, rgba(col, 0));
+          ug.fillStyle = gl; ug.beginPath(); ug.ellipse(nx(gx), ny(gy + 0.5), rx * 1.5 * kUpL, ry * 1.5 * kUpL, 0, 0, 7); ug.fill();
+          ug.globalCompositeOperation = 'source-over';
+        } else {
           ug.fillStyle = `rgba(0,0,0,${(0.3 * dim).toFixed(3)})`; ug.beginPath(); ug.ellipse(nx(gx), ny(gy + 0.5), rx * kUpL, ry * kUpL, 0, 0, 7); ug.fill();
           ug.fillStyle = `rgba(0,0,0,${(0.22 * dim).toFixed(3)})`; ug.beginPath(); ug.ellipse(nx(gx), ny(gy + 0.5), rx * 0.6 * kUpL, ry * 0.6 * kUpL, 0, 0, 7); ug.fill();
-          if (follow === a.id) {
-            // the selected troop: a gold ring on the ground, breathing
-            const pr = 1 + 0.12 * Math.sin(T * 5);
-            ug.strokeStyle = '#ffd23f'; ug.lineWidth = Math.max(1.5, kUpL * 1.1);
-            ug.beginPath(); ug.ellipse(nx(gx), ny(gy + 0.5), rx * 1.5 * pr * kUpL, ry * 1.5 * pr * kUpL, 0, 0, 7); ug.stroke();
-          } else if (a.kind === 'folk' || a.kind === 'job' || a.kind === 'visit') {
-            // everyone who works here stands on a ring of their own colour: who is who, from any distance
-            ug.strokeStyle = rgba(col, (0.75 * dim).toFixed(3)); ug.lineWidth = Math.max(1.2, kUpL * 0.7);
-            ug.beginPath(); ug.ellipse(nx(gx), ny(gy + 0.5), rx * 1.25 * kUpL, ry * 1.25 * kUpL, 0, 0, 7); ug.stroke();
-          }
+        }
+        if (follow === a.id) {
+          const pr = 1 + 0.12 * Math.sin(T * 5);
+          ug.strokeStyle = '#ffd23f'; ug.lineWidth = Math.max(1.5, kUpL * 1.1);
+          ug.beginPath(); ug.ellipse(nx(gx), ny(gy + 0.5), rx * 1.5 * pr * kUpL, ry * 1.5 * pr * kUpL, 0, 0, 7); ug.stroke();
+        } else if (id.kind !== 'animal' && id.kind !== 'lead') {
+          // everyone stands on a ring of their own colour; an agent's ring is dashed and turns
+          ug.strokeStyle = rgba(col, (0.75 * dim).toFixed(3)); ug.lineWidth = Math.max(1.2, kUpL * 0.7);
+          if (agent) { ug.setLineDash([kUpL * 2.2, kUpL * 1.6]); ug.lineDashOffset = -T * kUpL * 6; }
+          ug.beginPath(); ug.ellipse(nx(gx), ny(gy + 0.5), rx * 1.25 * kUpL, ry * 1.25 * kUpL, 0, 0, 7); ug.stroke();
+          ug.setLineDash([]);
         }
       }
-      const fy = d.fy ?? (d.Y + d.spr.height);
-      const rimCol = a.kind === 'res' ? null : rgb(mix(col, '#ffffff', a.kind === 'guest' ? 0.55 : 0.35));
-      const r = hdDrawSprite(d.spr, d.flip, d.sx, fy, pose, dcode, rgb(col), dim, kUpL, wox, woy, rimCol);
-      if (!r || a.kind === 'res') continue;
+      // rushing to a real job: speed lines behind them
+      if (a.busy && a.queue.length) {
+        const [tx, ty] = a.queue[0], [px2, py2] = P(tx, ty), dx = px2 - gx, dy = py2 - gy, dl = Math.hypot(dx, dy) || 1;
+        ug.strokeStyle = rgba('#ffffff', (0.55 * dim).toFixed(3)); ug.lineWidth = Math.max(1, kUpL * 0.6);
+        for (let k = 0; k < 3; k++) { const oy2 = -6 - k * 4, len = 5 + ((T * 20 + k * 3) % 4); ug.beginPath(); ug.moveTo(nx(gx - dx / dl * 5), ny(gy + oy2 - dy / dl * 5)); ug.lineTo(nx(gx - dx / dl * (5 + len)), ny(gy + oy2 - dy / dl * (5 + len))); ug.stroke(); }
+      }
+      let fy = d.fy ?? (d.Y + d.spr.height);
+      if (agent && d.view !== 'seat') fy -= 2 + Math.sin(a.t * 2.6 + a.x) * 1.2;
+      // how built-up the character is: arriving agents scan in, leaving ones dissolve
+      let reveal = 1;
+      if (a.dying) reveal = clamp(1 - (T - a.dying) / 0.9, 0, 1);
+      else if (a.born && T - a.born < 0.9) reveal = clamp((T - a.born) / 0.9, 0, 1);
+      const glitch = agent && Math.sin(a.t * 1.7 + a.x * 3) > 0.985 ? { y0: 0.2 + 0.5 * Math.abs(Math.sin(a.t * 13)), y1: 0.35 + 0.5 * Math.abs(Math.sin(a.t * 13)), dx: Math.sin(a.t * 40) > 0 ? 3 : -3 } : null;
+      const rimCol = id.kind === 'animal' ? null : rgb(mix(col, '#ffffff', id.kind === 'client' ? 0.55 : agent ? 0.5 : 0.35));
+      const r = hdDrawSprite(d.spr, d.flip, d.sx, fy, pose, dcode, rgb(col), dim, kUpL, wox, woy, rimCol, agent || reveal < 1 ? { holo: agent ? rgb(col) : null, reveal, t: a.t, glitch } : null);
+      if (!r || id.kind === 'animal') continue;
+      if (id.kind === 'lead') a.name = 'You';
       const headY = r.top;
       const X = r.footX;
+      if (hoverAgentId === a.id || follow === a.id) {
+        // target brackets around the character under the pointer
+        const bx0 = nx(X - r.w / 2 - 1.5), bx1 = nx(X + r.w / 2 + 1.5), by0 = ny(headY - 1.5), by1 = ny(fy + 1), L = Math.min(bx1 - bx0, by1 - by0) * 0.28, inset = Math.sin(T * 6) * kUpL * 0.6;
+        ug.strokeStyle = follow === a.id ? '#ffd23f' : '#ffffff'; ug.lineWidth = Math.max(1.5, kUpL * 0.8);
+        for (const [cx, cy, sx, sy] of [[bx0 - inset, by0 - inset, 1, 1], [bx1 + inset, by0 - inset, -1, 1], [bx0 - inset, by1 + inset, 1, -1], [bx1 + inset, by1 + inset, -1, -1]]) { ug.beginPath(); ug.moveTo(cx, cy + sy * L); ug.lineTo(cx, cy); ug.lineTo(cx + sx * L, cy); ug.stroke(); }
+      }
       // the tool in their hands while they work a station
       if (!a.queue.length && (a.act === 'serve' || a.act === 'chore' || a.act === 'tinker') && a.station >= 0) {
         const t = toolFor(roomById(a.path)), sw = Math.floor(a.t * (a.busy ? 8 : 3)) % 2;
-        const ic2 = iconSprite(t);
-        ug.drawImage(ic2, nx(X + (a.face > 0 ? 4 : -11) + (sw ? a.face : 0)), ny(fy - 12 - sw), 5 * kUpL * 1.4, 5 * kUpL * 1.4);
+        ug.drawImage(iconSprite(t), nx(X + (a.face > 0 ? 4 : -11) + (sw ? a.face : 0)), ny(fy - 12 - sw), 5 * kUpL * 1.4, 5 * kUpL * 1.4);
       }
       if (a.carry > 0 && (a.state === 'leave' || a.state === 'deliver')) {
         const cx0 = X - 4, cy0 = headY - 7;
@@ -5074,18 +5219,36 @@
         ug.fillStyle = '#d9ac6a'; ug.fillRect(nx(cx0), ny(cy0), 8 * kUpL, 1.5 * kUpL);
         ug.fillStyle = '#7f5a31'; ug.fillRect(nx(cx0 + 3.5), ny(cy0), kUpL, 7 * kUpL);
       }
-      overlays.push({ a, X, headY, col, dim });
+      overlays.push({ a, X, headY, col, dim, id, fy, reveal });
     }
     // everything above heads last, so no body covers a name; nearer characters' names are placed first and the
     // names behind them step up out of the way, so two people side by side never share a label
     const placed = [];
-    const freeY = (x, y, w, h) => { for (let k = 0; k < 6; k++) { if (!placed.some((r) => Math.abs(r.x - x) < (r.w + w) / 2 && Math.abs(r.y - y) < (r.h + h) / 2)) return y; y -= h * 1.05; } return y; };
+    const freeY = (x, y, w, h) => { for (let k = 0; k < 6; k++) { if (!placed.some((q) => Math.abs(q.x - x) < (q.w + w) / 2 && Math.abs(q.y - y) < (q.h + h) / 2)) return y; y -= h * 1.02; } return y; };
     overlays.reverse();
     const plates = [];
     for (const o of overlays) {
-      const { a, X, col } = o;
+      const { a, X, col, id } = o;
       let y = o.headY - 2;
-      if (a.kind === 'folk' || a.kind === 'job' || a.kind === 'visit') {
+      const agent = id.kind === 'agent';
+      if (agent) {
+        // an agent's halo: three motes orbiting its head, faster while a run is live, with the run's progress arc
+        const live = Boolean(a.runId), sp = live ? 5.5 : 1.8, ocx = nx(X), ocy = ny(y - 1), orx = 6.5 * kUpL, ory = 2 * kUpL;
+        ug.strokeStyle = rgba(col, 0.45 * o.dim); ug.lineWidth = Math.max(1, kUpL * 0.5);
+        ug.beginPath(); ug.ellipse(ocx, ocy, orx, ory, 0, 0, 7); ug.stroke();
+        if (live && a.run) { const el = ((Date.now() - Date.parse(a.run.startedAt)) / 60000) % 5 / 5; ug.strokeStyle = mix(col, '#ffffff', 0.4); ug.lineWidth = Math.max(1.5, kUpL * 1); ug.beginPath(); ug.ellipse(ocx, ocy, orx, ory, 0, -Math.PI / 2, -Math.PI / 2 + el * Math.PI * 2); ug.stroke(); }
+        ug.globalCompositeOperation = 'lighter';
+        for (let k = 0; k < 3; k++) { const an = a.t * sp + k * Math.PI * 2 / 3, front = Math.sin(an) > 0; const px2 = ocx + Math.cos(an) * orx, py2 = ocy + Math.sin(an) * ory; const rr = kUpL * (front ? 1.2 : 0.8); const gg = ug.createRadialGradient(px2, py2, 0, px2, py2, rr * 3); gg.addColorStop(0, '#ffffff'); gg.addColorStop(0.35, col); gg.addColorStop(1, rgba(col, 0)); ug.fillStyle = gg; ug.beginPath(); ug.arc(px2, py2, rr * 3, 0, 7); ug.fill(); }
+        ug.globalCompositeOperation = 'source-over';
+        // a stream of data rising off it while it works
+        a.stream = a.stream || [];
+        if (live && o.reveal >= 1 && Math.random() < 0.35) a.stream.push({ x: X + (Math.random() - 0.5) * 12, y: y + 6, t: T, ch: '01{}<>$#'[(Math.random() * 8) | 0] });
+        while (a.stream.length && T - a.stream[0].t > 1.3) a.stream.shift();
+        ug.font = `700 ${Math.round(7 * cssK)}px "Share Tech Mono", "JetBrains Mono", monospace`; ug.textAlign = 'center'; ug.textBaseline = 'middle';
+        for (const q of a.stream) { const f = (T - q.t) / 1.3; ug.fillStyle = rgba(mix(col, '#ffffff', 0.4), (1 - f) * o.dim); ug.fillText(q.ch, nx(q.x + Math.sin(q.t * 7 + f * 5) * 1.5), ny(q.y - f * 22)); }
+        y -= 4;
+      }
+      if (id.kind === 'person' || id.kind === 'kid' || agent) {
         // the marker: a turning diamond in their colour, gold while a real event is theirs
         const mc = a.real > 0 || a.busy || a.runId ? '#ffd23f' : col;
         const turn = Math.abs(Math.sin(a.t * 2.2 + a.x)), w = 1 + 2.2 * turn, bob = Math.sin(a.t * 3) * 1.2;
@@ -5094,32 +5257,45 @@
         g.fillStyle = '#12131c'; g.lineWidth = kUpL * 0.9; g.strokeStyle = '#12131c'; g.stroke();
         const grd = g.createLinearGradient(nx(X - w), 0, nx(X + w), 0); grd.addColorStop(0, shade(mc, 55)); grd.addColorStop(0.5, mc); grd.addColorStop(1, shade(mc, -35));
         g.fillStyle = grd; g.fill();
+        if (a.real > 0) { ug.globalCompositeOperation = 'lighter'; const gg = ug.createRadialGradient(nx(X), ny(my), 0, nx(X), ny(my), 7 * kUpL); gg.addColorStop(0, 'rgba(255,210,63,0.55)'); gg.addColorStop(1, 'rgba(255,210,63,0)'); ug.fillStyle = gg; ug.beginPath(); ug.arc(nx(X), ny(my), 7 * kUpL, 0, 7); ug.fill(); ug.globalCompositeOperation = 'source-over'; }
         y = my - 5;
       }
       if (a.bubble) {
-        const b = a.bubble, pop = Math.min(1, b.t * 6), s2 = bubbleSprite(b.icon);
-        if (pop > 0.3) { const sc = 1.25 * (0.7 + 0.3 * pop); ug.drawImage(s2, nx(X + 4), ny(y - 12 * sc), 11 * kUpL * sc, 11 * kUpL * sc); }
+        // bubbles pop in with an overshoot and fade out
+        const b = a.bubble, pin = easeBack(Math.min(1, b.t * 5)), fade = Math.min(1, (b.dur - b.t) * 3), s2 = bubbleSprite(b.icon);
+        const sc = 1.3 * Math.max(0.01, pin);
+        ug.globalAlpha = Math.max(0, fade) * o.dim; ug.drawImage(s2, nx(X + 4), ny(y - 12 * sc), 11 * kUpL * sc, 11 * kUpL * sc); ug.globalAlpha = 1;
       }
-      const named = a.kind === 'folk' || a.kind === 'job';
       const inArea = selRoom && a.path === selRoom.id;
-      if (named && (a.kind === 'folk' || showTags || inArea || a.real > 0 || a.busy || follow === a.id)) {
-        const nm = a.kind === 'folk' ? a.name : roleTitle(a.role);
-        ug.globalAlpha = o.dim;
-        const lv = charLevel(a), sz = plateSize(ug, nm, lv, cssK);
-        const py = freeY(nx(X), ny(y - 3) - 9 * cssK, sz.w, sz.h);
-        placed.push({ x: nx(X), y: py, w: sz.w, h: sz.h });
-        const dimA = o.dim;
+      const want = id.kind === 'person' || id.kind === 'kid' || id.kind === 'lead' || (agent && (showTags || inArea || a.runId || follow === a.id || hoverAgentId === a.id)) || (id.kind === 'client' && (showTags || inArea || hoverAgentId === a.id));
+      if (want && o.reveal > 0.6) {
+        const sc = cssK * (showTags || inArea ? 1 : 0.88), sz = plateSize(ug, id, sc);
+        const py = freeY(nx(X), ny(y - 3) - 9 * sc - sz.h * 0.25, sz.w, sz.h);
+        placed.push({ x: nx(X), y: py + sz.h * 0.25, w: sz.w, h: sz.h });
+        const dimA = o.dim * clamp((o.reveal - 0.6) / 0.4, 0, 1);
         plates.push(() => {
           ug.globalAlpha = dimA;
-          plate(ug, nx(X), py, nm, col, lv, cssK);
-          if (a.busy) { const b = a.busy, dur = b.chore ? 5 : 7.5; hdBar(ug, nx(X), py - 20 * cssK, 40 * cssK, 5 * cssK, b.t / dur, '#7ee85a'); }
-          else if (a.runId && a.run) { const el = (Date.now() - Date.parse(a.run.startedAt)) / 60000; hdBar(ug, nx(X), py - 20 * cssK, 40 * cssK, 5 * cssK, (el % 5) / 5, roleCol(a.role)); }
+          namePlate(ug, nx(X), py, id, sc, T);
+          if (a.busy) { const b = a.busy, dur = b.chore ? 5 : 7.5; hdBar(ug, nx(X), py - 18 * sc, 40 * sc, 5 * sc, b.t / dur, '#7ee85a'); }
           ug.globalAlpha = 1;
         });
-        ug.globalAlpha = 1;
       }
     }
     for (const f of plates) f();
+    // value pops rise over everything
+    for (const p of pops) {
+      if (p.kind !== 'text') continue;
+      const f = (T - p.t0) / 1.6;
+      if (f < 0) continue;
+      const [gx, gy] = P(p.x, p.y, 26 + f * 30), sc = easeBack(Math.min(1, f * 6)) * (1 + 0.1 * Math.sin(f * 20) * (1 - f)), fs = Math.round(20 * cssK * sc);
+      if (fs < 2) continue;
+      ug.globalAlpha = Math.min(1, (1 - f) * 2.5);
+      ug.font = `${fs}px "Lilita One", "Fredoka", sans-serif`; ug.textAlign = 'center'; ug.textBaseline = 'middle'; ug.lineJoin = 'round';
+      ug.lineWidth = fs * 0.34; ug.strokeStyle = '#12131c'; ug.strokeText(p.text, nx(gx), ny(gy));
+      const tg = ug.createLinearGradient(0, ny(gy) - fs / 2, 0, ny(gy) + fs / 2); tg.addColorStop(0, '#fff6c8'); tg.addColorStop(0.55, '#ffd23f'); tg.addColorStop(1, '#f0a020');
+      ug.fillStyle = tg; ug.fillText(p.text, nx(gx), ny(gy));
+      ug.globalAlpha = 1;
+    }
     // a room that took money today shows it the way a mine shows gold ready: a bubble with a coin, bobbing
     for (const room of rooms) {
       const sv = svcStatsToday(room);
@@ -5140,6 +5316,28 @@
       ug.fillStyle = '#ffe07a'; ug.fillText(txt, X, Y + R + 11 * cssK);
       ug.globalAlpha = 1;
     }
+  }
+  // a character's portrait for the hover card: their sprite, smoothed and big, on a glow of their colour
+  const portraitCache = new Map();
+  function portraitOf(a) {
+    const id = identity(a), lk = a.kind === 'res' ? a.lk : a.costume && a.costume.res ? a.costume : null;
+    const key = `${skinId()}|${id.kind}|${lk ? lk.id : a.role}|${a.tint || ''}|${a.small ? 1 : 0}`;
+    if (portraitCache.has(key)) return portraitCache.get(key);
+    const spr = lk ? residentSprite(lk, 0) : crewSprite('front', 'stand', a.kind === 'folk' ? 'folk' : a.role, a.tint || null, Boolean(a.small));
+    const big = pxScale(spr, 3, sprData(spr));
+    const [c, g] = mk(96, 96);
+    const gl = g.createRadialGradient(48, 56, 4, 48, 56, 48); gl.addColorStop(0, rgba(id.col, 0.75)); gl.addColorStop(1, rgba(id.col, 0));
+    g.fillStyle = gl; g.fillRect(0, 0, 96, 96);
+    const s = Math.min(80 / big.width, 84 / big.height), w = big.width * s, h = big.height * s;
+    g.imageSmoothingEnabled = false; g.drawImage(big, 48 - w / 2, 92 - h, w, h);
+    if (id.kind === 'agent') {
+      g.globalCompositeOperation = 'source-atop'; g.fillStyle = rgba(id.col, 0.45); g.fillRect(0, 0, 96, 96);
+      g.fillStyle = 'rgba(255,255,255,0.18)'; for (let yy = 0; yy < 96; yy += 3) g.fillRect(0, yy, 96, 1);
+      g.globalCompositeOperation = 'source-over';
+    }
+    const url = c.toDataURL();
+    portraitCache.set(key, url);
+    return url;
   }
   let todaySig = '', todayCache = new Map();
   function svcStatsToday(room) {
@@ -5267,6 +5465,8 @@
     a.actT -= dt;
     if (a.act === 'chat' && a.partner) { const p = agents.get(a.partner); if (p) a.face = p.x - p.y > a.x - a.y ? 1 : -1; if (Math.random() < dt * 0.9) bubble(a, CHAT[(Math.random() * CHAT.length) | 0], 1.4); }
     if (a.act === 'sleep' && !nightNow()) { a.act = 'idle'; a.actT = 0.5; bubble(a, 'bang', 1.2); }
+    // standing about, people glance around
+    if ((a.act === 'idle' || a.act === 'break') && Math.random() < dt * 0.35) a.face *= -1;
     if (a.actT > 0) return;
     // choose what to do next
     if (a.kind === 'folk' && nightNow() && room) {
@@ -5293,6 +5493,7 @@
     deskBusy.clear();
     for (const [id, a] of agents) {
       a.t += dt;
+      if (a.dying) { if (T - a.dying > 0.95) agents.delete(id); else if (Math.random() < dt * 30) { const [sx, sy] = P(a.x, a.y, 4 + Math.random() * 16); particles.push({ x: sx + (Math.random() - 0.5) * 8, y: sy, vx: (Math.random() - 0.5) * 10, vy: -20 - Math.random() * 25, g: 0, life: 0.5, col: roleCol(a.role), glow: true }); } continue; }
       if (a.bubble) { a.bubble.t += dt; if (a.bubble.t > a.bubble.dur) a.bubble = null; }
       if (a.real > 0) a.real -= dt;
       if (a.jz > 0) a.jz = Math.max(0, a.jz - dt * 1.6);
@@ -5305,6 +5506,11 @@
         if (Math.abs(sdx) > 0.01) a.face = sdx > 0 ? 1 : -1;
         if (Math.abs(sdy) > 0.01 || Math.abs(sdx) > 0.01) a.view = sdy < -0.01 ? 'back' : 'front';
         if (dist <= sp) { a.x = tx; a.y = ty; a.queue.shift(); } else { a.x += dx / dist * sp; a.y += dy / dist * sp; }
+        // footsteps kick up a little dust (agents glide: no feet on the floor)
+        if (a.kind !== 'job' && a.kind !== 'visit' && a.kind !== 'res') {
+          a.stepAcc = (a.stepAcc || 0) + dt;
+          if (a.stepAcc > (a.busy ? 0.15 : 0.26)) { a.stepAcc = 0; const [fx1, fy1] = P(a.x, a.y, 0.5); for (let k = 0; k < 3; k++) particles.push({ x: fx1 + (Math.random() - 0.5) * 3, y: fy1, vx: (Math.random() - 0.5) * 12 - dx / (dist || 1) * 6, vy: -4 - Math.random() * 6, g: 12, life: 0.3 + Math.random() * 0.2, col: k % 2 ? 'rgba(210,215,230,0.55)' : 'rgba(170,175,190,0.45)' }); }
+        }
         if (!a.queue.length) arrived(a, id);
         if (!agents.has(id)) continue;
       } else lifeTick(a, dt);
@@ -5330,7 +5536,8 @@
     if (a.state === 'enter') { a.state = 'work'; return; }
     if (a.state === 'leave') {
       if (a.kind === 'guest') { const [sx, sy] = P(a.x, a.y, 6); for (let k = 0; k < 6; k++) particles.push({ x: sx, y: sy, vx: (Math.random() - 0.5) * 20, vy: -10 - Math.random() * 10, g: 20, life: 0.4, col: '#e8eefc' }); agents.delete(id); return; }
-      beam(a.x, a.y, roleCol(a.role)); agents.delete(id); return;
+      // an agent going off shift or finishing a one-off run dissolves where it stands, scanning out top first
+      beam(a.x, a.y, roleCol(a.role)); a.dying = T; return;
     }
     if (a.state === 'deliver') {
       const [sx, sy] = P(a.x, a.y, 10);
@@ -5777,6 +5984,7 @@
     { const [mx, my] = P(MAST[0], MAST[1], 0); if (pt[0] >= mx - 7 && pt[0] <= mx + 12 && pt[1] >= my - 58 && pt[1] <= my + 6) return { kind: 'mast', t: null }; }
     // front-most first, so a troop standing in front wins
     for (const a of [...agents.values()].sort((p, q) => (q.x + q.y) - (p.x + p.y))) {
+      if (a.dying) continue;
       const d = crewDraw(a), k = hdOn ? HDS : 1, w = d.spr.width * k, h = d.spr.height * k, fy = d.fy ?? d.Y + d.spr.height;
       if (pt[0] >= d.sx - w / 2 - 1 && pt[0] <= d.sx + w / 2 + 1 && pt[1] >= fy - h - 1 && pt[1] <= fy + 1) return { kind: 'crew', agent: a, t: a.path ? targetById(a.path) : targetById('hub') };
     }
@@ -5798,7 +6006,7 @@
       const live = snap.state.running.filter((r) => r.path === room.id).length;
       const tag = look !== 'active' ? `<span class="tag ${look}">${look.toUpperCase()}</span>` : live ? '<span class="tag live">LIVE</span>' : '';
       const crown = room.id === topId ? `<span class="crown" title="Most profit per hour, last 30 days">${ic('crown')}</span>` : '';
-      html.push(`<div class="lbl${selected === room.id ? ' sel' : ''}" style="--c:${themeOf(room.id).accent}"><i class="stem"></i><div class="plate" data-sel="${esc(room.id)}"><b class="rk">${String(room.spec.rank).padStart(2, '0')}</b>${crown}<span class="nm">${esc(shortName(room.spec))}</span>${tierHtml(room)}<span class="m">${usd(p.earnedUsd)}</span>${folkHtml(room)}${tag}</div></div>`);
+      html.push(`<div class="lbl${selected === room.id ? ' sel area' : ''}" style="--c:${themeOf(room.id).accent}"><i class="stem"></i><div class="plate" data-sel="${esc(room.id)}"><b class="rk">${String(room.spec.rank).padStart(2, '0')}</b>${crown}<span class="nm">${esc(shortName(room.spec))}</span>${tierHtml(room)}<span class="m">${usd(p.earnedUsd)}</span>${folkHtml(room)}${tag}</div></div>`);
       anchors.push({ id: room.id, pt: P(room.x0 + 3.5, room.y0, WH + 4) });
     }
     const hubO = cellOrigin(...HUB), dockO = cellOrigin(...DOCK);
@@ -5866,6 +6074,7 @@
   let hoverT = null;
   function showTip(hit, ev) {
     const tip = $('#tip');
+    hoverAgentId = hit && hit.kind === 'crew' ? hit.agent.id : null;
     if (!hit) { tip.style.display = 'none'; cv.classList.remove('hot'); hoverT = null; return; }
     cv.classList.add('hot');
     hoverT = hit.t || null;
@@ -5873,6 +6082,8 @@
     if (hit.kind === 'crew') {
       const a = hit.agent;
       ({ html, accent } = agentTip(a, accent));
+      const idn = identity(a);
+      html = `<div class="pcard"><img class="pt" src="${portraitOf(a)}" alt=""><div class="pc"><span class="kc k-${idn.kind}">${esc(idn.kind === 'agent' ? 'AI agent' : idn.kind === 'person' ? idn.label.toLowerCase() : idn.kind === 'kid' ? 'kid' : idn.kind === 'client' ? 'client' : idn.kind === 'lead' ? 'you' : 'stock')}${idn.lvl ? ' · lv ' + idn.lvl : ''}</span>${html}</div></div>`;
     } else if (hit.kind === 'mast') {
       const s = syncStatus(); accent = s.color;
       html = `<div class="h"><span class="sw"></span>${esc(NM().mast)} · income sync</div><div class="s">${esc(s.text)}</div><div class="hint">click to link Stripe, Square, PayPal, Gumroad or import a statement</div>`;
@@ -6796,7 +7007,7 @@
     const blurb = rd.draft.mode === 'allowance' ? 'Each kid is a character with their own colour. Check a chore off for a kid and they walk to that room and do it; their earnings and payouts are tracked by name.'
       : rd.draft.mode === 'service' ? 'Everyone who works here is a character on the map. Log a sale with who did it and they walk to that room and do it. Pick the rooms each person works in the room settings below.'
       : 'People who work the rooms alongside your AI agents. Agents you hire appear on their own, one character per agent.';
-    return `<h3>${title} <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· each one is a character</span></h3><div class="kids-ed">${kids.map((k, i) => `<div class="kr" style="--kc:${k.color}"><button type="button" class="kc" data-kidcol="${i}" title="Change colour"></button><input data-kidname="${i}" value="${esc(k.name)}" maxlength="24" placeholder="Name"><button type="button" class="kx" data-kiddel="${i}" title="Remove">${ic('trash')}</button></div>`).join('')}
+    return `<h3>${title} <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· each one is a character</span></h3><div class="kids-ed">${kids.map((k, i) => `<div class="kr" style="--kc:${k.color}"><button type="button" class="kc" data-kidcol="${i}" title="Change colour"></button><input data-kidname="${i}" value="${esc(k.name)}" maxlength="24" placeholder="Name"><input class="kro" data-kidrole="${i}" value="${esc(k.role || '')}" maxlength="24" placeholder="${rd.draft.mode === 'allowance' ? 'Kid' : rd.draft.template === 'barber' ? 'Barber' : 'Role'}" title="What they are, shown under their name"><button type="button" class="kx" data-kiddel="${i}" title="Remove">${ic('trash')}</button></div>`).join('')}
       ${kids.length < (rd.data.maxFolk || rd.data.maxKids || 12) ? `<button type="button" class="btn sm2" data-kidadd>${ic('plus')}Add a ${one}</button>` : ''}</div>
       <div class="muted small" style="margin-top:6px">${blurb}</div>`;
   }
@@ -6910,6 +7121,7 @@
     box.querySelectorAll('[data-skin]').forEach((b) => b.addEventListener('click', () => { dr.skin = b.dataset.skin; trySkin(dr.skin); renderRooms(); }));
     // kids
     box.querySelectorAll('[data-kidname]').forEach((inp) => inp.addEventListener('input', () => { dr.kids[Number(inp.dataset.kidname)].name = inp.value; }));
+    box.querySelectorAll('[data-kidrole]').forEach((inp) => inp.addEventListener('input', () => { const k = dr.kids[Number(inp.dataset.kidrole)]; k.role = inp.value.trim() || undefined; }));
     box.querySelectorAll('[data-kidcol]').forEach((b) => b.addEventListener('click', () => { const k = dr.kids[Number(b.dataset.kidcol)], pal = rd.data.kidColors || PALETTE_FALLBACK; k.color = pal[(pal.indexOf(k.color) + 1) % pal.length]; renderRooms(); }));
     box.querySelectorAll('[data-kiddel]').forEach((b) => b.addEventListener('click', () => { dr.kids.splice(Number(b.dataset.kiddel), 1); renderRooms(); }));
     const kadd = box.querySelector('[data-kidadd]');
@@ -7137,6 +7349,8 @@
     if (rb) { ev.preventDefault(); openRooms({ room: rb.dataset.rooms || null }); return; }
     const el = ev.target.closest('[data-sel]'); if (el) { ev.preventDefault(); select(el.dataset.sel); }
   });
+  // the area title steps down out of the way while a toast is showing
+  new MutationObserver(() => { const h = $('#toasts').offsetHeight; document.documentElement.style.setProperty('--toastH', (h ? h + 6 : 0) + 'px'); }).observe($('#toasts'), { childList: true, subtree: true });
   $('#replayBtn').innerHTML = ic('replay'); $('#sound').innerHTML = ic(soundOn ? 'sound' : 'mute'); $('#sound').title = soundOn ? 'Sound on (M)' : 'Sound off (M)';
   $('#replayBtn').addEventListener('click', () => (replay ? stopReplay() : startReplay()));
   $('#replayStop').addEventListener('click', stopReplay);
@@ -7282,7 +7496,7 @@
   let last = performance.now(), slow = 0, fast = 0, followTick = 0;
   const perf = { step: 0, world: 0, display: 0, quality: 2 };
   window.__stationPerf = perf;
-  window.__proxyfolk = { select, agents: () => [...agents.values()].map((a) => ({ id: a.id, kind: a.kind, name: a.name, path: a.path, act: a.act, costume: a.costume ? a.costume.id : null })) };
+  window.__proxyfolk = { select, agents: () => [...agents.values()].map((a) => ({ id: a.id, kind: a.kind, name: a.name, path: a.path, act: a.act, costume: a.costume ? a.costume.id : null, q: a.queue.length, bt: a.busy ? Math.round(a.busy.t * 10) / 10 : null, st: a.state })), pops: () => pops.length, screen: (id) => { const a = agents.get(id); if (!a) return null; const [x, y] = toCss(...P(a.x, a.y, 10)); const r = view.getBoundingClientRect(); return [x + r.left, y + r.top]; } };
   function frame(now) {
     const dt = Math.min(0.1, (now - last) / 1000); last = now;
     if (snap && baked && !document.hidden) {

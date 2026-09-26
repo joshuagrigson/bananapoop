@@ -278,8 +278,9 @@ test('modes, skins, kids and per-skin looks are validated and saved', () => {
   assert.throws(() => normalizeConfig({ mode: 'party', rooms: null }), /mode must be one of/);
   assert.throws(() => normalizeConfig({ folk: Array.from({ length: 13 }, (_, i) => 'Kid' + i), rooms: null }), /up to 12 folk/);
   // folk may name the rooms they work; unknown rooms are dropped
-  const f = normalizeConfig({ folk: [{ name: 'Dre', rooms: ['fade', 'nowhere'] }, { name: 'Kim', rooms: ['gone'] }], rooms: [{ name: 'Fade' }] });
+  const f = normalizeConfig({ folk: [{ name: 'Dre', role: '  Master   barber ', rooms: ['fade', 'nowhere'] }, { name: 'Kim', rooms: ['gone'] }], rooms: [{ name: 'Fade' }] });
   assert.deepEqual(f.folk.map((x) => x.rooms || null), [['fade'], null]);
+  assert.deepEqual(f.folk.map((x) => x.role || null), ['Master barber', null], 'a role is a short, tidy label');
   // a template never picks the world
   assert.equal(fromTemplate('chores').skin, 'space');
   // the mode follows the rooms unless it is chosen

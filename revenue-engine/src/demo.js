@@ -100,9 +100,9 @@ export function seedBarberDemo(ledger, dataDir, now = Date.now()) {
   const GOALS = { products: 300, 'skin-fade': 2000, 'beard-trim': 600, 'kids-cut': 500, 'hot-towel-shave': 500, 'line-up': 500, color: 600, haircut: 2000 };
   // three barbers: each character on the map is one of them, walking to the room of the service they just did
   const BARBERS = [
-    { name: 'Dre', color: '#60a5fa', rooms: ['skin-fade', 'line-up', 'haircut', 'beard-trim'] }, { name: 'Kim', color: '#f472b6', rooms: ['color', 'kids-cut', 'haircut', 'products'] },
-    { name: 'Sal', color: '#ffb454', rooms: ['hot-towel-shave', 'beard-trim', 'haircut', 'products'] }, { name: 'Marco', color: '#4ade80', rooms: ['haircut', 'kids-cut', 'line-up'] },
-    { name: 'Tasha', color: '#a78bfa', rooms: ['skin-fade', 'color', 'products'] },
+    { name: 'Dre', color: '#60a5fa', role: 'Master barber', rooms: ['skin-fade', 'line-up', 'haircut', 'beard-trim'] }, { name: 'Kim', color: '#f472b6', role: 'Colorist', rooms: ['color', 'kids-cut', 'haircut', 'products'] },
+    { name: 'Sal', color: '#ffb454', role: 'Barber', rooms: ['hot-towel-shave', 'beard-trim', 'haircut', 'products'] }, { name: 'Marco', color: '#4ade80', role: 'Apprentice', rooms: ['haircut', 'kids-cut', 'line-up'] },
+    { name: 'Tasha', color: '#a78bfa', role: 'Stylist', rooms: ['skin-fade', 'color', 'products'] },
   ];
   saveConfig(dataDir, { ...cfg, name: 'The Shop (demo)', folk: BARBERS, rooms: cfg.rooms.map((r) => ({ ...r, goalUsd: GOALS[r.id] || 0 })) });
   const BY = { 'Skin Fade': ['Dre', 'Tasha'], 'Line Up': ['Dre', 'Marco'], 'Gray Blend': ['Kim', 'Tasha'], 'Kids Cut (12 & under)': ['Kim', 'Marco'], 'Hot Towel Shave': ['Sal'], 'Beard Trim': ['Sal', 'Dre'], "Men's Haircut": ['Marco', 'Kim', 'Sal'] };
