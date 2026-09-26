@@ -24,6 +24,7 @@ export const MODES = Object.freeze({
   agents: { title: 'Command center', blurb: 'Deploy AI agents on money-making jobs and watch each path climb from prospect to paid.' },
   service: { title: 'Service station', blurb: 'One room per service a business sells. Synced sales split into rooms, ranked by profit per hour.' },
   allowance: { title: 'Allowance tracker', blurb: 'One room per chore. Kids earn when a parent checks a chore off; pay them out from the vault.' },
+  race: { title: 'Sandbox race', blurb: 'Every room gets the same stake and one agent who tries to multiply it. The ledger keeps score; winners at 1 week, 30, 90 and 180 days.' },
 });
 // How the world looks. Pure decoration: every skin draws the same ledger, and any skin fits any mode.
 export const SKINS = Object.freeze({
@@ -88,6 +89,19 @@ export const TEMPLATES = Object.freeze({
   },
   paths: { title: 'Online business (built-in paths)', blurb: 'The original eight money paths with stages, gates and agents.', name: 'Revenue Station', rooms: null },
   blank: { title: 'Start blank', blurb: 'One empty room to build from.', name: 'My Station', rooms: [svc('First room', [], 30, 0, 0, { accent: '#60a5fa', style: 'office' })] },
+  race: {
+    title: 'Sandbox race', blurb: 'Eight contestant rooms, one agent each, the same stake. Most money at each horizon wins.', name: 'The Race',
+    rooms: [
+      svc('Red', [], 30, 0, 0, { accent: '#ff5c6c', style: 'office', screen: 'wave', prop: 'phone' }),
+      svc('Orange', [], 30, 0, 0, { accent: '#ff8a4c', style: 'shop', screen: 'bars', prop: 'register' }),
+      svc('Gold', [], 30, 0, 0, { accent: '#ffd84d', style: 'office', screen: 'jobs', prop: 'coffee' }),
+      svc('Green', [], 30, 0, 0, { accent: '#4ade80', style: 'office', screen: 'board', prop: 'plant' }),
+      svc('Teal', [], 30, 0, 0, { accent: '#2dd4bf', style: 'office', screen: 'map', prop: 'kiosk' }),
+      svc('Blue', [], 30, 0, 0, { accent: '#60a5fa', style: 'office', screen: 'wave', prop: 'rack' }),
+      svc('Violet', [], 30, 0, 0, { accent: '#a78bfa', style: 'studio', screen: 'play', prop: 'camera' }),
+      svc('Pink', [], 30, 0, 0, { accent: '#f472b6', style: 'studio', screen: 'bars', prop: 'camera' }),
+    ],
+  },
   chores: {
     title: 'Chore chart', blurb: 'Eight everyday chores with a price each. Rename, reprice or add your own.', name: 'Allowance Station',
     rooms: [
@@ -103,7 +117,7 @@ export const TEMPLATES = Object.freeze({
   },
 });
 // the mode and skin each template starts in (both can be changed any time)
-const TEMPLATE_MODE = { barber: 'service', salon: 'service', freelance: 'service', paths: 'agents', blank: 'service', chores: 'allowance' };
+const TEMPLATE_MODE = { barber: 'service', salon: 'service', freelance: 'service', paths: 'agents', blank: 'service', chores: 'allowance', race: 'race' };
 // A template never picks the world: purpose and skin are independent. (Kept as a hook, deliberately empty.)
 const TEMPLATE_SKIN = {};
 

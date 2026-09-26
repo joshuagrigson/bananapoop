@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { reduce } from './reduce.js';
+import { raceBoard } from './race.js';
 import { quests, summary } from './quests.js';
 import { commanderLevel } from './level.js';
 import { CATALOG, GATES, stagesFor } from './paths.js';
@@ -43,13 +44,16 @@ export function listOutbox(dataDir, catalog = CATALOG) {
   return out.sort((a, b) => (a.mtime < b.mtime ? 1 : -1));
 }
 
-export function snapshot(ledger, catalog = CATALOG, dataDir = null) {
+export function snapshot(ledger, catalog = CATALOG, dataDir = null, now = Date.now()) {
   const state = reduce(ledger.readAll(), catalog);
   const q = quests(state, catalog);
+  // a race's steps can run to thousands over six months: the board carries each room's recent ones instead
+  const { steps, ...lean } = state;
   return {
-    generatedAt: new Date().toISOString(),
+    generatedAt: new Date(now).toISOString(),
     outbox: dataDir ? outboxCounts(dataDir, catalog) : {},
-    state,
+    state: { ...lean, stepCount: steps.length },
+    race: raceBoard(state, catalog, now),
     level: commanderLevel(state),
     quests: q,
     questSummary: summary(q),

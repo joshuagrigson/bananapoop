@@ -209,3 +209,171 @@ export function seedAllowanceDemo(ledger, dataDir, now = Date.now()) {
   for (const l of lines) ledger.append(l);
   return lines.length;
 }
+
+// A sandbox race for the preview: eight contestant rooms, one agent each, $250 apiece, twelve and a half days in. Every
+// agent, plan, sale and dollar is made up and labeled. It shows the shapes a real race takes: a fast starter that wins
+// the first week and fades, a slow freelancer that overtakes it, a subscription that barely moves yet, an ad test that
+// loses money and gets dropped, and agents stuck waiting on the one person allowed to send, sign up or pay.
+export function seedRaceDemo(ledger, dataDir, now = Date.now()) {
+  if (ledger.readAll().length) throw new LedgerError('refusing to seed the race demo into a ledger that already has lines');
+  const LEADS = [
+    { name: 'Ada', color: '#ff5c6c', rooms: ['red'] }, { name: 'Brix', color: '#ff8a4c', rooms: ['orange'] }, { name: 'Cato', color: '#ffd84d', rooms: ['gold'] },
+    { name: 'Dot', color: '#4ade80', rooms: ['green'] }, { name: 'Echo', color: '#2dd4bf', rooms: ['teal'] }, { name: 'Fenn', color: '#60a5fa', rooms: ['blue'] },
+    { name: 'Gil', color: '#a78bfa', rooms: ['violet'] }, { name: 'Hana', color: '#f472b6', rooms: ['pink'] },
+  ].map((l) => ({ ...l, role: 'Room lead (agent)' }));
+  const cfg = fromTemplate('race', { name: 'The $250 Race (demo)', folk: LEADS });
+  saveConfig(dataDir, cfg);
+  const day = 86400e3, t0 = now - 12.4 * day;
+  const at = (d) => new Date(Math.min(now - 60e3, t0 + d * day)).toISOString();
+  let seed = 20260927;
+  const rand = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+  const lines = [
+    { kind: 'note', demo: true, text: 'DEMO LEDGER: a fictional sandbox race. Every agent, plan, sale and dollar here is made up.', ts: new Date(t0 - 3600e3).toISOString() },
+    { kind: 'race', stakeUsd: 250, name: 'The $250 Race', evidence: 'eight virtual cards, $250 on each (demo)', horizons: [7, 30, 90, 180], ts: at(0) },
+  ];
+  const leadOf = Object.fromEntries(LEADS.map((l) => [l.rooms[0], l.name]));
+  let order = 1000;
+  // a tiny script language per room: plan, play, step, in, out
+  const S = {
+    plan: (room, d, text) => lines.push({ kind: 'step', path: room, type: 'plan', text, by: 'agent', ts: at(d) }),
+    play: (room, d, play, name, status, extra = {}) => lines.push({ kind: 'play', path: room, play, name, status, by: 'agent', ...extra, ts: at(d) }),
+    step: (room, d, type, text, play, url) => lines.push({ kind: 'step', path: room, type, text, by: 'agent', ...(play ? { play } : {}), ...(url ? { url } : {}), ts: at(d) }),
+    in: (room, d, usd, play, item, source, evidence) => lines.push({ kind: 'money.in', path: room, usd, play, item, source, by: leadOf[room], evidence: evidence || `${source} order #${++order} (demo)`, ts: at(d) }),
+    out: (room, d, usd, play, category, payee, evidence) => lines.push({ kind: 'money.out', path: room, usd, play, category, payee, evidence: evidence || `${payee} receipt (demo)`, ts: at(d) }),
+  };
+  // steady small sales: n a day on average between two days, one price list
+  const drip = (room, play, from, to, perDay, menu, source) => {
+    for (let d = from; d < to; d += 0.25) {
+      if (rand() > perDay(d) / 4) continue;
+      const m = menu[Math.floor(rand() * menu.length)];
+      S.in(room, d + rand() * 0.25, m[1], play, m[0], source);
+    }
+  };
+
+  // RED · Ada: printable planners. Wins week one on a pin that took off, then cools.
+  S.plan('red', 0.05, 'Printable planners: design in Canva, sell as instant PDF downloads on a Shopify store and on Etsy. No inventory, no shipping, cheap to test ten designs at once.');
+  S.play('red', 0.1, 'planner-shop', 'Printable planner shop', 'trying', { plan: 'Ten planners designed in Canva, sold as instant downloads at $9-$19. Traffic from Pinterest pins and Etsy search.' });
+  S.out('red', 0.15, 39, 'planner-shop', 'tool', 'Shopify', 'Shopify Basic, first month (demo)');
+  S.out('red', 0.16, 15, 'planner-shop', 'tool', 'Canva', 'Canva Pro, one month (demo)');
+  S.step('red', 0.8, 'did', 'Designed ten planners: budget, meal, habit, ADHD daily, teacher, wedding, fitness, reading, cleaning, student.', 'planner-shop');
+  S.step('red', 1.1, 'did', 'Listed all ten on the store with search-friendly titles and preview images.', 'planner-shop', 'https://example.com/demo/ada-planners');
+  S.play('red', 1.3, 'etsy-mirror', 'Same planners on Etsy', 'trying', { plan: 'Etsy search brings buyers a new store cannot. Mirror the ten at the same prices.' });
+  S.out('red', 1.35, 4, 'etsy-mirror', 'other', 'Etsy', 'Etsy listing fees, 20 listings (demo)');
+  S.step('red', 1.6, 'blocked', 'Pinterest wants a person to confirm the business account. Twelve pins are drafted and waiting in the dock.', 'planner-shop');
+  S.step('red', 2.2, 'did', 'Joshua confirmed the account; twelve pins scheduled across four boards.', 'planner-shop');
+  S.play('red', 2.7, 'planner-shop', 'Printable planner shop', 'working', { why: 'First sales inside 48 hours.' });
+  drip('red', 'planner-shop', 2.3, 12.4, (d) => (d < 4 ? 3 : d < 7.2 ? 16 : 4), [['ADHD daily planner', 12], ['Budget planner', 9], ['Meal planner', 9], ['Habit tracker', 9], ['Wedding planner', 19]], 'Shopify');
+  drip('red', 'etsy-mirror', 3.2, 12.4, (d) => (d < 7 ? 5 : 3), [['ADHD daily planner (Etsy)', 10.9], ['Budget planner (Etsy)', 8.2]], 'Etsy');
+  S.play('red', 4.6, 'etsy-mirror', 'Same planners on Etsy', 'working', { why: 'Two to six sales a day from search alone.' });
+  S.step('red', 4.1, 'learned', 'One pin of the ADHD planner took off (40k views). That planner outsells the other nine four to one.', 'planner-shop');
+  S.step('red', 5.0, 'did', 'Made three variants of the ADHD planner: student, work-from-home, undated.', 'planner-shop');
+  S.play('red', 6.0, 'bundle', 'All ten for $29', 'trying', { plan: 'Raise order value: every planner in one bundle, offered on each product page.' });
+  S.in('red', 6.4, 29, 'bundle', 'Planner bundle', 'Shopify'); S.in('red', 8.9, 29, 'bundle', 'Planner bundle', 'Shopify');
+  S.step('red', 8.2, 'learned', 'The pin stopped spreading. Sales fell from about 16 a day to 4. Need a second traffic source.', 'planner-shop');
+  S.plan('red', 8.4, 'Keep the shop running on its own and find a second traffic source: Etsy ads at $1 a day, and new pins twice a week.');
+  S.out('red', 8.5, 7, 'etsy-mirror', 'ads', 'Etsy Ads', 'Etsy Ads, 7 days at $1 (demo)');
+
+  // BLUE · Fenn: fixed-price automation gigs. Slow first week (signups and payment clearing), then overtakes.
+  S.plan('blue', 0.05, 'Sell done-for-you automations as fixed-price gigs: lead capture to a CRM, invoices into a spreadsheet, review alerts. Claude builds and tests each one; payment lands in Joshua\'s account.');
+  S.play('blue', 0.1, 'fiverr-gigs', 'Fixed-price automation gigs', 'trying', { plan: 'Three gig pages at $75, $150 and $300. Deliver in 48 hours.' });
+  S.step('blue', 0.7, 'did', 'Wrote three gig pages with example workflows and a short FAQ.', 'fiverr-gigs');
+  S.step('blue', 1.2, 'blocked', 'Fiverr needs a human ID check before any gig goes live. Waiting on Joshua.', 'fiverr-gigs');
+  S.step('blue', 2.1, 'did', 'Joshua passed the ID check. All three gigs are live.', 'fiverr-gigs', 'https://example.com/demo/fenn-gigs');
+  S.play('blue', 2.5, 'upwork-proposals', 'Upwork fixed-price jobs', 'trying', { plan: 'Answer five automation posts a day with a working sample attached.' });
+  S.out('blue', 2.55, 15, 'upwork-proposals', 'other', 'Upwork', 'Upwork Connects, 80 (demo)');
+  S.step('blue', 3.4, 'did', 'Won a $180 Upwork job: Shopify orders into Google Sheets with a daily summary email.', 'upwork-proposals');
+  S.step('blue', 4.0, 'did', 'First two Fiverr orders came in: a $150 lead-capture build and a $75 review alert.', 'fiverr-gigs');
+  S.in('blue', 5.8, 180, 'upwork-proposals', 'Orders-to-Sheets build', 'Upwork', 'Upwork milestone released #U-demo-1 (demo)');
+  S.step('blue', 6.2, 'learned', 'Fiverr holds money for 7 days after delivery, so week one shows almost none of it.', 'fiverr-gigs');
+  S.play('blue', 7.5, 'fiverr-gigs', 'Fixed-price automation gigs', 'working', { why: 'Five orders delivered, all five-star.' });
+  S.in('blue', 9.1, 120, 'fiverr-gigs', 'Lead capture to CRM', 'Fiverr', 'Fiverr clearance #F-demo-1 (demo)');
+  S.in('blue', 9.2, 60, 'fiverr-gigs', 'Review alerts', 'Fiverr', 'Fiverr clearance #F-demo-2 (demo)');
+  S.in('blue', 10.3, 240, 'fiverr-gigs', 'Invoice parsing to spreadsheet', 'Fiverr', 'Fiverr clearance #F-demo-3 (demo)');
+  S.in('blue', 10.9, 180, 'upwork-proposals', 'CRM cleanup automation', 'Upwork', 'Upwork milestone released #U-demo-2 (demo)');
+  S.in('blue', 11.8, 240, 'fiverr-gigs', 'Invoice parsing to spreadsheet', 'Fiverr', 'Fiverr clearance #F-demo-4 (demo)');
+  S.in('blue', 12.2, 120, 'fiverr-gigs', 'Lead capture to CRM', 'Fiverr', 'Fiverr clearance #F-demo-5 (demo)');
+  S.play('blue', 9.6, 'upwork-proposals', 'Upwork fixed-price jobs', 'working', { why: 'Two jobs won from 40 proposals.' });
+  S.step('blue', 10.0, 'learned', 'Two of five clients asked for a second automation within a week. Repeat work is the real engine here.', 'fiverr-gigs');
+  S.play('blue', 10.4, 'retainer', 'Monthly automation care', 'trying', { plan: 'Offer every finished client $150 a month to watch and fix their automations.' });
+  S.step('blue', 10.5, 'blocked', 'Retainer offers are drafted for four clients. Agents never message clients, so they are in the dock for Joshua to send.', 'retainer');
+
+  // TEAL · Echo: lead lists from public records, sold to agencies
+  S.plan('teal', 0.05, 'Sell verified lead lists: newly registered local businesses from free public permit records, cleaned and enriched, sold to marketing agencies at $120 for 50.');
+  S.play('teal', 0.1, 'lead-lists', 'New-business lead lists', 'trying', { plan: 'One county a day. Sell by the list and by subscription.' });
+  S.out('teal', 0.3, 29, 'lead-lists', 'tool', 'Email verifier', 'Email verification credits, 2,000 (demo)');
+  S.step('teal', 1.0, 'did', 'Built the first three lists: 150 new businesses in Travis, Williamson and Hays counties.', 'lead-lists');
+  S.step('teal', 1.4, 'blocked', 'Selling means reaching agencies. Twenty intro emails are drafted in the dock; agents never send.', 'lead-lists');
+  S.step('teal', 2.6, 'did', 'Joshua sent the twenty emails. Six replies, two asked for samples.', 'lead-lists');
+  S.in('teal', 5.1, 120, 'lead-lists', 'Lead list, 50 businesses', 'Gumroad');
+  S.play('teal', 5.3, 'lead-lists', 'New-business lead lists', 'working', { why: 'First agency bought a list.' });
+  S.in('teal', 8.2, 120, 'lead-lists', 'Lead list, 50 businesses', 'Gumroad');
+  S.play('teal', 8.5, 'weekly-feed', 'Weekly new-business feed', 'trying', { plan: '$99 a month for a fresh list every Monday.' });
+  S.in('teal', 11.0, 99, 'weekly-feed', 'Weekly feed, monthly', 'Gumroad');
+  S.in('teal', 11.4, 240, 'lead-lists', 'Lead lists, 100 businesses', 'Gumroad');
+
+  // ORANGE · Brix: one-page sites for local businesses with none
+  S.plan('orange', 0.05, 'Find local businesses with no website or a broken one, build a one-page Wix site as a free preview, and sell it for $300 (half up front).');
+  S.play('orange', 0.1, 'site-rebuilds', 'One-page sites for local businesses', 'trying', { plan: 'Twenty-five previews built from public info. Charge $300; the client pays for their own hosting.' });
+  S.step('orange', 1.0, 'did', 'Found 60 businesses with no site; built five preview pages on Wix.', 'site-rebuilds', 'https://example.com/demo/brix-previews');
+  S.step('orange', 1.5, 'blocked', 'Twenty-five intro emails with preview links are in the dock for Joshua to send or drop.', 'site-rebuilds');
+  S.step('orange', 3.8, 'did', 'Joshua sent the twenty-five. Four replies, two calls booked for him.', 'site-rebuilds');
+  S.in('orange', 5.9, 150, 'site-rebuilds', 'Site deposit: Pecan Street Pets', 'Stripe', 'Stripe charge ch_demo_or1 (demo)');
+  S.play('orange', 6.0, 'site-rebuilds', 'One-page sites for local businesses', 'working', { why: 'First deposit paid.' });
+  S.in('orange', 9.1, 150, 'site-rebuilds', 'Site balance: Pecan Street Pets', 'Stripe', 'Stripe charge ch_demo_or2 (demo)');
+  S.in('orange', 10.2, 150, 'site-rebuilds', 'Site deposit: Riverbend Lash', 'Stripe', 'Stripe charge ch_demo_or3 (demo)');
+  S.play('orange', 10.6, 'care-plan', 'Site care at $49 a month', 'trying', { plan: 'Updates, hours and photos kept current, for every finished site.' });
+
+  // GREEN · Dot: spreadsheet templates, zero upfront cost
+  S.plan('green', 0.05, 'Spreadsheet templates people search for: budget, debt snowball, rental property tracker. Sold on Gumroad at $7-$19, so nothing is spent until something sells.');
+  S.play('green', 0.1, 'sheets', 'Google Sheets templates', 'trying', { plan: 'Six templates with a two-minute video walkthrough each.' });
+  S.step('green', 0.9, 'did', 'Built six templates with formulas locked and a how-to tab.', 'sheets', 'https://example.com/demo/dot-sheets');
+  drip('green', 'sheets', 1.8, 12.4, (d) => (d < 4 ? 1.5 : 3), [['Debt snowball', 9], ['Monthly budget', 7], ['Rental property tracker', 19], ['Wedding budget', 12]], 'Gumroad');
+  S.play('green', 3.9, 'sheets', 'Google Sheets templates', 'working', { why: 'Three sales a day from Gumroad search.' });
+  S.play('green', 4.5, 'forum-posts', 'Helpful posts in personal-finance forums', 'trying', { plan: 'Answer questions, mention the template where it fits.' });
+  S.step('green', 5.0, 'blocked', 'Posting publicly is Joshua\'s call. Six forum answers are drafted in the dock.', 'forum-posts');
+  S.play('green', 6.2, 'forum-posts', 'Helpful posts in personal-finance forums', 'dropped', { why: 'The two biggest forums ban self-promotion. Not worth a ban.' });
+
+  // PINK · Hana: design assets for designers
+  S.plan('pink', 0.05, 'Design assets for designers: Figma UI kits at $24 and Canva social templates at $12, on Gumroad and Creative Market.');
+  S.play('pink', 0.1, 'ui-kits', 'Figma UI kits', 'trying', { plan: 'Two kits: a dashboard kit and a mobile onboarding kit.' });
+  S.play('pink', 0.2, 'canva-templates', 'Canva social templates', 'trying', { plan: 'Three packs of 30 posts for salons, gyms and cafes.' });
+  S.out('pink', 0.25, 15, 'canva-templates', 'tool', 'Canva', 'Canva Pro, one month (demo)');
+  S.step('pink', 2.0, 'did', 'Finished both Figma kits and the salon pack.', 'ui-kits');
+  drip('pink', 'ui-kits', 3.5, 12.4, () => 0.8, [['Dashboard UI kit', 24], ['Onboarding UI kit', 24]], 'Gumroad');
+  drip('pink', 'canva-templates', 4.0, 12.4, () => 1.1, [['Salon post pack', 12], ['Gym post pack', 12]], 'Creative Market');
+  S.play('pink', 7.0, 'ui-kits', 'Figma UI kits', 'working', { why: 'Selling most days without promotion.' });
+
+  // GOLD · Cato: a small subscription tool. Barely moves yet; it is the one that compounds.
+  S.plan('gold', 0.05, 'Recurring revenue instead of one-off sales: a review-reply drafter for local businesses at $12 a month. Slow start, but every customer stays.');
+  S.play('gold', 0.1, 'review-tool', 'Review-reply tool, $12/month', 'trying', { plan: 'Paste reviews, get replies in the owner\'s voice. Cloudflare Workers, a Netlify landing page.' });
+  S.out('gold', 0.2, 12, 'review-tool', 'tool', 'Cloudflare', 'Cloudflare Registrar, one domain (demo)');
+  S.step('gold', 1.9, 'did', 'Built the tool and the landing page; tested on 40 real public reviews.', 'review-tool', 'https://example.com/demo/cato-replies');
+  S.step('gold', 2.4, 'blocked', 'Taking payments needs a Stripe account in Joshua\'s name (identity and bank details are his).', 'review-tool');
+  S.step('gold', 4.3, 'did', 'Stripe is live. Free 7-day trial, then $12 a month.', 'review-tool');
+  S.out('gold', 5.0, 20, 'review-tool', 'api', 'Claude API', 'Claude API usage for trial users (demo)');
+  S.play('gold', 6.0, 'launch-post', 'Launch post on a maker community', 'trying', { plan: 'One honest launch post with a demo video.' });
+  S.step('gold', 6.1, 'blocked', 'The launch post is drafted in the dock. Posting is Joshua\'s call.', 'launch-post');
+  S.in('gold', 7.3, 12, 'review-tool', 'Review replies, monthly', 'Stripe', 'Stripe charge ch_demo_g1 (demo)');
+  S.in('gold', 9.4, 12, 'review-tool', 'Review replies, monthly', 'Stripe', 'Stripe charge ch_demo_g2 (demo)');
+  S.in('gold', 10.2, 24, 'review-tool', 'Review replies, monthly x2', 'Stripe', 'Stripe charge ch_demo_g3 (demo)');
+  S.in('gold', 11.7, 12, 'review-tool', 'Review replies, monthly', 'Stripe', 'Stripe charge ch_demo_g4 (demo)');
+  S.step('gold', 11.9, 'learned', '$60 a month recurring after twelve days, no churn. Behind today, but every customer counts again next month.', 'review-tool');
+
+  // VIOLET · Gil: print-on-demand with paid ads. Loses money, drops the ads, keeps the designs.
+  S.plan('violet', 0.05, 'Print-on-demand shirts: designs in Canva, printed and shipped by Printful through Shopify, traffic from Meta ads.');
+  S.play('violet', 0.1, 'pod-shirts', 'Print-on-demand shirts', 'trying', { plan: 'Twelve designs for dog owners. $28 a shirt, about $8 margin.' });
+  S.out('violet', 0.2, 39, 'pod-shirts', 'tool', 'Shopify', 'Shopify Basic, first month (demo)');
+  S.play('violet', 1.5, 'meta-ads', 'Meta ads to the shirt store', 'trying', { plan: '$20 a day for four days, then keep the ads that sell.' });
+  for (let d = 1.6; d < 5.6; d += 1) S.out('violet', d, 20, 'meta-ads', 'ads', 'Meta', `Meta ads, day ${Math.round(d)} (demo)`);
+  S.in('violet', 2.9, 8, 'meta-ads', 'Dog dad shirt (margin)', 'Shopify'); S.in('violet', 4.2, 8, 'meta-ads', 'Corgi shirt (margin)', 'Shopify'); S.in('violet', 5.1, 8, 'meta-ads', 'Dog dad shirt (margin)', 'Shopify');
+  S.step('violet', 5.8, 'learned', '$80 of ads brought three sales, $24 of margin. Every $1 of ads lost $0.70.', 'meta-ads');
+  S.play('violet', 5.9, 'meta-ads', 'Meta ads to the shirt store', 'dropped', { why: 'Lost $56 in four days. Stopped before it lost more.' });
+  S.play('violet', 6.3, 'etsy-pod', 'Same shirts on Etsy, no ads', 'trying', { plan: 'Let Etsy search do the selling. Listings cost $0.20 each.' });
+  S.out('violet', 6.35, 2.4, 'etsy-pod', 'other', 'Etsy', 'Etsy listing fees, 12 listings (demo)');
+  S.in('violet', 9.3, 8, 'etsy-pod', 'Corgi shirt (margin)', 'Etsy'); S.in('violet', 11.2, 8, 'etsy-pod', 'Dog dad shirt (margin)', 'Etsy');
+  S.plan('violet', 11.5, 'Shirts alone will not climb back fast. Keep the Etsy shirts and add a second play with no ad spend.');
+
+  lines.sort((a, b) => (a.ts < b.ts ? -1 : 1));
+  for (const l of lines) ledger.append(l);
+  return lines.length;
+}

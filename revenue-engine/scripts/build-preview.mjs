@@ -2,7 +2,8 @@
 // Output: preview/ with the station (/), the production terminal (/terminal/), the money dashboard (/ledger/),
 // and frozen copies of every GET endpoint under /api/. A second station, a barbershop built from custom service
 // rooms with Square sales split by service, lives under /barber/ with its own pages and endpoints, and a third, a
-// family allowance tracker on the farm skin, lives under /family/. Every page takes ?skin=castle (or farm, cyber, alien,
+// family allowance tracker on the farm skin, lives under /family/, and a fourth, a sandbox race between eight agents
+// with $250 each, lives under /race/. Every page takes ?skin=castle (or farm, cyber, alien,
 // ocean, space) to show the same data in another world.
 //
 // Every button works: each page boots the real engine (src/api.js and everything it uses) inside the browser over an
@@ -14,7 +15,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Ledger } from '../src/ledger.js';
-import { seedDemo, seedBarberDemo, seedAllowanceDemo } from '../src/demo.js';
+import { seedDemo, seedBarberDemo, seedAllowanceDemo, seedRaceDemo } from '../src/demo.js';
 import { snapshot, listOutbox, roomsInfo } from '../src/server.js';
 import { loadCatalog } from '../src/rooms.js';
 import { CATALOG } from '../src/paths.js';
@@ -45,7 +46,7 @@ for (const p of CATALOG) {
 }
 
 // the engine files the browser runs, and the stand-ins for the Node built-ins they import
-const ENGINE = ['api.js', 'ledger.js', 'reduce.js', 'quests.js', 'level.js', 'paths.js', 'rooms.js', 'inbox.js', 'clients.js', 'sync.js', 'agent.js', 'cost.js', 'demo.js', 'harvest.js', 'scheduler.js'];
+const ENGINE = ['api.js', 'ledger.js', 'reduce.js', 'race.js', 'quests.js', 'level.js', 'paths.js', 'rooms.js', 'inbox.js', 'clients.js', 'sync.js', 'agent.js', 'cost.js', 'demo.js', 'harvest.js', 'scheduler.js'];
 const MOCK = ['fs.js', 'path.js', 'crypto.js', 'sdk-tool.js', 'services.js', 'station.js'];
 const IMPORTS = { 'node:fs': '/engine/mock/fs.js', 'node:path': '/engine/mock/path.js', 'node:crypto': '/engine/mock/crypto.js', '@anthropic-ai/sdk/helpers/beta/json-schema': '/engine/mock/sdk-tool.js' };
 const shim = (station, prefix) => `<script type="importmap">${JSON.stringify({ imports: IMPORTS })}</script>
@@ -130,14 +131,31 @@ write('family/api/runs', '[]');
 write('family/api/connections', JSON.stringify({ connectors: connectorSpecs(), csvSources: CSV_SOURCES, connections: listConnections(fdata), syncing: false }));
 write('family/api/rooms', JSON.stringify(roomsInfo(fledger, fcat, fdata)));
 
+// ---- the sandbox race: eight contestant rooms, one agent each, $250 apiece, twelve days in
+const rdata = fs.mkdtempSync(path.join(os.tmpdir(), 'station-race-'));
+const rledger = new Ledger(path.join(rdata, 'ledger.jsonl'));
+seedRaceDemo(rledger, rdata);
+const rcat = loadCatalog(rdata);
+write('race/index.html', subPage('race', 'station.html'));
+write('race/terminal/index.html', subPage('race', 'terminal.html'));
+write('race/ledger/index.html', subPage('race', 'dashboard.html'));
+write('race/api/state', JSON.stringify(snapshot(rledger, rcat, rdata)));
+write('race/api/outbox', JSON.stringify(listOutbox(rdata, rcat)));
+write('race/api/inbox', '{}');
+write('race/api/clients', '{}');
+write('race/api/runs', '[]');
+write('race/api/connections', JSON.stringify({ connectors: connectorSpecs(), csvSources: CSV_SOURCES, connections: listConnections(rdata), syncing: false }));
+write('race/api/rooms', JSON.stringify(roomsInfo(rledger, rcat, rdata)));
+
 // the same demo inside real phone, tablet and PC frames, side by side
 write('devices/index.html', raw('devices.html'));
 
 for (const f of ENGINE) write('engine/' + f, raw(f));
 for (const f of MOCK) write('engine/mock/' + f, raw('mock/' + f));
 
-write('_headers', ['/api/*', '/barber/api/*', '/family/api/*'].map((p) => `${p}\n  Content-Type: application/json; charset=utf-8\n  Cache-Control: no-store\n`).join('') + '/engine/*\n  Cache-Control: no-cache\n');
+write('_headers', ['/api/*', '/barber/api/*', '/family/api/*', '/race/api/*'].map((p) => `${p}\n  Content-Type: application/json; charset=utf-8\n  Cache-Control: no-store\n`).join('') + '/engine/*\n  Cache-Control: no-cache\n');
 fs.rmSync(data, { recursive: true, force: true });
 fs.rmSync(bdata, { recursive: true, force: true });
 fs.rmSync(fdata, { recursive: true, force: true });
+fs.rmSync(rdata, { recursive: true, force: true });
 console.log(`preview built in ${out}`);

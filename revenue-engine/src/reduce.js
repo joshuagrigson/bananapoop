@@ -45,6 +45,9 @@ export function reduce(events, catalog = CATALOG) {
     byTag: {},
     unattributedUsd: 0,
     notes: [],
+    race: null,
+    plays: {},
+    steps: [],
     demo: false,
     tail: sorted.slice(-30),
     eventCount: sorted.length,
@@ -136,6 +139,21 @@ export function reduce(events, catalog = CATALOG) {
       case 'note':
         st.notes.push(ev);
         if (ev.demo === true) st.demo = true;
+        break;
+      case 'race':
+        // a later starting gun restarts the race; race.js only counts what happens after it
+        st.race = { id: ev.id, startedAt: ev.ts, stakeUsd: ev.stakeUsd, horizons: ev.horizons, name: ev.name || null, evidence: ev.evidence, rooms: ev.rooms || null };
+        break;
+      case 'play': {
+        const key = `${ev.path}|${ev.play}`;
+        const pl = st.plays[key] || (st.plays[key] = { path: ev.path, id: ev.play, name: ev.name, status: ev.status, plan: null, why: null, startedAt: ev.ts, updatedAt: ev.ts, history: [] });
+        Object.assign(pl, { name: ev.name, status: ev.status, updatedAt: ev.ts, why: ev.why || null });
+        if (ev.plan) pl.plan = ev.plan;
+        pl.history.push({ id: ev.id, ts: ev.ts, status: ev.status, why: ev.why || null, by: ev.by });
+        break;
+      }
+      case 'step':
+        st.steps.push({ id: ev.id, ts: ev.ts, path: ev.path, play: ev.play || null, type: ev.type || 'did', text: ev.text, url: ev.url || null, by: ev.by });
         break;
       default:
         break;

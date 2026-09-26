@@ -663,6 +663,51 @@
   .kr.wk .kc { width: 14px; height: 14px; border-radius: 50%; background: var(--kc); display: inline-block; }
   .kr.wk.on { opacity: 1; color: var(--ink); box-shadow: 0 0 0 1px var(--kc); }
   .kr .kx { border: 0; background: none; color: var(--muted); cursor: pointer; padding: 4px; } .kr .kx:hover { color: var(--bad); } .kr .kx .i { width: 13px; height: 13px; }
+  /* sandbox race: the board, prize cards, plays and the day-by-day breakdown */
+  #labels.race .plate .m, #labels.race .plate .tag.need { display: inline-flex; align-items: baseline; gap: 4px; }
+  .plate .m small { font: 600 9.5px/1 var(--f-num); color: var(--ink2); opacity: .85; }
+  .plate .m.dn { color: var(--bad); text-shadow: none; }
+  .plate .tag.need { color: #ff9a4a; }
+  .hz { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .hz button { all: unset; box-sizing: border-box; cursor: pointer; padding: 8px 9px 7px; border-radius: 10px; border: 1px solid var(--line); background: linear-gradient(180deg, var(--card-a), var(--card-b)); min-width: 0; transition: border-color .15s, box-shadow .15s; }
+  .hz button:hover { border-color: var(--line2); }
+  .hz button.on { border-color: var(--gold); box-shadow: 0 0 0 1px rgba(255, 207, 90, .3), 0 0 14px rgba(255, 207, 90, .16); }
+  .hz .k { display: block; font: 600 9px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .hz .live .k::after { content: " \25CF"; color: var(--good); }
+  .hz .w { display: flex; align-items: center; gap: 4px; margin-top: 6px; font: 600 12.5px/1.15 var(--f-ui); color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hz .done .w { color: var(--gold); } .hz .upcoming .w { color: var(--muted); font-weight: 500; }
+  .hz .w .i { width: 13px; height: 13px; color: var(--gold); flex: none; filter: drop-shadow(0 0 4px rgba(255, 207, 90, .6)); }
+  .hz .s { display: block; margin-top: 3px; font: 10px/1.2 var(--f-num); color: var(--muted); white-space: nowrap; }
+  .rank .v small { display: block; font: 500 10px/1.2 var(--f-num); color: var(--muted); margin-top: 2px; }
+  .rank .v.dn { color: var(--bad); }
+  .play { padding: 9px 10px 9px 11px; margin-bottom: 6px; border-radius: 10px; border: 1px solid var(--line); border-left: 3px solid var(--pc); background: linear-gradient(180deg, var(--card-a), var(--card-b)); }
+  .play .ph { display: flex; align-items: center; gap: 7px; }
+  .play .ph b { flex: 1; min-width: 0; font: 600 12.5px/1.25 var(--f-ui); color: #fff; }
+  .play .pn { font: 600 13px/1 var(--f-num); color: var(--good); white-space: nowrap; } .play .pn.dn { color: var(--bad); }
+  .play .pm { display: flex; flex-wrap: wrap; gap: 3px 11px; margin-top: 6px; font: 10.5px/1.3 var(--f-num); color: var(--muted); }
+  .play .pp { margin-top: 6px; font-size: 11.5px; line-height: 1.42; color: var(--ink2); }
+  .play .pw { margin-top: 4px; font-size: 11px; line-height: 1.4; color: var(--muted); font-style: italic; }
+  .play.dropped { opacity: .6; }
+  .pill.st-trying { color: var(--cyan); } .pill.st-working { color: var(--good); } .pill.st-paused { color: var(--muted); } .pill.st-dropped { color: var(--bad); }
+  .plan { padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--room) 9%, transparent); border: 1px solid color-mix(in srgb, var(--room) 35%, transparent); font-size: 12.5px; line-height: 1.45; color: var(--ink); }
+  .plan small { display: block; margin-top: 5px; color: var(--muted); font-size: 10.5px; }
+  .need { padding: 9px 11px; border-radius: 10px; border: 1px solid #ff9a4a; background: rgba(255, 154, 74, .08); font-size: 12px; line-height: 1.4; color: var(--ink); }
+  .need + .need { margin-top: 6px; } .need[data-sel] { cursor: pointer; } .need[data-sel]:hover { background: rgba(255, 154, 74, .14); }
+  .need b { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font: 600 9.5px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: #ff9a4a; }
+  .need .i { width: 12px; height: 12px; }
+  .tl .dh { margin: 12px 0 3px; font: 600 9.5px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .tl .dh:first-child { margin-top: 0; }
+  .tl .e { display: grid; grid-template-columns: 16px 1fr auto; gap: 8px; align-items: start; padding: 6px 0; border-top: 1px solid var(--sunk); font-size: 12px; line-height: 1.38; color: var(--ink2); }
+  .tl .dh + .e { border-top: 0; }
+  .tl .e .ic { color: var(--tc); padding-top: 1px; } .tl .e .ic .i { width: 13px; height: 13px; }
+  .tl .e small { display: block; margin-top: 1px; color: var(--muted); font-size: 10.5px; }
+  .tl .e .u { font: 600 11.5px/1.2 var(--f-num); white-space: nowrap; } .tl .e .u.in { color: var(--good); } .tl .e .u.out { color: var(--bad); }
+  .tl .e a { color: var(--cyan); }
+  .spark { display: block; width: 100%; height: 70px; }
+  .spk { display: flex; justify-content: space-between; margin-top: 3px; font: 10.5px/1 var(--f-num); color: var(--muted); }
+  .hzrow { display: flex; flex-wrap: wrap; gap: 6px; }
+  .hzrow span { display: inline-flex; align-items: center; gap: 4px; padding: 5px 8px; border-radius: 7px; border: 1px solid var(--line); font: 10.5px/1 var(--f-num); color: var(--ink2); }
+  .hzrow span.won { border-color: var(--gold); color: var(--gold); } .hzrow .i { width: 11px; height: 11px; }
   @media (max-width: 900px) { #roomsbox { position: fixed; } .rd-grid, .rd-top { grid-template-columns: 1fr; } .row4, .styles, .skins, .looks { grid-template-columns: 1fr 1fr; } .wel .modes { grid-template-columns: 1fr; } }
   #boot { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; background: radial-gradient(60% 60% at 50% 45%, #0d1224, #03040a); transition: opacity .7s ease, visibility .7s; }
   #boot.gone { opacity: 0; visibility: hidden; }
@@ -992,6 +1037,15 @@
   const SK = () => SKINS[skinId()] || SKINS.space;
   const NM = () => ({ ...SKINS.space.names, ...(SK().names || {}) });
   const MODE = () => (snap && snap.station && snap.station.mode) || 'agents';
+  // ---- the sandbox race: the board comes from /api/state (race.js); nothing on this page recomputes its numbers
+  const RACE = () => (MODE() === 'race' && snap && snap.race) || null;
+  const laneOf = (id) => { const r = RACE(); return r ? r.lanes.find((l) => l.id === id) || null : null; };
+  const leadOf = (id) => kidsList().find((f) => (f.rooms || []).includes(id)) || null;
+  const hName = (d) => (d === 7 ? '1 week' : d === 14 ? '2 weeks' : d === 180 ? '6 months' : d === 365 ? '1 year' : d + ' days');
+  const multFmt = (m) => '×' + (m >= 100 ? Math.round(m) : m >= 10 ? m.toFixed(1) : m.toFixed(2));
+  const rateFmt = (v) => (v < 0 ? '−' : '+') + '$' + Math.abs(v).toLocaleString('en-US', { maximumFractionDigits: Math.abs(v) >= 10 ? 0 : 2 }) + '/day';
+  const nth = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
+  const roomMoney = (id) => { const l = laneOf(id); return l ? l.bankrollUsd : pathState(id).earnedUsd; };
   const kidsList = () => (snap && snap.station && (snap.station.folk || snap.station.kids)) || [];
   const kidOf = (e) => e.by || e.kid || null;
   // A kid's allowance, straight from the ledger: what their chores earned, what was paid to them, what is still owed.
@@ -2243,18 +2297,21 @@
     for (const room of rooms) {
       const look = roomLook(room), p = pathState(room.id);
       const live = snap.state.running.filter((r) => r.path === room.id).length;
-      const tag = look !== 'active' ? `<span class="tag ${look}">${look.toUpperCase()}</span>` : live ? '<span class="tag live">LIVE</span>' : '';
-      const crown = room.id === topId ? `<span class="crown" title="Most profit per hour, last 30 days">${ic('crown')}</span>` : '';
-      html.push(`<div class="lbl${selected === room.id ? ' sel area' : ''}" style="--c:${themeOf(room.id).accent}"><i class="stem"></i><div class="plate" data-sel="${esc(room.id)}"><b class="rk">${String(room.spec.rank).padStart(2, '0')}</b>${crown}<span class="nm">${esc(shortName(room.spec))}</span>${tierHtml(room)}<span class="m">${usd(p.earnedUsd)}</span>${folkHtml(room)}${tag}</div></div>`);
+      const lane = laneOf(room.id), race = RACE();
+      const tag = lane && lane.blocked ? '<span class="tag need">NEEDS YOU</span>' : look !== 'active' ? `<span class="tag ${look}">${look.toUpperCase()}</span>` : live ? '<span class="tag live">LIVE</span>' : '';
+      const crown = (race ? race.leaderId === room.id : room.id === topId) ? `<span class="crown" title="${race ? 'Biggest bankroll right now' : 'Most profit per hour, last 30 days'}">${ic('crown')}</span>` : '';
+      const money = lane ? `<span class="m${lane.bankrollUsd < lane.stakeUsd ? ' dn' : ''}">${usd(Math.round(lane.bankrollUsd))}<small>${multFmt(lane.multiple)}</small></span>` : `<span class="m">${usd(p.earnedUsd)}</span>`;
+      html.push(`<div class="lbl${selected === room.id ? ' sel area' : ''}" style="--c:${themeOf(room.id).accent}"><i class="stem"></i><div class="plate" data-sel="${esc(room.id)}"><b class="rk">${String(room.spec.rank).padStart(2, '0')}</b>${crown}<span class="nm">${esc(shortName(room.spec))}</span>${tierHtml(room)}${money}${folkHtml(room)}${tag}</div></div>`);
       anchors.push({ id: room.id, pt: P(...frontOf(room.box), -6) });
     }
-    html.push(`<div class="lbl${selected === 'hub' || !selected ? ' sel' : ''}" style="--c:#ffcf5a"><i class="stem"></i><div class="plate" data-sel="hub"><b class="rk">L${snap.level.level}</b><span class="nm">${esc(NM().hub)}</span><span class="m">${usd(snap.state.earnedUsd)}</span></div></div>`);
+    html.push(`<div class="lbl${selected === 'hub' || !selected ? ' sel' : ''}" style="--c:#ffcf5a"><i class="stem"></i><div class="plate" data-sel="hub"><b class="rk">L${snap.level.level}</b><span class="nm">${esc(NM().hub)}</span><span class="m">${usd(RACE() ? RACE().potUsd : snap.state.earnedUsd)}</span></div></div>`);
     anchors.push({ id: 'hub', pt: P(...frontOf(cellBox(...HUB)), -6) });
     const drafts = Object.values(snap.outbox || {}).reduce((s, n) => s + n, 0), fam = MODE() === 'allowance';
     const dockM = fam ? `${usd(owedAll())} owed` : `${drafts} draft${drafts === 1 ? '' : 's'}`;
     html.push(`<div class="lbl${selected === 'dock' ? ' sel' : ''}" style="--c:#cfd6e6"><i class="stem"></i><div class="plate" data-sel="dock"><b class="rk">${ic(fam ? 'coin' : 'mail').replace('class="i"', 'class="i" style="width:11px;height:11px;display:block"')}</b><span class="nm">${esc(NM().dock)}</span><span class="m" style="color:#e8eefc">${dockM}</span></div></div>`);
     anchors.push({ id: 'dock', pt: P(...frontOf(cellBox(...DOCK)), -6) });
     const joined = html.join('');
+    $('#labels').classList.toggle('race', Boolean(RACE()));
     if (joined === lastLabels && labelEls.length) return;
     lastLabels = joined;
     $('#labels').innerHTML = joined;
@@ -2429,7 +2486,24 @@
     const res = $('#res');
     const mode = MODE(), int = (v) => String(Math.round(v));
     let items;
-    if (mode === 'service' || mode === 'allowance') {
+    if (mode === 'race') {
+      const r = snap.race;
+      if (!r) items = [
+        ['day', 'Race', 'not started', null, '#5fd4ff', 'flag', 'Fire the starting gun from the station panel: every room gets the same stake', ''],
+        ['earned', 'Earned', st.earnedUsd, (v) => usd2(v), '#ffcf5a', 'coin', 'Evidenced revenue on the ledger, all time', 'gold'],
+      ];
+      else {
+        const live = r.standings.find((s) => s.state === 'live'), lead = r.leaderId && roomById(r.leaderId);
+        const plays = r.lanes.reduce((a, l) => a + l.plays.filter((p) => p.status === 'trying' || p.status === 'working').length, 0);
+        items = [
+          ['day', 'Race day', r.over ? 'finished' : `Day ${r.day} of ${r.totalDays}`, null, '#5fd4ff', 'clock', `Days since the starting gun, ${new Date(r.startedAt).toLocaleDateString()}`, ''],
+          ['pot', 'All bankrolls', r.potUsd, (v) => usd2(v), '#ffcf5a', 'coin', `Every room's stake plus what it made minus what it spent. ${usd(r.stakedUsd)} was staked.`, 'gold'],
+          ['leader', 'Leading', lead ? `${shortName(lead.spec)} ${multFmt(laneOf(lead.id).multiple)}` : 'tied', null, lead ? themeOf(lead.id).accent : '#a78bfa', 'crown', 'The biggest bankroll right now', ''],
+          ['next', 'Next prize', live ? `${hName(live.days)} · ${live.daysLeft}d` : 'all awarded', null, '#a78bfa', 'target', 'The next horizon; its winner locks the moment it passes', ''],
+          ['plays', 'Plays running', plays, int, '#3ddc97', 'trend', 'Ways the rooms are trying to make money right now (trying or working)', ''],
+        ];
+      }
+    } else if (mode === 'service' || mode === 'allowance') {
       const d0 = new Date(); d0.setHours(0, 0, 0, 0);
       const m0 = new Date(d0.getFullYear(), d0.getMonth(), 1).getTime(), w0 = Date.now() - 7 * 86400e3, m30 = Date.now() - 30 * 86400e3;
       let today = 0, month = 0, n30 = 0, n7 = 0;
@@ -2489,7 +2563,7 @@
   function feedLine(e) {
     switch (e.kind) {
       case 'money.in': return e.kid ? ['coin', '#ffcf5a', `${esc(e.kid)} earned <b style="color:var(--gold)">+${usd(e.usd)}</b> · ${esc(shortOf(e.path))}`] : ['coin', '#ffcf5a', `<b style="color:var(--gold)">+${usd(e.usd)}</b> from ${esc(e.source)} · ${esc(shortOf(e.path))}${e.via ? ` <span class="muted">via ${esc(viaTitle(e.via))}</span>` : ''}`];
-      case 'money.out': return ['check', '#3ddc97', `paid ${esc(e.payee || 'out')} <b style="color:var(--good)">${usd2(e.usd)}</b>`];
+      case 'money.out': return MODE() === 'race' ? ['flame', '#ff7a8a', `${esc(shortOf(e.path))} spent <b style="color:var(--bad)">${usd2(e.usd)}</b> on ${esc(e.payee || e.category)}`] : ['check', '#3ddc97', `paid ${esc(e.payee || 'out')} <b style="color:var(--good)">${usd2(e.usd)}</b>`];
       case 'outcome': return ['check', '#3ddc97', `${esc(e.stage)}: ${esc(e.ref)} · ${esc(shortOf(e.path))} <span class="muted">by ${esc(e.by)}</span>`];
       case 'agent.run.start': return ['rocket', roleCol(e.role), `${esc(roleTitle(e.role))} dispatched to ${esc(shortOf(e.path))}`];
       case 'agent.run.end': return ['back', roleCol(e.role), `${esc(roleTitle(e.role))} back from ${esc(shortOf(e.path))}: ${esc(e.reason)}, ${usd2(e.usd)}`];
@@ -2497,6 +2571,9 @@
       case 'job': return ['clock', '#a78bfa', `job ${e.enabled ? 'on' : 'off'}: ${esc(roleTitle(e.role))} → ${esc(shortOf(e.path))} every ${e.everyHours}h`];
       case 'gate': return [e.cleared ? 'unlock' : 'lock', e.cleared ? '#3ddc97' : '#f5a623', `gate ${esc(e.gate)} ${e.cleared ? 'cleared' : 'blocked'}`];
       case 'path.status': return ['flag', e.status === 'killed' ? '#ff5c6c' : '#cfd6e6', `${esc(shortOf(e.path))} → ${esc(e.status)}: ${esc(e.reason)}`];
+      case 'race': return ['flag', '#ffcf5a', `starting gun: <b style="color:var(--gold)">${usd(e.stakeUsd)}</b> a room, prizes at ${e.horizons.map(hName).join(', ')}`];
+      case 'play': return ['target', PLAYCOL[e.status] || '#8fb0ff', `${esc(shortOf(e.path))} play ${esc(e.status)}: ${esc(e.name)}`];
+      case 'step': { const [icn, c] = STEPIC[e.type] || STEPIC.did; return [icn, c, `${esc(shortOf(e.path))}${e.type === 'did' ? '' : ' ' + esc(e.type)}: ${esc(e.text)}`]; }
       default: return ['note', '#7c88a6', esc(e.text || e.kind)];
     }
   }
@@ -2505,7 +2582,7 @@
   const crewTotal = () => { const jobs = Object.values((snap && snap.state.jobs) || {}).filter((j) => j.enabled).length; const visits = ((snap && snap.state.running) || []).filter((r) => !(r.jobId && snap.state.jobs[r.jobId] && snap.state.jobs[r.jobId].enabled)).length; return jobs + visits; };
   const shortOf = (id) => { const r = snap && snap.catalog.find((p) => p.id === id); return r ? shortName(r) : id; };
   function renderFeed() {
-    const rows = snap.state.tail.filter((e) => e.kind !== 'money.out' || e.payee).slice(-16).reverse();
+    const rows = snap.state.tail.filter((e) => e.kind !== 'money.out' || e.payee || MODE() === 'race').slice(-16).reverse();
     $('#feed').innerHTML = rows.length ? rows.map((e) => {
       const [icon, col, text] = feedLine(e);
       const fresh = feedPrimed && !seenFeed.has(e.id);
@@ -2603,9 +2680,10 @@
     else if (overlayMode() && insMode === 'stack') renderStack(el, room);
     else if (selected && selected.startsWith('a:')) renderAgent(el, agents.get(selected.slice(2)));
     else if (selected === 'dock') (MODE() === 'allowance' ? renderFamily : renderDock)(el);
+    else if (room && MODE() === 'race') renderRace(el, room);
     else if (room && isService(room)) (MODE() === 'allowance' ? renderChore : renderService)(el, room);
     else if (room) renderRoom(el, room);
-    else (MODE() === 'allowance' ? renderFamily : renderRoster)(el);
+    else (MODE() === 'allowance' ? renderFamily : MODE() === 'race' ? renderRaceBoard : renderRoster)(el);
     decorateHelp(el);
     if (force) el.scrollTop = 0;
     sheetTitleUpdate();
@@ -2628,7 +2706,7 @@
     const here = [...agents.values()].filter((a) => a.path === room.id && a.kind !== 'res' && a.state !== 'leave');
     const named = here.filter((a) => a.kind !== 'extra' && a.kind !== 'npc'), npcs = here.filter((a) => a.kind === 'npc'), crowd = here.length - named.length - npcs.length;
     if (!here.length) return '';
-    return `<div class="who">${named.map((a) => { const id = identity(a); return `<span class="w" data-sel="a:${esc(a.id)}" style="--wc:${id.col}" title="Follow ${esc(id.name)}"><i></i>${esc(id.name)}<small>${esc(id.kind === 'agent' ? 'agent' : id.kind === 'client' ? 'client' : id.kind === 'kid' ? 'kid' : id.kind === 'lead' ? 'you' : 'team')}</small></span>`; }).join('')}${npcs.map((a) => { const id = identity(a); return `<span class="w crowd" style="--wc:${id.col}" title="${esc((NPC[a.npc] || {}).say || '')}"><i></i>${esc(id.name)}<small>${esc(id.label.toLowerCase())}</small></span>`; }).join('')}${crowd ? `<span class="w crowd" title="The floor crowd grows with this room's activity and its agents; they are not on your roster">+${crowd} on the floor</span>` : ''}</div>`;
+    return `<div class="who">${named.map((a) => { const id = identity(a); return `<span class="w" data-sel="a:${esc(a.id)}" style="--wc:${id.col}" title="Follow ${esc(id.name)}"><i></i>${esc(id.name)}<small>${esc(id.kind === 'agent' ? 'agent' : id.kind === 'client' ? 'client' : id.kind === 'kid' ? 'kid' : id.kind === 'lead' ? 'you' : MODE() === 'race' ? 'room lead' : 'team')}</small></span>`; }).join('')}${npcs.map((a) => { const id = identity(a); return `<span class="w crowd" style="--wc:${id.col}" title="${esc((NPC[a.npc] || {}).say || '')}"><i></i>${esc(id.name)}<small>${esc(id.label.toLowerCase())}</small></span>`; }).join('')}${crowd ? `<span class="w crowd" title="The floor crowd grows with this room's activity and its agents; they are not on your roster">+${crowd} on the floor</span>` : ''}</div>`;
   }
   // the panel folded once: a stacked list of rooms, or a compact hub for the room in view
   function renderStack(el, room) {
@@ -2638,7 +2716,7 @@
       $('#inspector').style.setProperty('--room', accent);
       el.innerHTML = `<div class="stk" style="--c:${accent}">
         <button class="back" data-sel="hub">${ic('chevL')}all rooms</button>
-        <div class="srow on" style="--c:${accent};cursor:default"><span class="rk">${String(spec.rank).padStart(2, '0')}</span><span class="nm"><b>${esc(shortName(spec))}</b></span><span class="u">${usd(p.earnedUsd)}</span></div>
+        <div class="srow on" style="--c:${accent};cursor:default"><span class="rk">${String(spec.rank).padStart(2, '0')}</span><span class="nm"><b>${esc(shortName(spec))}</b></span><span class="u">${usd(Math.round(roomMoney(room.id)))}</span></div>
         <div class="hub-step" style="margin:0 auto"><button type="button" data-step="-1" title="Previous room">${ic('chevL')}</button><span>${rooms.slice().sort((a, b) => a.spec.rank - b.spec.rank).findIndex((r) => r.id === room.id) + 1} / ${rooms.length}</span><button type="button" data-step="1" title="Next room">${ic('chevR')}</button></div>
         <div class="kv"><span>Level</span><b>${tier + 1} ${'★'.repeat(tier)}</b></div>
         <div class="kv"><span>Working</span><b>${workersIn(room).length}</b></div>
@@ -2649,7 +2727,7 @@
       return;
     }
     $('#inspector').style.setProperty('--room', '#ffcf5a');
-    const list = rooms.map((m) => ({ m, p: pathState(m.id) })).sort((a, b) => b.p.earnedUsd - a.p.earnedUsd || a.m.spec.rank - b.m.spec.rank), top = Math.max(1e-9, ...list.map((x) => x.p.earnedUsd));
+    const list = rooms.map((m) => ({ m, p: { earnedUsd: roomMoney(m.id) } })).sort((a, b) => b.p.earnedUsd - a.p.earnedUsd || a.m.spec.rank - b.m.spec.rank), top = Math.max(1e-9, ...list.map((x) => x.p.earnedUsd));
     el.innerHTML = `<div class="stk"><div class="stk-h"><b>${esc(stationName())}</b><small>${usd(st.earnedUsd)} earned · ${st.running.length} working</small></div>
       ${list.map(({ m, p }) => { const acc = themeOf(m.id).accent, live = st.running.some((r) => r.path === m.id); return `<button type="button" class="srow" data-sel="${esc(m.id)}" style="--c:${acc}" title="${esc(m.spec.name)}"><span class="rk">${String(m.spec.rank).padStart(2, '0')}</span><span class="nm">${esc(shortName(m.spec))}${live ? ' <span style="color:var(--good)">●</span>' : ''}</span><span class="u">${usd(p.earnedUsd)}</span><i class="bar" style="width:${(100 * p.earnedUsd / top).toFixed(1)}%"></i></button>`; }).join('')}
       <button type="button" class="srow" data-sel="dock" style="--c:#cfd6e6"><span class="rk">${ic(fam ? 'coin' : 'mail').replace('class="i"', 'class="i" style="width:10px;height:10px;display:block"')}</span><span class="nm">${esc(NM().dock)}</span><span class="u">${fam ? usd(owedAll()) : Object.values(snap.outbox || {}).reduce((a, n) => a + n, 0)}</span></button></div>`;
@@ -2661,7 +2739,7 @@
     const short = (v) => (v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(v >= 1e4 ? 0 : 1) + 'K' : '$' + Math.round(v));
     el.innerHTML = `<div class="tbar">
       <button type="button" class="tchip${!selected ? ' on' : ''}" data-sel="hub" style="--c:#ffcf5a" title="${esc(stationName())} · ${usd(st.earnedUsd)} earned">${ic('vault')}<small>${short(st.earnedUsd)}</small></button>
-      ${rooms.slice().sort((a, b) => a.spec.rank - b.spec.rank).map((m) => { const p = pathState(m.id), live = st.running.some((r) => r.path === m.id); return `<button type="button" class="tchip${selected === m.id ? ' on' : ''}" data-sel="${esc(m.id)}" style="--c:${themeOf(m.id).accent}" title="${esc(shortName(m.spec))} · ${usd(p.earnedUsd)}">${live ? '<i class="live"></i>' : ''}<b>${String(m.spec.rank).padStart(2, '0')}</b><small>${short(p.earnedUsd)}</small></button>`; }).join('')}
+      ${rooms.slice().sort((a, b) => a.spec.rank - b.spec.rank).map((m) => { const p = { earnedUsd: roomMoney(m.id) }, live = st.running.some((r) => r.path === m.id); return `<button type="button" class="tchip${selected === m.id ? ' on' : ''}" data-sel="${esc(m.id)}" style="--c:${themeOf(m.id).accent}" title="${esc(shortName(m.spec))} · ${usd(p.earnedUsd)}">${live ? '<i class="live"></i>' : ''}<b>${String(m.spec.rank).padStart(2, '0')}</b><small>${short(p.earnedUsd)}</small></button>`; }).join('')}
       <button type="button" class="tchip${selected === 'dock' ? ' on' : ''}" data-sel="dock" style="--c:#cfd6e6" title="${esc(NM().dock)}">${ic(fam ? 'coin' : 'mail')}</button></div>`;
   }
   // A character's card: who they are, what they stand for, what they are doing right now (real or just life).
@@ -2963,6 +3041,115 @@
       return post('api/events', ev).then(() => `logged ${usd2(total)} · ${ev.item}`);
     });
   }
+  // ---- the sandbox race: the board (no room selected) and a contestant room
+  const PLAYCOL = { trying: 'var(--cyan)', working: 'var(--good)', paused: 'var(--muted)', dropped: 'var(--bad)' };
+  const STEPIC = { did: ['check', 'var(--good)'], plan: ['compass', 'var(--cyan)'], learned: ['bolt', 'var(--gold)'], blocked: ['warn', '#ff9a4a'] };
+  let raceH = null, raceAll = false;
+  const clock = (ts) => new Date(ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  function sparkSvg(s, stake, col) {
+    const W = 320, H = 70, n = s.length, lo = Math.min(stake, ...s), hi = Math.max(stake, ...s), span = Math.max(1, hi - lo);
+    const X = (i) => 2 + (W - 4) * (n <= 1 ? 1 : i / (n - 1)), Y = (v) => H - 3 - (H - 10) * (v - lo) / span;
+    const pts = s.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+    return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><line x1="0" x2="${W}" y1="${Y(stake).toFixed(1)}" y2="${Y(stake).toFixed(1)}" stroke="rgba(255,255,255,.22)" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/><polygon points="${X(0)},${H} ${pts} ${X(n - 1)},${H}" fill="${col}" opacity=".13"/><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
+  }
+  function tlItem(x) {
+    const pl = x.playName ? ` · ${esc(x.playName)}` : '';
+    if (x.kind === 'step') {
+      const [icn, c] = STEPIC[x.type] || STEPIC.did;
+      return `<div class="e" style="--tc:${c}"><span class="ic">${ic(icn)}</span><span>${esc(x.text)}<small>${x.type === 'did' ? 'did' : esc(x.type)}${pl} · ${clock(x.ts)}${x.by === 'user' ? ' · logged by you' : ''}${x.url ? ` · <a href="${esc(x.url)}" target="_blank" rel="noopener">link</a>` : ''}</small></span><span></span></div>`;
+    }
+    if (x.kind === 'play') return `<div class="e" style="--tc:${PLAYCOL[x.status]}"><span class="ic">${ic('target')}</span><span>${x.first ? 'Started a play' : 'Play now ' + esc(x.status)}: <b style="color:var(--ink);font-weight:600">${esc(x.text)}</b><small>${x.why ? esc(x.why) + ' · ' : ''}${clock(x.ts)}</small></span><span></span></div>`;
+    return `<div class="e" style="--tc:${x.kind === 'in' ? 'var(--good)' : 'var(--bad)'}"><span class="ic">${ic(x.kind === 'in' ? 'coin' : 'flame')}</span><span>${esc(x.text || '')}${x.kind === 'in' && x.source && x.source !== x.text ? ' · ' + esc(x.source) : ''}<small>${esc(x.evidence || '')}${pl}</small></span><span class="u ${x.kind}">${x.kind === 'in' ? '+' : '−'}${usd2(x.usd)}</span></div>`;
+  }
+  function playCard(p) {
+    return `<div class="play ${p.status}" style="--pc:${PLAYCOL[p.status]}">
+      <div class="ph"><b>${esc(p.name)}</b><span class="pill st-${p.status}">${esc(p.status)}</span><span class="pn${p.netUsd < 0 ? ' dn' : ''}">${p.netUsd < 0 ? '−' : '+'}${usd(Math.abs(p.netUsd))}</span></div>
+      <div class="pm"><span>${rateFmt(p.ratePerDay)}</span><span>${usd(p.inUsd)} in · ${usd(p.outUsd)} out</span><span>${p.sales} sale${p.sales === 1 ? '' : 's'}</span><span>since day ${p.startedDay}</span><span>${p.steps} step${p.steps === 1 ? '' : 's'}</span></div>
+      ${p.plan ? `<div class="pp">${esc(p.plan)}</div>` : ''}${p.why ? `<div class="pw">${esc(p.why)}</div>` : ''}</div>`;
+  }
+  function raceStartHtml() {
+    return `<div class="sec"><h3>Start the race</h3><form id="f-race" class="pane on">
+      <div class="row2"><label class="field"><span>Stake per room (USD)</span><input name="stake" type="number" min="1" step="1" value="250" required></label><label class="field"><span>Race name</span><input name="name" maxlength="60" placeholder="The $250 Race"></label></div>
+      <label class="field"><span>Where the stake money sits</span><input name="evidence" minlength="3" required placeholder="e.g. eight virtual cards, $250 on each"></label>
+      <div class="muted small">Prizes at 1 week, 30 days, 90 days and 6 months. Only money logged after the gun counts. Starting records the race on the ledger; it moves no money.</div>
+      <button class="btn go">${ic('flag')}Fire the starting gun</button><div class="msg"></div></form></div>`;
+  }
+  function renderRaceBoard(el) {
+    const r = snap.race;
+    $('#inspector').style.setProperty('--room', '#ffcf5a');
+    const head = (chips) => `<div class="ih"><div class="big" style="--c:#ffcf5a">${ic('flag').replace('class="i"', 'class="i" style="width:24px;height:24px"')}</div><div><h2>${esc((r && r.name) || stationName())}</h2><div class="chips">${chips}</div></div></div>`;
+    if (!r) {
+      el.innerHTML = `${head(`<span class="pill">${rooms.length} rooms</span><span class="pill warn">not started</span>`)}
+        <div class="muted small">Every room gets the same stake and one agent who tries to multiply it, any legal way it can. The ledger keeps score: the biggest bankroll at 1 week, 30 days, 90 days and 6 months each wins.</div>${raceStartHtml()}`;
+      wire('#f-race', (d) => post('api/events', { kind: 'race', stakeUsd: Number(d.stake), evidence: d.evidence.trim(), ...(d.name.trim() ? { name: d.name.trim() } : {}) }).then(() => 'The race is on.'));
+      return;
+    }
+    const hs = r.standings, cur = hs.find((s) => s.days === raceH) || hs.find((s) => s.state === 'live') || hs[hs.length - 1];
+    const nameOf = (id) => { const m = roomById(id); return m ? shortName(m.spec) : id; };
+    const leadName = (id) => { const f = leadOf(id); return f ? f.name : ''; };
+    const max = Math.max(1e-9, ...cur.ranking.map((x) => x.bankrollUsd));
+    const needs = r.lanes.filter((l) => l.blocked);
+    el.innerHTML = `${head(`<span class="pill cyan">${r.over ? 'finished' : `day ${r.day} of ${r.totalDays}`}</span><span class="pill gold">${usd(r.stakeUsd)} a room</span><span class="pill">${r.lanes.length} rooms</span>`)}
+      <div class="muted small">Each room started with ${usd(r.stakeUsd)} and one agent. A bankroll is the stake plus evidenced money in minus money out since the gun; anything bought but not yet sold counts as zero. The biggest bankroll at each horizon wins it.</div>
+      <div class="sec"><h3>Prizes</h3><div class="hz">${hs.map((s) => `<button type="button" class="${s.state}${s === cur ? ' on' : ''}" data-hz="${s.days}"><span class="k">${hName(s.days)}</span><span class="w">${s.state === 'done' ? (s.winner ? ic('crown') + esc(nameOf(s.winner)) : 'tie, no winner') : s.state === 'live' ? (s.leader ? esc(nameOf(s.leader)) + ' leads' : 'tied') : 'not yet'}</span><span class="s">${s.state === 'done' ? (s.winner ? `won with ${usd(Math.round(s.ranking[0].bankrollUsd))} · ${multFmt(s.ranking[0].multiple)}` : 'nobody ahead') : s.state === 'live' ? `${s.daysLeft} day${s.daysLeft === 1 ? '' : 's'} left` : `in ${s.daysLeft} days`}</span></button>`).join('')}</div></div>
+      ${needs.length ? `<div class="sec"><h3>Waiting on you · ${needs.length}</h3>${needs.map((l) => `<div class="need" data-sel="${esc(l.id)}"><b>${ic('warn')}${esc(nameOf(l.id))}${leadName(l.id) ? ' · ' + esc(leadName(l.id)) : ''} · day ${l.blocked.day}</b>${esc(l.blocked.text)}</div>`).join('')}</div>` : ''}
+      <div class="sec"><h3>${cur.state === 'done' ? `Final at ${hName(cur.days)}` : `Standings · day ${r.day}`}</h3>
+        ${cur.ranking.map((x, i) => { const l = laneOf(x.id), acc = themeOf(x.id).accent, first = i === 0 && (cur.winner === x.id || (cur.state !== 'done' && cur.leader === x.id));
+          return `<div class="rank${first ? ' top' : ''}" data-sel="${esc(x.id)}" style="--c:${acc}"><span class="no">${first ? ic('crown') : i + 1}</span><span class="nm">${esc(nameOf(x.id))}${leadName(x.id) ? ` <span style="color:var(--muted);font-weight:500">· ${esc(leadName(x.id))}</span>` : ''}<small>${cur.state === 'done' ? `at ${hName(cur.days)}` : `${rateFmt(l.rate7)} · ${l.plays.filter((p) => p.status !== 'dropped').length} plays${l.blocked ? ' · needs you' : ''}`}</small></span><span class="v${x.bankrollUsd < r.stakeUsd ? ' dn' : ''}">${usd(Math.round(x.bankrollUsd))}<small>${multFmt(x.multiple)}</small></span><i class="bg" style="width:${(100 * x.bankrollUsd / max).toFixed(1)}%"></i></div>`; }).join('')}
+        <div class="muted small" style="margin-top:6px">Rate is net dollars a day over the last 7 days. Click a room for every play it is running and everything it did, day by day.</div></div>
+      <div class="sec"><h3>How the agents report</h3><div class="muted small">Each agent logs its plays, steps and money to this ledger (node src/cli.js race play / race step / log-in --play, or POST /api/events). Money without evidence is refused at the door, so a claim can never win.</div></div>`;
+    el.querySelectorAll('[data-hz]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); raceH = Number(b.dataset.hz); panelSig = ''; renderPanel(); }));
+  }
+  function renderRace(el, room) {
+    const spec = room.spec, accent = themeOf(room.id).accent, r = snap.race, l = laneOf(room.id);
+    $('#inspector').style.setProperty('--room', accent);
+    if (!r || !l) {
+      el.innerHTML = `${hubHead(room, `<span class="pill">${r ? 'not racing' : 'no race yet'}</span>`)}<div class="muted small" style="margin-top:10px">${r ? 'This room is not one of the contestants.' : 'The race has not started. Fire the starting gun from the station panel (all rooms).'}</div>`;
+      return;
+    }
+    const f = leadOf(room.id);
+    const chips = `<span class="pill gold">${nth(l.place)} of ${r.lanes.length}</span><span class="pill ${l.multiple >= 1 ? 'good' : 'bad'}">${multFmt(l.multiple)}</span>${r.leaderId === room.id ? `<span class="pill gold">${ic('crown')}leading</span>` : ''}${l.blocked ? '<span class="pill warn">needs you</span>' : ''}`;
+    const tl = raceAll ? l.timeline : l.timeline.slice(0, 40);
+    let lastDay = null;
+    const tlHtml = tl.map((x) => { const h = x.day !== lastDay ? `<div class="dh">Day ${x.day}</div>` : ''; lastDay = x.day; return h + tlItem(x); }).join('');
+    el.innerHTML = `
+      ${hubHead(room, chips)}
+      ${f ? `<div class="muted small" style="margin-top:8px">Room lead: <b style="color:${f.color}">${esc(f.name)}</b>${f.role && !/^room lead/i.test(f.role) ? ' · ' + esc(f.role) : /agent/i.test(f.role || '') ? ', an AI agent' : ''}</div>` : ''}
+      <div class="stats" style="margin-top:12px">
+        <div class="st"><div><div class="k">Bankroll</div><div class="v gold">${usd2(l.bankrollUsd)}</div><div class="s">started with ${usd(l.stakeUsd)}</div></div></div>
+        <div class="st"><div><div class="k">Multiple</div><div class="v"${l.multiple < 1 ? ' style="color:var(--bad)"' : ''}>${multFmt(l.multiple)}</div><div class="s">${nth(l.place)} of ${r.lanes.length} · day ${r.day}</div></div></div>
+        <div class="st"><div><div class="k">Rate · 7 days</div><div class="v"${l.rate7 < 0 ? ' style="color:var(--bad)"' : ''}>${rateFmt(l.rate7)}</div><div class="s">${rateFmt(l.rateAll)} since the gun</div></div></div>
+        <div class="st"><div><div class="k">In · out</div><div class="v">${usd(Math.round(l.inUsd))}</div><div class="s">${usd(Math.round(l.outUsd))} spent · ${l.sales} sale${l.sales === 1 ? '' : 's'}</div></div></div>
+      </div>
+      <div class="sec"><h3>Bankroll by day</h3>${sparkSvg(l.series, l.stakeUsd, accent)}<div class="spk"><span>gun · ${usd(l.stakeUsd)}</span><span>day ${r.day} · ${usd(Math.round(l.bankrollUsd))}</span></div></div>
+      <div class="sec"><h3>Prizes</h3><div class="hzrow">${r.standings.map((s) => { const mine = (s.ranking.find((x) => x.id === room.id) || {}).bankrollUsd, pos = 1 + s.ranking.filter((x) => x.bankrollUsd > mine).length, won = s.winner === room.id; return `<span class="${won ? 'won' : ''}">${won ? ic('crown') : ''}${hName(s.days)}: ${s.state === 'done' ? (won ? 'won' : nth(pos)) : s.state === 'live' ? nth(pos) + ' so far' : 'not yet'}</span>`; }).join('')}</div></div>
+      ${l.blocked ? `<div class="sec"><div class="need"><b>${ic('warn')}Waiting on you · day ${l.blocked.day}</b>${esc(l.blocked.text)}</div></div>` : ''}
+      <div class="sec"><h3>The plan</h3>${l.plan ? `<div class="plan">${esc(l.plan.text)}<small>set on day ${l.plan.day}</small></div>` : '<div class="muted small">No plan logged yet.</div>'}</div>
+      <div class="sec"><h3>Ways it is trying · ${l.plays.length}</h3>${l.plays.length ? l.plays.map(playCard).join('') : '<div class="muted small">No plays logged yet.</div>'}${l.loose ? `<div class="muted small">Not tied to a play: ${usd(l.loose.inUsd)} in, ${usd(l.loose.outUsd)} out.</div>` : ''}</div>
+      <div class="sec"><h3>Full breakdown · ${l.timelineTotal} line${l.timelineTotal === 1 ? '' : 's'}</h3><div class="tl">${tlHtml || '<div class="muted small">Nothing logged since the gun.</div>'}</div>
+        ${l.timeline.length > 40 ? `<button class="btn wide" type="button" data-tlall style="margin-top:8px">${raceAll ? 'Show the latest 40' : `Show all ${l.timeline.length}`}</button>` : ''}
+        ${l.timelineTotal > l.timeline.length ? `<div class="muted small" style="margin-top:6px">The ${l.timelineTotal - l.timeline.length} oldest lines are on the ledger (node src/cli.js race, or the money dashboard).</div>` : ''}</div>
+      <div class="sec"><h3>Log for this room</h3><form id="f-rlog" class="pane on">
+        <div class="row2"><label class="field"><span>What</span><select name="what"><option value="did">A step it did</option><option value="plan">A new plan</option><option value="learned">Something learned</option><option value="blocked">Stuck, needs you</option><option value="in">Money in</option><option value="out">Money out</option></select></label>
+        <label class="field"><span>Play</span><select name="play"><option value="">none</option>${l.plays.map((p) => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</select></label></div>
+        <label class="field"><span>What happened, or who paid</span><input name="text" maxlength="600" required placeholder="e.g. listed ten planners on Etsy"></label>
+        <div class="row2"><label class="field"><span>Amount (money only)</span><input name="usd" type="number" step="0.01" min="0" placeholder="0.00"></label><label class="field"><span>Evidence (money only)</span><input name="evidence" placeholder="order #, receipt, charge id"></label></div>
+        <div class="muted small">Agents log the same lines themselves. Money needs evidence or it is not counted.</div>
+        <button class="btn go">${ic('plus')}Log it</button><div class="msg"></div></form></div>`;
+    const all = el.querySelector('[data-tlall]');
+    if (all) all.addEventListener('click', () => { raceAll = !raceAll; panelSig = ''; renderPanel(); });
+    wire('#f-rlog', (d) => {
+      const text = d.text.trim(), play = d.play || undefined;
+      if (d.what === 'in' || d.what === 'out') {
+        const v = Math.round((Number(d.usd) || 0) * 100) / 100;
+        const ev = d.what === 'in'
+          ? { kind: 'money.in', path: spec.id, usd: v, source: text.slice(0, 120), item: text.slice(0, 120), evidence: d.evidence.trim(), ...(play ? { play } : {}), ...(f ? { by: f.name } : {}) }
+          : { kind: 'money.out', path: spec.id, usd: v, category: 'other', payee: text.slice(0, 40), evidence: d.evidence.trim(), ...(play ? { play } : {}) };
+        return post('api/events', ev).then(() => `logged ${d.what === 'in' ? '+' : '−'}${usd2(v)}`);
+      }
+      return post('api/events', { kind: 'step', path: spec.id, type: d.what, text, by: 'user', ...(play ? { play } : {}) }).then(() => 'logged');
+    });
+  }
   // ---- allowance: a chore room, and the family roster with balances and payouts
   let choreKid = null, payArm = null;
   const METRICS_A = [['perHour', 'Pay / hr'], ['revenue', 'Earned'], ['count', 'Done']];
@@ -3259,7 +3446,7 @@
   const PROP_NAME = { pole: 'Barber pole', register: 'Cash register', plant: 'Plant', rack: 'Server rack', phone: 'Phone', kiosk: 'Kiosk', camera: 'Camera and light', coffee: 'Coffee machine' };
   const STYLE_ICON = { office: 'term', barber: 'scissors', shop: 'coin', studio: 'posts' };
   const TPL_ICON = { barber: 'scissors', salon: 'scissors', freelance: 'term', paths: 'rocket', blank: 'plus', chores: 'check' };
-  const MODE_ICON = { agents: 'rocket', service: 'scissors', allowance: 'check' };
+  const MODE_ICON = { agents: 'rocket', service: 'scissors', allowance: 'check', race: 'flag' };
   const SKIN_SWATCH = {
     space: 'radial-gradient(circle at 22% 42%, #5a7ac0 0 10px, transparent 11px), radial-gradient(circle at 78% 22%, #fff 0 1px, transparent 2px), radial-gradient(circle at 55% 70%, #fff 0 1px, transparent 2px), linear-gradient(180deg, #070917, #1a1440)',
     castle: 'radial-gradient(circle at 78% 34%, #f3ecd0 0 8px, rgba(255,236,200,.22) 9px 16px, transparent 17px), linear-gradient(180deg, #0a0920, #2c1634 68%, #150d24 68%)',
@@ -3360,7 +3547,7 @@
   const skinTiles = (cur, attr) => SKIN_IDS.filter((k) => SKINS[k]).map((k) => { const t = (rd.data.skins || {})[k] || { title: k, blurb: '' }; return `<button type="button" class="skn${cur === k ? ' on' : ''}" ${attr}="${k}"><span class="sw" style="background:${SKIN_SWATCH[k]}"></span><b>${esc(t.title)}</b><small>${esc(t.blurb)}</small></button>`; }).join('');
   const modeTiles = (cur, attr, big) => Object.entries(rd.data.modes).map(([k, m]) => `<button type="button" class="tile mode${big ? ' big' : ''}${cur === k ? ' on' : ''}" ${attr}="${k}"><span class="t-ic" style="--c:#ffcf5a">${ic(MODE_ICON[k] || 'rooms')}</span><span><b>${esc(m.title)}</b><small>${esc(m.blurb)}</small></span></button>`).join('');
   // what the folk are called in each mode
-  const FOLK_WORD = { allowance: ['Kids', 'kid'], service: ['Team', 'person'], agents: ['Folk', 'person'] };
+  const FOLK_WORD = { allowance: ['Kids', 'kid'], service: ['Team', 'person'], agents: ['Folk', 'person'], race: ['Room leads', 'agent'] };
   function kidsHtml(kids) {
     const [title, one] = FOLK_WORD[rd.draft.mode] || FOLK_WORD.agents;
     const blurb = rd.draft.mode === 'allowance' ? 'Each kid is a character with their own color. Check a chore off for a kid and they walk to that room and do it; their earnings and payouts are tracked by name.'
@@ -3409,8 +3596,8 @@
     return `<button class="cbtn glass x" data-close title="Skip (Esc)">${ic('close')}</button>
       <div class="wel"><button class="back" type="button" data-wback>${ic('chevL')}back</button>
       <div class="sy-head"><div class="rd-ic">${ic(MODE_ICON[rd.wmode] || 'rooms')}</div><div style="min-width:0"><h2>${esc(d.modes[rd.wmode].title)}</h2><p class="lead">${esc(d.modes[rd.wmode].blurb)}</p></div></div>
-      <div class="row2" style="max-width:720px"><label class="field"><span>Name your station</span><input id="rd-name" maxlength="40" placeholder="${rd.wmode === 'allowance' ? 'e.g. The Grigson Farm' : rd.wmode === 'service' ? "e.g. Kim's Cuts" : 'e.g. Proxyfolk HQ'}"></label>
-      <label class="field"><span>${rd.wmode === 'allowance' ? "Kids' names" : rd.wmode === 'service' ? 'Who works here' : 'People (optional; agents come later)'}, separated by commas</span><input id="rd-kids" maxlength="200" placeholder="${rd.wmode === 'allowance' ? 'e.g. Emma, Liam, Ava' : rd.wmode === 'service' ? 'e.g. Kim, Dre, Sal' : 'e.g. you'}"></label></div>
+      <div class="row2" style="max-width:720px"><label class="field"><span>Name your station</span><input id="rd-name" maxlength="40" placeholder="${rd.wmode === 'allowance' ? 'e.g. The Grigson Farm' : rd.wmode === 'service' ? "e.g. Kim's Cuts" : rd.wmode === 'race' ? 'e.g. The $250 Race' : 'e.g. Proxyfolk HQ'}"></label>
+      <label class="field"><span>${rd.wmode === 'allowance' ? "Kids' names" : rd.wmode === 'service' ? 'Who works here' : rd.wmode === 'race' ? 'Room leads (one agent a room)' : 'People (optional; agents come later)'}, separated by commas</span><input id="rd-kids" maxlength="200" placeholder="${rd.wmode === 'allowance' ? 'e.g. Emma, Liam, Ava' : rd.wmode === 'service' ? 'e.g. Kim, Dre, Sal' : rd.wmode === 'race' ? 'e.g. Ada, Brix, Cato, Dot' : 'e.g. you'}"></label></div>
       <h3>Start from</h3><div class="tiles">${list.map(([k, t]) => `<button type="button" class="tile${rd.wtpl === k ? ' on' : ''}" data-wtpl="${k}"><span class="t-ic" style="--c:#ffcf5a">${ic(TPL_ICON[k] || 'rooms')}</span><span><b>${esc(t.title)}</b><small>${esc(t.blurb)} ${t.rooms} room${t.rooms === 1 ? '' : 's'}.</small></span></button>`).join('')}</div>
       <h3>Pick a world <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· click to try it on</span></h3><div class="skins">${skinTiles(rd.wskin, 'data-wskin')}</div>
       <div class="rd-foot"><button class="btn go" type="button" data-wgo>${ic('check')}Create station</button><div class="msg ${rd.err ? 'err' : ''}">${esc(rd.msg)}</div></div></div>`;
@@ -6972,11 +7159,11 @@
   function tourSteps() {
     const mode = MODE(), phone = !overlayMode();
     const busiest = rooms.slice().sort((a, b) => workersIn(b).length - workersIn(a).length || pathState(b.id).earnedUsd - pathState(a.id).earnedUsd)[0];
-    const what = mode === 'allowance' ? 'a chore' : mode === 'service' ? 'a service you sell' : 'a way you make money';
-    const who = mode === 'allowance' ? 'kids' : mode === 'service' ? 'your team' : 'AI agents and you';
+    const what = mode === 'allowance' ? 'a chore' : mode === 'service' ? 'a service you sell' : mode === 'race' ? 'one contestant in a money race, with the same stake as every other room' : 'a way you make money';
+    const who = mode === 'allowance' ? 'kids' : mode === 'service' ? 'your team' : mode === 'race' ? 'the agents leading each room' : 'AI agents and you';
     const steps = [
       { title: 'Welcome to ' + (snap.station.name || 'Proxyfolk'), text: `This little world is a live picture of real records. Each room is ${what}. The characters are ${who}, plus clients walking in for real sales. Nothing moves unless the ledger says it happened.`, at: null },
-      { title: 'Your numbers', text: mode === 'allowance' ? 'What the kids earned, what you owe them, what you already paid, and who is ahead this week. Hover or tap any of them for what it counts.' : 'Money in, today and this month, straight from the ledger. Every number here traces back to a line with evidence behind it.', at: ['#res'] },
+      { title: 'Your numbers', text: mode === 'allowance' ? 'What the kids earned, what you owe them, what you already paid, and who is ahead this week. Hover or tap any of them for what it counts.' : mode === 'race' ? 'The race day, every bankroll added up, who leads, and how long until the next prize locks. Hover or tap any of them for what it counts.' : 'Money in, today and this month, straight from the ledger. Every number here traces back to a line with evidence behind it.', at: ['#res'] },
       { title: 'The world', text: `Drag to look around, scroll or pinch to zoom. Click or tap a room to go in. Click or tap a character to see who they are and what they are doing. ${phone ? '' : 'Keys 1 to 9 jump to a room.'}`, at: ['#cv'] },
       { title: 'Main menu', text: phone ? 'Everything you can do lives in the bar at the bottom: the world, the room list, customizing, income links, and More for the ledger, the tour and the guide.' : 'Everything you can do lives on this rail. Hover a button and it tells you what it does.', at: ['#rail'] },
       { title: 'Every room in one list', text: 'Who is working where and what each room earned. Pick one to fly in.', at: ['#navRoomList'] },
@@ -6984,7 +7171,7 @@
     if (busiest) {
       steps.push({ title: shortName(busiest.spec) + ', up close', text: 'This is one room, up close. Its name, level and numbers are at the top of the panel: the arrows there step to the next room, Whole world flies back out, Edit room changes its name, price, keywords and look.', at: ['#inspector'], go: () => { closeUpOff(); select(busiest.id); } });
       steps.push({ title: 'The close-up', text: 'The same room, drawn big. Everyone with a diamond over their head is real: a person, kid, client or agent from the world outside (green working, yellow free, blue asleep, cyan an AI agent); the panel lists them. The crowd without diamonds is the room\'s floor: it is there from day one and grows with the room\'s activity and its agents. A bar over a head is a job in progress, with what it will earn. The screen on the wall is this room\'s real numbers.', at: ['#cv'], pad: -40, go: () => { if (!closeUp) { select(busiest.id); closeUpOn(); } } });
-      steps.push({ title: 'The panel', text: mode === 'allowance' ? 'Everything about the selected room: what it earned and who did it. Check off a chore here and the kid walks over and does it.' : mode === 'service' ? 'Everything about the selected room: sales, profit per hour, rankings. Log a sale by hand here and a client walks in for it.' : 'Everything about the selected room: its pipeline, budget and crew. Log an outcome or revenue, dispatch an agent, or hire one to work here on a schedule.', at: ['#inspector'], go: () => {} });
+      steps.push({ title: 'The panel', text: mode === 'allowance' ? 'Everything about the selected room: what it earned and who did it. Check off a chore here and the kid walks over and does it.' : mode === 'race' ? 'Everything about the selected contestant: its bankroll, multiple and rate, every play it is running with what each one earns, its plan, and a day-by-day breakdown of everything it did.' : mode === 'service' ? 'Everything about the selected room: sales, profit per hour, rankings. Log a sale by hand here and a client walks in for it.' : 'Everything about the selected room: its pipeline, budget and crew. Log an outcome or revenue, dispatch an agent, or hire one to work here on a schedule.', at: ['#inspector'], go: () => {} });
     }
     steps.push(
       { title: 'Customize anything', text: 'Change what this world is for (a business, a family, AI agents), which world it looks like (space, castle, farm, city, ship, sea), the rooms and their prices, and the folk with their roles. Every field explains itself as you edit.', at: ['#navRooms'], go: () => closeUpOff() },

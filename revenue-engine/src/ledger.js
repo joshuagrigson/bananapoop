@@ -7,15 +7,24 @@ import crypto from 'node:crypto';
 
 export const KINDS = Object.freeze([
   'money.in', 'money.out', 'outcome', 'post', 'job', 'agent.run.start', 'agent.run.end', 'path.status', 'gate', 'note',
+  'race', 'play', 'step',
 ]);
 export const STAGES = Object.freeze(['prospect', 'conversation', 'demo', 'pilot', 'paid', 'retained']);
 export const OUT_CATEGORIES = Object.freeze(['api', 'tool', 'ads', 'capital', 'other']);
 export const RUN_REASONS = Object.freeze(['done', 'budget', 'max_iters', 'refusal', 'error']);
 export const PATH_STATUSES = Object.freeze(['active', 'paused', 'killed']);
+// The sandbox race (race.js): every contestant room gets the same stake and an agent who tries to multiply it.
+// A play is one way a room is trying to make money; a step is one thing its agent did, planned, learned or is stuck on.
+export const PLAY_STATUSES = Object.freeze(['trying', 'working', 'paused', 'dropped']);
+export const STEP_TYPES = Object.freeze(['did', 'plan', 'learned', 'blocked']);
+export const DEFAULT_HORIZONS = Object.freeze([7, 30, 90, 180]);
 
 const isText = (v, min = 1) => typeof v === 'string' && v.trim().length >= min;
 const isUsd = (v) => typeof v === 'number' && Number.isFinite(v);
 const isUrl = (v) => typeof v === 'string' && /^https?:\/\/\S+$/i.test(v.trim());
+const isRoomId = (v) => typeof v === 'string' && /^[a-z0-9][a-z0-9-]{0,31}$/.test(v);
+const isPlayId = (v) => typeof v === 'string' && /^[a-z0-9][a-z0-9-]{0,39}$/.test(v);
+const isBy = (v) => ['user', 'agent'].includes(v);
 
 export class LedgerError extends Error {}
 const fail = (msg) => { throw new LedgerError(msg); };
@@ -49,6 +58,7 @@ export function validate(input) {
       // who did the work: one of the world's folk (a barber, a kid). kid is the older name for the same thing.
       if (ev.by !== undefined && !(isText(ev.by) && ev.by.length <= 40)) fail('money.in by must name who did the work (1-40 chars)');
       if (ev.kid !== undefined && !(isText(ev.kid) && ev.kid.length <= 40)) fail('money.in kid must be the name of the kid who did the chore');
+      if (ev.play !== undefined && !isPlayId(ev.play)) fail('money.in play must be a play id (lowercase letters, digits and dashes)');
       break;
     case 'post':
       if (!isText(ev.path)) fail('post needs a path id');
@@ -70,6 +80,7 @@ export function validate(input) {
       if (!isText(ev.path)) ev.path = 'general';
       if (!isText(ev.evidence) && !isText(ev.runId)) fail('money.out needs evidence or a runId');
       if (ev.payee !== undefined && !(isText(ev.payee) && ev.payee.length <= 40)) fail('money.out payee must be the name of who was paid');
+      if (ev.play !== undefined && !isPlayId(ev.play)) fail('money.out play must be a play id (lowercase letters, digits and dashes)');
       break;
     case 'outcome':
       if (!isText(ev.path)) fail('outcome needs a path id');
@@ -100,6 +111,34 @@ export function validate(input) {
       break;
     case 'note':
       if (!isText(ev.text)) fail('note needs text');
+      break;
+    case 'race':
+      // the starting gun. The rules go on the ledger with it, so changing a default later never rewrites a finished race.
+      if (!isUsd(ev.stakeUsd) || ev.stakeUsd <= 0 || ev.stakeUsd > 1e6) fail('race needs stakeUsd > 0: what each contestant room starts with');
+      if (!isText(ev.evidence, 3)) fail('race needs evidence: where the stake money actually sits (a card, an account)');
+      if (ev.horizons === undefined) ev.horizons = [...DEFAULT_HORIZONS];
+      if (!(Array.isArray(ev.horizons) && ev.horizons.length >= 1 && ev.horizons.length <= 8 && ev.horizons.every((d) => Number.isInteger(d) && d >= 1 && d <= 3660))) fail('race horizons must be 1-8 whole numbers of days, e.g. [7, 30, 90, 180]');
+      ev.horizons = [...new Set(ev.horizons)].sort((a, b) => a - b);
+      if (ev.rooms !== undefined && !(Array.isArray(ev.rooms) && ev.rooms.length >= 1 && ev.rooms.length <= 12 && ev.rooms.every(isRoomId))) fail('race rooms must be a list of 1-12 room ids');
+      if (ev.name !== undefined && !(isText(ev.name) && ev.name.length <= 60)) fail('race name must be 1-60 characters');
+      break;
+    case 'play':
+      if (!isRoomId(ev.path)) fail('play needs the room id (path) it belongs to');
+      if (!isPlayId(ev.play)) fail('play needs a play id: lowercase letters, digits and dashes, e.g. planner-shop');
+      if (!(isText(ev.name) && ev.name.length <= 80)) fail('play needs a name (1-80 characters)');
+      if (!PLAY_STATUSES.includes(ev.status)) fail(`play status must be one of ${PLAY_STATUSES.join(', ')}`);
+      if (ev.plan !== undefined && !(isText(ev.plan) && ev.plan.length <= 2000)) fail('play plan must be 1-2000 characters');
+      if (ev.why !== undefined && !(isText(ev.why) && ev.why.length <= 500)) fail('play why must be 1-500 characters');
+      if (!isBy(ev.by)) fail('play.by must be "user" or "agent"');
+      break;
+    case 'step':
+      if (!isRoomId(ev.path)) fail('step needs the room id (path) it belongs to');
+      if (!(isText(ev.text) && ev.text.length <= 600)) fail('step needs text (1-600 characters): what was done, planned, learned or is blocked');
+      if (ev.type === undefined) ev.type = 'did';
+      if (!STEP_TYPES.includes(ev.type)) fail(`step type must be one of ${STEP_TYPES.join(', ')}`);
+      if (ev.play !== undefined && !isPlayId(ev.play)) fail('step play must be a play id');
+      if (ev.url !== undefined && !isUrl(ev.url)) fail('step url must be a live http(s) URL');
+      if (!isBy(ev.by)) fail('step.by must be "user" or "agent"');
       break;
   }
   return ev;

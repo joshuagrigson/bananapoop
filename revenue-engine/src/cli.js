@@ -6,13 +6,14 @@ import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { Ledger, LedgerError } from './ledger.js';
 import { reduce } from './reduce.js';
+import { raceBoard } from './race.js';
 import { quests, summary } from './quests.js';
 import { commanderLevel } from './level.js';
 import { CATALOG, GATES } from './paths.js';
 import { runAgent, ROLES, DEFAULT_MODEL } from './agent.js';
 import { createServer } from './server.js';
 import { createScheduler } from './scheduler.js';
-import { seedDemo, seedBarberDemo, seedAllowanceDemo } from './demo.js';
+import { seedDemo, seedBarberDemo, seedAllowanceDemo, seedRaceDemo } from './demo.js';
 import { addItem, listItems } from './inbox.js';
 import { addClient, listClients, updateClient, isDue } from './clients.js';
 import { harvest, DEFAULT_COUNTIES } from './harvest.js';
@@ -45,9 +46,16 @@ const HELP = `revenue-engine
   job off <jobId>                                      disable a job
   jobs                                                 list jobs
   rooms                                                the rooms this station is built from
-  rooms template <barber|salon|freelance|chores|paths|blank> [--name "Kayla's Chair"] [--skin castle]   start the rooms from a template
+  rooms template <barber|salon|freelance|chores|race|paths|blank> [--name "Kayla's Chair"] [--skin castle]   start the rooms from a template
   rooms skin <space|castle|farm|cyber|alien|ocean|haunted|pumpkin>   how the station looks (decoration only)
-  rooms mode <agents|service|allowance>                what the screens lead with
+  rooms mode <agents|service|allowance|race>           what the screens lead with
+  race                                                 standings: day, bankrolls, rates, each horizon's winner
+  race start --stake 250 --evidence "where the money sits" [--days 7,30,90,180] [--name N]   fire the starting gun
+  race play <room> <play-id> --name N --status trying|working|paused|dropped [--plan P] [--why W] [--by user]
+                                                       a way a room is trying to make money (repeat to change its status)
+  race step <room> --text T [--type did|plan|learned|blocked] [--play ID] [--url U] [--by user]
+                                                       one thing a room's agent did, planned, learned or is stuck on
+  (tie money to a play with log-in/log-out --play ID)
   rooms reset                                          back to the built-in money paths
   connections                                          income links and when each last synced
   connect <stripe|square|paypal|gumroad> --path P --key K [--secret S] [--label L] [--since 2026-06-01]
@@ -56,7 +64,7 @@ const HELP = `revenue-engine
   sync [connectionId]                                  pull new payments now (serve does this every 15 minutes)
   import-csv <file> --path P --source upwork|fiverr|etsy|amazon|paypal|venmo|bank|other [--dry-run]
                                                        import a statement export; the same file twice never counts twice
-  seed-demo [--barber|--family]                        fill an EMPTY data dir with labeled demo data (a barbershop, or a family's chores)
+  seed-demo [--barber|--family|--race]                 fill an EMPTY data dir with labeled demo data (a barbershop, a family's chores, a sandbox race)
   run <role> --path P [--max-usd 2] [--model ${DEFAULT_MODEL}] [--provider anthropic|replay --script file.json]
   serve [--port 8790] [--host 127.0.0.1] [--daily-cap 5] [--no-scheduler] [--harvest-daily] [--sync-every 15] [--open]
   paths                                    the catalog
@@ -119,6 +127,7 @@ async function main(argv) {
       name: { type: 'string' }, city: { type: 'string' }, category: { type: 'string' }, website: { type: 'string' },
       monthly: { type: 'string' }, notes: { type: 'string' }, services: { type: 'string' }, 'harvest-daily': { type: 'boolean' }, open: { type: 'boolean' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
       key: { type: 'string' }, secret: { type: 'string' }, item: { type: 'string' }, label: { type: 'string' }, since: { type: 'string' }, 'dry-run': { type: 'boolean' }, 'sync-every': { type: 'string' }, barber: { type: 'boolean' }, family: { type: 'boolean' }, skin: { type: 'string' }, mode: { type: 'string' },
+      race: { type: 'boolean' }, stake: { type: 'string' }, play: { type: 'string' }, status: { type: 'string' }, plan: { type: 'string' }, why: { type: 'string' }, text: { type: 'string' }, by: { type: 'string' },
     },
   });
   const [cmd, ...rest] = pos;
@@ -136,11 +145,11 @@ async function main(argv) {
       console.log('GATES'); for (const [k, g] of Object.entries(GATES)) console.log(`   ${k}: ${g.title}`);
       return;
     case 'log-in': {
-      const ev = ledger.append({ kind: 'money.in', usd: Number(rest[0]), path: v.path, source: v.source, evidence: v.evidence, ...(v.post ? { postId: v.post } : {}), ...(v.tag ? { tag: v.tag } : {}), ...(v.hours ? { hours: Number(v.hours) } : {}), ...(v.item ? { item: v.item } : {}) });
+      const ev = ledger.append({ kind: 'money.in', usd: Number(rest[0]), path: v.path, source: v.source, evidence: v.evidence, ...(v.post ? { postId: v.post } : {}), ...(v.tag ? { tag: v.tag } : {}), ...(v.hours ? { hours: Number(v.hours) } : {}), ...(v.item ? { item: v.item } : {}), ...(v.play ? { play: v.play } : {}) });
       console.log(`appended money.in ${ev.id}: ${usd(ev.usd)} on ${ev.path} from ${ev.source}`); return;
     }
     case 'log-out': {
-      const ev = ledger.append({ kind: 'money.out', usd: Number(rest[0]), category: v.category, path: v.path, evidence: v.evidence });
+      const ev = ledger.append({ kind: 'money.out', usd: Number(rest[0]), category: v.category, path: v.path, evidence: v.evidence, ...(v.play ? { play: v.play } : {}) });
       console.log(`appended money.out ${ev.id}: ${usd(ev.usd)} ${ev.category} on ${ev.path}`); return;
     }
     case 'outcome': {
@@ -232,8 +241,39 @@ async function main(argv) {
       for (const i of done.slice(-10)) console.log(`  [x] ${i.id} ${i.type} ${i.title} -> ${i.verdict}`);
       return;
     }
+    case 'race': {
+      const sub = rest[0] || 'status';
+      const by = v.by === 'user' ? 'user' : 'agent';
+      const room = (id) => { if (!CAT.some((p) => p.id === id)) throw new LedgerError(`unknown room "${id}" (${CAT.map((p) => p.id).join(', ')})`); return id; };
+      if (sub === 'start') {
+        const ev = ledger.append({ kind: 'race', stakeUsd: Number(v.stake || 250), evidence: v.evidence, ...(v.days ? { horizons: v.days.split(',').map((d) => Number(d.trim())) } : {}), ...(v.name ? { name: v.name } : {}) });
+        console.log(`starting gun ${ev.id}: ${CAT.length} rooms at ${usd(ev.stakeUsd)} each, prizes at day ${ev.horizons.join(', ')}. Only money logged from now on counts.`); return;
+      }
+      if (sub === 'play') {
+        const ev = ledger.append({ kind: 'play', path: room(rest[1]), play: rest[2], name: v.name, status: v.status || 'trying', by, ...(v.plan ? { plan: v.plan } : {}), ...(v.why ? { why: v.why } : {}) });
+        console.log(`play ${ev.play} in ${ev.path}: ${ev.status}`); return;
+      }
+      if (sub === 'step') {
+        const ev = ledger.append({ kind: 'step', path: room(rest[1]), text: v.text, by, ...(v.type ? { type: v.type } : {}), ...(v.play ? { play: v.play } : {}), ...(v.url ? { url: v.url } : {}) });
+        console.log(`step ${ev.id} in ${ev.path} (${ev.type})`); return;
+      }
+      if (sub !== 'status') throw new LedgerError('race needs start, play, step or nothing (standings)');
+      const b = raceBoard(reduce(ledger.readAll(), CAT), CAT);
+      if (!b) { console.log('no race yet. Start one: node src/cli.js race start --stake 250 --evidence "8 virtual cards, $250 each"'); return; }
+      console.log(`${b.name || 'Sandbox race'} · day ${b.day} of ${b.totalDays} · ${usd(b.stakeUsd)} a room · ${usd(b.potUsd)} across ${b.lanes.length} rooms (staked ${usd(b.stakedUsd)})`);
+      for (const l of b.lanes.slice().sort((x, y) => x.place - y.place)) {
+        const nm = (CAT.find((p) => p.id === l.id) || {}).name || l.id;
+        console.log(`  ${String(l.place).padStart(2)}. ${nm.padEnd(14)} ${usd(l.bankrollUsd).padStart(10)}  ×${l.multiple.toFixed(2)}  ${usd(l.rate7)}/day (7d)  ${l.plays.length} plays${l.blocked ? '  BLOCKED: ' + l.blocked.text : ''}`);
+        for (const p of l.plays) console.log(`        ${p.status.padEnd(8)} ${p.name}: ${usd(p.netUsd)} net, ${usd(p.ratePerDay)}/day`);
+      }
+      for (const s of b.standings) {
+        const who = (id) => (CAT.find((p) => p.id === id) || {}).name || id;
+        console.log(`  day ${s.days}: ${s.state === 'done' ? (s.winner ? `WON by ${who(s.winner)} (${usd(s.ranking[0].bankrollUsd)})` : 'tied, no winner') : s.state === 'live' ? `${s.daysLeft} days left, ${s.leader ? who(s.leader) + ' leads' : 'tied'}` : `in ${s.daysLeft} days`}`);
+      }
+      return;
+    }
     case 'seed-demo': {
-      const n = v.family ? seedAllowanceDemo(ledger, DATA_DIR) : v.barber ? seedBarberDemo(ledger, DATA_DIR) : seedDemo(ledger, DATA_DIR);
+      const n = v.race ? seedRaceDemo(ledger, DATA_DIR) : v.family ? seedAllowanceDemo(ledger, DATA_DIR) : v.barber ? seedBarberDemo(ledger, DATA_DIR) : seedDemo(ledger, DATA_DIR);
       console.log(`seeded ${n} demo lines into ${LEDGER_FILE}. The station shows a DEMO banner. Delete ${DATA_DIR} to start real.`); return;
     }
     case 'run': {

@@ -13,7 +13,7 @@ import { dueClients } from '../clients.js';
 import { reduce } from '../reduce.js';
 import { loadCatalog, roomForItem } from '../rooms.js';
 import { syncAll } from '../sync.js';
-import { seedDemo, seedBarberDemo, seedAllowanceDemo } from '../demo.js';
+import { seedDemo, seedBarberDemo, seedAllowanceDemo, seedRaceDemo } from '../demo.js';
 import { makeServices } from './services.js';
 
 const CFG = window.__PF_MOCK || {};
@@ -40,6 +40,7 @@ function boot() {
     const now = Date.now();
     if (STATION === 'barber') seedBarberDemo(ledger, DATA, now);
     else if (STATION === 'family') seedAllowanceDemo(ledger, DATA, now);
+    else if (STATION === 'race') seedRaceDemo(ledger, DATA, now);
     else seedDemo(ledger, DATA, now);
     // the demo's income link becomes a mock one that really syncs (new sales only; the history is already seeded)
     try {
@@ -180,7 +181,7 @@ async function route(u, init = {}) {
 
 // ---------------------------------------------------------------------------------------------- autopilot
 // What a real station does on its own: scheduled agents clock in, income links sync, and (on the family farm) kids
-// finish chores. Off switch in the mock bar.
+// finish chores, and racing rooms keep selling. Off switch in the mock bar.
 const sched = createScheduler({ ledger, runAgent: mockRun, makeProvider, dataDir: DATA, catalog: () => loadCatalog(DATA), dailyCapUsd: 5 });
 let auto = true;
 try { auto = localStorage.getItem('proxyfolk-mock-auto') !== 'off'; } catch { auto = true; }
@@ -192,6 +193,16 @@ async function chore() {
   const k = folk[Math.floor(Math.random() * folk.length)], r = rooms[Math.floor(Math.random() * rooms.length)];
   ledger.append({ kind: 'money.in', usd: r.priceUsd, path: r.id, source: k.name, by: k.name, kid: k.name, item: r.name, qty: 1, evidence: 'checked off in the mock (demo)' });
 }
+// the race keeps going while the page is open: a room with a working play makes another sale like its last one
+function raceSale() {
+  const st = reduce(ledger.readAll(), loadCatalog(DATA));
+  const working = Object.values(st.plays || {}).filter((p) => p.status === 'working');
+  if (!st.race || !working.length) return;
+  const p = working[Math.floor(Math.random() * working.length)];
+  const last = st.moneyIn.filter((e) => e.path === p.path && e.play === p.id).pop();
+  if (!last) return;
+  ledger.append({ kind: 'money.in', path: p.path, play: p.id, usd: last.usd, item: last.item, source: last.source, ...(last.by ? { by: last.by } : {}), evidence: `mock sale in the preview (demo)` });
+}
 let ticks = 0;
 async function autopilot() {
   beat();
@@ -201,6 +212,7 @@ async function autopilot() {
     await sched.tick();
     if (ticks % 3 === 1) await syncAll({ ledger, dataDir: DATA, fetchImpl: services });
     if (STATION === 'family' && ticks % 4 === 2) await chore();
+    if (STATION === 'race' && ticks % 3 === 2) raceSale();
     if (ticks % 3 === 0) sweepAbandoned();
   } catch (e) { console.warn('mock autopilot:', e.message); }
   flush();
