@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#04060c">
-<title>Revenue Station</title>
+<title>Proxyfolk</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 1.5l13 7.5v14l-13 7.5-13-7.5V9z' fill='%23ffcf5a'/%3E%3Cpath d='M16 7l8 4.6v8.8L16 25l-8-4.6v-8.8z' fill='%23704a08'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -108,6 +108,9 @@
   .plate:hover, .lbl.sel .plate { transform: translateX(-50%) translateY(-3px) scale(1.04); background: linear-gradient(180deg, color-mix(in srgb, var(--c) 22%, rgba(14,19,33,.92)), rgba(7,10,18,.92)); box-shadow: 0 10px 24px rgba(0,0,0,.6), 0 0 22px color-mix(in srgb, var(--c) 45%, transparent), inset 0 1px 0 rgba(255,255,255,.1); }
   .plate .rk { font: 700 10px/1 var(--f-num); color: #06080f; background: var(--c); padding: 4px 5px; border-radius: 4px; box-shadow: 0 0 10px color-mix(in srgb, var(--c) 60%, transparent); }
   .plate .nm { font: 600 11.5px/1 var(--f-display); letter-spacing: .04em; color: #fff; }
+  .plate .tier { font: 9px/1 var(--f-num); color: var(--gold); letter-spacing: -.05em; text-shadow: 0 0 6px rgba(255, 207, 90, .5); }
+  .plate .fk { display: inline-flex; align-items: center; gap: 2px; font: 600 10.5px/1 var(--f-num); color: var(--ink2); }
+  .plate .fk .i { width: 11px; height: 11px; }
   .plate .m { font: 600 12px/1 var(--f-num); color: var(--gold); text-shadow: 0 0 10px rgba(255, 207, 90, .35); }
   .plate .tag { font: 9px/1 var(--f-pix); letter-spacing: .06em; padding: 3px 4px 2px; border-radius: 3px; border: 1px solid currentColor; }
   .plate .tag.live { color: var(--good); } .plate .tag.gated { color: var(--warn); } .plate .tag.killed { color: var(--bad); } .plate .tag.paused { color: var(--muted); }
@@ -197,6 +200,19 @@
   .sec > h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 9px; font: 600 10px/1 var(--f-display); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
   .sec > h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .agrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 4px; }
+  .ast { padding: 9px 11px; border-radius: 10px; background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid var(--line); display: grid; gap: 2px; }
+  .ast span { font: 600 9.5px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .ast b { font: 700 17px/1.2 var(--f-num); color: var(--ink); }
+  .ast small { font-size: 11px; color: var(--muted); }
+  #replay { position: absolute; left: 50%; top: calc(var(--top) + 4px); transform: translateX(-50%); z-index: 7; display: flex; align-items: center; gap: 12px; padding: 8px 10px 8px 14px; border-radius: var(--radius); font: 600 12px/1 var(--f-ui); color: var(--ink2); white-space: nowrap; }
+  #replay .rl { letter-spacing: .14em; text-transform: uppercase; font-size: 10px; color: var(--gold); }
+  #replay .rt { font: 700 18px/1 var(--f-num); color: var(--ink); min-width: 78px; }
+  #replay .rn { color: var(--muted); font-family: var(--f-num); }
+  #replay .rb { width: 120px; height: 5px; border-radius: 3px; background: var(--sunk); overflow: hidden; }
+  #replay .rb i { display: block; height: 100%; width: 0; background: var(--gold); }
+  #replay[hidden] { display: none; }
+  @media (max-width: 900px) { #replay { top: 8px; } #replay .rl, #replay .rb { display: none; } }
   .st { padding: 10px 11px; border-radius: 10px; background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid var(--line); display: flex; align-items: center; gap: 10px; min-width: 0; }
   .st .k { font: 600 9px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
   .st .v { font: 600 17px/1.2 var(--f-num); color: #fff; margin-top: 4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -508,6 +524,9 @@
   .kr { display: flex; align-items: center; gap: 4px; padding: 3px 4px 3px 3px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--kc) 45%, var(--line)); background: color-mix(in srgb, var(--kc) 10%, var(--tile)); }
   .kr .kc { width: 24px; height: 24px; border-radius: 50%; border: 0; background: var(--kc); cursor: pointer; box-shadow: 0 0 8px var(--kc); }
   .kr input { width: 120px; padding: 6px 8px; }
+  .kr.wk { cursor: pointer; color: var(--ink2); font: 600 12px/1 var(--f-ui); padding: 5px 10px 5px 5px; gap: 7px; opacity: .55; }
+  .kr.wk .kc { width: 14px; height: 14px; border-radius: 50%; background: var(--kc); display: inline-block; }
+  .kr.wk.on { opacity: 1; color: var(--ink); box-shadow: 0 0 0 1px var(--kc); }
   .kr .kx { border: 0; background: none; color: var(--muted); cursor: pointer; padding: 4px; } .kr .kx:hover { color: var(--bad); } .kr .kx .i { width: 13px; height: 13px; }
   @media (max-width: 900px) { #roomsbox { position: fixed; } .rd-grid, .rd-top { grid-template-columns: 1fr; } .row4, .styles, .skins, .looks { grid-template-columns: 1fr 1fr; } .wel .modes { grid-template-columns: 1fr; } }
   #boot { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; background: radial-gradient(60% 60% at 50% 45%, #0d1224, #03040a); transition: opacity .7s ease, visibility .7s; }
@@ -545,7 +564,7 @@
 <div class="demo" id="demo">DEMO LEDGER · everything on this station is fictional preview data. Point REVENUE_ENGINE_DATA at your real ledger to see the truth.</div>
 <div id="app">
   <div id="view">
-    <canvas id="cv" tabindex="0" aria-label="Revenue Station: an isometric map of every money path. Click a room for its stats."></canvas>
+    <canvas id="cv" tabindex="0" aria-label="Proxyfolk: an isometric world of rooms and the folk who work them. Click a room or a character."></canvas>
     <div id="labels"></div>
     <div id="floats"></div>
     <div id="controls">
@@ -553,15 +572,18 @@
       <button class="cbtn glass" id="zin" title="Zoom in (+)"></button>
       <button class="cbtn glass" id="zout" title="Zoom out (−)"></button>
       <button class="cbtn glass" id="zhome" title="Whole station (F)"></button>
+      <button class="cbtn glass" id="replayBtn" title="Replay the last 24 hours (R)"></button>
+      <button class="cbtn glass" id="sound" title="Sound off (M)"></button>
       <button class="cbtn glass" id="help" title="Field guide (?)"></button>
     </div>
+    <div id="replay" class="glass" hidden><span class="rl">Replay · last 24 hours</span><b class="rt"></b><span class="rn"></span><span class="rb"><i></i></span><button class="btn sm2" type="button" id="replayStop">Stop</button></div>
     <div class="tip" id="tip"></div>
   </div>
   <header id="topbar">
     <div class="brand glass">
       <svg class="logo" viewBox="0 0 40 44" aria-hidden="true"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".45" stop-color="#ffcf5a"/><stop offset="1" stop-color="#b8740a"/></linearGradient></defs><path d="M20 1.5l17.5 10v21L20 42.5 2.5 32.5v-21z" fill="url(#lg1)"/><path d="M20 7.5l12.3 7v14.6L20 36.3 7.7 29.1V14.5z" fill="#1c1204" opacity=".9"/><path d="M23.6 16.4c-.8-1-2-1.5-3.3-1.5-2 0-3.5 1.1-3.5 2.6 0 3.6 7 1.8 7 5.3 0 1.5-1.6 2.6-3.7 2.6-1.4 0-2.7-.6-3.5-1.7M20.3 13v18" stroke="#ffcf5a" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
       <div style="min-width:0">
-        <h1>REVENUE STATION</h1>
+        <h1>PROXYFOLK</h1>
         <div class="sub">Every lit screen, crate, crew member and gold bar is a ledger line.</div>
         <nav><a href="#" id="navSync" title="Income sync: link where you get paid (I)"></a><a href="#" id="navRooms" title="Customize rooms (C)"></a><a href="/terminal" id="navTerm"></a><a href="/ledger" id="navLedger"></a><a href="#" id="navGuide"></a></nav>
       </div>
@@ -578,7 +600,7 @@
   <div id="roomsbox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Customize rooms"></div></div>
   <div id="boot"><div class="in">
     <svg class="logo" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 1.5l17.5 10v21L20 42.5 2.5 32.5v-21z" fill="#ffcf5a"/><path d="M20 7.5l12.3 7v14.6L20 36.3 7.7 29.1V14.5z" fill="#1c1204"/><path d="M23.6 16.4c-.8-1-2-1.5-3.3-1.5-2 0-3.5 1.1-3.5 2.6 0 3.6 7 1.8 7 5.3 0 1.5-1.6 2.6-3.7 2.6-1.4 0-2.7-.6-3.5-1.7M20.3 13v18" stroke="#ffcf5a" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
-    <h1>REVENUE STATION</h1><div class="ln" id="bootLn">establishing ledger uplink</div><div class="bar"><i id="bootBar"></i></div>
+    <h1>PROXYFOLK</h1><div class="ln" id="bootLn">reading the ledger</div><div class="bar"><i id="bootBar"></i></div>
   </div></div>
 </div>
 <script>
@@ -650,6 +672,10 @@
     bolt: '<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>',
     scissors: '<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4L20 17M8.6 15.6L20 7"/>',
     crown: '<path d="M4 19h16M5 16L3.5 7l5 4L12 4.5l3.5 6.5 5-4L19 16z"/>',
+    sound: '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 010 6M18 6.5a7.5 7.5 0 010 11"/>',
+    mute: '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>',
+    replay: '<path d="M4.5 12a7.5 7.5 0 107.5-7.5c-2.3 0-4.3 1-5.7 2.6"/><path d="M5.5 3.8v3.9h3.9"/><path d="M10.5 9.2v5.6l4.4-2.8z"/>',
+    folk: '<circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3.3 2.7-5 5.5-5s4.9 1.7 5.5 5"/><circle cx="16.5" cy="9" r="2.4"/><path d="M15.5 14.1c2.6-.4 4.6 1.2 5 4.4"/>',
     sliders: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     chevU: '<path d="M6 15l6-6 6 6"/>',
@@ -887,8 +913,8 @@
   const SK = () => SKINS[skinId()] || SKINS.space;
   const NM = () => ({ ...SKINS.space.names, ...(SK().names || {}) });
   const MODE = () => (snap && snap.station && snap.station.mode) || 'agents';
-  const kidsList = () => (snap && snap.station && snap.station.kids) || [];
-  const kidOf = (e) => e.kid || null;
+  const kidsList = () => (snap && snap.station && (snap.station.folk || snap.station.kids)) || [];
+  const kidOf = (e) => e.by || e.kid || null;
   // A kid's allowance, straight from the ledger: what their chores earned, what was paid to them, what is still owed.
   function kidStats(name, days = 7) {
     const from = days ? Date.now() - days * 86400e3 : 0, key = name.toLowerCase();
@@ -3430,74 +3456,104 @@
     return h >= 24 ? `in ${Math.round(h / 24)}d` : h >= 1 ? `in ${Math.round(h)}h` : `in ${Math.max(1, Math.round(ms / 60e3))}m`;
   };
 
-  // Two kinds of crew. A standing agent (an enabled job) lives in its room: it idles between runs and sits at a desk
-  // while its run is live. A one-off run with no job beams in from Command, works, and beams out when it ends.
+  // ======================================================================= the folk: who works each room
+  // Every character is someone real. Folk from the roster (a kid, a barber, you) live in the room of their latest logged
+  // work. AI agents on a job live in their job's room. A visitor is a real sale walking in. So the number of characters
+  // in a room is the number working it. What they do between real events (tinkering, chatting, a coffee, sleep at
+  // night) is life, not data; a real event lights their marker gold and pops a bubble. Animals and sea life in the farm
+  // and ocean worlds are the room's stock, growing with how busy it has been. In the castle, the city and the ship,
+  // folk wear the costume of the room they work: a skeleton in the crypt, a hacker in the den.
+  const COSTUME_SKINS = new Set(['castle', 'cyber', 'alien']);
+  const STOCK_SKINS = new Set(['farm', 'ocean']);
+  const folkList = () => (snap && snap.station && (snap.station.folk || snap.station.kids)) || [];
+  const byOf = (e) => e.by || e.kid || null;
+  const folkByName = (n) => folkList().find((f) => f.name.toLowerCase() === String(n || '').toLowerCase()) || null;
+  const hourOverride = (() => { try { const q = new URLSearchParams(location.search).get('hour'); return q !== null && q !== '' && Number.isFinite(Number(q)) ? Number(q) % 24 : null; } catch { return null; } })();
+  // the hour the world shows: the viewer's clock, the replay's clock while a replay runs, or ?hour= for a look at night
+  const hourNow = () => { if (replay) { const d = new Date(replay.clock); return d.getHours() + d.getMinutes() / 60; } if (hourOverride !== null) return hourOverride; const d = new Date(); return d.getHours() + d.getMinutes() / 60; };
+  const nightNow = () => { const h = hourNow(); return h >= 22 || h < 6; };
+  function folkHome(f) {
+    const key = f.name.toLowerCase();
+    let last = null;
+    const until = replay ? replay.clock : Infinity;
+    for (const e of snap.state.moneyIn) if ((byOf(e) || '').toLowerCase() === key && roomById(e.path) && Date.parse(e.ts) <= until && (!last || e.ts > last.ts)) last = e;
+    if (last) return roomById(last.path);
+    if (f.rooms) for (const id of f.rooms) { const r = roomById(id); if (r) return r; }
+    return null;
+  }
+  const costumeFor = (room) => (room && COSTUME_SKINS.has(skinId()) ? lookDef(room) : null);
+  const workersIn = (room) => [...agents.values()].filter((a) => (a.kind === 'folk' || a.kind === 'job' || a.kind === 'visit') && a.path === room.id && a.state !== 'leave');
+  // stations a worker can use: the six spots of the room (desks, chairs, pens), in a random free order
+  const stationSpot = (room, i) => { const [cx, cy] = deskCenter(room, i); return nearestWalkable(cx + 0.5, cy + 0.72); };
+  const seatSpot = (room, i) => { const [cx, cy] = deskCenter(room, i); return [cx, cy + 0.62]; };
+  function freeStation(room, self) {
+    const taken = new Set([...agents.values()].filter((a) => a !== self && a.path === room.id && a.station >= 0).map((a) => a.station));
+    const order = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5);
+    return order.find((i) => !taken.has(i)) ?? order[0];
+  }
+  const baseAgent = (o) => ({ x: 0, y: 0, queue: [], state: 'idle', act: 'idle', actT: 2, desk: -1, station: -1, carry: 0, t: Math.random() * 10, face: Math.random() < 0.5 ? 1 : -1, view: 'front', next: 2 + Math.random() * 5, jz: 0, bubble: null, real: 0, ...o });
+
   function sync() {
     const running = new Map(snap.state.running.map((r) => [r.runId, r]));
     const jobs = Object.values(snap.state.jobs || {}).filter((j) => j.enabled && roomById(j.path));
     const jobIds = new Set(jobs.map((j) => 'job:' + j.jobId));
+    // agents on a job: one character per enabled job, living in its room
     for (const j of jobs) {
-      const id = 'job:' + j.jobId;
-      if (agents.has(id)) { const a = agents.get(id); a.job = j; if (a.state === 'leave' && !a.runId) { a.state = 'idle'; a.queue = findPath([a.x, a.y], idleSpot(roomById(j.path))); } continue; }
-      const room = roomById(j.path);
-      const a = { id, kind: 'job', job: j, role: j.role, path: j.path, x: 0, y: 0, queue: [], state: 'idle', desk: -1, carry: 0, t: Math.random() * 10, face: Math.random() < 0.5 ? 1 : -1, view: 'front', next: 2 + Math.random() * 6, runId: null };
+      const id = 'job:' + j.jobId, room = roomById(j.path);
+      if (agents.has(id)) { const a = agents.get(id); a.job = j; a.costume = costumeFor(room); if (a.state === 'leave' && !a.runId) { a.state = 'idle'; a.act = 'idle'; a.queue = findPath([a.x, a.y], idleSpot(room)); } continue; }
+      const a = baseAgent({ id, kind: 'job', job: j, role: j.role, path: j.path, name: roleTitle(j.role), costume: costumeFor(room) });
       if (first) { const [x, y] = idleSpot(room); a.x = x; a.y = y; }
       else {
         const sp = hubSpawn(); a.x = sp[0]; a.y = sp[1];
         a.queue = findPath(sp, idleSpot(room)); a.state = 'arrive';
-        beam(sp[0], sp[1], roleCol(j.role));
+        beam(sp[0], sp[1], roleCol(j.role)); sfx('hire');
         floatAt(sp[0], sp[1], 24, `${roleTitle(j.role)} hired`, roleCol(j.role));
       }
       agents.set(id, a);
     }
-    // residents: the monsters, animals or characters living in each room of a skin (scenery that grows with the room)
-    const wantRes = new Set();
-    for (const room of rooms) {
+    // stock: the animals and sea life of the farm and ocean worlds, as many as the room has been busy
+    const wantStock = new Set();
+    if (STOCK_SKINS.has(skinId())) for (const room of rooms) {
       const lk = lookDef(room);
       if (!lk || !lk.res) continue;
       const n = residentCount(room);
       for (let k = 0; k < n; k++) {
         const id = `res:${room.id}:${k}`;
-        wantRes.add(id);
+        wantStock.add(id);
         const a0 = agents.get(id);
         if (a0 && a0.look === lk.id) continue;
         const [x, y] = idleSpot(room);
-        agents.set(id, { id, kind: 'res', look: lk.id, lk, role: 'res', path: room.id, x, y, queue: [], state: 'idle', desk: -1, carry: 0, t: Math.random() * 10, face: Math.random() < 0.5 ? 1 : -1, view: 'front', next: 1 + Math.random() * 6 });
+        agents.set(id, baseAgent({ id, kind: 'res', look: lk.id, lk, role: 'res', path: room.id, x, y, next: 1 + Math.random() * 6 }));
       }
     }
-    for (const id of [...agents.keys()]) if (id.startsWith('res:') && !wantRes.has(id)) agents.delete(id);
-    // allowance: every kid is a character, standing in the room of the chore they did last (the hub before any)
-    const wantKids = new Set();
-    if (MODE() === 'allowance') for (const k of kidsList()) {
-      const id = 'kid:' + k.name.toLowerCase();
-      wantKids.add(id);
-      let last = null;
-      for (const e of snap.state.moneyIn) if ((kidOf(e) || '').toLowerCase() === k.name.toLowerCase() && roomById(e.path) && (!last || e.ts > last.ts)) last = e;
-      const target = last ? roomById(last.path) : null, tid = target ? target.id : null;
+    for (const id of [...agents.keys()]) if (id.startsWith('res:') && !wantStock.has(id)) agents.delete(id);
+    // the folk: every person on the roster, living in the room of their latest logged work
+    const wantFolk = new Set();
+    for (const f of folkList()) {
+      const id = 'folk:' + f.name.toLowerCase();
+      wantFolk.add(id);
+      const home = folkHome(f), hid = home ? home.id : null;
       let a = agents.get(id);
       if (!a) {
-        const [x, y] = target ? idleSpot(target) : hubSpot();
-        agents.set(id, { id, kind: 'kid', role: 'kid', tint: k.color, kidName: k.name, path: tid, x, y, queue: [], state: 'idle', desk: -1, carry: 0, t: Math.random() * 10, face: Math.random() < 0.5 ? 1 : -1, view: 'front', next: 2 + Math.random() * 5 });
+        const [x, y] = home ? idleSpot(home) : hubSpot();
+        a = baseAgent({ id, kind: 'folk', role: 'folk', tint: f.color, name: f.name, path: hid, costume: costumeFor(home), x, y, small: MODE() === 'allowance' });
+        agents.set(id, a);
         continue;
       }
-      a.tint = k.color; a.kidName = k.name;
-      if (a.path !== tid) {
-        a.path = tid;
-        a.queue = findPath([a.x, a.y], target ? idleSpot(target) : hubSpot());
-        if (!first && target) floatAt(a.x, a.y, 24, `${k.name} → ${shortName(target.spec)}`, k.color);
-      }
+      a.tint = f.color; a.name = f.name; a.small = MODE() === 'allowance';
+      if (a.path !== hid && !a.busy) moveHome(a, home);
     }
-    for (const id of [...agents.keys()]) if (id.startsWith('kid:') && !wantKids.has(id)) agents.delete(id);
+    for (const id of [...agents.keys()]) if (id.startsWith('folk:') && !wantFolk.has(id)) agents.delete(id);
     for (const [runId, r] of running) {
       const mine = r.jobId ? agents.get('job:' + r.jobId) : null;
       if (mine && mine.path === r.path) {
         if (mine.runId === runId) continue;
         const room = roomById(r.path);
-        mine.runId = runId; mine.run = r; mine.carry = 0;
+        mine.runId = runId; mine.run = r; mine.carry = 0; mine.act = 'run'; mine.station = -1;
         mine.desk = pickDesk(room, mine);
         const [cx, cy] = deskCenter(room, mine.desk);
         if (first) { mine.x = cx; mine.y = cy + 0.62; mine.queue = []; mine.state = 'work'; }
-        else { mine.queue = [...findPath([mine.x, mine.y], [cx, cy + 1.2]), [cx, cy + 0.62]]; mine.state = 'enter'; }
+        else { mine.queue = [...findPath([mine.x, mine.y], [cx, cy + 1.2]), [cx, cy + 0.62]]; mine.state = 'enter'; bubble(mine, 'bolt', 2); }
         continue;
       }
       if (agents.has(runId)) continue;
@@ -3506,39 +3562,281 @@
       const desk = pickDesk(room);
       const [cx, cy] = deskCenter(room, desk);
       const sp = hubSpawn();
-      const a = { id: runId, kind: 'visit', role: r.role, path: r.path, run: r, runId, x: sp[0], y: sp[1], queue: [...findPath(sp, [cx, cy + 1.2]), [cx, cy + 0.62]], state: 'enter', desk, carry: 0, t: Math.random() * 10, face: 1, view: 'front' };
+      const a = baseAgent({ id: runId, kind: 'visit', role: r.role, name: roleTitle(r.role), path: r.path, run: r, runId, x: sp[0], y: sp[1], queue: [...findPath(sp, [cx, cy + 1.2]), [cx, cy + 0.62]], state: 'enter', act: 'run', desk, face: 1, costume: costumeFor(room) });
       if (first) { a.x = cx; a.y = cy + 0.62; a.queue = []; a.state = 'work'; } else beam(sp[0], sp[1], roleCol(r.role));
       agents.set(runId, a);
     }
     for (const a of agents.values()) {
-      if (a.id === 'commander' || a.kind === 'res' || a.kind === 'kid') continue;
+      if (a.kind !== 'job' && a.kind !== 'visit') continue;
       const room = roomById(a.path);
       if (a.kind === 'job') {
         if (a.runId && !running.has(a.runId)) {
-          // the run ended: stand up, carry anything it logged to the crate stack, then go back to idling
+          // the run ended: stand up, carry anything it logged to the crate stack, then go back to the room
           const ended = snap.state.runs.find((r) => r.runId === a.runId);
           a.carry = outcomesForRun(a.runId);
           const [cx, cy] = a.desk >= 0 ? deskCenter(room, a.desk) : [a.x, a.y];
           const drop = [room.x0 + 6.45, room.y0 + 1.35];
           a.queue = [[cx, cy + 1.2], ...findPath([cx, cy + 1.2], a.carry ? drop : idleSpot(room))];
-          a.state = a.carry ? 'deliver' : 'idle'; a.runId = null; a.run = null; a.desk = -1; a.next = 5 + Math.random() * 6;
-          if (ended) floatAt(cx, cy, 22, `${ended.reason} · ${usd2(ended.usd)}${a.carry ? ' · ' + a.carry + ' logged' : ''}`, ended.reason === 'done' ? '#3ddc97' : '#f5a623');
+          a.state = a.carry ? 'deliver' : 'idle'; a.act = 'idle'; a.runId = null; a.run = null; a.desk = -1; a.actT = 5 + Math.random() * 6;
+          if (ended) { floatAt(cx, cy, 22, `${ended.reason} · ${usd2(ended.usd)}${a.carry ? ' · ' + a.carry + ' logged' : ''}`, ended.reason === 'done' ? '#3ddc97' : '#f5a623'); bubble(a, ended.reason === 'done' ? 'check' : 'bang', 2.5, true); }
         }
         if (!jobIds.has(a.id) && !a.runId && a.state !== 'leave') {
-          a.state = 'leave'; a.desk = -1; a.queue = findPath([a.x, a.y], hubSpawn());
+          a.state = 'leave'; a.act = 'leave'; a.desk = -1; a.station = -1; a.queue = findPath([a.x, a.y], hubSpawn());
           floatAt(a.x, a.y, 24, `${roleTitle(a.role)} off shift`, '#9aa4b8');
         }
         continue;
       }
       if (running.has(a.id) || a.state === 'leave') continue;
       const ended = snap.state.runs.find((r) => r.runId === a.id);
-      a.state = 'leave';
+      a.state = 'leave'; a.act = 'leave';
       a.carry = outcomesForRun(a.id);
       const [cx, cy] = deskCenter(room, a.desk);
       a.queue = [[cx, cy + 1.2], ...findPath([cx, cy + 1.2], hubSpawn())];
       if (ended) floatAt(a.x, a.y, 22, `${ended.reason} · ${usd2(ended.usd)}${a.carry ? ' · ' + a.carry + ' logged' : ''}`, ended.reason === 'done' ? '#3ddc97' : '#f5a623');
     }
-    if (!agents.has('commander')) { const [x, y] = cellCenter(...HUB); agents.set('commander', { id: 'commander', role: 'commander', x: x + 1.6, y: y + 1.8, queue: [], state: 'idle', carry: 0, t: 0, face: -1, view: 'front', next: 8 }); }
+    if (!agents.has('commander')) { const [x, y] = cellCenter(...HUB); agents.set('commander', baseAgent({ id: 'commander', kind: 'lead', role: 'commander', x: x + 1.6, y: y + 1.8, face: -1, next: 8 })); }
+  }
+  // walk a folk to their (new) home room; in the costume worlds they change costume on arrival
+  function moveHome(a, home) {
+    a.path = home ? home.id : null; a.station = -1; a.act = 'move'; a.state = 'idle';
+    a.queue = findPath([a.x, a.y], home ? idleSpot(home) : hubSpot());
+    a.pendingCostume = costumeFor(home);
+    if (!first && home && !replay) floatAt(a.x, a.y, 24, `${a.name} → ${shortName(home.spec)}`, a.tint);
+  }
+
+  // ---- bubbles, sounds and real events
+  function bubble(a, icon, dur = 1.8, real = false) { a.bubble = { icon, t: 0, dur }; if (real) a.real = Math.max(a.real, dur + 1); }
+  // A real ledger event, played as a scene: the folk who did it walks to the room and does it (a haircut, the dishes),
+  // a visitor comes in for a sale, and the money flies to the vault. Replays use the same scenes.
+  const pendingScenes = [];
+  function playEvent(e, { quiet = false } = {}) {
+    const room = roomById(e.path);
+    if (!room) return;
+    const who = byOf(e), f = who && folkByName(who);
+    let worker = f ? agents.get('folk:' + f.name.toLowerCase()) : null;
+    if (!worker) worker = workersIn(room).find((a) => a.kind === 'folk' && !a.busy) || workersIn(room).find((a) => a.kind === 'job' && !a.runId && !a.busy) || null;
+    const chore = MODE() === 'allowance';
+    const n = clamp(Math.round(6 + Math.log10(Math.max(1, e.usd)) * 5), 6, 26);
+    if (!worker) {
+      // nobody works this room: the visitor still comes and pays at the counter
+      if (!chore) spawnGuest(room, null, e);
+      else spawnCoins(room, n);
+      return;
+    }
+    worker.busy = { e, room, n, chore, t: 0 };
+    worker.path = room.id; worker.pendingCostume = costumeFor(room);
+    worker.station = freeStation(room, worker);
+    worker.act = chore ? 'chore' : 'serve'; worker.state = 'idle';
+    worker.queue = findPath([worker.x, worker.y], stationSpot(room, worker.station));
+    worker.real = 12;
+    if (!chore) worker.busy.guest = spawnGuest(room, worker, e);
+    if (!quiet) sfx(chore ? 'chore' : 'bell');
+  }
+  const GUEST_TINTS = ['#9ec5ff', '#ffb3c7', '#b8f2a0', '#ffd79a', '#d4b8ff', '#9ff0e6', '#ffc39e', '#e6e6e6'];
+  function spawnGuest(room, worker, e) {
+    const guests = [...agents.values()].filter((a) => a.kind === 'guest').length;
+    if (guests >= 8) { spawnCoins(room, 8); return null; }
+    const [dx, dy] = cellOrigin(...DOCK);
+    const start = nearestWalkable(dx + 3.5, dy + 6.2);
+    const station = worker ? worker.station : freeStation(room, null);
+    const id = 'guest:' + (e.id || Math.random().toString(36).slice(2));
+    const g = baseAgent({ id, kind: 'guest', role: 'guest', tint: GUEST_TINTS[(hash2(String(e.source || '').length, e.usd | 0) * GUEST_TINTS.length) | 0], name: e.source || 'visitor', path: room.id, x: start[0], y: start[1], station, act: 'arrive', ev: e, host: worker ? worker.id : null });
+    g.queue = findPath(start, seatSpot(room, station));
+    agents.set(id, g);
+    return g;
+  }
+  // after a scene: coins to the vault, a bubble, a hop
+  function finishScene(worker) {
+    const b = worker.busy; if (!b) return;
+    worker.busy = null;
+    spawnCoins(b.room, b.n);
+    bubble(worker, b.chore ? 'star' : 'coin', 2.2, true);
+    worker.jz = 1; worker.act = 'idle'; worker.actT = 1.5 + Math.random() * 2;
+    const [sx, sy] = P(worker.x, worker.y, 16);
+    const col = worker.tint || roleCol(worker.role);
+    for (let k = 0; k < 14; k++) particles.push({ x: sx, y: sy, vx: (Math.random() - 0.5) * 60, vy: -30 - Math.random() * 40, g: 90, life: 0.7 + Math.random() * 0.4, col: k % 3 ? col : '#fff3b0', glow: k % 2 === 0 });
+    sfx('coin');
+  }
+
+  // ======================================================================= the world around the folk
+  // Day and night follow the viewer's real clock (or the replay's). Scenery only: nothing here is data.
+  const NIGHT_DEPTH = { space: 0.3, castle: 0.22, farm: 0.62, cyber: 0.25, alien: 0.3, ocean: 0.36 };
+  function darkness() {
+    const h = hourNow();
+    if (h >= 7 && h < 18) return 0;
+    if (h >= 18 && h < 21) return (h - 18) / 3;
+    if (h >= 5 && h < 7) return 1 - (h - 5) / 2;
+    return 1;
+  }
+  const nightAmt = () => darkness() * (NIGHT_DEPTH[skinId()] ?? 0.3);
+
+  // ---- critters: birds, bats, fireflies, flying cars, saucers, fish, drones. Pure scenery.
+  const critters = [];
+  const CRITTERS = {
+    space: [{ kind: 'drone', n: 5 }],
+    castle: [{ kind: 'bat', n: 7 }],
+    farm: [{ kind: 'bird', n: 6, day: true }, { kind: 'butterfly', n: 6, day: true }, { kind: 'firefly', n: 22, night: true }],
+    cyber: [{ kind: 'car', n: 8 }],
+    alien: [{ kind: 'saucer', n: 3 }, { kind: 'spore', n: 16 }],
+    ocean: [{ kind: 'fish', n: 12 }, { kind: 'bubble', n: 14 }],
+  };
+  const MAPX = 4 * CELL + 2, MAPY = 3 * CELL + 2;
+  function spawnCritter(kind, anywhere) {
+    const c = { kind, t: Math.random() * 10, p: Math.random() * 6.28, col: null };
+    const edge = () => { const s = Math.random() < 0.5; return s ? [-4, Math.random() * MAPY] : [Math.random() * MAPX, -4]; };
+    const [x, y] = anywhere ? [Math.random() * MAPX, Math.random() * MAPY] : edge();
+    const ang = Math.PI / 4 + (Math.random() - 0.5) * 0.9, v = { bird: 3.2, bat: 2.6, car: 6 + Math.random() * 4, saucer: 1.6, fish: 1.4, drone: 3.5, butterfly: 0.9, firefly: 0.3, spore: 0.25, bubble: 0.2 }[kind] || 1;
+    Object.assign(c, { x, y, z: { bird: 80, bat: 60, car: 90, saucer: 100, fish: 40, drone: 40, butterfly: 18, firefly: 10, spore: 20, bubble: 10 }[kind] + Math.random() * 40, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v, vz: kind === 'bubble' ? 8 + Math.random() * 6 : 0 });
+    if (kind === 'fish') c.col = ['#ffb454', '#4ee6ff', '#ff8fb8', '#9be15d'][(Math.random() * 4) | 0];
+    if (kind === 'car') { c.col = Math.random() < 0.5 ? '#00f0ff' : '#ff2bd6'; if (Math.random() < 0.5) { c.x = MAPX + 4; c.vx *= -1; c.vy *= -1; c.y = Math.random() * MAPY; } }
+    if (['firefly', 'spore', 'bubble', 'butterfly'].includes(kind)) { c.x = Math.random() * MAPX; c.y = Math.random() * MAPY; c.vx = (Math.random() - 0.5) * v; c.vy = (Math.random() - 0.5) * v; }
+    return c;
+  }
+  function critterTick(dt) {
+    const want = CRITTERS[skinId()] || [], night = darkness() > 0.5;
+    for (const w of want) {
+      const n = (w.day && night) || (w.night && !night) ? 0 : w.n;
+      let have = critters.filter((c) => c.kind === w.kind).length;
+      while (have < n) { critters.push(spawnCritter(w.kind, !critters.length || w.kind === 'firefly' || w.kind === 'spore')); have++; }
+    }
+    for (let i = critters.length - 1; i >= 0; i--) {
+      const c = critters[i];
+      c.t += dt; c.x += c.vx * dt; c.y += c.vy * dt; c.z += (c.vz || 0) * dt;
+      if (c.kind === 'firefly' || c.kind === 'spore' || c.kind === 'butterfly') { c.vx += (Math.random() - 0.5) * dt * 2; c.vy += (Math.random() - 0.5) * dt * 2; c.vx *= 0.99; c.vy *= 0.99; c.z = (c.kind === 'butterfly' ? 16 : 8) + Math.sin(c.t * 1.3 + c.p) * 6; }
+      if (c.kind === 'bat') { c.vx += Math.sin(c.t * 1.7 + c.p) * dt * 3; c.vy += Math.cos(c.t * 1.3 + c.p) * dt * 3; }
+      const gone = c.x < -8 || c.y < -8 || c.x > MAPX + 8 || c.y > MAPY + 8 || c.z > 160;
+      const unwanted = !want.some((w) => w.kind === c.kind && !((w.day && night) || (w.night && !night)));
+      if (gone || unwanted) critters.splice(i, 1);
+    }
+  }
+  function drawCritters() {
+    for (const c of critters) {
+      const [X0, Y0] = P(c.x, c.y, c.z), X = Math.round(X0), Y = Math.round(Y0);
+      const flap = Math.floor(c.t * 8 + c.p) % 2, g = wbg;
+      const dotp = (x, y, col, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(X + x, Y + y, w, h); };
+      if (c.kind === 'bird') { dotp(0, 0, '#2a2f3d'); dotp(-1, flap ? -1 : 0, '#2a2f3d'); dotp(1, flap ? -1 : 0, '#2a2f3d'); dotp(-2, flap ? -1 : 1, '#2a2f3d'); dotp(2, flap ? -1 : 1, '#2a2f3d'); }
+      else if (c.kind === 'bat') { dotp(0, 0, '#1a0f22', 1, 2); dotp(-1, flap ? -1 : 1, '#2a1838', 1, 1); dotp(1, flap ? -1 : 1, '#2a1838', 1, 1); dotp(-2, flap ? -2 : 1, '#2a1838'); dotp(2, flap ? -2 : 1, '#2a1838'); dotp(0, 0, '#ff3d3d'); }
+      else if (c.kind === 'butterfly') { const col = ['#ffd84d', '#ff8fb8', '#9ec5ff'][(c.p * 10 | 0) % 3]; dotp(-1, 0, col, flap ? 1 : 2, 2); dotp(1, 0, col, flap ? 1 : 2, 2); dotp(0, 0, '#2a2f3d', 1, 2); }
+      else if (c.kind === 'firefly' || c.kind === 'spore') { const on = 0.3 + 0.7 * Math.max(0, Math.sin(c.t * 2.5 + c.p)); const col = c.kind === 'firefly' ? `rgba(230,255,120,${on.toFixed(2)})` : `rgba(90,255,200,${(on * 0.8).toFixed(2)})`; dotp(0, 0, col); bsg.fillStyle = col; bsg.fillRect(X - 1, Y - 1, 3, 3); }
+      else if (c.kind === 'car') { const dir = c.vx > 0 ? 1 : -1; dotp(-2, 0, '#1a1030', 5, 2); dotp(-1, -1, '#3a2a60', 3, 1); dotp(dir > 0 ? 2 : -2, 0, '#fff3b0'); for (let k = 1; k < 6; k++) { g.fillStyle = rgba(c.col, (0.5 - k * 0.08).toFixed(2)); g.fillRect(X - dir * (2 + k * 2), Y + 1, 2, 1); } bsg.fillStyle = c.col; bsg.fillRect(X - dir * 4, Y, 3, 2); }
+      else if (c.kind === 'saucer') { dotp(-3, 0, '#8a93a8', 7, 1); dotp(-2, -1, '#b8c2da', 5, 1); dotp(-1, -2, '#5affc8', 3, 1); dotp(-3 + Math.floor(c.t * 6) % 7, 0, '#ffe066'); if (Math.floor(c.t / 3 + c.p) % 4 === 0) { g.fillStyle = 'rgba(184,255,106,0.18)'; for (let k = 1; k < 30; k++) g.fillRect(X - 1 - (k >> 3), Y + k, 3 + (k >> 2), 1); } bsg.fillStyle = '#5affc8'; bsg.fillRect(X - 1, Y - 2, 3, 1); }
+      else if (c.kind === 'fish') { const dir = c.vx > 0 ? 1 : -1, tail = flap ? 0 : 1; dotp(-1, 0, c.col, 3, 2); dotp(dir > 0 ? 1 : -1, 0, '#1a1f2c'); dotp(dir > 0 ? -2 : 2, tail ? -1 : 0, c.col, 1, 2); }
+      else if (c.kind === 'drone') { dotp(-1, 0, '#8a93a8', 3, 1); dotp(0, -1, '#5b6376'); if (Math.floor(c.t * 3) % 2) { dotp(0, 1, '#ff5c6c'); bsg.fillStyle = '#ff5c6c'; bsg.fillRect(X - 1, Y, 3, 3); } }
+      else if (c.kind === 'bubble') { g.fillStyle = 'rgba(210,245,255,0.5)'; g.fillRect(X - 1, Y, 1, 1); g.fillRect(X + 1, Y, 1, 1); g.fillRect(X, Y - 1, 1, 1); g.fillRect(X, Y + 1, 1, 1); }
+    }
+  }
+  // a night sky over the farm and the like: the world darkens, the lights and folk stay bright
+  function nightShade() {
+    const n = nightAmt();
+    if (n < 0.01) return;
+    wbg.save(); wbg.globalCompositeOperation = 'source-atop';
+    wbg.fillStyle = `rgba(8,12,38,${n.toFixed(3)})`; wbg.fillRect(0, 0, W, H);
+    wbg.restore();
+  }
+
+  // ---- room tiers: how busy a room has been in 30 days, whatever the room stands for. A tier up sets off fireworks.
+  const TIERS = [1, 5, 15, 40, 100];
+  function roomActivity(room, st = snap.state) {
+    const from = Date.now() - 30 * 86400e3;
+    let n = 0;
+    for (const e of st.moneyIn) if (e.path === room.id && Date.parse(e.ts) >= from) n += e.qty || 1;
+    const p = st.paths[room.id];
+    if (p && !isService(room)) n += STAGES.reduce((a, s2) => a + p.refs[s2].filter((r) => !r.ts || Date.parse(r.ts) >= from).length, 0);
+    return n;
+  }
+  const tierOf = (n) => TIERS.filter((t) => n >= t).length;
+  const roomTier = (room) => tierOf(roomActivity(room));
+  function drawPennants() {
+    for (const room of rooms) {
+      const tier = roomTier(room);
+      if (tier < 3) continue;
+      const [bx, by] = P(room.x0 + 0.35, room.y0 + 0.35, WH + 2), X = Math.round(bx), Y = Math.round(by);
+      const acc = themeOf(room.id).accent, gold = tier >= 5;
+      wbg.fillStyle = '#c8cdd8'; wbg.fillRect(X, Y - 14, 1, 14); wbg.fillStyle = gold ? '#ffd23f' : '#e8eefc'; wbg.fillRect(X, Y - 15, 1, 1);
+      for (let k = 0; k < 7; k++) { const h = 5 - Math.floor(k * 0.7), wv = Math.round(Math.sin(T * 5 - k * 0.8) * 1); wbg.fillStyle = k % 2 ? acc : shade(acc, 30); wbg.fillRect(X + 1 + k, Y - 14 + wv + (5 - h) / 2, 1, Math.max(1, h)); }
+      if (gold) { bsg.fillStyle = '#ffd23f'; bsg.fillRect(X - 1, Y - 16, 3, 3); }
+    }
+  }
+  function fireworks(room, n = 3) {
+    const [cx, cy] = cellCenter(room.c, room.r);
+    for (let k = 0; k < n; k++) fx.push({ kind: 'fw', x: cx + (Math.random() - 0.5) * 3, y: cy + (Math.random() - 0.5) * 3, t: -k * 0.45, dur: 0.9, col: [themeOf(room.id).accent, '#ffd23f', '#ffffff', '#ff5c7a', '#5affc8'][k % 5], done: false });
+  }
+  function fwTick() {
+    for (const e of fx) {
+      if (e.kind !== 'fw' || e.t < 0) continue;
+      const f = Math.min(1, e.t / e.dur), [sx, sy] = P(e.x, e.y, 20 + f * 70);
+      if (!e.done && f < 1 && Math.random() < 0.8) particles.push({ x: sx, y: sy, vx: (Math.random() - 0.5) * 6, vy: 10, g: 0, life: 0.3, col: '#fff3b0', glow: true });
+      if (!e.done && f >= 1) {
+        e.done = true; sfx('pop');
+        for (let k = 0; k < 42; k++) { const an = k / 42 * Math.PI * 2, v = 40 + Math.random() * 30; particles.push({ x: sx, y: sy, vx: Math.cos(an) * v, vy: Math.sin(an) * v * 0.75 - 10, g: 50, life: 0.9 + Math.random() * 0.6, col: k % 4 ? e.col : '#ffffff', glow: true }); }
+      }
+    }
+  }
+
+  // ---- replay: today's real events again, fast, in order. Every scene is a real ledger line.
+  let replay = null;
+  function startReplay({ attract = false } = {}) {
+    if (!snap) return;
+    const to = Date.now(), from = to - 24 * 3600e3;
+    const events = snap.state.moneyIn.filter((e) => Date.parse(e.ts) >= from && roomById(e.path)).sort(byTs);
+    if (!events.length) { if (!attract) toast('status', 'Nothing to replay', 'no work was logged in the last 24 hours', '#cfd6e6', 'back'); return; }
+    // start just before the first event, so the replay opens on the action rather than an empty night
+    const start = Math.max(from, Date.parse(events[0].ts) - 20 * 60e3);
+    replay = { from: start, to, clock: start, events, i: 0, dur: clamp(events.length * 1.3, 24, 75), shown: 0, attract };
+    for (const a of agents.values()) if (a.kind === 'folk') { a.busy = null; const f = folkByName(a.name); moveHome(a, f ? folkHome(f) : null); a.queue = []; const home = roomById(a.path); const [x, y] = home ? idleSpot(home) : hubSpot(); a.x = x; a.y = y; a.costume = costumeFor(home); a.pendingCostume = undefined; }
+    for (const id of [...agents.keys()]) if (id.startsWith('guest:')) agents.delete(id);
+    $('#replay').hidden = false; $('#replay .rl').textContent = attract ? 'Replay · while you are away' : 'Replay · last 24 hours'; if (!attract) sfx('start');
+    if (!attract) select(null);
+  }
+  function stopReplay() {
+    if (!replay) return;
+    replay = null; $('#replay').hidden = true;
+    for (const id of [...agents.keys()]) if (id.startsWith('guest:')) agents.delete(id);
+    for (const a of agents.values()) if (a.kind === 'folk') a.busy = null;
+    if (snap) sync();
+  }
+  function replayTick(dt) {
+    if (!replay) return;
+    replay.clock += (replay.to - replay.from) / replay.dur * dt;
+    while (replay.i < replay.events.length && Date.parse(replay.events[replay.i].ts) <= replay.clock) {
+      const e = replay.events[replay.i++];
+      playEvent(e, { quiet: replay.i % 3 !== 1 });
+      const room = roomById(e.path);
+      if (room) { const [cx, cy] = cellCenter(room.c, room.r); floatAt(cx, cy, 30, `+${usd(e.usd)}${byOf(e) ? ' · ' + byOf(e) : ''}`, byOf(e) && folkByName(byOf(e)) ? folkByName(byOf(e)).color : '#ffcf5a'); }
+    }
+    const d = new Date(replay.clock);
+    $('#replay .rt').textContent = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    $('#replay .rn').textContent = `${replay.i} of ${replay.events.length}`;
+    $('#replay .rb i').style.width = (100 * (replay.clock - replay.from) / (replay.to - replay.from)).toFixed(1) + '%';
+    if (replay.clock >= replay.to) { const busy = [...agents.values()].some((a) => a.busy || a.kind === 'guest'); if (!busy || replay.clock > replay.to + (replay.to - replay.from) / replay.dur * 10) stopReplay(); }
+  }
+
+  // ---- sound: tiny synth blips, off until switched on
+  let soundOn = sget('pf-sound') === '1', actx = null;
+  function sfx(kind) {
+    if (!soundOn || document.hidden) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const notes = { coin: [[988, 0.05], [1319, 0.12]], bell: [[1568, 0.08], [1175, 0.14]], chore: [[523, 0.06], [659, 0.06], [784, 0.12]], pop: [[220, 0.05], [880, 0.08]], hire: [[392, 0.07], [523, 0.07], [659, 0.1]], level: [[523, 0.08], [659, 0.08], [784, 0.08], [1047, 0.2]], start: [[330, 0.06], [440, 0.1]] }[kind] || [[660, 0.06]];
+      let at = actx.currentTime;
+      for (const [f, d] of notes) {
+        const o = actx.createOscillator(), gn = actx.createGain();
+        o.type = kind === 'chore' || kind === 'level' ? 'triangle' : 'square'; o.frequency.value = f;
+        gn.gain.setValueAtTime(0.0001, at); gn.gain.exponentialRampToValueAtTime(0.06, at + 0.01); gn.gain.exponentialRampToValueAtTime(0.0001, at + d);
+        o.connect(gn).connect(actx.destination); o.start(at); o.stop(at + d + 0.02); at += d * 0.85;
+      }
+    } catch { /* no audio: stay quiet */ }
+  }
+  function toggleSound() { soundOn = !soundOn; sset('pf-sound', soundOn ? '1' : '0'); $('#sound').innerHTML = ic(soundOn ? 'sound' : 'mute'); $('#sound').title = soundOn ? 'Sound on (M)' : 'Sound off (M)'; if (soundOn) sfx('coin'); }
+
+  // ---- what a character is doing, in words, and whether it is real
+  function activityText(a) {
+    const room = a.path && roomById(a.path), where = room ? shortName(room.spec) : NM().hub.toLowerCase();
+    if (a.busy) { const e = a.busy.e; return { real: true, text: `${a.busy.chore ? 'doing' : 'serving'} ${e.item || shortName(room.spec)}${e.source && !a.busy.chore ? ' for ' + e.source : ''}: a real ${a.busy.chore ? 'chore' : 'sale'}, ${usd2(e.usd)}, logged ${ago(e.ts)}` }; }
+    if (a.runId) return { real: true, text: `on a live run in ${where}` };
+    if (a.state === 'deliver') return { real: true, text: 'carrying what the run logged to the crates' };
+    const life = { tinker: `tinkering at a station in ${where}`, chat: 'chatting', break: `on a break in the ${NM().hub.toLowerCase()}`, sleep: 'asleep (it is night)', move: `walking to ${where}`, idle: `between jobs in ${where}` }[a.act];
+    return { real: false, text: life || `in ${where}` };
   }
 
   // ======================================================================= the static bake
@@ -4347,8 +4645,8 @@
 
   // Draw a sprite into the world with per-pixel depth: pixels behind taller geometry are hidden,
   // and shown as a faint silhouette so a crew member walking behind a wall never vanishes.
-  const [MS, msg] = mk(16, 20);
-  const msImg = msg.createImageData(16, 20);
+  const [MS, msg] = mk(24, 24);
+  const msImg = msg.createImageData(24, 24);
   function drawMasked(g, spr, X, Y, flip, dcode, sil) {
     const sd = sprData(spr), w = spr.width, h = spr.height, out = msImg.data;
     out.fill(0);
@@ -4358,7 +4656,7 @@
       if (!a) continue;
       const gx = X + i, gy = Y + j;
       if (gx < 0 || gy < 0 || gx >= W || gy >= H) continue;
-      const di = (j * 16 + i) * 4;
+      const di = (j * 24 + i) * 4;
       if (dbData[(gy * W + gx) * 4] > dcode) { if (sil) { out[di] = sil[0]; out[di + 1] = sil[1]; out[di + 2] = sil[2]; out[di + 3] = 90; any = true; } continue; }
       out[di] = sd[si]; out[di + 1] = sd[si + 1]; out[di + 2] = sd[si + 2]; out[di + 3] = a; any = true;
     }
@@ -4367,50 +4665,279 @@
     g.drawImage(MS, 0, 0, w, h, X, Y, w, h);
   }
 
+  // ---- drawing the folk: sprites, costumes, tools, bubbles, markers and name tags
+  // 5x5 icons for bubbles and tools, as rows of palette letters
+  const PIXICON = {
+    coin: [['.yyy.', 'yYyyy', 'yyYyy', 'yyyYy', '.yyy.'], { y: '#ffcf5a', Y: '#fff3b0' }],
+    heart: [['rr.rr', 'rRrrr', 'rrrrr', '.rrr.', '..r..'], { r: '#ff5c7a', R: '#ffc0cc' }],
+    note: [['..kkk', '..k.k', '..k.k', 'kkk.k', 'kk...'], { k: '#2a2f3d' }],
+    star: [['..y..', '.yyy.', 'yyyyy', '.yyy.', 'y...y'], { y: '#ffcf5a' }],
+    check: [['....g', '...gg', 'g.gg.', 'ggg..', '.g...'], { g: '#2fbf71' }],
+    dots: [['.....', '.....', 'k.k.k', '.....', '.....'], { k: '#2a2f3d' }],
+    bang: [['..r..', '..r..', '..r..', '.....', '..r..'], { r: '#ff5c6c' }],
+    q: [['.bbb.', 'b...b', '..bb.', '.....', '..b..'], { b: '#3b82f6' }],
+    bolt: [['...y.', '..yy.', '.yyy.', '.yy..', '.y...'], { y: '#f5a623' }],
+    cup: [['.w.w.', 'cccc.', 'ccccc', 'cccc.', '.ccc.'], { c: '#8a5a3a', w: '#cfd6e6' }],
+    scissors: [['k...k', '.k.k.', '..k..', '.o.o.', 'o...o'], { k: '#5b6376', o: '#ff5c6c' }],
+    sponge: [['.....', 'yyyyy', 'yyyyy', 'ggggg', '.....'], { y: '#ffd84d', g: '#4ade80' }],
+    broom: [['...b.', '..b..', '.b...', 'yyy..', 'yyy..'], { b: '#8a5a3a', y: '#e8c070' }],
+    book: [['bbbb.', 'bwwb.', 'bwwb.', 'bbbb.', '.....'], { b: '#3b82f6', w: '#ffffff' }],
+    bag: [['.k.k.', 'kkkkk', 'kkkkk', 'kkkkk', '.kkk.'], { k: '#3a3f4a' }],
+    basket: [['.....', 'wpwbw', 'bbbbb', 'bbbbb', '.bbb.'], { b: '#c8a27a', w: '#ffffff', p: '#f472b6' }],
+    rake: [['k.k.k', 'kkkkk', '..b..', '..b..', '..b..'], { k: '#9aa3b8', b: '#8a5a3a' }],
+    bowl: [['.....', '.bbb.', 'rrrrr', '.rrr.', '.....'], { b: '#c8a27a', r: '#ff5c6c' }],
+    pillow: [['.....', 'wwwww', 'wWWWw', 'wwwww', '.....'], { w: '#e8eefc', W: '#b8c2da' }],
+    box: [['.....', 'bbbbb', 'bybbb', 'bbbbb', 'bbbbb'], { b: '#b0844c', y: '#ffd84d' }],
+    laptop: [['.ggg.', '.gGg.', '.ggg.', 'kkkkk', '.....'], { g: '#5affc8', G: '#ffffff', k: '#5b6376' }],
+    spark: [['..w..', '.w.w.', 'w.W.w', '.w.w.', '..w..'], { w: '#fff3b0', W: '#ffffff' }],
+    zz: [['kkk..', '..k..', '.k...', 'kkk..', '.....'], { k: '#5b6ea8' }],
+  };
+  const iconSprite = (name) => cached('icon:' + name, () => { const [rows, pal] = PIXICON[name] || PIXICON.dots; const [c, g] = mk(5, 5); rows.forEach((r, y) => [...r].forEach((ch, x) => { if (pal[ch]) px(g, x, y, pal[ch]); })); return c; });
+  // a speech bubble around an icon, with a tail
+  const bubbleSprite = (name) => cached('bub:' + name, () => {
+    const [c, g] = mk(11, 11);
+    g.fillStyle = '#1a1f2c'; g.fillRect(1, 0, 9, 1); g.fillRect(0, 1, 1, 7); g.fillRect(10, 1, 1, 7); g.fillRect(1, 8, 9, 1); g.fillRect(3, 9, 2, 1); g.fillRect(3, 10, 1, 1);
+    g.fillStyle = '#ffffff'; g.fillRect(1, 1, 9, 7); g.fillRect(4, 8, 1, 1);
+    g.drawImage(iconSprite(name), 3, 2);
+    return c;
+  });
+  // lying down to sleep: the standing sprite turned on its side
+  const lyingSprite = (spr, key) => cached('lie:' + key, () => { const [c, g] = mk(spr.height, spr.width); g.translate(spr.height, 0); g.rotate(Math.PI / 2); g.drawImage(spr, 0, 0); return c; });
+
   function crewDraw(a) {
     const moving = a.queue.length > 0;
-    if (a.kind === 'res') {
-      const R = a.lk.res;
-      const f = moving ? Math.floor(a.t * (R.step || 5)) % 2 : R.idleAnim ? Math.floor(a.t * R.idleAnim) % 2 : 0;
-      const spr = residentSprite(a.lk, f);
-      const z = R.float ? R.float + Math.sin(a.t * 2 + a.x) * 1.5 : 0;
+    const hop = a.jz > 0 ? Math.round(Math.sin(a.jz * Math.PI) * 6) : 0;
+    const costume = a.costume && a.costume.res ? a.costume : null;
+    if (a.kind === 'res' || costume) {
+      const lk = a.kind === 'res' ? a.lk : costume, R = lk.res;
+      const working = !moving && (a.act === 'serve' || a.act === 'chore' || a.act === 'tinker' || a.state === 'work');
+      const f = moving ? Math.floor(a.t * (R.step || 5)) % 2 : working ? Math.floor(a.t * 3) % 2 : R.idleAnim ? Math.floor(a.t * R.idleAnim) % 2 : 0;
+      let spr = residentSprite(lk, f);
+      if (a.act === 'sleep' && !moving) spr = lyingSprite(spr, `res:${skinId()}:${lk.id}:0`);
+      const z = (R.float && a.kind === 'res' ? R.float + Math.sin(a.t * 2 + a.x) * 1.5 : 0) + hop + (working ? Math.floor(a.t * 6) % 2 : 0);
       const [sx, sy] = P(a.x, a.y, z);
       return { spr, X: Math.round(sx) - (spr.width >> 1), Y: Math.round(sy) - spr.height + 1, flip: a.face < 0, sx, sy: P(a.x, a.y)[1], view: 'front', z, res: R };
     }
-    let view = 'front', frame = 'stand', z = 0, bob = 0;
-    if (a.state === 'work' && !moving) { view = 'seat'; frame = Math.floor(a.t * 4) % 2 ? 'typeA' : 'typeB'; z = 5; }
-    else if (moving) { view = a.view; frame = Math.floor(a.t * 6) % 2 ? 'walkA' : 'walkB'; bob = Math.floor(a.t * 6) % 2; }
-    else if (a.role === 'commander') bob = Math.floor(a.t * 1.2) % 2;
-    const spr = a.kind === 'kid' ? crewSprite(view, frame, 'kid', a.tint, true) : crewSprite(view, frame, a.role);
+    let view = 'front', frame = 'stand', z = hop, bob = 0;
+    const small = Boolean(a.small), role = a.kind === 'folk' ? 'folk' : a.role, tint = a.tint || null;
+    const seated = (a.state === 'work' && !moving) || (a.kind === 'guest' && a.act === 'seated');
+    if (seated) { view = 'seat'; frame = a.kind === 'guest' ? 'typeA' : Math.floor(a.t * 4) % 2 ? 'typeA' : 'typeB'; z += 5; }
+    else if (moving) { view = a.view; const ph = Math.floor(a.t * (a.busy ? 10 : 7)) % 4; frame = ph === 0 ? 'walkA' : ph === 2 ? 'walkB' : 'stand'; bob = ph % 2; }
+    else if (a.act === 'serve' || a.act === 'chore' || a.act === 'tinker') { view = a.view; bob = Math.floor(a.t * (a.busy ? 7 : 3)) % 2; }
+    else if (a.kind === 'lead') bob = Math.floor(a.t * 1.2) % 2;
+    else bob = Math.floor(a.t * 0.9 + a.x) % 5 === 0 ? 1 : 0;
+    let spr = crewSprite(view, frame, role, tint, small);
+    if (a.act === 'sleep' && !moving) spr = lyingSprite(spr, `crew:${skinId()}:${role}:${tint}:${small}`);
     const [sx, sy] = P(a.x, a.y, z);
     const X = Math.round(sx) - (spr.width >> 1), Y = Math.round(sy) - spr.height + 1 - bob;
     return { spr, X, Y, flip: a.face < 0, sx, sy, view, z };
   }
 
+  const nameTag = (text, col) => cached('tag:' + text + col, () => {
+    const nm = String(text).toUpperCase().replace(/[^A-Z0-9 $-]/g, '').slice(0, 8), w = nm.length * 4 - 1;
+    const [c, g] = mk(w + 4, 8);
+    g.fillStyle = 'rgba(6,8,14,0.72)'; g.fillRect(1, 0, w + 2, 7); g.fillRect(0, 1, w + 4, 5);
+    glyphs(g, nm, 2, 1, col);
+    return c;
+  });
   function drawCrew() {
     const list = [...agents.values()].sort((a, b) => (a.x + a.y) - (b.x + b.y));
+    const showTags = cam.z >= 1.25;
     for (const a of list) {
       const d = crewDraw(a);
       const dcode = depthCode(a.x + a.y);
       const col = a.kind === 'res' ? (d.res.sil || '#9aa6c0') : a.tint || roleCol(a.role);
+      const hx = Math.round(d.sx);
       if (d.view !== 'seat' && !(d.res && d.res.noShadow)) {
-        const fx0 = Math.round(d.sx), fy0 = Math.round(d.sy);
-        if (fx0 > 3 && fy0 > 0 && fx0 < W - 4 && fy0 < H - 1 && dbData[(fy0 * W + fx0) * 4] <= dcode) {
-          wbg.fillStyle = 'rgba(0,0,0,0.45)'; wbg.fillRect(fx0 - 4, fy0 - 1, 9, 2); wbg.fillRect(fx0 - 3, fy0, 7, 1);
+        const fy0 = Math.round(P(a.x, a.y)[1]);
+        if (hx > 3 && fy0 > 0 && hx < W - 4 && fy0 < H - 1 && dbData[(fy0 * W + hx) * 4] <= dcode) {
+          const s = a.jz > 0 ? 1 : 0;
+          wbg.fillStyle = 'rgba(0,0,0,0.45)'; wbg.fillRect(hx - 4 + s, fy0 - 1, 9 - 2 * s, 2); wbg.fillRect(hx - 3 + s, fy0, 7 - 2 * s, 1);
         }
       }
       drawMasked(wbg, d.spr, d.X, d.Y, d.flip, dcode, rgb(col));
-      if (a.kind === 'kid') { const nm = a.kidName.toUpperCase().replace(/[^A-Z0-9 ]/g, '').slice(0, 6); const w = nm.length * 4 - 1; wbg.fillStyle = 'rgba(0,0,0,0.55)'; wbg.fillRect(Math.round(d.sx) - (w >> 1) - 1, d.Y - 8, w + 2, 7); glyphs(wbg, nm, Math.round(d.sx) - (w >> 1), d.Y - 7, a.tint); }
-      if (a.carry > 0 && (a.state === 'leave' || a.state === 'deliver')) { wbg.fillStyle = '#b0844c'; wbg.fillRect(Math.round(d.sx) - 3, d.Y - 6, 6, 5); wbg.fillStyle = '#7f5a31'; wbg.fillRect(Math.round(d.sx) - 3, d.Y - 2, 6, 1); wbg.fillStyle = '#d9ac6a'; wbg.fillRect(Math.round(d.sx) - 3, d.Y - 6, 6, 1); }
-      if (a.role !== 'commander' && a.state === 'work') {
-        // live-run marker: a small ring over the head in the role's colour
-        const hx = Math.round(d.sx), hy = d.Y - 5 + Math.round(Math.sin(a.t * 3) * 1);
-        for (const gg of [wbg, bsg]) {
-          for (let k = 0; k < 16; k++) { const an = k / 16 * Math.PI * 2 + a.t * 2; gg.fillStyle = Math.sin(an) > 0 ? col : rgba(col, 0.35); gg.fillRect(Math.round(hx + Math.cos(an) * 4), Math.round(hy + Math.sin(an) * 1.5), 1, 1); }
-          gg.fillStyle = '#ffffff'; gg.fillRect(hx, hy - 3, 1, 1);
+      const occluded = hx > 0 && hx < W && d.Y > 0 && d.Y < H && dbData[(Math.max(0, d.Y) * W + hx) * 4] > dcode;
+      if (a.kind === 'res' || occluded) continue;
+      // the tool in their hands while they work a station
+      if (!a.queue.length && (a.act === 'serve' || a.act === 'chore' || a.act === 'tinker') && a.station >= 0) {
+        const t = toolFor(roomById(a.path)), sw = Math.floor(a.t * (a.busy ? 8 : 3)) % 2;
+        wbg.drawImage(iconSprite(t), hx + (a.face > 0 ? 3 : -8) + (sw ? a.face : 0), d.Y + 6 - sw);
+      }
+      if (a.carry > 0 && (a.state === 'leave' || a.state === 'deliver')) { wbg.fillStyle = '#b0844c'; wbg.fillRect(hx - 3, d.Y - 6, 6, 5); wbg.fillStyle = '#7f5a31'; wbg.fillRect(hx - 3, d.Y - 2, 6, 1); wbg.fillStyle = '#d9ac6a'; wbg.fillRect(hx - 3, d.Y - 6, 6, 1); }
+      // the marker over their head: a turning diamond in their colour, gold while a real event is theirs
+      if (a.kind === 'folk' || a.kind === 'job' || a.kind === 'visit') {
+        const mc = a.real > 0 || a.busy || a.runId ? '#ffd23f' : col;
+        const turn = Math.abs(Math.sin(a.t * 2.2 + a.x)), w = turn > 0.66 ? 2 : turn > 0.33 ? 1 : 0;
+        const my = d.Y - 7 + Math.round(Math.sin(a.t * 3) * 1);
+        for (const g of [wbg, bsg]) {
+          g.fillStyle = shade(mc, -40); g.fillRect(hx - w, my + 2, 2 * w + 1, 1);
+          g.fillStyle = mc; g.fillRect(hx, my, 1, 5); if (w) g.fillRect(hx - w, my + 1, 2 * w + 1, 3); if (w > 1) g.fillRect(hx - 1, my, 3, 5);
+          g.fillStyle = shade(mc, 60); g.fillRect(hx, my + 1, 1, 1);
         }
       }
+      if (a.role !== 'commander' && a.state === 'work') {
+        // live-run marker: a small ring over the head in the role's colour
+        const ry = d.Y - 11 + Math.round(Math.sin(a.t * 3) * 1);
+        for (const gg of [wbg, bsg]) for (let k = 0; k < 16; k++) { const an = k / 16 * Math.PI * 2 + a.t * 2; gg.fillStyle = Math.sin(an) > 0 ? col : rgba(col, 0.35); gg.fillRect(Math.round(hx + Math.cos(an) * 4), Math.round(ry + Math.sin(an) * 1.5), 1, 1); }
+      }
+      if (a.bubble) {
+        const b = a.bubble, pop = Math.min(1, b.t * 6), s = bubbleSprite(b.icon);
+        if (pop > 0.3) wbg.drawImage(s, hx + 2, d.Y - 17 + Math.round((1 - pop) * 3));
+      }
+      if (a.kind === 'folk' && (showTags || a.real > 0 || a.busy)) { const tg = nameTag(a.name, a.tint || '#e8eefc'); wbg.drawImage(tg, hx - (tg.width >> 1), d.Y + d.spr.height + 1); }
     }
+    // an empty room has a job going: a flickering outline where a worker would stand
+    if (MODE() !== 'allowance') for (const room of rooms) {
+      if (workersIn(room).length || roomLook(room) === 'killed') continue;
+      const [cx, cy] = stationSpot(room, 0), [sx, sy] = P(cx, cy);
+      if (Math.floor(T * 1.5 + room.x0) % 3 === 0) continue;
+      wbg.fillStyle = rgba(themeOf(room.id).accent, 0.35);
+      for (let k = 0; k < 12; k += 2) { wbg.fillRect(Math.round(sx) - 3, Math.round(sy) - 12 + k, 1, 1); wbg.fillRect(Math.round(sx) + 3, Math.round(sy) - 12 + k, 1, 1); }
+      wbg.fillRect(Math.round(sx) - 2, Math.round(sy) - 14, 5, 1);
+    }
+  }
+
+  // ---- what a character does when it is not walking: a small life, and real work when the ledger says so
+  function lifeTick(a, dt) {
+    if (a.kind === 'res') {
+      a.next -= dt;
+      if (a.next <= 0) { const room = roomById(a.path); if (room) a.queue = findPath([a.x, a.y], idleSpot(room)); a.next = 3 + Math.random() * 8; }
+      return;
+    }
+    if (a.kind === 'lead') {
+      a.next -= dt;
+      if (a.next <= 0) {
+        const [hx, hy] = cellCenter(...HUB);
+        const spots = [[hx + 1.6, hy + 1.8], [hx - 1.6, hy + 1.3], [hx + 1.3, hy - 1.6], [hx + 2.3, hy + 0.2], [hx - 0.2, hy + 2.4]];
+        a.queue = findPath([a.x, a.y], spots[(Math.random() * spots.length) | 0]); a.next = 9 + Math.random() * 9;
+        if (Math.random() < 0.3) bubble(a, 'dots', 1.6);
+      }
+      return;
+    }
+    if (a.kind === 'guest') {
+      // seated and being served; once the host finishes (or after a while with no host) pay and go
+      a.actT -= dt;
+      const host = a.host && agents.get(a.host);
+      const done = host ? !host.busy : a.actT <= 0;
+      if (a.act === 'seated' && done) {
+        if (!host) spawnCoins(roomById(a.path), 8);
+        bubble(a, 'heart', 1.6);
+        const [dx, dy] = cellOrigin(...DOCK);
+        a.act = 'leave'; a.state = 'leave'; a.queue = findPath([a.x, a.y], nearestWalkable(dx + 3.5, dy + 6.2));
+      }
+      return;
+    }
+    if (a.kind === 'visit' || a.state === 'deliver' || a.state === 'leave' || a.state === 'enter' || a.runId) return;
+    const room = a.path && roomById(a.path);
+    // a real scene: serve the visitor, or do the chore, then finish it
+    if (a.busy) {
+      const b = a.busy;
+      b.t += dt;
+      if (a.act === 'serve') { const g = b.guest && agents.get(b.guest.id); if (g && g.act !== 'seated' && b.t < 14) return; }
+      a.act = a.busy.chore ? 'chore' : 'serve';
+      if (b.t > (b.chore ? 5 : 7.5)) finishScene(a);
+      return;
+    }
+    a.actT -= dt;
+    if (a.act === 'chat' && a.partner) { const p = agents.get(a.partner); if (p) a.face = p.x - p.y > a.x - a.y ? 1 : -1; if (Math.random() < dt * 0.9) bubble(a, CHAT[(Math.random() * CHAT.length) | 0], 1.4); }
+    if (a.act === 'sleep' && !nightNow()) { a.act = 'idle'; a.actT = 0.5; bubble(a, 'bang', 1.2); }
+    if (a.actT > 0) return;
+    // choose what to do next
+    if (a.kind === 'folk' && nightNow() && room) {
+      if (a.act !== 'sleep') { a.act = 'sleep'; a.station = -1; a.queue = findPath([a.x, a.y], idleSpot(room)); a.actT = 20 + Math.random() * 20; }
+      else a.actT = 30;
+      return;
+    }
+    if (!room) { a.act = 'idle'; a.queue = findPath([a.x, a.y], hubSpot()); a.actT = 4 + Math.random() * 6; return; }
+    const r = Math.random(), mate = [...agents.values()].find((b) => b !== a && (b.kind === 'folk' || b.kind === 'job') && b.path === a.path && !b.busy && !b.runId && b.act !== 'chat' && b.act !== 'sleep' && Math.hypot(b.x - a.x, b.y - a.y) < 3);
+    if (mate && r < 0.18) {
+      // a chat: walk up to a room-mate and trade a few bubbles
+      a.act = 'chat'; a.partner = mate.id; a.station = -1; a.actT = 5 + Math.random() * 4;
+      mate.act = 'chat'; mate.partner = a.id; mate.station = -1; mate.actT = a.actT; mate.queue = [];
+      a.queue = findPath([a.x, a.y], nearestWalkable(mate.x + 0.55, mate.y + 0.2));
+      return;
+    }
+    if (r < 0.26 && a.kind === 'folk') { a.act = 'break'; a.station = -1; a.queue = findPath([a.x, a.y], hubSpot()); a.actT = 8 + Math.random() * 8; return; }
+    if (r < 0.42) { a.act = 'idle'; a.station = -1; a.queue = findPath([a.x, a.y], idleSpot(room)); a.actT = 3 + Math.random() * 5; if (Math.random() < 0.3) bubble(a, 'dots', 1.4); return; }
+    a.act = 'tinker'; a.station = freeStation(room, a); a.queue = findPath([a.x, a.y], stationSpot(room, a.station)); a.actT = 6 + Math.random() * 9;
+  }
+  const CHAT = ['note', 'dots', 'heart', 'q', 'bang', 'coin'];
+
+  function simStep(dt) {
+    deskBusy.clear();
+    for (const [id, a] of agents) {
+      a.t += dt;
+      if (a.bubble) { a.bubble.t += dt; if (a.bubble.t > a.bubble.dur) a.bubble = null; }
+      if (a.real > 0) a.real -= dt;
+      if (a.jz > 0) a.jz = Math.max(0, a.jz - dt * 1.6);
+      if (a.queue.length) {
+        const [tx, ty] = a.queue[0];
+        const dx = tx - a.x, dy = ty - a.y, dist = Math.hypot(dx, dy);
+        const base = a.kind === 'res' ? a.lk.res.speed || 1.1 : a.kind === 'guest' ? 2.1 : a.busy ? 3.3 : a.kind === 'folk' ? (a.small ? 2.3 : 1.9) : a.state === 'idle' ? 1.7 : 3.1;
+        const sp = base * dt;
+        const sdx = dx - dy, sdy = dx + dy;
+        if (Math.abs(sdx) > 0.01) a.face = sdx > 0 ? 1 : -1;
+        if (Math.abs(sdy) > 0.01 || Math.abs(sdx) > 0.01) a.view = sdy < -0.01 ? 'back' : 'front';
+        if (dist <= sp) { a.x = tx; a.y = ty; a.queue.shift(); } else { a.x += dx / dist * sp; a.y += dy / dist * sp; }
+        if (!a.queue.length) arrived(a, id);
+        if (!agents.has(id)) continue;
+      } else lifeTick(a, dt);
+      // face the station while working it
+      if (!a.queue.length && a.station >= 0 && (a.act === 'tinker' || a.act === 'serve' || a.act === 'chore')) { const room = roomById(a.path); if (room) { const [cx, cy] = deskCenter(room, a.station); a.face = (cx - cy) - (a.x - a.y) > 0 ? 1 : -1; a.view = 'back'; } }
+      if (a.state === 'work' && !a.queue.length && a.kind !== 'lead') {
+        const room = roomById(a.path);
+        if (room) {
+          deskBusy.set(room.id + ':' + a.desk, roleCol(a.role));
+          const [cx, cy] = deskCenter(room, a.desk);
+          dynLights.push({ ...lightAt(cx, cy + 0.1, 8), r: 44, color: roleCol(a.role), a: 0.55, mode: 'steady', phase: 0 });
+        }
+      }
+      // tool dust: hair clippings, suds, sparks, leaves; real scenes throw more
+      if (!a.queue.length && (a.act === 'serve' || a.act === 'chore' || a.act === 'tinker') && a.station >= 0) {
+        const rate = a.busy ? 9 : 1.2;
+        if (Math.random() < dt * rate) toolDust(a);
+      }
+      if (a.act === 'sleep' && !a.queue.length && Math.random() < dt * 0.7) { const [sx, sy] = P(a.x, a.y, 10); particles.push({ x: sx + 3, y: sy - 4, vx: 6, vy: -8, g: 0, life: 1.6, col: '#cfe0ff', z: 'Z' }); }
+    }
+  }
+  function arrived(a, id) {
+    if (a.state === 'enter') { a.state = 'work'; return; }
+    if (a.state === 'leave') {
+      if (a.kind === 'guest') { const [sx, sy] = P(a.x, a.y, 6); for (let k = 0; k < 6; k++) particles.push({ x: sx, y: sy, vx: (Math.random() - 0.5) * 20, vy: -10 - Math.random() * 10, g: 20, life: 0.4, col: '#e8eefc' }); agents.delete(id); return; }
+      beam(a.x, a.y, roleCol(a.role)); agents.delete(id); return;
+    }
+    if (a.state === 'deliver') {
+      const [sx, sy] = P(a.x, a.y, 10);
+      for (let k = 0; k < 10; k++) particles.push({ x: sx, y: sy, vx: (Math.random() - 0.5) * 30, vy: -10 - Math.random() * 20, g: 60, life: 0.5 + Math.random() * 0.3, col: k % 2 ? '#d9ac6a' : '#fff3b0', glow: true });
+      a.carry = 0; a.state = 'idle'; a.act = 'idle'; a.actT = 2 + Math.random() * 3; return;
+    }
+    if (a.state === 'arrive') a.state = 'idle';
+    if (a.kind === 'guest' && a.act === 'arrive') { a.act = 'seated'; a.actT = 9; a.view = 'back'; bubble(a, SVC_ICON(roomById(a.path)), 2); return; }
+    if (a.pendingCostume !== undefined) {
+      // a new room in a costume world: a puff of smoke and a change of costume
+      const was = a.costume, now = a.pendingCostume; a.pendingCostume = undefined;
+      if ((was && was.id) !== (now && now.id)) { a.costume = now; if (!first) { const [sx, sy] = P(a.x, a.y, 8); for (let k = 0; k < 12; k++) particles.push({ x: sx + (Math.random() - 0.5) * 6, y: sy - Math.random() * 10, vx: (Math.random() - 0.5) * 24, vy: -6 - Math.random() * 14, g: -4, life: 0.6 + Math.random() * 0.4, col: k % 2 ? '#c8cdd8' : '#8a90a0' }); } }
+    }
+    if (a.act === 'chat') { const p = agents.get(a.partner); if (p) { a.face = p.x - p.y > a.x - a.y ? 1 : -1; p.face = -a.face; } }
+    if (a.act === 'break') bubble(a, 'cup', 2.2);
+    if (a.kind === 'lead') { a.face = -1; a.view = 'front'; }
+    if (a.kind === 'job' && a.act === 'idle') a.view = Math.random() < 0.7 ? 'front' : 'back';
+  }
+  const SVC_ICON = (room) => { const t = toolFor(room); return t === 'scissors' ? 'scissors' : t === 'laptop' ? 'bolt' : 'q'; };
+  // what a room's work looks like in a worker's hands, from the room's name (a haircut, the dishes, a laptop)
+  function toolFor(room) {
+    if (!room) return 'spark';
+    const n = (room.spec.name + ' ' + (room.spec.short || '')).toLowerCase();
+    const K = [['scissors', /cut|fade|trim|shave|line|beard|hair|color|colour|blend|style|brow/], ['sponge', /dish|wash|clean|bath|car/], ['broom', /tidy|sweep|room|vacuum|clean/], ['book', /homework|read|study|lesson|piano|practice/], ['bag', /trash|garbage|recycl/], ['basket', /laundry|fold|clothes/], ['rake', /yard|lawn|garden|leaf|mow|weed/], ['bowl', /pet|feed|dog|cat|fish/], ['pillow', /bed/], ['box', /product|shop|retail|sell|pomade|oil/]];
+    for (const [t, re] of K) if (re.test(n)) return t;
+    return isService(room) ? 'spark' : 'laptop';
+  }
+  function toolDust(a) {
+    const room = roomById(a.path); if (!room) return;
+    const t = toolFor(room), [cx, cy] = deskCenter(room, a.station), [sx, sy] = P(cx, cy, 12);
+    const col = t === 'scissors' ? ['#2a2230', '#4a3a2a', '#c8a27a'][(Math.random() * 3) | 0] : t === 'sponge' ? '#dff4ff' : t === 'rake' ? ['#7cc257', '#c8a040', '#a0522d'][(Math.random() * 3) | 0] : t === 'laptop' ? '#5affc8' : t === 'book' ? '#ffffff' : themeOf(room.id).accent;
+    const bubbleUp = t === 'sponge';
+    particles.push({ x: sx + (Math.random() - 0.5) * 8, y: sy + (Math.random() - 0.5) * 4, vx: (Math.random() - 0.5) * 14, vy: bubbleUp ? -14 - Math.random() * 10 : -6 - Math.random() * 10, g: bubbleUp ? -6 : 40, life: 0.5 + Math.random() * 0.6, col, glow: t === 'laptop' || t === 'spark', ring: bubbleUp });
   }
 
   function drawShuttle(g, glowG) {
@@ -4462,13 +4989,16 @@
       const s = silhouette(r.x0, r.y0); wbg.moveTo(s[0][0], s[0][1]); for (let i = s.length - 1; i > 0; i--) wbg.lineTo(s[i][0], s[i][1]); wbg.closePath();
       wbg.fill('evenodd'); wbg.restore();
     }
+    nightShade();
     wbg.drawImage(EMC, 0, 0);
     bsg.drawImage(EMC, 0, 0);
     if (hoverT) drawOutline(wbg, hoverT, hoverT.accent, 0.85);
     const sel = selected && targetById(selected);
     if (sel && (!hoverT || sel.id !== hoverT.id)) drawOutline(wbg, sel, sel.accent, 0.5 + 0.3 * Math.sin(T * 3));
+    drawPennants();
     drawCrew();
     drawParticles();
+    drawCritters();
     if (SK().overlay) SK().overlay(wbg, bsg, dt);
   }
   let lastFocus = null;
@@ -4505,64 +5035,10 @@
   }
   function step(dt) {
     T += dt;
-    deskBusy.clear();
-    for (const [id, a] of agents) {
-      a.t += dt;
-      if (a.queue.length) {
-        const [tx, ty] = a.queue[0];
-        const dx = tx - a.x, dy = ty - a.y, dist = Math.hypot(dx, dy), sp = (a.kind === 'res' ? a.lk.res.speed || 1.1 : a.kind === 'kid' ? 2.2 : a.state === 'idle' ? 1.7 : 3.1) * dt;
-        const sdx = dx - dy, sdy = dx + dy;
-        if (Math.abs(sdx) > 0.01) a.face = sdx > 0 ? 1 : -1;
-        if (Math.abs(sdy) > 0.01 || Math.abs(sdx) > 0.01) a.view = sdy < -0.01 ? 'back' : 'front';
-        if (dist <= sp) { a.x = tx; a.y = ty; a.queue.shift(); } else { a.x += dx / dist * sp; a.y += dy / dist * sp; }
-        if (!a.queue.length) {
-          if (a.state === 'enter') a.state = 'work';
-          else if (a.state === 'leave') { beam(a.x, a.y, roleCol(a.role)); agents.delete(id); continue; }
-          else if (a.state === 'deliver') {
-            // drop what the run logged on the crate stack
-            const [sx, sy] = P(a.x, a.y, 10);
-            for (let k = 0; k < 10; k++) particles.push({ x: sx, y: sy, vx: (Math.random() - 0.5) * 30, vy: -10 - Math.random() * 20, g: 60, life: 0.5 + Math.random() * 0.3, col: k % 2 ? '#d9ac6a' : '#fff3b0', glow: true });
-            a.carry = 0; a.state = 'idle'; a.next = 2 + Math.random() * 3;
-          } else if (a.state === 'arrive') a.state = 'idle';
-          if (a.role === 'commander') { a.face = -1; a.view = 'front'; }
-          if (a.kind === 'job' && a.state === 'idle') a.view = Math.random() < 0.7 ? 'front' : 'back';
-        }
-      } else if (a.kind === 'kid') {
-        a.next -= dt;
-        if (a.next <= 0) { const room = a.path && roomById(a.path); a.queue = findPath([a.x, a.y], room ? idleSpot(room) : hubSpot()); a.next = 4 + Math.random() * 7; }
-      } else if (a.kind === 'res') {
-        a.next -= dt;
-        if (a.next <= 0) {
-          const room = roomById(a.path);
-          if (room) a.queue = findPath([a.x, a.y], idleSpot(room));
-          a.next = 3 + Math.random() * 8;
-        }
-      } else if (a.kind === 'job' && a.state === 'idle') {
-        // between runs: wander the room, pausing to look at screens or out of the windows
-        a.next -= dt;
-        if (a.next <= 0) {
-          const room = roomById(a.path);
-          if (room) a.queue = findPath([a.x, a.y], idleSpot(room));
-          a.next = 5 + Math.random() * 9;
-        }
-      } else if (a.role === 'commander') {
-        a.next -= dt;
-        if (a.next <= 0) {
-          const [hx, hy] = cellCenter(...HUB);
-          const spots = [[hx + 1.6, hy + 1.8], [hx - 1.6, hy + 1.3], [hx + 1.3, hy - 1.6], [hx + 2.3, hy + 0.2], [hx - 0.2, hy + 2.4]];
-          a.queue = findPath([a.x, a.y], spots[(Math.random() * spots.length) | 0]);
-          a.next = 9 + Math.random() * 9;
-        }
-      }
-      if (a.state === 'work' && !a.queue.length && a.role !== 'commander') {
-        const room = roomById(a.path);
-        if (room) {
-          deskBusy.set(room.id + ':' + a.desk, roleCol(a.role));
-          const [cx, cy] = deskCenter(room, a.desk);
-          dynLights.push({ ...lightAt(cx, cy + 0.1, 8), r: 44, color: roleCol(a.role), a: 0.55, mode: 'steady', phase: 0 });
-        }
-      }
-    }
+    replayTick(dt);
+    simStep(dt);
+    critterTick(dt);
+    fwTick();
     // hall packets for every path with a live run
     liveHalls.clear();
     if (snap) for (const r of snap.state.running) {
@@ -4614,6 +5090,8 @@
       wbg.fillStyle = `rgba(220,230,255,${a.toFixed(3)})`; wbg.fillRect(Math.round(X), Math.round(Y), 1, 1);
     }
     for (const p of particles) {
+      if (p.z) { wbg.globalAlpha = Math.min(1, p.life); wbg.drawImage(iconSprite('zz'), Math.round(p.x), Math.round(p.y)); wbg.globalAlpha = 1; continue; }
+      if (p.ring) { wbg.fillStyle = p.col; const X = Math.round(p.x), Y = Math.round(p.y); wbg.fillRect(X - 1, Y, 1, 1); wbg.fillRect(X + 1, Y, 1, 1); wbg.fillRect(X, Y - 1, 1, 1); wbg.fillRect(X, Y + 1, 1, 1); continue; }
       wbg.fillStyle = p.col; wbg.fillRect(Math.round(p.x), Math.round(p.y), 1, 1);
       if (p.glow) { bsg.fillStyle = p.col; bsg.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 3, 3); }
     }
@@ -4775,6 +5253,9 @@
     ug.globalCompositeOperation = 'lighter'; blit(PLANET.ac, pcx - PLANET.A / 2, pcy - PLANET.A / 2); ug.globalCompositeOperation = 'source-over';
     blit(PLANET.rf, pcx - PLANET.RW / 2, pcy - PLANET.RH / 2);
     }
+    // night falls on the sky too, and stars come out over the day worlds
+    { const n = nightAmt(), dk = darkness(); if (n > 0.01) { ug.fillStyle = `rgba(6,10,32,${Math.min(0.86, n * 1.3).toFixed(3)})`; ug.fillRect(0, 0, uw, uh);
+      if (dk > 0.4 && (skinId() === 'farm' || skinId() === 'ocean')) for (let i = 0; i < 90; i++) { const sx2 = hash2(i, 7) * vw, sy2 = hash2(i, 11) * vh * 0.6, tw = 0.3 + 0.7 * Math.max(0, Math.sin(T * (0.5 + hash2(i, 3) * 2) + i)); dot(sx2, sy2, `rgba(235,240,255,${((dk - 0.4) * 1.6 * tw).toFixed(2)})`); } } }
     // the station
     ug.drawImage(WB, wox, woy, W * kUp, H * kUp);
 
@@ -4868,6 +5349,9 @@
   // ======================================================================= DOM overlay: labels, floats, tooltip
   let labelEls = [], labelsDirty = true;
   const shortName = (spec) => spec.short || spec.name.replace(/,.*$/, '').slice(0, 30);
+  // a room's tier (stars, by 30 days of activity) and how many folk work it right now
+  const tierHtml = (room) => { const t = roomTier(room); return t ? `<span class="tier" title="Tier ${t}: ${roomActivity(room)} in 30 days">${'★'.repeat(t)}</span>` : ''; };
+  const folkHtml = (room) => { const n = workersIn(room).length; return n ? `<span class="fk" title="${n} working here">${ic('folk')}${n}</span>` : ''; };
   function buildLabels() {
     if (!snap) return;
     const html = [], anchors = [], topId = topRoomId();
@@ -4876,7 +5360,7 @@
       const live = snap.state.running.filter((r) => r.path === room.id).length;
       const tag = look !== 'active' ? `<span class="tag ${look}">${look.toUpperCase()}</span>` : live ? '<span class="tag live">LIVE</span>' : '';
       const crown = room.id === topId ? `<span class="crown" title="Most profit per hour, last 30 days">${ic('crown')}</span>` : '';
-      html.push(`<div class="lbl${selected === room.id ? ' sel' : ''}" style="--c:${themeOf(room.id).accent}"><i class="stem"></i><div class="plate" data-sel="${esc(room.id)}"><b class="rk">${String(room.spec.rank).padStart(2, '0')}</b>${crown}<span class="nm">${esc(shortName(room.spec))}</span><span class="m">${usd(p.earnedUsd)}</span>${tag}</div></div>`);
+      html.push(`<div class="lbl${selected === room.id ? ' sel' : ''}" style="--c:${themeOf(room.id).accent}"><i class="stem"></i><div class="plate" data-sel="${esc(room.id)}"><b class="rk">${String(room.spec.rank).padStart(2, '0')}</b>${crown}<span class="nm">${esc(shortName(room.spec))}</span>${tierHtml(room)}<span class="m">${usd(p.earnedUsd)}</span>${folkHtml(room)}${tag}</div></div>`);
       anchors.push({ id: room.id, pt: P(room.x0 + 3.5, room.y0, WH + 4) });
     }
     const hubO = cellOrigin(...HUB), dockO = cellOrigin(...DOCK);
@@ -4919,6 +5403,28 @@
     setTimeout(() => { el.remove(); const i = floats.indexOf(f); if (i >= 0) floats.splice(i, 1); }, 2700);
   }
 
+  // who a character is and what they are doing: the tooltip over any folk, agent, visitor or animal
+  function agentTip(a, accent) {
+    const room = a.path && roomById(a.path), where = room ? esc(shortName(room.spec)) : esc(NM().hub);
+    if (a.kind === 'res') {
+      const n = room ? residentCount(room) : 1;
+      return { accent: a.lk.res.sil || accent, html: `<div class="h"><span class="sw"></span>${esc(a.lk.resident)}</div><div class="s">${n} live in ${where}: the room's stock. One always does; more arrive as the room gets busier (30 days of activity), up to four.</div><div class="hint">click for the room</div>` };
+    }
+    if (a.kind === 'lead') return { accent: '#ffcf5a', html: `<div class="h"><span class="sw"></span>${esc(NM().leader)} (you)</div><div class="s">Level ${snap.level.level} · ${esc(snap.level.title)} · ${usd(snap.state.earnedUsd)} evidenced</div>` };
+    if (a.kind === 'guest') { const e = a.ev || {}; return { accent: a.tint, html: `<div class="h"><span class="sw"></span>A visitor · ${esc(e.source || 'customer')}</div><div class="s">a real sale: ${esc(e.item || shortOf(e.path))} · ${usd2(e.usd || 0)} · logged ${e.ts ? ago(e.ts) : ''}</div>` }; }
+    const act = activityText(a), doing = `<div class="s">${act.real ? '<b style="color:var(--gold)">● real</b> ' : ''}${esc(act.text)}</div>`;
+    if (a.kind === 'folk') {
+      const ks = kidStats(a.name, 7);
+      const unit = MODE() === 'allowance' ? 'chore' : MODE() === 'service' ? 'job' : 'job';
+      return { accent: a.tint, html: `<div class="h"><span class="sw"></span>${esc(a.name)}</div>${doing}<div class="s">${ks.done} ${unit}${ks.done === 1 ? '' : 's'} · ${usd(ks.period)} this week · ${usd(ks.earned)} all time${MODE() === 'allowance' ? ` · <b style="color:var(--gold)">${usd(ks.owed)} owed</b>` : ''}</div><div class="hint">click to follow ${esc(a.name)}</div>` };
+    }
+    if (a.kind === 'job') {
+      const j = a.job;
+      return { accent: roleCol(a.role), html: `<div class="h"><span class="sw"></span>${esc(roleTitle(a.role))} · AI agent</div>${doing}<div class="s">works ${where} · every ${j.everyHours}h · cap ${usd2(j.maxUsd)}/run · ${j.runs} run${j.runs === 1 ? '' : 's'} · next ${jobNext(j)}</div><div class="hint">click to follow</div>` };
+    }
+    const run = snap.state.running.find((r) => r.runId === a.id);
+    return { accent: roleCol(a.role), html: `<div class="h"><span class="sw"></span>${esc(roleTitle(a.role))} · one-off run</div><div class="s">${a.state === 'leave' ? 'heading back from' : 'on a live run in'} ${where}</div>` + (run ? `<div class="s">started ${ago(run.startedAt)} · ${esc(run.model || '')} · cap ${usd2(run.maxUsd)}</div>` : '') };
+  }
   let hoverT = null;
   function showTip(hit, ev) {
     const tip = $('#tip');
@@ -4926,27 +5432,9 @@
     cv.classList.add('hot');
     hoverT = hit.t || null;
     let html = '', accent = hit.t ? hit.t.accent : '#8fb0ff';
-    if (hit.kind === 'crew' && hit.agent.kind === 'res') {
-      const a = hit.agent, room = roomById(a.path); accent = a.lk.res.sil || accent;
-      const n = room ? residentCount(room) : 1;
-      html = `<div class="h"><span class="sw"></span>${esc(a.lk.resident)}</div><div class="s">${n} live in ${room ? esc(shortName(room.spec)) : 'this room'}. One always does; more move in as the room earns, up to four.</div><div class="hint">click for the room</div>`;
-    } else if (hit.kind === 'crew' && hit.agent.kind === 'kid') {
-      const a = hit.agent, ks = kidStats(a.kidName, 7), room = a.path && roomById(a.path); accent = a.tint;
-      html = `<div class="h"><span class="sw"></span>${esc(a.kidName)}</div><div class="s">${ks.last ? `last chore: ${esc(ks.last.item || shortOf(ks.last.path))}, ${ago(ks.last.ts)}` : 'no chores checked off yet'}</div><div class="s">${usd(ks.period)} this week · ${usd(ks.earned)} all time · <b style="color:var(--gold)">${usd(ks.owed)} owed</b></div><div class="hint">${room ? 'click for ' + esc(shortName(room.spec)) : 'click for the family'}</div>`;
-    } else if (hit.kind === 'crew') {
-      const a = hit.agent; accent = roleCol(a.role);
-      if (a.role === 'commander') html = `<div class="h"><span class="sw"></span>${esc(NM().leader)} (you)</div><div class="s">Level ${snap.level.level} · ${esc(snap.level.title)} · ${usd(snap.state.earnedUsd)} evidenced</div>`;
-      else if (a.kind === 'job') {
-        const j = a.job, room = roomById(a.path);
-        const doing = a.runId ? 'working a live run' : a.state === 'deliver' ? 'carrying outcomes to the crates' : a.state === 'leave' ? 'going off shift' : a.state === 'arrive' ? 'moving in' : 'on shift, between runs';
-        html = `<div class="h"><span class="sw"></span>${esc(roleTitle(a.role))} · standing agent</div><div class="s">${doing} in ${room ? esc(shortName(room.spec)) : esc(a.path)}</div>` +
-          `<div class="s">every ${j.everyHours}h · cap ${usd2(j.maxUsd)}/run · ${j.runs} run${j.runs === 1 ? '' : 's'} · next ${jobNext(j)}</div><div class="hint">click to manage this crew</div>`;
-      } else {
-        const run = snap.state.running.find((r) => r.runId === a.id);
-        const room = roomById(a.path);
-        html = `<div class="h"><span class="sw"></span>${esc(roleTitle(a.role))}</div><div class="s">${a.state === 'leave' ? 'heading back from' : 'on a live run in'} ${room ? esc(shortName(room.spec)) : esc(a.path)}</div>` +
-          (run ? `<div class="s">started ${ago(run.startedAt)} · ${esc(run.model || '')} · cap ${usd2(run.maxUsd)}</div>` : '') + '<div class="hint">click for the room</div>';
-      }
+    if (hit.kind === 'crew') {
+      const a = hit.agent;
+      ({ html, accent } = agentTip(a, accent));
     } else if (hit.kind === 'mast') {
       const s = syncStatus(); accent = s.color;
       html = `<div class="h"><span class="sw"></span>${esc(NM().mast)} · income sync</div><div class="s">${esc(s.text)}</div><div class="hint">click to link Stripe, Square, PayPal, Gumroad or import a statement</div>`;
@@ -4980,11 +5468,13 @@
   }
 
   // ======================================================================= selection and camera moves
-  let selected = null;
+  let selected = null, follow = null;
   function select(id, { fly = true } = {}) {
     selected = id === 'hub' ? null : id;
+    follow = id && id.startsWith('a:') ? id.slice(2) : null;
     renderPanel(true);
     buildLabels();
+    if (follow) { camT.z = Math.max(camT.z, 2.2); clampCam(); return; }
     const t = id ? targetById(id) : null;
     if (fly && t && t.room) {
       const [cx, cy] = P(t.x0 + 3.5, t.y0 + 3.5, 8);
@@ -5128,12 +5618,12 @@
     const seenMoney = new Set(pst.moneyIn.map((e) => e.id));
     const fresh = st.moneyIn.filter((e) => !seenMoney.has(e.id));
     const groups = new Map();
-    let coinBudget = 90;
+    let coinBudget = 90, scenes = 0;
     for (const e of fresh) {
       if (e.via) { const g = groups.get(e.via) || { n: 0, usd: 0, paths: new Set() }; g.n++; g.usd += e.usd; g.paths.add(e.path); groups.set(e.via, g); }
       else toast('money', `+${usd(e.usd)} · ${e.source}`, `${shortOf(e.path)} · ${e.evidence}`, '#ffcf5a', 'coin');
       const room = roomById(e.path);
-      if (room && coinBudget > 0) { const n = clamp(Math.round(6 + Math.log10(Math.max(1, e.usd)) * 5), 6, 26); spawnCoins(room, Math.min(n, coinBudget)); coinBudget -= n; }
+      if (room && coinBudget > 0 && !replay) { const n = clamp(Math.round(6 + Math.log10(Math.max(1, e.usd)) * 5), 6, 26); if (scenes++ < 6) playEvent(e, { quiet: scenes > 1 }); else spawnCoins(room, Math.min(n, coinBudget)); coinBudget -= n; }
     }
     for (const [via, g] of groups) {
       const csvSrc = via.startsWith('csv:');
@@ -5160,6 +5650,11 @@
         }
       });
       if (before.status !== after.status) { toast('status', `${shortName(room.spec)} → ${after.status}`, after.statusReason || '', after.status === 'killed' ? '#ff5c6c' : '#cfd6e6', 'flag'); const [cx, cy] = cellCenter(room.c, room.r); floatAt(cx, cy, 30, after.status.toUpperCase(), after.status === 'killed' ? '#ff5c6c' : '#cfd6e6'); }
+    }
+    // a room crossing a tier (how busy it has been) sets off fireworks over it
+    for (const room of rooms) {
+      const was = tierOf(roomActivity(room, pst)), now = roomTier(room);
+      if (now > was) { fireworks(room, 2 + now); toast('stage', `${shortName(room.spec)} · tier ${now}`, `${roomActivity(room)} in 30 days`, themeOf(room.id).accent, 'crown'); sfx('level'); }
     }
     if (snap.level.level > prev.level.level) {
       toast('big', `COMMANDER LEVEL ${snap.level.level}`, snap.level.title, '#ffcf5a');
@@ -5189,11 +5684,49 @@
     panelSig = sig;
     const el = $('#panel');
     el.classList.remove('panel-in'); void el.offsetWidth; if (force) el.classList.add('panel-in');
-    if (selected === 'dock') (MODE() === 'allowance' ? renderFamily : renderDock)(el);
+    if (selected && selected.startsWith('a:')) renderAgent(el, agents.get(selected.slice(2)));
+    else if (selected === 'dock') (MODE() === 'allowance' ? renderFamily : renderDock)(el);
     else if (room && isService(room)) (MODE() === 'allowance' ? renderChore : renderService)(el, room);
     else if (room) renderRoom(el, room);
     else (MODE() === 'allowance' ? renderFamily : renderRoster)(el);
     if (force) el.scrollTop = 0;
+  }
+  // A character's card: who they are, what they stand for, what they are doing right now (real or just life).
+  function renderAgent(el, a) {
+    if (!a) { el.innerHTML = `<button class="back" data-sel="hub">${ic('chevL')}station roster</button><div class="muted">They have left the station.</div>`; return; }
+    const room = a.path && roomById(a.path), col = a.tint || roleCol(a.role);
+    $('#inspector').style.setProperty('--room', col);
+    let who = '', stats = '';
+    if (a.kind === 'folk') {
+      const ks = kidStats(a.name, 7), f = folkByName(a.name) || {}, works = (f.rooms || []).map((id) => roomById(id)).filter(Boolean);
+      const unit = MODE() === 'allowance' ? 'chore' : 'job';
+      who = MODE() === 'allowance' ? 'A kid on the chore chart' : MODE() === 'service' ? 'On the team' : 'One of the folk';
+      const mine = snap.state.moneyIn.filter((e) => (kidOf(e) || '').toLowerCase() === a.name.toLowerCase()).sort(byTs).reverse().slice(0, 6);
+      stats = `<div class="agrid"><div class="ast"><span>This week</span><b>${ks.done} ${unit}${ks.done === 1 ? '' : 's'}</b><small>${usd(ks.period)}</small></div><div class="ast"><span>All time</span><b>${usd(ks.earned)}</b><small>${MODE() === 'allowance' ? usd(Math.max(0, ks.owed)) + ' owed' : 'logged by name'}</small></div></div>
+        <div class="sec"><h3>Works</h3><div class="muted small">${works.length ? works.map((r) => esc(shortName(r.spec))).join(', ') : 'wherever their last logged work was'}${room ? ` · now in <a href="#" data-sel="${esc(room.id)}" style="color:var(--cyan)">${esc(shortName(room.spec))}</a>` : ''}</div></div>
+        ${mine.length ? `<div class="sec"><h3>Latest work</h3><div class="runs">${mine.map((e) => `<div class="r" style="--rc:${col}"><span class="sw"></span><span>${esc(e.item || shortOf(e.path))}<small>${ago(e.ts)}${e.source && e.source !== a.name ? ' · ' + esc(e.source) : ''}</small></span><span class="u">${usd2(e.usd)}</span></div>`).join('')}</div></div>` : '<div class="muted small">Nothing logged by name yet. Log work in a room and pick who did it.</div>'}`;
+    } else if (a.kind === 'job') {
+      const j = a.job;
+      who = `AI agent · ${esc(roleTitle(a.role))}`;
+      stats = `<div class="agrid"><div class="ast"><span>Every</span><b>${j.everyHours}h</b><small>next ${jobNext(j)}</small></div><div class="ast"><span>Runs</span><b>${j.runs}</b><small>cap ${usd2(j.maxUsd)} each</small></div></div>
+        <div class="sec"><a href="#" class="btn wide" data-sel="${esc(a.path)}">${ic('crew')}Manage in ${esc(room ? shortName(room.spec) : a.path)}</a></div>`;
+    } else if (a.kind === 'guest') {
+      const e = a.ev || {};
+      who = 'A visitor (a real sale)';
+      stats = `<div class="muted small">${esc(e.source || 'A customer')} paid ${usd2(e.usd || 0)} for ${esc(e.item || shortOf(e.path))}, logged ${e.ts ? ago(e.ts) : ''}${e.evidence ? ' · ' + esc(e.evidence) : ''}.</div>`;
+    } else { who = 'A one-off run'; }
+    el.innerHTML = `<button class="back" data-sel="hub">${ic('chevL')}station roster</button>
+      <div class="ih"><div class="big" style="--c:${col}">${ic(a.kind === 'job' ? 'crew' : 'folk').replace('class="i"', 'class="i" style="width:24px;height:24px"')}</div><div><h2>${esc(a.name || roleTitle(a.role))}</h2><div class="chips"><span class="pill">${who}</span></div></div></div>
+      <div class="sec"><h3>Right now</h3><div id="agentNow" class="muted small"></div></div>
+      ${stats}
+      <div class="muted small" style="margin-top:8px">The camera follows them. Esc to let go. A gold marker and a bubble mean a real ledger event; everything else is just life.</div>`;
+    renderAgentLive();
+  }
+  function renderAgentLive() {
+    const n = $('#agentNow'); if (!n || !follow) return;
+    const a = agents.get(follow); if (!a) return;
+    const act = activityText(a);
+    n.innerHTML = `${act.real ? '<b style="color:var(--gold)">● real · </b>' : ''}${esc(act.text)}`;
   }
   function renderRoster(el) {
     const st = snap.state, lv = snap.level;
@@ -5440,6 +5973,7 @@
           <div class="row2"><label class="field"><span>Service or product</span><input name="item" value="${esc(spec.name)}" maxlength="120" required></label><label class="field"><span>Client</span><input name="source" placeholder="walk-in"></label></div>
           <div class="row2"><label class="field"><span>Price (USD)</span><input name="usd" type="number" step="0.01" min="0.01" value="${spec.priceUsd ? spec.priceUsd.toFixed(2) : ''}" placeholder="0.00" required></label><label class="field"><span>Tip (USD)</span><input name="tip" type="number" step="0.01" min="0" placeholder="0.00"></label></div>
           <div class="row2"><label class="field"><span>Paid by</span><select name="paid">${PAID.map((x) => `<option>${x}</option>`).join('')}</select></label><label class="field"><span>Receipt or note</span><input name="note" placeholder="optional"></label></div>
+          ${kidsList().length ? `<label class="field"><span>Who did it</span><select name="by"><option value="">nobody in particular</option>${kidsList().map((f) => `<option${(f.rooms || []).includes(spec.id) && kidsList().filter((g) => (g.rooms || []).includes(spec.id))[0] === f ? ' selected' : ''}>${esc(f.name)}</option>`).join('')}</select></label>` : ''}
           <div class="muted small">Card sales through Square arrive on their own once Square is linked. Log cash and the rest here. The name decides the room.</div>
           <button class="btn go">${ic('coin')}Log sale</button><div class="msg"></div>
         </form></div>
@@ -5451,6 +5985,7 @@
       const amt = Number(d.usd) || 0, tip = Math.max(0, Number(d.tip) || 0), total = Math.round((amt + tip) * 100) / 100;
       const ev = { kind: 'money.in', path: spec.id, usd: total, item: d.item.trim() || spec.name, qty: 1, source: d.source.trim() || 'walk-in', evidence: `${d.paid}${d.note.trim() ? ' · ' + d.note.trim() : ''} · logged by hand` };
       if (tip > 0) ev.tip = tip;
+      if (d.by) ev.by = d.by;
       return post('api/events', ev).then(() => `logged ${usd2(total)} · ${ev.item}`);
     });
   }
@@ -5501,7 +6036,7 @@
     f.usd.addEventListener('input', () => { amt.textContent = usd2(Math.max(0, Number(f.usd.value) || 0)); });
     wire('#f-chore', (d) => {
       const v = Math.round((Number(d.usd) || 0) * 100) / 100;
-      return post('api/events', { kind: 'money.in', path: spec.id, usd: v, item: spec.name, qty: 1, source: d.kid, kid: d.kid, evidence: `checked off${d.note.trim() ? ' · ' + d.note.trim() : ''}` }).then(() => `${d.kid} earned ${usd2(v)}`);
+      return post('api/events', { kind: 'money.in', path: spec.id, usd: v, item: spec.name, qty: 1, source: d.kid, by: d.kid, kid: d.kid, evidence: `checked off${d.note.trim() ? ' · ' + d.note.trim() : ''}` }).then(() => `${d.kid} earned ${usd2(v)}`);
     });
   }
   function renderFamily(el) {
@@ -5764,7 +6299,7 @@
   let welcomed = false;
   function draftFrom(d) {
     const cfg = d.config || {};
-    const base = { name: cfg.name || 'Revenue Station', mode: cfg.mode || 'agents', skin: cfg.skin || 'space', kids: (cfg.kids || []).map((k) => ({ ...k })) };
+    const base = { name: cfg.name || 'Proxyfolk', mode: cfg.mode || 'agents', skin: cfg.skin || 'space', kids: (cfg.folk || cfg.kids || []).map((k) => ({ ...k, rooms: k.rooms ? [...k.rooms] : undefined })) };
     if (cfg.rooms) return { ...base, template: cfg.template, rooms: cfg.rooms.map((r) => ({ ...r, match: [...(r.match || [])], looks: { ...(r.looks || {}) } })) };
     return { ...base, template: 'paths', rooms: d.catalog.map((c) => { const t = THEME[c.id] || {}; return { base: c.id, name: c.name, short: c.short, accent: t.accent || '#8fb0ff', style: 'office', screen: t.screen, prop: t.prop, match: [], looks: {} }; }) };
   }
@@ -5797,13 +6332,19 @@
   }
   const skinTiles = (cur, attr) => SKIN_IDS.filter((k) => SKINS[k]).map((k) => { const t = (rd.data.skins || {})[k] || { title: k, blurb: '' }; return `<button type="button" class="skn${cur === k ? ' on' : ''}" ${attr}="${k}"><span class="sw" style="background:${SKIN_SWATCH[k]}"></span><b>${esc(t.title)}</b><small>${esc(t.blurb)}</small></button>`; }).join('');
   const modeTiles = (cur, attr, big) => Object.entries(rd.data.modes).map(([k, m]) => `<button type="button" class="tile mode${big ? ' big' : ''}${cur === k ? ' on' : ''}" ${attr}="${k}"><span class="t-ic" style="--c:#ffcf5a">${ic(MODE_ICON[k] || 'rooms')}</span><span><b>${esc(m.title)}</b><small>${esc(m.blurb)}</small></span></button>`).join('');
+  // what the folk are called in each mode
+  const FOLK_WORD = { allowance: ['Kids', 'kid'], service: ['Team', 'person'], agents: ['Folk', 'person'] };
   function kidsHtml(kids) {
-    const pal = rd.data.kidColors || ['#f472b6', '#60a5fa', '#4ade80', '#ffb454'];
-    return `<div class="kids-ed">${kids.map((k, i) => `<div class="kr" style="--kc:${k.color}"><button type="button" class="kc" data-kidcol="${i}" title="Change colour"></button><input data-kidname="${i}" value="${esc(k.name)}" maxlength="24" placeholder="Name"><button type="button" class="kx" data-kiddel="${i}" title="Remove">${ic('trash')}</button></div>`).join('')}
-      ${kids.length < (rd.data.maxKids || 8) ? `<button type="button" class="btn sm2" data-kidadd>${ic('plus')}Add a kid</button>` : ''}</div>
-      <div class="muted small" style="margin-top:6px">Each kid gets a colour and walks around the station. Their chores and payouts are tracked by name.</div>`;
-    void pal;
+    const [title, one] = FOLK_WORD[rd.draft.mode] || FOLK_WORD.agents;
+    const blurb = rd.draft.mode === 'allowance' ? 'Each kid is a character with their own colour. Check a chore off for a kid and they walk to that room and do it; their earnings and payouts are tracked by name.'
+      : rd.draft.mode === 'service' ? 'Everyone who works here is a character on the map. Log a sale with who did it and they walk to that room and do it. Pick the rooms each person works in the room settings below.'
+      : 'People who work the rooms alongside your AI agents. Agents you hire appear on their own, one character per agent.';
+    return `<h3>${title} <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· each one is a character</span></h3><div class="kids-ed">${kids.map((k, i) => `<div class="kr" style="--kc:${k.color}"><button type="button" class="kc" data-kidcol="${i}" title="Change colour"></button><input data-kidname="${i}" value="${esc(k.name)}" maxlength="24" placeholder="Name"><button type="button" class="kx" data-kiddel="${i}" title="Remove">${ic('trash')}</button></div>`).join('')}
+      ${kids.length < (rd.data.maxFolk || rd.data.maxKids || 12) ? `<button type="button" class="btn sm2" data-kidadd>${ic('plus')}Add a ${one}</button>` : ''}</div>
+      <div class="muted small" style="margin-top:6px">${blurb}</div>`;
   }
+  // the id a room will have once saved (the server derives it the same way)
+  const roomKey = (r) => r.base || r.id || String(r.name || '').toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_]+/g, '-').replace(/-+/g, '-').slice(0, 32) || 'room';
   function roomFormHtml(r) {
     const d = rd.data, dr = rd.draft, isBase = Boolean(r.base), cp = claimPreview(), mine = cp.by.get(rd.sel) || [];
     const opt = (list, names, cur) => list.map((k) => `<option value="${k}"${cur === k ? ' selected' : ''}>${esc(names[k] || k)}</option>`).join('');
@@ -5814,7 +6355,8 @@
       <h3>${isBase ? 'Built-in path' : chores ? 'Chore' : 'Room'} ${rd.sel + 1}</h3>
       <div class="row2"><label class="field"><span>Name</span><input data-f="name" maxlength="60" value="${esc(r.name)}"></label><label class="field"><span>Short label</span><input data-f="short" maxlength="22" value="${esc(r.short || '')}" placeholder="${esc(String(r.name || '').slice(0, 22))}"></label></div>
       <div class="field" style="margin-top:10px"><span>Colour</span><div class="swatches">${d.palette.map((c) => `<button type="button" data-color="${c}" class="${c === r.accent ? 'on' : ''}" style="--sc:${c}" title="${c}"></button>`).join('')}</div></div>
-      ${looks ? `<div class="field" style="margin-top:10px"><span>Who lives here · ${esc((d.skins[dr.skin] || {}).title || dr.skin)}</span><div class="looks">${looks.map((l) => `<button type="button" class="tile${curLook === l.id ? ' on' : ''}" data-look="${l.id}" style="--c:${r.accent}"><span><b>${esc(l.resident)}</b><small>${esc(l.title)}</small></span></button>`).join('')}</div></div>`
+      ${dr.mode !== 'allowance' && dr.kids.some((k) => k.name.trim()) ? `<div class="field" style="margin-top:10px"><span>Who works here</span><div class="kids-ed">${dr.kids.map((k, i) => k.name.trim() ? `<button type="button" class="kr wk${(k.rooms || []).includes(roomKey(r)) ? ' on' : ''}" data-worker="${i}" style="--kc:${k.color}"><span class="kc"></span>${esc(k.name)}</button>` : '').join('')}</div></div>` : ''}
+      ${looks ? `<div class="field" style="margin-top:10px"><span>${COSTUME_SKINS.has(dr.skin) ? 'What the folk here become' : 'What lives here'} · ${esc((d.skins[dr.skin] || {}).title || dr.skin)}</span><div class="looks">${looks.map((l) => `<button type="button" class="tile${curLook === l.id ? ' on' : ''}" data-look="${l.id}" style="--c:${r.accent}"><span><b>${esc(l.resident)}</b><small>${esc(l.title)}</small></span></button>`).join('')}</div></div>`
         : `<div class="field" style="margin-top:10px"><span>Furniture</span><div class="styles">${Object.entries(d.styles).map(([k, t]) => `<button type="button" class="tile${(r.style || 'office') === k ? ' on' : ''}" data-style="${k}" style="--c:${r.accent}">${ic(STYLE_ICON[k] || 'rooms')}<span><b>${esc(k[0].toUpperCase() + k.slice(1))}</b><small>${esc(t)}</small></span></button>`).join('')}</div></div>
       <div class="row2" style="margin-top:10px"><label class="field"><span>Wall sign</span><select data-f="screen">${opt(d.screens, SCREEN_NAME, r.screen || 'none')}</select></label><label class="field"><span>Corner prop</span><select data-f="prop">${opt(d.props, PROP_NAME, r.prop || 'plant')}</select></label></div>`}
       ${chores ? '' : `<div class="field" style="margin-top:12px"><span>Claims sales whose item name contains</span>
@@ -5840,8 +6382,8 @@
     return `<button class="cbtn glass x" data-close title="Skip (Esc)">${ic('close')}</button>
       <div class="wel"><button class="back" type="button" data-wback>${ic('chevL')}back</button>
       <div class="sy-head"><div class="rd-ic">${ic(MODE_ICON[rd.wmode] || 'rooms')}</div><div style="min-width:0"><h2>${esc(d.modes[rd.wmode].title)}</h2><p class="lead">${esc(d.modes[rd.wmode].blurb)}</p></div></div>
-      <div class="row2" style="max-width:720px"><label class="field"><span>Name your station</span><input id="rd-name" maxlength="40" placeholder="${rd.wmode === 'allowance' ? 'e.g. The Grigson Farm' : rd.wmode === 'service' ? "e.g. Kim's Cuts" : 'e.g. Revenue Station'}"></label>
-      ${rd.wmode === 'allowance' ? `<label class="field"><span>Kids' names, separated by commas</span><input id="rd-kids" maxlength="200" placeholder="e.g. Emma, Liam, Ava"></label>` : '<span></span>'}</div>
+      <div class="row2" style="max-width:720px"><label class="field"><span>Name your station</span><input id="rd-name" maxlength="40" placeholder="${rd.wmode === 'allowance' ? 'e.g. The Grigson Farm' : rd.wmode === 'service' ? "e.g. Kim's Cuts" : 'e.g. Proxyfolk HQ'}"></label>
+      <label class="field"><span>${rd.wmode === 'allowance' ? "Kids' names" : rd.wmode === 'service' ? 'Who works here' : 'People (optional; agents come later)'}, separated by commas</span><input id="rd-kids" maxlength="200" placeholder="${rd.wmode === 'allowance' ? 'e.g. Emma, Liam, Ava' : rd.wmode === 'service' ? 'e.g. Kim, Dre, Sal' : 'e.g. you'}"></label></div>
       <h3>Start from</h3><div class="tiles">${list.map(([k, t]) => `<button type="button" class="tile${rd.wtpl === k ? ' on' : ''}" data-wtpl="${k}"><span class="t-ic" style="--c:#ffcf5a">${ic(TPL_ICON[k] || 'rooms')}</span><span><b>${esc(t.title)}</b><small>${esc(t.blurb)} ${t.rooms} room${t.rooms === 1 ? '' : 's'}.</small></span></button>`).join('')}</div>
       <h3>Pick a world <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· click to try it on</span></h3><div class="skins">${skinTiles(rd.wskin, 'data-wskin')}</div>
       <div class="rd-foot"><button class="btn go" type="button" data-wgo>${ic('check')}Create station</button><div class="msg ${rd.err ? 'err' : ''}">${esc(rd.msg)}</div></div></div>`;
@@ -5856,13 +6398,13 @@
     const full = dr.rooms.length >= d.maxRooms, chores = dr.mode === 'allowance';
     box.innerHTML = `
       <button class="cbtn glass x" data-close title="Close (Esc)">${ic('close')}</button>
-      <div class="sy-head"><div class="rd-ic">${ic('rooms')}</div><div style="flex:1;min-width:0"><h2>Customize the station</h2><p class="lead">What it runs, what world it lives in, and every room in it. ${chores ? 'Each room is one chore with a price; kids earn it when a parent checks it off.' : 'A synced sale lands in the first room whose keyword appears in its item name, so Square\'s "Skin Fade" goes to the room that claims <i>fade</i>.'} Every dollar still totals in the vault.</p></div></div>
+      <div class="sy-head"><div class="rd-ic">${ic('rooms')}</div><div style="flex:1;min-width:0"><h2>Customize the world</h2><p class="lead">What it's for, what world it lives in, who works in it, and every room. ${chores ? 'Each room is one chore with a price; kids earn it when a parent checks it off.' : 'A synced sale lands in the first room whose keyword appears in its item name, so Square\'s "Skin Fade" goes to the room that claims <i>fade</i>.'} Every dollar still totals in the vault.</p></div></div>
       <div class="rd-top">
-        <div><h3>What it runs</h3><div class="modes">${modeTiles(dr.mode, 'data-mode', false)}</div></div>
+        <div><h3>What it's for</h3><div class="modes">${modeTiles(dr.mode, 'data-mode', false)}</div></div>
         <div><h3>World <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· click to try it on</span></h3><div class="skins">${skinTiles(dr.skin, 'data-skin')}</div></div>
       </div>
-      ${chores ? `<h3>Kids</h3>${kidsHtml(dr.kids)}` : ''}
-      <div class="rd-grid" style="margin-top:6px">
+      ${kidsHtml(dr.kids)}
+      <div class="rd-grid" style="margin-top:16px">
         <div>
           <label class="field"><span>Station name</span><input id="rd-name" maxlength="40" value="${esc(dr.name)}"></label>
           <h3>${chores ? 'Chores' : 'Rooms'} · ${dr.rooms.length} of ${d.maxRooms}</h3>
@@ -5881,7 +6423,7 @@
   async function afterRoomsSaved(text) {
     skinTry = null;
     await poll();
-    toast('status', text, `${stationName() === 'Station roster' ? 'Revenue Station' : stationName()} · ${rooms.length} room${rooms.length === 1 ? '' : 's'}`, '#ffcf5a', 'rooms');
+    toast('status', text, `${stationName() === 'Station roster' ? 'Proxyfolk' : stationName()} · ${rooms.length} room${rooms.length === 1 ? '' : 's'}`, '#ffcf5a', 'rooms');
   }
   function wireRooms(box) {
     box.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', closeRooms));
@@ -5899,7 +6441,7 @@
         const kids = kidsIn ? kidsIn.value.split(/[,\n]/).map((x) => x.trim()).filter(Boolean) : undefined;
         go.disabled = true;
         try {
-          await post('api/rooms', { template: rd.wtpl, mode: rd.wmode, skin: rd.wskin || 'space', ...(name ? { name } : {}), ...(kids && kids.length ? { kids } : {}) });
+          await post('api/rooms', { template: rd.wtpl, mode: rd.wmode, skin: rd.wskin || 'space', ...(name ? { name } : {}), ...(kids && kids.length ? { folk: kids } : {}) });
           $('#roomsbox').hidden = true; sset('rs-welcome', '1');
           await afterRoomsSaved(`Station set up: ${rd.data.modes[rd.wmode].title}`);
         } catch (e) { go.disabled = false; roomsError(e); renderRooms(); }
@@ -5951,7 +6493,7 @@
       rd.armed = null;
       const name = dr.name.trim() && dr.name.trim() !== (rd.data.config && rd.data.config.name) ? dr.name.trim() : '';
       try {
-        await post('api/rooms', { template: k, skin: dr.skin, ...(name ? { name } : {}), ...(dr.kids.length ? { kids: dr.kids.filter((x) => x.name.trim()) } : {}) });
+        await post('api/rooms', { template: k, skin: dr.skin, ...(name ? { name } : {}), ...(dr.kids.length ? { folk: dr.kids.filter((x) => x.name.trim()) } : {}) });
         rd.data = await (await fetch('api/rooms', { cache: 'no-store' })).json(); rd.draft = draftFrom(rd.data); rd.sel = 0;
         rd.msg = `Rooms replaced with the ${rd.data.templates[k].title} template.`; rd.err = false;
         renderRooms(); afterRoomsSaved('Template applied');
@@ -5967,7 +6509,7 @@
       const bad = dr.rooms.findIndex((x) => !String(x.name || '').trim());
       if (bad >= 0) { rd.sel = bad; rd.msg = `Room ${bad + 1} needs a name.`; rd.err = true; renderRooms(); return; }
       const kids = dr.kids.filter((k) => k.name.trim());
-      const config = { name: dr.name.trim() || 'Revenue Station', template: dr.template, mode: dr.mode, skin: dr.skin, kids, rooms: dr.rooms.map((x) => JSON.parse(JSON.stringify(x))) };
+      const config = { name: dr.name.trim() || 'Proxyfolk', template: dr.template, mode: dr.mode, skin: dr.skin, folk: kids, rooms: dr.rooms.map((x) => JSON.parse(JSON.stringify(x))) };
       try { await post('api/rooms', { config }); $('#roomsbox').hidden = true; await afterRoomsSaved(`Saved · ${rd.data.modes[dr.mode].title} · ${(rd.data.skins[dr.skin] || {}).title || dr.skin}`); }
       catch (e) { roomsError(e); renderRooms(); }
     });
@@ -5983,6 +6525,7 @@
     form.querySelectorAll('select[data-f]').forEach((sel) => sel.addEventListener('change', () => { r[sel.dataset.f] = sel.value; }));
     form.querySelectorAll('[data-color]').forEach((b) => b.addEventListener('click', () => { r.accent = b.dataset.color; renderRooms(); }));
     form.querySelectorAll('[data-look]').forEach((b) => b.addEventListener('click', () => { r.looks = { ...(r.looks || {}), [dr.skin]: b.dataset.look }; renderRooms(); }));
+    form.querySelectorAll('[data-worker]').forEach((b) => b.addEventListener('click', () => { const k = dr.kids[Number(b.dataset.worker)], key = roomKey(r), list = new Set(k.rooms || []); if (list.has(key)) list.delete(key); else list.add(key); k.rooms = list.size ? [...list] : undefined; renderRooms(); }));
     form.querySelectorAll('[data-style]').forEach((b) => b.addEventListener('click', () => {
       const was = r.style; r.style = b.dataset.style;
       // follow the furniture with a fitting sign and prop, unless they were changed by hand
@@ -6011,15 +6554,21 @@
     g.querySelector('.box').innerHTML = `
       <button class="cbtn glass x" data-close title="Close (Esc)">${ic('close')}</button>
       <h2>Field guide</h2>
-      <p class="lead">The station is a picture of your ledger. If it glows, moves or stacks up, a real line in <code>data/ledger.jsonl</code> put it there, except the scenery listed on the right.</p>
+      <p class="lead">Proxyfolk is a tiny world whose folk stand in for whatever you keep track of. Rooms are what you track; folk are who works them; the world is only a skin. Where a character stands and what they did is a real line in <code>data/ledger.jsonl</code>; the life between (the right column) is scenery.</p>
       <div class="cols">
         <div><h3>Bound to the ledger</h3><dl>
           <dt>Room</dt><dd>One money path. Lit means active; amber beacons and hazard stripes mean gated; red emergency light means killed.</dd>
           <dt>Service room</dt><dd>In a station built from your own services (Rooms, or press C), each room is one service. Mirror bulbs lit: sales today, one chair per sale up to six. Towel stack: sales this month. Tube: this month against the room's goal, gold once it is met. The crown marks the most profit per hour of chair time over 30 days.</dd>
           <dt>Chore room</dt><dd>In an allowance station each room is one chore. Check it off in its room, pick the kid who did it, and they earn the chore's price. Tube: this month against the chore's goal.</dd>
-          <dt>Kids</dt><dd>One small figure per kid with their name overhead, standing in the room of their last chore (the ${esc(NM().hub.toLowerCase())} before their first). Their colour marks their line in the feed and their payouts.</dd>
+          <dt>Folk</dt><dd>One character per person on the roster (a kid, a barber, you), in their colour with a name tag, living in the room of their latest logged work. Pick who did a sale or a chore and they walk to that room and do it. Customize (<kbd>C</kbd>) sets who works which rooms.</dd>
+          <dt>Agents</dt><dd>One character per AI agent on a job, in its job's room. Sits at a desk with a ring overhead while its run is live; carries crates of logged outcomes when it ends.</dd>
+          <dt>How many in a room</dt><dd>The number of characters in a room is the number working it (the count on the room's label). An empty room has no one assigned: a flickering outline marks the open spot.</dd>
+          <dt>Gold marker, bubble</dt><dd>The diamond over a head turns gold and a bubble pops (coin, star, check) when a real event is theirs: a sale, a chore, a finished run.</dd>
+          <dt>Visitors</dt><dd>A real sale walks in: a visitor comes from the dock, sits, is served, pays (coins fly to the vault) and leaves.</dd>
+          <dt>Stars and pennants</dt><dd>A room's tier by 30 days of activity (1, 5, 15, 40, 100 events), whatever it stands for. Tier 3 raises a pennant; each new tier sets off fireworks.</dd>
+          <dt>Replay</dt><dd>Press <kbd>R</kbd> (or leave the world alone for a while) to replay the last 24 hours of real events, in order, fast. Labeled on screen; every scene is a ledger line.</dd>
           <dt>Pay window</dt><dd>In an allowance station the ${esc(NM().dock.toLowerCase())} shows what the kids are owed. Paying a kid records a payout line and zeroes their balance. It never moves real money.</dd>
-          <dt>Residents</dt><dd>In every world except space, each room has its own creatures (skeletons, chickens, netrunners, jellyfish and more). One always lives there; up to four as the room's last 30 days of sales or outcomes grow.</dd>
+          <dt>Stock</dt><dd>On the farm and under the sea, a room's animals are its stock: one always, up to four as the room gets busier (30 days of activity).</dd>
           <dt>Six desks</dt><dd>In a money path, the six stages. Green screen: target met. Blinking blue: the next stage. Dots on the desk edge: progress.</dd>
           <dt>Visiting crew</dt><dd>A one-off agent run. It beams in at Command when the run starts, sits and types at a desk, and beams out when it ends, carrying a crate if it logged outcomes.</dd>
           <dt>Code on a screen</dt><dd>A crew member is working at that desk right now.</dd>
@@ -6034,14 +6583,17 @@
           <dt>Comm mast</dt><dd>Your income links. Green: synced. Amber: syncing. Red: a link failed. Grey: nothing linked. Waves leave the dish when a sync brings in money. Click it, or press I.</dd>
           <dt>Gold figure</dt><dd>You, the Commander.</dd>
         </dl></div>
-        <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">The world itself: space, dark castle, farm, cyber city, alien ship or ocean base all draw the same ledger, only dressed differently. Change it with <kbd>C</kbd>, or preview one with <code>?skin=castle</code> on the URL. Also scenery: each world's backdrop (sky, hills, skyline, reef), wall screens, neon signs, barber poles, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the docking shuttle, where idle crew wander, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
+        <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">The world itself: space, dark castle, farm, cyber city, alien ship or ocean base all draw the same ledger, only dressed differently. Change it with <kbd>C</kbd>, or preview one with <code>?skin=castle</code> on the URL. In the castle, the city and the ship, folk wear the costume of the room they work (a skeleton in the crypt, a hacker in the den). Also scenery: what folk do between real events (tinkering at a station, chatting, a coffee break, sleeping at night), day and night on your clock, birds, bats, fireflies, flying cars, saucers and fish, each world's backdrop (sky, hills, skyline, reef), wall screens, neon signs, barber poles, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the docking shuttle, where idle crew wander, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
           <h3>Controls</h3><div class="kb">
             <kbd>click</kbd><span>open a room, the vault (roster) or the outbox dock</span>
             <kbd>double-click</kbd><span>zoom into a room</span>
             <kbd>drag</kbd><span>pan the camera</span>
             <kbd>scroll · pinch</kbd><span>zoom</span>
             <kbd>1 – 9</kbd><span>jump to room by rank</span>
-            <kbd>C</kbd><span>customize: mode, world, kids, rooms, colours, keywords</span>
+            <kbd>C</kbd><span>customize: purpose, world, folk, rooms, colours, keywords</span>
+            <kbd>click a character</kbd><span>follow them: the camera tracks them and the panel says what they are doing</span>
+            <kbd>R</kbd><span>replay the last 24 hours</span>
+            <kbd>M</kbd><span>sound on or off</span>
             <kbd>0 / H</kbd><span>station roster</span>
             <kbd>O</kbd><span>outbox dock</span>
             <kbd>I</kbd><span>income sync: link accounts, import statements</span>
@@ -6098,7 +6650,8 @@
     const r = view.getBoundingClientRect();
     const hit = pick(ev.clientX - r.left, ev.clientY - r.top);
     if (hit && hit.kind === 'mast') openSync();
-    else if (hit) select(hit.kind === 'crew' ? (hit.agent.role === 'commander' || !hit.agent.path ? 'hub' : hit.agent.path) : hit.t.id);
+    else if (hit && hit.kind === 'crew' && ['folk', 'job', 'visit', 'guest'].includes(hit.agent.kind)) select('a:' + hit.agent.id);
+    else if (hit) select(hit.kind === 'crew' ? (hit.agent.kind === 'lead' || !hit.agent.path ? 'hub' : hit.agent.path) : hit.t.id);
   };
   cv.addEventListener('pointerup', endPointer);
   cv.addEventListener('pointercancel', endPointer);
@@ -6122,6 +6675,14 @@
     if (rb) { ev.preventDefault(); openRooms({ room: rb.dataset.rooms || null }); return; }
     const el = ev.target.closest('[data-sel]'); if (el) { ev.preventDefault(); select(el.dataset.sel); }
   });
+  $('#replayBtn').innerHTML = ic('replay'); $('#sound').innerHTML = ic(soundOn ? 'sound' : 'mute'); $('#sound').title = soundOn ? 'Sound on (M)' : 'Sound off (M)';
+  $('#replayBtn').addEventListener('click', () => (replay ? stopReplay() : startReplay()));
+  $('#replayStop').addEventListener('click', stopReplay);
+  // left alone for a while, the world replays its last 24 hours by itself; any input hands it back
+  let lastInput = performance.now();
+  for (const evn of ['pointerdown', 'keydown', 'wheel', 'touchstart']) window.addEventListener(evn, () => { lastInput = performance.now(); if (replay && replay.attract) stopReplay(); }, { passive: true, capture: true });
+  setInterval(() => { if (!replay && snap && !document.hidden && performance.now() - lastInput > 45000 && $('#roomsbox').hidden && $('#syncbox').hidden && $('#guide').hidden) { lastInput = performance.now(); startReplay({ attract: true }); } }, 5000);
+  $('#sound').addEventListener('click', toggleSound);
   $('#zin').innerHTML = ic('zin'); $('#zout').innerHTML = ic('zout'); $('#zhome').innerHTML = ic('fit'); $('#help').innerHTML = ic('help');
   $('#insToggle').innerHTML = ic('chevR');
   $('#navSync').innerHTML = '<span class="sdot"></span>' + ic('bolt') + 'Sync';
@@ -6173,6 +6734,8 @@
       case 'ArrowUp': case 'w': case 'W': camT.y -= panStep; clampCam(); break;
       case 'ArrowDown': case 's': case 'S': camT.y += panStep; clampCam(); break;
       case 'p': case 'P': if (overlayMode()) toggleIns(); break;
+      case 'r': case 'R': if (replay) stopReplay(); else startReplay(); break;
+      case 'm': case 'M': toggleSound(); break;
       default: return;
     }
     ev.preventDefault();
@@ -6187,14 +6750,14 @@
   const boot = $('#boot');
   if (booted) boot.classList.add('gone');
   const bootStart = performance.now();
-  const bootLines = ['establishing ledger uplink', 'reading append-only ledger', 'reconciling spend and revenue', 'waking the crew', 'station online'];
+  const bootLines = ['reading the ledger', 'building the rooms', 'waking the folk', 'setting the clock', 'world online'];
   let bootI = 0;
   const bootTimer = booted ? 0 : setInterval(() => { bootI = Math.min(bootLines.length - 1, bootI + 1); $('#bootLn').textContent = bootLines[bootI]; $('#bootBar').style.width = (20 + bootI * 20) + '%'; }, 260);
   if (!booted) $('#bootBar').style.width = '12%';
   function finishBoot() {
     if (booted || boot.classList.contains('gone')) return;
     const wait = Math.max(0, 1300 - (performance.now() - bootStart));
-    setTimeout(() => { clearInterval(bootTimer); $('#bootLn').textContent = 'station online'; $('#bootBar').style.width = '100%'; setTimeout(() => { boot.classList.add('gone'); sset('rs-booted', '1'); }, 280); }, wait);
+    setTimeout(() => { clearInterval(bootTimer); $('#bootLn').textContent = 'world online'; $('#bootBar').style.width = '100%'; setTimeout(() => { boot.classList.add('gone'); sset('rs-booted', '1'); }, 280); }, wait);
   }
   setTimeout(finishBoot, 4000);
 
@@ -6230,6 +6793,8 @@
   // a new world: rebuild everything that was drawn in the old one
   function skinChanged() {
     for (const id of [...agents.keys()]) if (agents.get(id).kind === 'res') agents.delete(id);
+    for (const a of agents.values()) { if (a.kind === 'folk' || a.kind === 'job' || a.kind === 'visit') { a.costume = costumeFor(a.path && roomById(a.path)); a.pendingCostume = undefined; } }
+    critters.length = 0;
     lastLabels = ''; panelSig = ''; lastCmdr = ''; bakedSig = '';
     const res = $('#res'); if (res) res.innerHTML = '';
     for (const k of Object.keys(shown)) delete shown[k];
@@ -6243,24 +6808,26 @@
     renderHud(); buildLabels(); renderPanel(true);
     baked = bake(); bakeLights(); bakedSig = signature();
   }
-  const stationName = () => { const n = snap && snap.station && snap.station.name; return n && n !== 'Revenue Station' ? n : 'Station roster'; };
+  const stationName = () => { const n = snap && snap.station && snap.station.name; return n && n !== 'Proxyfolk' && n !== 'Revenue Station' ? n : 'Station roster'; };
   let shownName = '';
   function renderStationName() {
-    const n = (snap.station && snap.station.name) || 'Revenue Station';
+    const n = (snap.station && snap.station.name) || 'Proxyfolk';
     if (n === shownName) return;
     shownName = n;
     $('#topbar .brand h1').textContent = n.toUpperCase();
-    document.title = n === 'Revenue Station' ? n : `${n} · Revenue Station`;
+    document.title = n === 'Proxyfolk' ? n : `${n} · Proxyfolk`;
   }
-  let last = performance.now(), slow = 0, fast = 0;
+  let last = performance.now(), slow = 0, fast = 0, followTick = 0;
   const perf = { step: 0, world: 0, display: 0, quality: 2 };
   window.__stationPerf = perf;
+  window.__proxyfolk = { select, agents: () => [...agents.values()].map((a) => ({ id: a.id, kind: a.kind, name: a.name, path: a.path, act: a.act, costume: a.costume ? a.costume.id : null })) };
   function frame(now) {
     const dt = Math.min(0.1, (now - last) / 1000); last = now;
     if (snap && baked && !document.hidden) {
       dynLights.length = 0;
       const t0 = performance.now();
       step(dt);
+      if (follow) { const a = agents.get(follow); if (a) { const [fx0, fy0] = P(a.x, a.y, 10); camT.x = fx0; camT.y = fy0; clampCam(); if (Math.floor(now / 500) !== followTick) { followTick = Math.floor(now / 500); renderAgentLive(); } } else { follow = null; } }
       const t1 = performance.now();
       composeWorld(dt);
       const t2 = performance.now();

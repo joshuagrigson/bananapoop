@@ -326,13 +326,13 @@
   const MODE = () => (snap && snap.station && snap.station.mode) || 'agents';
   const DAY = 864e5;
   const within = (e, days) => Date.now() - Date.parse(e.ts) < days * DAY;
-  const kidsList = () => (snap && snap.station && snap.station.kids) || [];
+  const kidsList = () => (snap && snap.station && (snap.station.folk || snap.station.kids)) || [];
   const kidColor = (name) => (kidsList().find((k) => k.name.toLowerCase() === String(name || '').toLowerCase()) || {}).color || '#8fb0ff';
   // a kid's allowance straight from the ledger: what their chores earned, what was paid to them, what is still owed
   function kidStats(name) {
     const key = name.toLowerCase();
     let earned = 0, paid = 0, week = 0, done = 0;
-    for (const e of snap.state.moneyIn) if ((e.kid || '').toLowerCase() === key) { earned += e.usd; if (within(e, 7)) { week += e.usd; done += e.qty || 1; } }
+    for (const e of snap.state.moneyIn) if ((e.by || e.kid || '').toLowerCase() === key) { earned += e.usd; if (within(e, 7)) { week += e.usd; done += e.qty || 1; } }
     for (const e of snap.state.moneyOut) if ((e.payee || '').toLowerCase() === key) paid += e.usd;
     return { earned, paid, week, done, owed: Math.round((earned - paid) * 100) / 100 };
   }
@@ -534,7 +534,7 @@
   function tail(s) {
     const runs = s.state.runs.slice(-8).reverse();
     $('#runs').innerHTML = runs.length ? `<table><tr><th>run</th><th>role</th><th>path</th><th>reason</th><th>usd</th><th>iters</th></tr>${runs.map((r) => `<tr><td>${esc(r.runId)}</td><td>${esc(r.role)}</td><td>${esc(r.path)}</td><td>${esc(r.reason)}</td><td>${usd(r.usd)}</td><td>${r.iterations}</td></tr>`).join('')}</table>` : '<div class="empty">no runs yet</div>';
-    const rows = [...s.state.moneyIn.map((e) => ({ ts: e.ts, what: e.kid ? 'chore' : 'money.in', path: e.path, detail: e.kid ? `${usd(e.usd)} to ${e.kid} for ${e.item || e.path} (${e.evidence})` : `${usd(e.usd)} from ${e.source} (${e.evidence})` })),
+    const rows = [...s.state.moneyIn.map((e) => ({ ts: e.ts, what: e.kid ? 'chore' : 'money.in', path: e.path, detail: e.kid ? `${usd(e.usd)} to ${e.kid} for ${e.item || e.path} (${e.evidence})` : `${usd(e.usd)} from ${e.source}${e.by ? ' · by ' + e.by : ''} (${e.evidence})` })),
       ...s.state.moneyOut.slice(-20).map((e) => ({ ts: e.ts, what: e.payee ? 'payout' : 'money.out', path: e.path, detail: e.payee ? `${usd(e.usd)} paid to ${e.payee}` : `${usd(e.usd)} ${e.category} ${e.evidence || e.runId || ''}` }))]
       .sort((a, b) => (a.ts < b.ts ? 1 : -1)).slice(0, 15);
     $('#tail').innerHTML = rows.length ? `<table><tr><th>when</th><th>what</th><th>path</th><th>detail</th></tr>${rows.map((r) => `<tr><td>${esc(r.ts.slice(0, 16).replace('T', ' '))}</td><td>${esc(r.what)}</td><td>${esc(r.path)}</td><td>${esc(r.detail)}</td></tr>`).join('')}</table>` : '<div class="empty">ledger is empty</div>';
@@ -683,7 +683,7 @@
   wire('#f-chore', async (d) => {
     const spec = snap.catalog.find((c) => c.id === d.path), v = (spec && spec.priceUsd) || 1;
     if (!d.kid) throw new Error('add a kid on the station first');
-    await post('/api/events', { kind: 'money.in', path: d.path, usd: v, item: spec ? spec.name : d.path, qty: 1, source: d.kid, kid: d.kid, evidence: `checked off${d.note && d.note.trim() ? ' · ' + d.note.trim() : ''}` });
+    await post('/api/events', { kind: 'money.in', path: d.path, usd: v, item: spec ? spec.name : d.path, qty: 1, source: d.kid, by: d.kid, kid: d.kid, evidence: `checked off${d.note && d.note.trim() ? ' · ' + d.note.trim() : ''}` });
     return `${d.kid} earned ${usd(v)}`;
   });
   $('#worlds').addEventListener('click', async (e) => {

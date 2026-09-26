@@ -251,7 +251,7 @@ async function main(argv) {
     }
     case 'rooms': {
       if (rest[0] === 'skin' || rest[0] === 'mode') {
-        const cur = loadConfig(DATA_DIR) || { name: 'Revenue Station', rooms: null };
+        const cur = loadConfig(DATA_DIR) || { name: 'Proxyfolk', rooms: null };
         const saved = saveConfig(DATA_DIR, { ...cur, [rest[0]]: rest[1] });
         console.log(`${saved.name}: ${rest[0]} is now ${rest[0] === 'skin' ? SKINS[saved.skin].title : MODES[saved.mode].title}`);
         return;
@@ -264,7 +264,7 @@ async function main(argv) {
       }
       if (rest[0] === 'reset') { resetConfig(DATA_DIR); console.log('back to the built-in money paths'); return; }
       const cfg = loadConfig(DATA_DIR);
-      console.log(`${cfg ? cfg.name : 'Revenue Station'} (${cfg && cfg.rooms ? 'custom rooms' : 'built-in paths'}) · ${MODES[cfg ? cfg.mode : 'agents'].title} · ${SKINS[cfg ? cfg.skin : 'space'].title}${cfg && cfg.kids.length ? ' · kids: ' + cfg.kids.map((k) => k.name).join(', ') : ''}`);
+      console.log(`${cfg ? cfg.name : 'Proxyfolk'} (${cfg && cfg.rooms ? 'custom rooms' : 'built-in paths'}) · ${MODES[cfg ? cfg.mode : 'agents'].title} · ${SKINS[cfg ? cfg.skin : 'space'].title}${cfg && cfg.folk.length ? ' · folk: ' + cfg.folk.map((k) => k.name).join(', ') : ''}`);
       for (const p of CAT) console.log(`  #${p.rank} ${p.id}  ${p.name}${p.kind === 'service' ? `  [service, ${p.minutes} min, cost ${usd(p.costUsd)}${p.match.length ? `, claims: ${p.match.join(', ')}` : ''}]` : ''}`);
       console.log(`templates: ${Object.keys(TEMPLATES).join(', ')}   skins: ${Object.keys(SKINS).join(', ')}   modes: ${Object.keys(MODES).join(', ')}`);
       return;
@@ -326,7 +326,7 @@ async function main(argv) {
         makeProvider: () => { if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN && !process.env.ANTHROPIC_PROFILE) console.error('note: no ANTHROPIC_API_KEY in env; the SDK will try an ant auth profile'); return makeAnthropicProvider(); },
       });
       server.listen(port, host, () => {
-        console.log(`revenue station: http://${host}:${port}   money dashboard: http://${host}:${port}/ledger   (ledger ${LEDGER_FILE})`);
+        console.log(`proxyfolk: http://${host}:${port}   money dashboard: http://${host}:${port}/ledger   (ledger ${LEDGER_FILE})`);
         if (v.open) openBrowser(`http://${host}:${port}`);
       });
       if (!v['no-scheduler']) {

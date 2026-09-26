@@ -1,4 +1,4 @@
-// Builds a static, click-around preview of the Revenue Station from labeled demo data.
+// Builds a static, click-around preview of Proxyfolk from labeled demo data.
 // Output: preview/ with the station (/), the production terminal (/terminal/), the money dashboard (/ledger/),
 // and frozen copies of every GET endpoint under /api/. A second station, a barbershop built from custom service
 // rooms with Square sales split by service, lives under /barber/ with its own pages and endpoints, and a third, a

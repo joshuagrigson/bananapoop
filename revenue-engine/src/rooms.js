@@ -1,3 +1,8 @@
+// Proxyfolk: a tiny world of folk who stand in for anything you keep track of. Rooms are what you track (a service, a
+// chore, a money path, a site, a job); folk are who works them (a barber, a kid, you) and, at the paid level, AI agents
+// that do the work themselves. The number of folk in a room is the number working it. The world they live in (space,
+// castle, farm...) is only a skin: any world fits any purpose.
+//
 // Rooms: what each room on the station stands for. By default the rooms are the built-in money paths (paths.js).
 // Anyone can redesign them for their own business instead: a barber makes one room per service, a shop one per product
 // line. The design lives in <data>/rooms.json.
@@ -12,14 +17,15 @@ import { CATALOG } from './paths.js';
 import { LedgerError } from './ledger.js';
 
 export const MAX_ROOMS = 10;
-export const MAX_KIDS = 8;
+export const MAX_FOLK = 12;
+export const MAX_KIDS = MAX_FOLK;
 // What the station is for. The same rooms, ledger and vault underneath; the mode decides what the screens lead with.
 export const MODES = Object.freeze({
   agents: { title: 'Command center', blurb: 'Deploy AI agents on money-making jobs and watch each path climb from prospect to paid.' },
   service: { title: 'Service station', blurb: 'One room per service a business sells. Synced sales split into rooms, ranked by profit per hour.' },
   allowance: { title: 'Allowance tracker', blurb: 'One room per chore. Kids earn when a parent checks a chore off; pay them out from the vault.' },
 });
-// How the station looks. Pure decoration: every skin draws the same ledger.
+// How the world looks. Pure decoration: every skin draws the same ledger, and any skin fits any mode.
 export const SKINS = Object.freeze({
   space: { title: 'Space station', blurb: 'Astronauts in a station orbiting a ringed planet.' },
   castle: { title: 'Dark castle', blurb: 'A castle at midnight, a different monster haunting every room.' },
@@ -28,7 +34,8 @@ export const SKINS = Object.freeze({
   alien: { title: 'Alien ship', blurb: 'A living starship: greys, blobs and tentacled crew in glowing chambers.' },
   ocean: { title: 'Deep sea base', blurb: 'A base on the sea floor: divers, fish, octopuses and crabs among the coral.' },
 });
-export const KID_COLORS = Object.freeze(['#f472b6', '#60a5fa', '#4ade80', '#ffb454', '#a78bfa', '#2dd4bf', '#ff5c6c', '#ffd84d']);
+export const FOLK_COLORS = Object.freeze(['#f472b6', '#60a5fa', '#4ade80', '#ffb454', '#a78bfa', '#2dd4bf', '#ff5c6c', '#ffd84d', '#e5e7eb', '#c8a27a', '#818cf8', '#9be15d']);
+export const KID_COLORS = FOLK_COLORS;
 export const STYLES = Object.freeze({
   office: 'Desks and monitors',
   barber: 'Barber chairs and mirrors',
@@ -95,7 +102,8 @@ export const TEMPLATES = Object.freeze({
 });
 // the mode and skin each template starts in (both can be changed any time)
 const TEMPLATE_MODE = { barber: 'service', salon: 'service', freelance: 'service', paths: 'agents', blank: 'service', chores: 'allowance' };
-const TEMPLATE_SKIN = { chores: 'farm' };
+// A template never picks the world: purpose and skin are independent. (Kept as a hook, deliberately empty.)
+const TEMPLATE_SKIN = {};
 
 const slug = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_]+/g, '-').replace(/-+/g, '-').slice(0, 32) || 'room';
 const num = (v, lo, hi, dflt) => { const n = Number(v); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt; };
@@ -106,20 +114,26 @@ const baseSpec = (id) => CATALOG.find((p) => p.id === id) || null;
 
 // Validate and normalize a station design. Throws LedgerError with a sentence a person can act on.
 const HEX = /^#[0-9a-f]{6}$/i;
-function normalizeKids(list) {
+// The folk: named people who work the rooms (kids in an allowance chart, barbers in a shop, you). Each has a colour and,
+// optionally, the rooms they work; without rooms they go wherever their last logged work was. AI agents are folk too,
+// but they come from the ledger's jobs, not from this list.
+function normalizeFolk(list) {
   if (list === undefined || list === null) return [];
-  if (!Array.isArray(list)) throw new LedgerError('kids must be a list of names');
+  if (!Array.isArray(list)) throw new LedgerError('folk must be a list of names');
   const seen = new Set(), out = [];
   for (const k of list) {
     const nm = String(k && typeof k === 'object' ? k.name ?? '' : k ?? '').trim().replace(/\s+/g, ' ').slice(0, 24);
     if (!nm || seen.has(nm.toLowerCase())) continue;
     seen.add(nm.toLowerCase());
-    const color = k && typeof k === 'object' && HEX.test(k.color || '') ? k.color.toLowerCase() : KID_COLORS[out.length % KID_COLORS.length];
-    out.push({ name: nm, color });
+    const color = k && typeof k === 'object' && HEX.test(k.color || '') ? k.color.toLowerCase() : FOLK_COLORS[out.length % FOLK_COLORS.length];
+    const rooms = k && typeof k === 'object' && Array.isArray(k.rooms) ? [...new Set(k.rooms.filter((r) => typeof r === 'string' && /^[a-z0-9][a-z0-9-]{0,31}$/.test(r)))].slice(0, 10) : [];
+    out.push(rooms.length ? { name: nm, color, rooms } : { name: nm, color });
   }
-  if (out.length > MAX_KIDS) throw new LedgerError(`the station keeps up to ${MAX_KIDS} kids`);
+  if (out.length > MAX_FOLK) throw new LedgerError(`a world keeps up to ${MAX_FOLK} folk`);
   return out;
 }
+// folk may only work rooms that exist
+const pinFolk = (folk, ids) => folk.map((f) => { if (!f.rooms) return f; const rooms = f.rooms.filter((r) => ids.has(r)); return rooms.length ? { ...f, rooms } : { name: f.name, color: f.color }; });
 // a room's look in each non-space skin ("crypt" in the castle, "coop" on the farm): a short slug the station draws
 function normalizeLooks(looks) {
   if (!looks || typeof looks !== 'object') return undefined;
@@ -130,13 +144,13 @@ function normalizeLooks(looks) {
 
 export function normalizeConfig(input) {
   if (!input || typeof input !== 'object') throw new LedgerError('rooms config must be an object');
-  const name = String(input.name ?? 'Revenue Station').trim().slice(0, 40) || 'Revenue Station';
+  const name = String(input.name ?? 'Proxyfolk').trim().slice(0, 40) || 'Proxyfolk';
   const template = TEMPLATES[input.template] ? input.template : 'custom';
   if (input.mode !== undefined && !MODES[input.mode]) throw new LedgerError(`mode must be one of ${Object.keys(MODES).join(', ')}`);
   if (input.skin !== undefined && !SKINS[input.skin]) throw new LedgerError(`skin must be one of ${Object.keys(SKINS).join(', ')}`);
   const skin = input.skin || 'space';
-  const kids = normalizeKids(input.kids);
-  if (input.rooms === null || input.rooms === undefined) return { name, template: 'paths', mode: input.mode || 'agents', skin, kids, rooms: null };
+  const folk0 = normalizeFolk(input.folk ?? input.kids);
+  if (input.rooms === null || input.rooms === undefined) return { name, template: 'paths', mode: input.mode || 'agents', skin, folk: pinFolk(folk0, new Set(CATALOG.map((p) => p.id))), rooms: null };
   if (!Array.isArray(input.rooms)) throw new LedgerError('rooms must be a list');
   if (!input.rooms.length) throw new LedgerError('a station needs at least one room');
   if (input.rooms.length > MAX_ROOMS) throw new LedgerError(`a station has room for ${MAX_ROOMS} rooms`);
@@ -162,7 +176,7 @@ export function normalizeConfig(input) {
     };
   });
   const mode = input.mode || (rooms.every((r) => r.base) ? 'agents' : 'service');
-  return { name, template, mode, skin, kids, rooms };
+  return { name, template, mode, skin, folk: pinFolk(folk0, ids), rooms };
 }
 
 const file = (dataDir) => path.join(dataDir, 'rooms.json');
@@ -183,7 +197,7 @@ export function fromTemplate(key, opts = {}) {
   const t = TEMPLATES[key];
   if (!t) throw new LedgerError(`unknown template "${key}" (${Object.keys(TEMPLATES).join(', ')})`);
   return normalizeConfig({
-    name: opts.name || t.name, template: key, mode: opts.mode || TEMPLATE_MODE[key] || 'service', skin: opts.skin || TEMPLATE_SKIN[key] || 'space', kids: opts.kids,
+    name: opts.name || t.name, template: key, mode: opts.mode || TEMPLATE_MODE[key] || 'service', skin: opts.skin || TEMPLATE_SKIN[key] || 'space', folk: opts.folk ?? opts.kids,
     rooms: t.rooms ? t.rooms.map((r) => ({ ...r })) : null,
   });
 }
@@ -205,7 +219,9 @@ export function catalogFrom(cfg) {
 export const loadCatalog = (dataDir) => catalogFrom(loadConfig(dataDir));
 export const stationInfo = (dataDir) => {
   const c = loadConfig(dataDir);
-  return { name: c ? c.name : 'Revenue Station', template: c ? c.template : 'paths', custom: Boolean(c && c.rooms), configured: Boolean(c), mode: c ? c.mode : 'agents', skin: c ? c.skin : 'space', kids: c ? c.kids : [] };
+  const folk = c ? c.folk : [];
+  // kids is the same list under its older name, for pages written before folk
+  return { name: c ? c.name : 'Proxyfolk', template: c ? c.template : 'paths', custom: Boolean(c && c.rooms), configured: Boolean(c), mode: c ? c.mode : 'agents', skin: c ? c.skin : 'space', folk, kids: folk };
 };
 
 // Which room claims an item name: the first room, in station order, with a keyword inside the name.

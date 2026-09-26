@@ -18,7 +18,7 @@ test('dashboard, state, event validation and a replayed run over HTTP', async ()
   try {
     const page = await fetch(base + '/');
     assert.equal(page.status, 200);
-    assert.match(await page.text(), /Revenue Station/);
+    assert.match(await page.text(), /Proxyfolk/);
     const money = await fetch(base + '/ledger');
     assert.equal(money.status, 200);
     assert.match(await money.text(), /Money Dashboard/);

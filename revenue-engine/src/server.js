@@ -13,7 +13,7 @@ import { ROLES, DEFAULT_MODEL } from './agent.js';
 import { addItem, listItems } from './inbox.js';
 import { addClient, listClients, updateClient, isDue } from './clients.js';
 import { harvest as runHarvest } from './harvest.js';
-import { loadCatalog, loadConfig, saveConfig, resetConfig, fromTemplate, stationInfo, unclaimedItems, TEMPLATES, STYLES, SCREENS, PROPS, PALETTE, MAX_ROOMS, MODES, SKINS, KID_COLORS, MAX_KIDS } from './rooms.js';
+import { loadCatalog, loadConfig, saveConfig, resetConfig, fromTemplate, stationInfo, unclaimedItems, TEMPLATES, STYLES, SCREENS, PROPS, PALETTE, MAX_ROOMS, MODES, SKINS, KID_COLORS, MAX_KIDS, FOLK_COLORS, MAX_FOLK } from './rooms.js';
 import { connectorSpecs, CSV_SOURCES, listConnections, upsertConnection, removeConnection, publicConnection, syncConnection, syncAll, syncing, testConnection, csvRecords, classify, knownExt, importRecords } from './sync.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -60,7 +60,7 @@ export function snapshot(ledger, catalog = CATALOG, dataDir = null) {
     quests: q,
     questSummary: summary(q),
     catalog: catalog.map((p) => ({ ...p, stageList: stagesFor(p) })),
-    station: dataDir ? stationInfo(dataDir) : { name: 'Revenue Station', template: 'paths', custom: false, configured: false, mode: 'agents', skin: 'space', kids: [] },
+    station: dataDir ? stationInfo(dataDir) : { name: 'Proxyfolk', template: 'paths', custom: false, configured: false, mode: 'agents', skin: 'space', folk: [], kids: [] },
     // income links, without any secret: the station's comm mast and sync panel read this
     sync: { syncing: syncing(), connections: dataDir ? listConnections(dataDir).map(({ secret, ...c }) => c) : [] },
     gates: GATES,
@@ -112,10 +112,10 @@ function guard(req, checkHost) {
 export function roomsInfo(ledger, catalog, dataDir) {
   const cfg = dataDir ? loadConfig(dataDir) : null;
   return {
-    config: cfg || { name: 'Revenue Station', template: 'paths', rooms: null },
+    config: cfg || { name: 'Proxyfolk', template: 'paths', rooms: null },
     catalog: catalog.map((p) => ({ id: p.id, name: p.name, short: p.short, kind: p.kind || 'pipeline', accent: p.accent, style: p.style, screen: p.screen, prop: p.prop, match: p.match || [], minutes: p.minutes, priceUsd: p.priceUsd, costUsd: p.costUsd, goalUsd: p.goalUsd, looks: p.looks, base: p.kind === 'service' ? undefined : p.id })),
     templates: Object.fromEntries(Object.entries(TEMPLATES).map(([k, t]) => { const c = fromTemplate(k); return [k, { title: t.title, blurb: t.blurb, rooms: t.rooms ? t.rooms.length : CATALOG.length, mode: c.mode, skin: c.skin, name: c.name }]; })),
-    modes: MODES, skins: SKINS, kidColors: KID_COLORS, maxKids: MAX_KIDS,
+    modes: MODES, skins: SKINS, kidColors: KID_COLORS, maxKids: MAX_KIDS, folkColors: FOLK_COLORS, maxFolk: MAX_FOLK,
     builtIn: CATALOG.map((p) => ({ id: p.id, name: p.name, short: p.short })),
     styles: STYLES, screens: SCREENS, props: PROPS, palette: PALETTE, maxRooms: MAX_ROOMS,
     unclaimed: unclaimedItems(ledger.readAll(), catalog),
@@ -222,10 +222,10 @@ export function createServer({ ledger, catalog: fixedCatalog = null, dataDir, ru
           if (body.reset) { resetConfig(dataDir); return send(res, 200, { ok: true, config: null }); }
           // just the world: the dashboard's skin picker changes the station's skin and nothing else
           if (body.skin && !body.template && !body.config) {
-            const cur = loadConfig(dataDir) || { name: 'Revenue Station', rooms: null };
+            const cur = loadConfig(dataDir) || { name: 'Proxyfolk', rooms: null };
             return send(res, 200, { ok: true, config: saveConfig(dataDir, { ...cur, skin: body.skin }) });
           }
-          const cfg = body.template ? fromTemplate(body.template, { name: body.name, skin: body.skin, mode: body.mode, kids: body.kids }) : body.config;
+          const cfg = body.template ? fromTemplate(body.template, { name: body.name, skin: body.skin, mode: body.mode, folk: body.folk ?? body.kids }) : body.config;
           const saved = saveConfig(dataDir, cfg);
           return send(res, 200, { ok: true, config: saved });
         } catch (e) {

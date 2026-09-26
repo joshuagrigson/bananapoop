@@ -98,7 +98,10 @@ export function seedBarberDemo(ledger, dataDir, now = Date.now()) {
   const cfg = fromTemplate('barber');
   // monthly goals so each room's tube has something to fill (placeholders, like the template's prices)
   const GOALS = { products: 300, 'skin-fade': 2000, 'beard-trim': 600, 'kids-cut': 500, 'hot-towel-shave': 500, 'line-up': 500, color: 600, haircut: 2000 };
-  saveConfig(dataDir, { ...cfg, name: 'The Shop (demo)', rooms: cfg.rooms.map((r) => ({ ...r, goalUsd: GOALS[r.id] || 0 })) });
+  // three barbers: each character on the map is one of them, walking to the room of the service they just did
+  const BARBERS = [{ name: 'Dre', color: '#60a5fa', rooms: ['skin-fade', 'line-up', 'haircut', 'beard-trim'] }, { name: 'Kim', color: '#f472b6', rooms: ['color', 'kids-cut', 'haircut', 'products'] }, { name: 'Sal', color: '#ffb454', rooms: ['hot-towel-shave', 'beard-trim', 'haircut', 'products'] }];
+  saveConfig(dataDir, { ...cfg, name: 'The Shop (demo)', folk: BARBERS, rooms: cfg.rooms.map((r) => ({ ...r, goalUsd: GOALS[r.id] || 0 })) });
+  const BY = { 'Skin Fade': ['Dre'], 'Line Up': ['Dre'], 'Gray Blend': ['Kim'], 'Kids Cut (12 & under)': ['Kim'], 'Hot Towel Shave': ['Sal'], 'Beard Trim': ['Sal', 'Dre'] };
   let seed = 20260925;
   const rand = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
   const pick = (list) => { let t = rand() * list.reduce((s, x) => s + x.w, 0); for (const x of list) { t -= x.w; if (t <= 0) return x; } return list[list.length - 1]; };
@@ -129,6 +132,7 @@ export function seedBarberDemo(ledger, dataDir, now = Date.now()) {
       const total = items.reduce((s, x) => s + x.usd, 0);
       const fee = Math.round((total + tip) * 2.6 + 10) / 100;
       const who = clients[Math.floor(rand() * clients.length)];
+      const pool = BY[items[0].item] || ['Dre', 'Kim', 'Sal'], barber = pool[Math.floor(rand() * pool.length)];
       let givenNet = 0, givenTip = 0;
       items.forEach((x, i) => {
         const last = i === items.length - 1, share = x.usd / total;
@@ -136,7 +140,7 @@ export function seedBarberDemo(ledger, dataDir, now = Date.now()) {
         const t = last ? tip - givenTip : Math.round(tip * share * 100) / 100;
         givenNet += net; givenTip += t;
         lines.push({
-          kind: 'money.in', usd: net, path: 'haircut', source: who, evidence: `Square demo-${ticket} (synced)`, item: x.item, qty: 1,
+          kind: 'money.in', usd: net, path: 'haircut', source: who, by: barber, evidence: `Square demo-${ticket} (synced)`, item: x.item, qty: 1,
           ...(t > 0 ? { tip: Math.min(t, net) } : {}), ext: `square:demo-${ticket}:${i}`, grp: `square:demo-${ticket}`, via: 'square', ts: at.toISOString(),
         });
       });
@@ -157,7 +161,7 @@ export function seedBarberDemo(ledger, dataDir, now = Date.now()) {
 export function seedAllowanceDemo(ledger, dataDir, now = Date.now()) {
   if (ledger.readAll().length) throw new LedgerError('refusing to seed the allowance demo into a ledger that already has lines');
   const KIDS = [{ name: 'Emma', color: '#f472b6' }, { name: 'Liam', color: '#60a5fa' }, { name: 'Ava', color: '#4ade80' }];
-  const cfg = fromTemplate('chores', { name: 'The Family Farm (demo)', skin: 'farm', kids: KIDS });
+  const cfg = fromTemplate('chores', { name: 'The Family Farm (demo)', skin: 'farm', folk: KIDS });
   const GOALS = { dishes: 20, 'yard-work': 30, homework: 20 };
   saveConfig(dataDir, { ...cfg, rooms: cfg.rooms.map((r) => ({ ...r, goalUsd: GOALS[r.id] || 0 })) });
   const price = Object.fromEntries(cfg.rooms.map((r) => [r.id, r.priceUsd]));
@@ -180,12 +184,12 @@ export function seedAllowanceDemo(ledger, dataDir, now = Date.now()) {
         if (rand() > p) continue;
         const at = new Date(date.getTime() - (d === 0 ? 2 : 6 - rand() * 4) * 3600e3);
         if (at.getTime() > now) continue;
-        lines.push({ kind: 'money.in', usd: price[chore], path: chore, source: k.name, kid: k.name, item: nameOf[chore], qty: 1, evidence: 'checked off by Mom (demo)', ts: at.toISOString() });
+        lines.push({ kind: 'money.in', usd: price[chore], path: chore, source: k.name, by: k.name, kid: k.name, item: nameOf[chore], qty: 1, evidence: 'checked off by Mom (demo)', ts: at.toISOString() });
         owed[k.name] += price[chore];
       }
       // Liam mows on Saturdays
       if (k.name === 'Liam' && dow === 6 && rand() < 0.85) {
-        lines.push({ kind: 'money.in', usd: price['yard-work'], path: 'yard-work', source: 'Liam', kid: 'Liam', item: 'Yard work', qty: 1, evidence: 'checked off by Dad (demo)', ts: new Date(date.getTime() - 5 * 3600e3).toISOString() });
+        lines.push({ kind: 'money.in', usd: price['yard-work'], path: 'yard-work', source: 'Liam', by: 'Liam', kid: 'Liam', item: 'Yard work', qty: 1, evidence: 'checked off by Dad (demo)', ts: new Date(date.getTime() - 5 * 3600e3).toISOString() });
         owed.Liam += price['yard-work'];
       }
     }

@@ -1,4 +1,4 @@
-# Revenue Station setup and daily start for Windows. Safe to run again any time: it skips what is already done.
+# Proxyfolk setup and daily start for Windows. Safe to run again any time: it skips what is already done.
 # From PowerShell, in the folder that holds bananapoop:
 #   powershell -ExecutionPolicy Bypass -File .\bananapoop\revenue-engine\setup.ps1
 # A second, separate station (a barbershop, a salon, a family allowance chart, any business with its own rooms) keeps
@@ -104,7 +104,7 @@ if ($jobs -notmatch ' manager -> gbp-management') { & node src/cli.js job add ma
 
 if ($NoServe) { Say 'Setup done (not starting the station because -NoServe was given).'; exit 0 }
 
-Say 'Starting the Revenue Station'
+Say 'Starting Proxyfolk'
 Write-Host 'Your browser opens in a moment. Leave this window open: closing it stops the agents.'
 Write-Host 'The auditor starts within a minute and spends at most $1 a run and $5 a day.'
 Write-Host 'Tomorrow, paste the same command again to update and restart.'

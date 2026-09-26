@@ -41,7 +41,7 @@ export const CONNECTORS = {
     fields: [{ key: 'apiKey', label: 'Restricted key (read only)', placeholder: 'rk_live_…', secret: true }],
     steps: [
       'Open Stripe → Developers → API keys.',
-      'Create restricted key. Name it "Revenue Station".',
+      'Create restricted key. Name it "Proxyfolk".',
       'Set "Balance transactions" to Read. Leave everything else at None.',
       'Create, then copy the rk_live_ key and paste it here.',
     ],

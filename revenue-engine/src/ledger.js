@@ -46,7 +46,8 @@ export function validate(input) {
       if (ev.qty !== undefined && !(typeof ev.qty === 'number' && ev.qty > 0 && ev.qty < 10000)) fail('money.in qty must be a positive number');
       if (ev.tip !== undefined && !(isUsd(ev.tip) && ev.tip >= 0 && ev.tip <= ev.usd)) fail('money.in tip must be between 0 and the amount');
       if (ev.grp !== undefined && !(isText(ev.grp, 3) && ev.grp.length <= 200)) fail('money.in grp must be the parent transaction id');
-      // allowance stations: which kid earned it
+      // who did the work: one of the world's folk (a barber, a kid). kid is the older name for the same thing.
+      if (ev.by !== undefined && !(isText(ev.by) && ev.by.length <= 40)) fail('money.in by must name who did the work (1-40 chars)');
       if (ev.kid !== undefined && !(isText(ev.kid) && ev.kid.length <= 40)) fail('money.in kid must be the name of the kid who did the chore');
       break;
     case 'post':

@@ -1,8 +1,16 @@
-# Revenue Station
+# Proxyfolk
 
-A pixel-art station where AI agents take jobs, make things (prospect lists, outreach, posts, offer sheets), and every dollar they help earn lands on a ledger you can audit. Open `http://127.0.0.1:8790` for the station and `/ledger` for the money dashboard.
+A tiny pixel world of folk who stand in for anything you keep track of. You build the rooms, the folk who work them, and the world they live in, and every one of them is bound to a real ledger line. Open `http://127.0.0.1:8790` for the world and `/ledger` for the money dashboard.
 
-It is a small, honest machine for driving one operator from $0 to a first dollar, then $1K, $10K, $100K, $1M. It borrows StarNet's best law (the interface never asserts anything the ledger cannot prove) and points it at revenue instead of deliverables.
+**The backbone.** Three things, all editable, in any combination:
+
+- **Rooms are what you track.** A barber's services, a kid's chores, a money path, a website, a client, a job. Up to 10 per world.
+- **Folk are who works them.** Each character is someone real: a person on the roster (a kid, a barber, you) who walks to the room of their latest logged work, or, at the paid level, an **AI agent** on a job that does the work itself (one character per agent). The number of characters in a room is the number working it.
+- **The world is a skin.** Space station, dark castle, farm, cyber city, alien ship or ocean base. Purpose and world are independent: a barbershop can live in the castle and a chore chart in the cyber city, and everything works the same. Switching worlds never touches a number.
+
+When something real happens (a sale, a chore, a finished agent run) the folk who did it walk over and do it on screen: a visitor sits down and gets a haircut, a kid washes the dishes, coins fly to the vault, the room's tier climbs and fireworks go off. Between real events the folk just live (tinker, chat, take a break, sleep at night on your clock), and the field guide (`?`) says which is which.
+
+It started as a revenue station for one operator, and it keeps StarNet's best law: the interface never asserts anything the ledger cannot prove.
 
 - **One append-only ledger** (`data/ledger.jsonl`). Money in, money out, outcomes, agent runs, gates, path status. Nothing else is state.
 - **No simulated money.** `money.in` is rejected without evidence (an invoice id, a Stripe charge, a bank line).
@@ -15,7 +23,7 @@ It is a small, honest machine for driving one operator from $0 to a first dollar
 
 Live preview on demo data, buttons switched off: https://revenue-station-preview.netlify.app (station), `/terminal/` (production terminal), `/ledger/` (money dashboard). A second station built for a barbershop, one room per service with Square sales split by service, is at https://revenue-station-preview.netlify.app/barber/, and a family allowance tracker on the farm is at https://revenue-station-preview.netlify.app/family/. Add `?skin=castle` (or `farm`, `cyber`, `alien`, `ocean`, `space`) to any page to see the same numbers in another world, for example https://revenue-station-preview.netlify.app/barber/?skin=cyber. Rebuild all of it with `npm run preview`, which writes a static copy to `preview/`.
 
-Click anywhere on a room (floor, walls or its label) to open its stats, the vault for the station roster, or the outbox dock for drafts. Drag to pan, scroll or pinch to zoom, double-click a room to fly in, `1`-`9` jump to a room, `C` customizes the rooms, `Esc` returns to the overview, `?` opens the field guide that says which objects are bound to the ledger and which are scenery.
+Click anywhere on a room (floor, walls or its label) to open its stats, the vault for the roster, or the dock. Click a character to follow them: the camera tracks them and the panel says what they are doing and whether it is real. Drag to pan, scroll or pinch to zoom, double-click a room to fly in, `1`-`9` jump to a room, `C` customizes the world, `R` replays the last 24 hours of real events (it also plays on its own when the world is left alone), `M` turns sound on, `Esc` returns to the overview, `?` opens the field guide. Add `?hour=22` to any page to see the world at night.
 
 ## One-paste start (Windows)
 
@@ -53,15 +61,19 @@ A service room shows what it sold, revenue, average ticket, tips, estimated prof
 
 The design lives in `data/rooms.json`. From the command line: `node src/cli.js rooms`, `rooms template barber --name "Kim's Cuts"`, `rooms skin castle`, `rooms mode allowance`, `rooms reset`.
 
-### What the station is for, and which world it lives in
+### What a world is for, and which world it is
 
-A station runs in one of three modes, picked on first open or under **Customize** (`C`):
+A world has a purpose, picked on first open or under **Customize** (`C`), and any purpose goes with any world:
 
 - **Command center**: the built-in money paths, with agents you hire and dispatch for money-making jobs.
 - **Service station**: one room per service you sell (a barber's cuts, a salon's treatments), ranked by profit per hour.
 - **Allowance tracker**: one room per chore, for parents. See below.
 
-And in one of six worlds, each with its own backdrop, building materials and residents in every room: a **space station**, a **dark castle** (a crypt of skeletons, a witch's kitchen, a goblin forge, a haunted library, a dragon's hoard, a vampire's parlor), a **farm** (a cow pasture, a pig pen, a chicken coop, a sheep meadow, a horse stable, a veggie garden full of bunnies, with farmhands at work), a **cyber city** (a hacker den, a neon bar of androids, a street dojo, a chop shop, a night club, a ripperdoc clinic), an **alien ship** (a specimen lab, a hatchery, the bridge, a spore garden, a probe bay, a watcher lounge) and an **ocean base** (a coral reef, an octopus grotto, a shipwreck of crabs, a kelp forest, a sub bay of sea turtles, the deep with its jellyfish). Each room picks its own look in the designer. The world is only dress: every world draws the same ledger, and switching never touches a number. The HUD, the money dashboard (`/ledger`, which has a world picker of its own) and the production terminal (`/terminal`: an amber scrying glass in the castle, a chalkboard on the farm, sonar under the sea) all follow the station's world. The dashboard also hides the agent machinery a shop or a family does not use.
+And one of six worlds, each with its own backdrop, materials and room types: a **space station**, a **dark castle** (a crypt of skeletons, a witch's kitchen, a goblin forge, a haunted library, a dragon's hoard, a vampire's parlor), a **farm** (a cow pasture, a pig pen, a chicken coop, a sheep meadow, a horse stable, a veggie garden full of bunnies, with farmhands at work), a **cyber city** (a hacker den, a neon bar of androids, a street dojo, a chop shop, a night club, a ripperdoc clinic), an **alien ship** (a specimen lab, a hatchery, the bridge, a spore garden, a probe bay, a watcher lounge) and an **ocean base** (a coral reef, an octopus grotto, a shipwreck of crabs, a kelp forest, a sub bay of sea turtles, the deep with its jellyfish). Each room picks its own look in the designer. In the castle, the city and the ship, the folk working a room wear its costume (Dre the barber becomes a witch in the witch's kitchen, Emma a skeleton in the crypt); on the farm and under the sea the animals are the room's stock, more of them as it gets busier. The world is only dress: every world draws the same ledger, and switching never touches a number. The HUD, the money dashboard (`/ledger`, which has a world picker of its own) and the production terminal (`/terminal`: an amber scrying glass in the castle, a chalkboard on the farm, sonar under the sea) all follow the station's world. The dashboard also hides the agent machinery a shop or a family does not use.
+
+### Folk
+
+Customize (`C`) holds the roster: a name and colour per person (up to 12), and in each room's settings, who works there. Log a sale or a chore with who did it (`money.in` gets a `by` field) and that person walks to the room and does it. Without a room list, a person lives wherever their last logged work was. AI agents need no roster entry: hire one in a room (Crew) and a character appears there, one per agent.
 
 ### Allowance tracker
 
