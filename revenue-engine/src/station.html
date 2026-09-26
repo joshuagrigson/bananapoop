@@ -1959,7 +1959,6 @@
 
   function render(dt) {
     const k1 = reduceMotion ? 1 : 1 - Math.exp(-dt * 7);
-    const oz = cam.z, ox = cam.x, oy = cam.y;
     cam.x += (camT.x - cam.x) * k1; cam.y += (camT.y - cam.y) * k1;
     if (camBounce && !reduceMotion) {
       // a springy zoom into the area view: a touch past, then settle
@@ -1967,11 +1966,12 @@
       camVz += (kk * (camT.z - cam.z) - cc * camVz) * dt; cam.z += camVz * dt;
       if (Math.abs(camT.z - cam.z) < 0.002 && Math.abs(camVz) < 0.01) { cam.z = camT.z; camVz = 0; camBounce = false; }
     } else { cam.z += (camT.z - cam.z) * k1; camVz = 0; }
-    if (Math.abs(cam.z - oz) + Math.abs(cam.x - ox) + Math.abs(cam.y - oy) > 1e-4) labelsDirty = true;
     // zooming back out of a close-up leaves it
     if (closeUp && camT.z < closeZ * 0.7) closeUpOff();
     S = fitS * cam.z;
     vx0e = cam.x - avail.cx / S; vy0e = cam.y - avail.cy / S;
+    // the labels follow the view however it moved: a glide, a drag (which moves the camera directly), a zoom or a resize
+    if (Math.abs(vx0e - labelView[0]) + Math.abs(vy0e - labelView[1]) > 0.05 / S || Math.abs(S - labelView[2]) > 1e-4 * S) labelsDirty = true;
     WR.draw(dt);
   }
   const toCss = (nx, ny) => [(nx - vx0e) * S, (ny - vy0e) * S];
@@ -2007,7 +2007,7 @@
 
 
   // ======================================================================= DOM overlay: labels, floats, tooltip
-  let labelEls = [], labelsDirty = true, plateRects = [];
+  let labelEls = [], labelsDirty = true, plateRects = [], labelView = [NaN, NaN, NaN];
   const shortName = (spec) => spec.short || spec.name.replace(/,.*$/, '').slice(0, 30);
   // a room's tier (stars, by 30 days of activity) and how many folk work it right now
   const tierHtml = (room) => { const t = roomTier(room); return t ? `<span class="tier" title="Tier ${t}: ${roomActivity(room)} in 30 days">${'★'.repeat(t)}</span>` : ''; };
@@ -2051,7 +2051,7 @@
     const vr = $('#view').getBoundingClientRect();
     plateRects = labelEls.filter((L) => !L.el.classList.contains('off')).map((L) => { const b = (L.el.querySelector('.plate') || L.el).getBoundingClientRect(); return [b.left - vr.left - 4, b.top - vr.top - 3, b.right - vr.left + 4, b.bottom - vr.top + 3]; });
     for (const f of floats) { const [x, y] = toCss(f.nx, f.ny); f.el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`; }
-    labelsDirty = false;
+    labelsDirty = false; labelView = [vx0e, vy0e, S];
   }
   const focusAmount = () => focusA;
   const floats = [];
