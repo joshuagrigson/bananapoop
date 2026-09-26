@@ -7,7 +7,7 @@ import { validate } from '../src/ledger.js';
 import { reduce } from '../src/reduce.js';
 import { quests } from '../src/quests.js';
 import { createServer } from '../src/server.js';
-import { seedBarberDemo } from '../src/demo.js';
+import { seedBarberDemo, seedAllowanceDemo } from '../src/demo.js';
 import { CATALOG } from '../src/paths.js';
 import { CONNECTORS, importRecords, upsertConnection, syncConnection } from '../src/sync.js';
 import {
@@ -36,7 +36,7 @@ test('a room design is validated with sentences a person can act on', () => {
   assert.equal(c.rooms[0].screen, 'open');
   assert.equal(c.rooms[0].prop, 'pole');
   // rooms: null means the built-in paths
-  assert.deepEqual(normalizeConfig({ name: 'X', rooms: null }), { name: 'X', template: 'paths', rooms: null });
+  assert.deepEqual(normalizeConfig({ name: 'X', rooms: null }), { name: 'X', template: 'paths', mode: 'agents', skin: 'space', kids: [], rooms: null });
 });
 
 test('templates: the barber shop splits a real Square menu into the right rooms', () => {
@@ -64,7 +64,7 @@ test('rooms.json round trip, and the catalog the engine runs on', () => {
   const { dir } = tmpLedger();
   assert.equal(loadConfig(dir), null);
   assert.equal(loadCatalog(dir), CATALOG);
-  assert.deepEqual(stationInfo(dir), { name: 'Revenue Station', template: 'paths', custom: false, configured: false });
+  assert.deepEqual(stationInfo(dir), { name: 'Revenue Station', template: 'paths', custom: false, configured: false, mode: 'agents', skin: 'space', kids: [] });
   const keep = CATALOG[0].id;
   saveConfig(dir, { name: 'Mixed', rooms: [{ name: 'Braids', match: ['braid'], minutes: 180, priceUsd: 150, costUsd: 10, goalUsd: 1200 }, { base: keep, name: 'My path', accent: '#123456' }] });
   assert.ok(fs.existsSync(path.join(dir, 'rooms.json')));
@@ -79,7 +79,7 @@ test('rooms.json round trip, and the catalog the engine runs on', () => {
   assert.equal(base.accent, '#123456');
   assert.deepEqual(base.stages, CATALOG[0].stages);
   assert.equal(base.budgetUsd, CATALOG[0].budgetUsd);
-  assert.deepEqual(stationInfo(dir), { name: 'Mixed', template: 'custom', custom: true, configured: true });
+  assert.deepEqual(stationInfo(dir), { name: 'Mixed', template: 'custom', custom: true, configured: true, mode: 'service', skin: 'space', kids: [] });
   // a corrupt file falls back to the built-in paths instead of taking the station down
   fs.writeFileSync(path.join(dir, 'rooms.json'), '{not json');
   assert.equal(loadCatalog(dir), CATALOG);
@@ -258,5 +258,47 @@ test('barber demo: labeled, only on an empty ledger, and every dollar lands in a
   assert.equal(Math.round(inRooms * 100), Math.round(st.earnedUsd * 100));
   assert.ok(cat.every((r) => st.paths[r.id].earnedUsd > 0), 'every service room sold something');
   assert.ok(st.moneyIn.every((e) => e.item && e.ext && e.via === 'square'));
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test('modes, skins, kids and per-skin looks are validated and saved', () => {
+  const c = normalizeConfig({ mode: 'allowance', skin: 'castle', kids: ['Emma', { name: 'liam', color: '#123456' }, 'EMMA', '  '], rooms: [{ name: 'Dishes', looks: { castle: 'crypt', farm: 'Bad Look', nowhere: 'x' } }] });
+  assert.equal(c.mode, 'allowance');
+  assert.equal(c.skin, 'castle');
+  assert.deepEqual(c.kids, [{ name: 'Emma', color: '#f472b6' }, { name: 'liam', color: '#123456' }]);
+  assert.deepEqual(c.rooms[0].looks, { castle: 'crypt' });
+  assert.throws(() => normalizeConfig({ skin: 'moon', rooms: null }), /skin must be one of/);
+  assert.throws(() => normalizeConfig({ mode: 'party', rooms: null }), /mode must be one of/);
+  assert.throws(() => normalizeConfig({ kids: Array.from({ length: 9 }, (_, i) => 'Kid' + i), rooms: null }), /up to 8 kids/);
+  // the mode follows the rooms unless it is chosen
+  assert.equal(normalizeConfig({ rooms: [{ base: CATALOG[0].id }] }).mode, 'agents');
+  assert.equal(normalizeConfig({ rooms: [{ name: 'Fade' }] }).mode, 'service');
+  // templates start in their own mode and skin, and both can be overridden
+  assert.deepEqual([fromTemplate('chores').mode, fromTemplate('chores').skin], ['allowance', 'farm']);
+  assert.deepEqual([fromTemplate('paths').mode, fromTemplate('barber').mode], ['agents', 'service']);
+  assert.equal(fromTemplate('barber', { skin: 'cyber' }).skin, 'cyber');
+  assert.equal(catalogFrom(c)[0].looks.castle, 'crypt');
+});
+
+test('ledger: an allowance chore names its kid, a payout names who was paid', () => {
+  const ok = { kind: 'money.in', usd: 1, path: 'dishes', source: 'Emma', evidence: 'checked off by Mom' };
+  assert.doesNotThrow(() => validate({ ...ok, kid: 'Emma' }));
+  assert.throws(() => validate({ ...ok, kid: '' }), /kid/);
+  const pay = { kind: 'money.out', usd: 5, category: 'other', evidence: 'paid Emma cash' };
+  assert.doesNotThrow(() => validate({ ...pay, payee: 'Emma' }));
+  assert.throws(() => validate({ ...pay, payee: 'x'.repeat(41) }), /payee/);
+});
+
+test('allowance demo: labeled, kids earn by chore, Sunday payouts leave this week owed', () => {
+  const { dir, ledger } = tmpLedger();
+  seedAllowanceDemo(ledger, dir, Date.parse('2026-09-25T18:00:00Z'));
+  assert.throws(() => seedAllowanceDemo(ledger, dir), /already has lines/);
+  const info = stationInfo(dir);
+  assert.deepEqual([info.mode, info.skin, info.kids.map((k) => k.name)], ['allowance', 'farm', ['Emma', 'Liam', 'Ava']]);
+  const st = reduce(ledger.readAll(), loadCatalog(dir));
+  assert.ok(st.demo);
+  assert.ok(st.moneyIn.every((e) => e.kid && e.item));
+  const paid = st.moneyOut.filter((e) => e.payee).reduce((s, e) => s + e.usd, 0);
+  assert.ok(paid > 0 && paid < st.earnedUsd, 'some is paid out, this week is still owed');
   fs.rmSync(dir, { recursive: true, force: true });
 });

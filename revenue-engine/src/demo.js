@@ -151,3 +151,53 @@ export function seedBarberDemo(ledger, dataDir, now = Date.now()) {
   }], null, 2));
   return lines.length;
 }
+
+// A family's allowance station for the preview: three fictional kids, the chore chart, six weeks of chores checked
+// off by a parent and paid out on Sundays, on the farm skin. Loudly labeled demo data.
+export function seedAllowanceDemo(ledger, dataDir, now = Date.now()) {
+  if (ledger.readAll().length) throw new LedgerError('refusing to seed the allowance demo into a ledger that already has lines');
+  const KIDS = [{ name: 'Emma', color: '#f472b6' }, { name: 'Liam', color: '#60a5fa' }, { name: 'Ava', color: '#4ade80' }];
+  const cfg = fromTemplate('chores', { name: 'The Family Farm (demo)', skin: 'farm', kids: KIDS });
+  const GOALS = { dishes: 20, 'yard-work': 30, homework: 20 };
+  saveConfig(dataDir, { ...cfg, rooms: cfg.rooms.map((r) => ({ ...r, goalUsd: GOALS[r.id] || 0 })) });
+  const price = Object.fromEntries(cfg.rooms.map((r) => [r.id, r.priceUsd]));
+  const nameOf = Object.fromEntries(cfg.rooms.map((r) => [r.id, r.name]));
+  // how likely each kid is to do each chore on a given day
+  const HABITS = {
+    Emma: { dishes: 0.7, 'make-bed': 0.9, homework: 0.85, laundry: 0.25, 'tidy-room': 0.5, 'feed-pets': 0.2 },
+    Liam: { dishes: 0.35, 'make-bed': 0.5, homework: 0.6, 'take-out-trash': 0.45, 'yard-work': 0, 'tidy-room': 0.25 },
+    Ava: { 'make-bed': 0.7, 'feed-pets': 0.8, 'tidy-room': 0.4 },
+  };
+  let seed = 20260926;
+  const rand = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+  const day = 86400e3;
+  const lines = [{ kind: 'note', demo: true, text: 'DEMO LEDGER: a fictional family. Every kid, chore and dollar here is made up.', ts: new Date(now - 43 * day).toISOString() }];
+  const owed = Object.fromEntries(KIDS.map((k) => [k.name, 0]));
+  for (let d = 42; d >= 0; d--) {
+    const date = new Date(now - d * day), dow = date.getUTCDay();
+    for (const k of KIDS) {
+      for (const [chore, p] of Object.entries(HABITS[k.name])) {
+        if (rand() > p) continue;
+        const at = new Date(date.getTime() - (d === 0 ? 2 : 6 - rand() * 4) * 3600e3);
+        if (at.getTime() > now) continue;
+        lines.push({ kind: 'money.in', usd: price[chore], path: chore, source: k.name, kid: k.name, item: nameOf[chore], qty: 1, evidence: 'checked off by Mom (demo)', ts: at.toISOString() });
+        owed[k.name] += price[chore];
+      }
+      // Liam mows on Saturdays
+      if (k.name === 'Liam' && dow === 6 && rand() < 0.85) {
+        lines.push({ kind: 'money.in', usd: price['yard-work'], path: 'yard-work', source: 'Liam', kid: 'Liam', item: 'Yard work', qty: 1, evidence: 'checked off by Dad (demo)', ts: new Date(date.getTime() - 5 * 3600e3).toISOString() });
+        owed.Liam += price['yard-work'];
+      }
+    }
+    // Sunday evening: everyone is paid what they are owed (this week's stays owed until the next Sunday)
+    if (dow === 0 && d > 0) for (const k of KIDS) {
+      const amt = Math.round(owed[k.name] * 100) / 100;
+      if (amt <= 0) continue;
+      lines.push({ kind: 'money.out', usd: amt, category: 'other', path: 'general', payee: k.name, evidence: `paid ${k.name} in cash (demo)`, ts: new Date(date.getTime() + 2 * 3600e3).toISOString() });
+      owed[k.name] = 0;
+    }
+  }
+  lines.sort((a, b) => (a.ts < b.ts ? -1 : 1));
+  for (const l of lines) ledger.append(l);
+  return lines.length;
+}

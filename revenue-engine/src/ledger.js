@@ -46,6 +46,8 @@ export function validate(input) {
       if (ev.qty !== undefined && !(typeof ev.qty === 'number' && ev.qty > 0 && ev.qty < 10000)) fail('money.in qty must be a positive number');
       if (ev.tip !== undefined && !(isUsd(ev.tip) && ev.tip >= 0 && ev.tip <= ev.usd)) fail('money.in tip must be between 0 and the amount');
       if (ev.grp !== undefined && !(isText(ev.grp, 3) && ev.grp.length <= 200)) fail('money.in grp must be the parent transaction id');
+      // allowance stations: which kid earned it
+      if (ev.kid !== undefined && !(isText(ev.kid) && ev.kid.length <= 40)) fail('money.in kid must be the name of the kid who did the chore');
       break;
     case 'post':
       if (!isText(ev.path)) fail('post needs a path id');
@@ -66,6 +68,7 @@ export function validate(input) {
       if (!OUT_CATEGORIES.includes(ev.category)) fail(`money.out category must be one of ${OUT_CATEGORIES.join(', ')}`);
       if (!isText(ev.path)) ev.path = 'general';
       if (!isText(ev.evidence) && !isText(ev.runId)) fail('money.out needs evidence or a runId');
+      if (ev.payee !== undefined && !(isText(ev.payee) && ev.payee.length <= 40)) fail('money.out payee must be the name of who was paid');
       break;
     case 'outcome':
       if (!isText(ev.path)) fail('outcome needs a path id');

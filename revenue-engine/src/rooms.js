@@ -12,6 +12,23 @@ import { CATALOG } from './paths.js';
 import { LedgerError } from './ledger.js';
 
 export const MAX_ROOMS = 10;
+export const MAX_KIDS = 8;
+// What the station is for. The same rooms, ledger and vault underneath; the mode decides what the screens lead with.
+export const MODES = Object.freeze({
+  agents: { title: 'Command center', blurb: 'Deploy AI agents on money-making jobs and watch each path climb from prospect to paid.' },
+  service: { title: 'Service station', blurb: 'One room per service a business sells. Synced sales split into rooms, ranked by profit per hour.' },
+  allowance: { title: 'Allowance tracker', blurb: 'One room per chore. Kids earn when a parent checks a chore off; pay them out from the vault.' },
+});
+// How the station looks. Pure decoration: every skin draws the same ledger.
+export const SKINS = Object.freeze({
+  space: { title: 'Space station', blurb: 'Astronauts in a station orbiting a ringed planet.' },
+  castle: { title: 'Dark castle', blurb: 'A castle at midnight, a different monster haunting every room.' },
+  farm: { title: 'Farm', blurb: 'Barns and pens on a sunny day, farmers and a different animal in every section.' },
+  cyber: { title: 'Cyberpunk city', blurb: 'Neon rooftops in the rain: hackers, samurai, DJs and mechanics at work.' },
+  alien: { title: 'Alien ship', blurb: 'A living starship: greys, blobs and tentacled crew in glowing chambers.' },
+  ocean: { title: 'Deep sea base', blurb: 'A base on the sea floor: divers, fish, octopuses and crabs among the coral.' },
+});
+export const KID_COLORS = Object.freeze(['#f472b6', '#60a5fa', '#4ade80', '#ffb454', '#a78bfa', '#2dd4bf', '#ff5c6c', '#ffd84d']);
 export const STYLES = Object.freeze({
   office: 'Desks and monitors',
   barber: 'Barber chairs and mirrors',
@@ -23,6 +40,7 @@ export const PROPS = Object.freeze(['pole', 'register', 'plant', 'rack', 'phone'
 export const PALETTE = Object.freeze(['#ff5c6c', '#ff8a4c', '#ffb454', '#ffd84d', '#9be15d', '#4ade80', '#2dd4bf', '#22d3ee', '#60a5fa', '#818cf8', '#a78bfa', '#f472b6', '#e5e7eb', '#c8a27a']);
 
 const svc = (name, match, minutes, priceUsd, costUsd, extra = {}) => ({ name, match, minutes, priceUsd, costUsd, ...extra });
+const CHORE = { style: 'office', screen: 'board', prop: 'plant' };
 // Starting points. Everything in them is editable; prices and times are placeholders to overwrite.
 export const TEMPLATES = Object.freeze({
   barber: {
@@ -61,7 +79,23 @@ export const TEMPLATES = Object.freeze({
   },
   paths: { title: 'Online business (built-in paths)', blurb: 'The original eight money paths with stages, gates and agents.', name: 'Revenue Station', rooms: null },
   blank: { title: 'Start blank', blurb: 'One empty room to build from.', name: 'My Station', rooms: [svc('First room', [], 30, 0, 0, { accent: '#60a5fa', style: 'office' })] },
+  chores: {
+    title: 'Chore chart', blurb: 'Eight everyday chores with a price each. Rename, reprice or add your own.', name: 'Allowance Station',
+    rooms: [
+      svc('Dishes', ['dish'], 15, 1, 0, { accent: '#60a5fa', ...CHORE }),
+      svc('Make bed', ['bed'], 5, 0.5, 0, { accent: '#f472b6', ...CHORE }),
+      svc('Tidy room', ['tidy', 'clean room', 'pick up'], 15, 1, 0, { accent: '#ffd84d', ...CHORE }),
+      svc('Homework', ['homework', 'reading', 'study'], 30, 1, 0, { accent: '#a78bfa', ...CHORE }),
+      svc('Feed pets', ['feed', 'pet', 'dog', 'cat'], 5, 0.5, 0, { accent: '#ff8a4c', ...CHORE }),
+      svc('Take out trash', ['trash', 'garbage', 'recycl'], 5, 0.75, 0, { accent: '#9be15d', ...CHORE }),
+      svc('Laundry', ['laundry', 'fold'], 20, 1.5, 0, { accent: '#2dd4bf', ...CHORE }),
+      svc('Yard work', ['yard', 'mow', 'rake', 'weed'], 60, 5, 0, { accent: '#4ade80', ...CHORE }),
+    ],
+  },
 });
+// the mode and skin each template starts in (both can be changed any time)
+const TEMPLATE_MODE = { barber: 'service', salon: 'service', freelance: 'service', paths: 'agents', blank: 'service', chores: 'allowance' };
+const TEMPLATE_SKIN = { chores: 'farm' };
 
 const slug = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_]+/g, '-').replace(/-+/g, '-').slice(0, 32) || 'room';
 const num = (v, lo, hi, dflt) => { const n = Number(v); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt; };
@@ -71,11 +105,38 @@ const norm = (s) => String(s || '').toLowerCase().replace(/[\s_]+/g, ' ').trim()
 const baseSpec = (id) => CATALOG.find((p) => p.id === id) || null;
 
 // Validate and normalize a station design. Throws LedgerError with a sentence a person can act on.
+const HEX = /^#[0-9a-f]{6}$/i;
+function normalizeKids(list) {
+  if (list === undefined || list === null) return [];
+  if (!Array.isArray(list)) throw new LedgerError('kids must be a list of names');
+  const seen = new Set(), out = [];
+  for (const k of list) {
+    const nm = String(k && typeof k === 'object' ? k.name ?? '' : k ?? '').trim().replace(/\s+/g, ' ').slice(0, 24);
+    if (!nm || seen.has(nm.toLowerCase())) continue;
+    seen.add(nm.toLowerCase());
+    const color = k && typeof k === 'object' && HEX.test(k.color || '') ? k.color.toLowerCase() : KID_COLORS[out.length % KID_COLORS.length];
+    out.push({ name: nm, color });
+  }
+  if (out.length > MAX_KIDS) throw new LedgerError(`the station keeps up to ${MAX_KIDS} kids`);
+  return out;
+}
+// a room's look in each non-space skin ("crypt" in the castle, "coop" on the farm): a short slug the station draws
+function normalizeLooks(looks) {
+  if (!looks || typeof looks !== 'object') return undefined;
+  const out = {};
+  for (const [k, v] of Object.entries(looks)) if (SKINS[k] && typeof v === 'string' && /^[a-z][a-z0-9-]{0,19}$/.test(v)) out[k] = v;
+  return Object.keys(out).length ? out : undefined;
+}
+
 export function normalizeConfig(input) {
   if (!input || typeof input !== 'object') throw new LedgerError('rooms config must be an object');
   const name = String(input.name ?? 'Revenue Station').trim().slice(0, 40) || 'Revenue Station';
   const template = TEMPLATES[input.template] ? input.template : 'custom';
-  if (input.rooms === null || input.rooms === undefined) return { name, template: 'paths', rooms: null };
+  if (input.mode !== undefined && !MODES[input.mode]) throw new LedgerError(`mode must be one of ${Object.keys(MODES).join(', ')}`);
+  if (input.skin !== undefined && !SKINS[input.skin]) throw new LedgerError(`skin must be one of ${Object.keys(SKINS).join(', ')}`);
+  const skin = input.skin || 'space';
+  const kids = normalizeKids(input.kids);
+  if (input.rooms === null || input.rooms === undefined) return { name, template: 'paths', mode: input.mode || 'agents', skin, kids, rooms: null };
   if (!Array.isArray(input.rooms)) throw new LedgerError('rooms must be a list');
   if (!input.rooms.length) throw new LedgerError('a station needs at least one room');
   if (input.rooms.length > MAX_ROOMS) throw new LedgerError(`a station has room for ${MAX_ROOMS} rooms`);
@@ -97,9 +158,11 @@ export function normalizeConfig(input) {
       screen: SCREENS.includes(r.screen) ? r.screen : (base ? undefined : 'open'), prop: PROPS.includes(r.prop) ? r.prop : (base ? undefined : 'pole'),
       match: [...new Set(match)],
       minutes: num(r.minutes, 1, 1440, 30), priceUsd: num(r.priceUsd, 0, 1e6, 0), costUsd: num(r.costUsd, 0, 1e6, 0), goalUsd: num(r.goalUsd, 0, 1e8, 0),
+      looks: normalizeLooks(r.looks),
     };
   });
-  return { name, template, rooms };
+  const mode = input.mode || (rooms.every((r) => r.base) ? 'agents' : 'service');
+  return { name, template, mode, skin, kids, rooms };
 }
 
 const file = (dataDir) => path.join(dataDir, 'rooms.json');
@@ -116,10 +179,13 @@ export function saveConfig(dataDir, input) {
   return cfg;
 }
 export function resetConfig(dataDir) { try { fs.unlinkSync(file(dataDir)); } catch { /* already default */ } }
-export function fromTemplate(key) {
+export function fromTemplate(key, opts = {}) {
   const t = TEMPLATES[key];
   if (!t) throw new LedgerError(`unknown template "${key}" (${Object.keys(TEMPLATES).join(', ')})`);
-  return normalizeConfig({ name: t.name, template: key, rooms: t.rooms ? t.rooms.map((r) => ({ ...r })) : null });
+  return normalizeConfig({
+    name: opts.name || t.name, template: key, mode: opts.mode || TEMPLATE_MODE[key] || 'service', skin: opts.skin || TEMPLATE_SKIN[key] || 'space', kids: opts.kids,
+    rooms: t.rooms ? t.rooms.map((r) => ({ ...r })) : null,
+  });
 }
 
 // The catalog the engine runs on: built-in paths, or the rooms a person designed (a built-in path inside a custom
@@ -128,7 +194,7 @@ export function catalogFrom(cfg) {
   if (!cfg || !cfg.rooms) return CATALOG;
   return cfg.rooms.map((r, i) => {
     const base = r.base ? baseSpec(r.base) : null;
-    const shared = { rank: i + 1, name: r.name, short: r.short, accent: r.accent, style: r.style, screen: r.screen, prop: r.prop, match: r.match, kind: r.kind, minutes: r.minutes, priceUsd: r.priceUsd, costUsd: r.costUsd, goalUsd: r.goalUsd };
+    const shared = { rank: i + 1, name: r.name, short: r.short, accent: r.accent, style: r.style, screen: r.screen, prop: r.prop, match: r.match, kind: r.kind, minutes: r.minutes, priceUsd: r.priceUsd, costUsd: r.costUsd, goalUsd: r.goalUsd, looks: r.looks };
     if (base) return { ...base, ...shared, id: base.id };
     return {
       id: r.id, bucket: 'service', thesis: `${r.name}: a service this business sells.`, killTest: '', budgetUsd: 5,
@@ -137,7 +203,10 @@ export function catalogFrom(cfg) {
   });
 }
 export const loadCatalog = (dataDir) => catalogFrom(loadConfig(dataDir));
-export const stationInfo = (dataDir) => { const c = loadConfig(dataDir); return { name: c ? c.name : 'Revenue Station', template: c ? c.template : 'paths', custom: Boolean(c && c.rooms), configured: Boolean(c) }; };
+export const stationInfo = (dataDir) => {
+  const c = loadConfig(dataDir);
+  return { name: c ? c.name : 'Revenue Station', template: c ? c.template : 'paths', custom: Boolean(c && c.rooms), configured: Boolean(c), mode: c ? c.mode : 'agents', skin: c ? c.skin : 'space', kids: c ? c.kids : [] };
+};
 
 // Which room claims an item name: the first room, in station order, with a keyword inside the name.
 export function roomForItem(item, catalog) {
