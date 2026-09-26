@@ -858,8 +858,19 @@
 
   // ======================================================================= world constants
   const W = 960, H = 600, OX = 480, OY = 120, HW = 12, HH = 6, WH = 26, SLAB = 12;
-  const CELL = 10, ROOM = 7;
+  // CELL: the grid pitch. ROOM: a room's department, the 7 by 7 core with its six stations, in the back corner of a
+  // factory floor of its own (FOOT).
+  const CELL = 18, ROOM = 7;
   const PATH_CELLS = [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [1, 2], [2, 2], [3, 1], [3, 0], [3, 2]];   // up to 10 rooms
+  // Every building has its own footprint, w along x and d along y. The department keeps the back corner, against the
+  // walls its furniture was made for; the factory floor wraps round it toward the front, so the walkways, which run
+  // straight down the rows and columns, still come in through the department's doors. Some buildings have a loading
+  // yard cut out of the front corner (yard: [w, d]); the vault is a round hall on the middle of its square.
+  const FOOT = {
+    '0,0': { w: 15, d: 13, yard: [4, 3] }, '1,0': { w: 11, d: 13 }, '2,0': { w: 13, d: 11 }, '3,0': { w: 13, d: 15 },
+    '0,1': { w: 13, d: 11 }, '1,1': { w: 12, d: 12, round: true }, '2,1': { w: 15, d: 13, yard: [4, 3] }, '3,1': { w: 11, d: 11 },
+    '0,2': { w: 13, d: 9 }, '1,2': { w: 11, d: 13 }, '2,2': { w: 13, d: 11 }, '3,2': { w: 15, d: 15, yard: [4, 4] },
+  };
   const HUB = [1, 1], DOCK = [0, 2];
   const DESKS = [[1, 1], [3, 1], [5, 1], [1, 4], [3, 4], [5, 4]];   // room-local, one per stage
   const STAGES = ['prospect', 'conversation', 'demo', 'pilot', 'paid', 'retained'];
@@ -889,17 +900,45 @@
 
   const iso = (x, y) => [OX + (x - y) * HW, OY + (x + y) * HH];
   const P = (x, y, z = 0) => { const [sx, sy] = iso(x, y); return [sx, sy - z]; };
-  const cellOrigin = (c, r) => [c * CELL + 1, r * CELL + 1];
+  const cellCenter = (c, r) => [c * CELL + CELL / 2, r * CELL + CELL / 2];
+  // a cell's building: its box in world units, the yard cut from its front corner, and where the department sits in it
+  const boxCache = new Map();
+  function cellBox(c, r) {
+    const key = c + ',' + r;
+    let b = boxCache.get(key);
+    if (!b) {
+      // cx, cy: the middle of the grid square, where the walkways run; the department is centered on it
+      const f = FOOT[key] || { w: 11, d: 11 }, [cx, cy] = cellCenter(c, r), round = Boolean(f.round), R = round ? f.w / 2 : 0;
+      const x0 = round ? cx - R : cx - ROOM / 2, y0 = round ? cy - R : cy - ROOM / 2;
+      b = { c, r, w: f.w, d: f.d, x0, y0, x1: x0 + f.w, y1: y0 + f.d, cx, cy, round, R, yard: f.yard || null, ox: round ? R - ROOM / 2 : 0, oy: round ? R - ROOM / 2 : 0 };
+      boxCache.set(key, b);
+    }
+    return b;
+  }
+  // the department's corner: every room's six stations, the vault and the dock desks are laid out from here
+  const cellOrigin = (c, r) => { const b = cellBox(c, r); return [b.x0 + b.ox, b.y0 + b.oy]; };
+  // the corner of a building nearest the viewer, where its name plate hangs
+  const frontOf = (b) => (b.round ? [b.cx + b.R * 0.7071, b.cy + b.R * 0.7071] : [b.x1, b.y1]);
+  // is a world point on a cell's floor (pad: how far inside the edge)? The yard and the vault's curve are not floor.
+  function onFloor(b, x, y, pad = 0) {
+    if (b.round) return Math.hypot(x - b.cx, y - b.cy) <= b.R - pad;
+    if (x < b.x0 + pad || x > b.x1 - pad || y < b.y0 + pad || y > b.y1 - pad) return false;
+    return !(b.yard && x > b.x1 - b.yard[0] - pad && y > b.y1 - b.yard[1] - pad);
+  }
+  // the walkway between two neighbouring cells: from one building's wall to the other's, down the middle of the row
+  function hallBox(c0, r0, c1, r1) {
+    const a = cellBox(c0, r0), b = cellBox(c1, r1), horiz = r0 === r1, hw = 0.6;
+    return horiz ? { horiz, x0: a.x1, y0: a.cy - hw, w: b.x0 - a.x1, d: hw * 2 } : { horiz, x0: a.cx - hw, y0: a.y1, w: hw * 2, d: b.y0 - a.y1 };
+  }
   // the station's back walls: as in a dollhouse (or the Sims), the two walls behind everything stay up. They stand on a
   // ledge of their own just behind the back rooms, so the rooms still float. World units.
   const BACK = { gap: 2.4, ledge: 1.7, h: 6.2 };
   function backdropBounds() {
-    let c0 = Infinity, r0 = Infinity, c1 = -Infinity, r1 = -Infinity;
-    for (const key of cells.keys()) { const [c, r] = key.split(',').map(Number); c0 = Math.min(c0, c); r0 = Math.min(r0, r); c1 = Math.max(c1, c); r1 = Math.max(r1, r); }
-    if (!isFinite(c0)) return null;
-    return { x0: c0 * CELL + 1 - BACK.gap, y0: r0 * CELL + 1 - BACK.gap, x1: Math.max(c1 * CELL + 1 + ROOM + 0.8, MAST[0] + 1.3), y1: r1 * CELL + 1 + ROOM + 0.8 };
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const key of cells.keys()) { const [c, r] = key.split(',').map(Number), b = cellBox(c, r); x0 = Math.min(x0, b.x0); y0 = Math.min(y0, b.y0); x1 = Math.max(x1, b.x1); y1 = Math.max(y1, b.y1); }
+    if (!isFinite(x0)) return null;
+    return { x0: x0 - BACK.gap, y0: y0 - BACK.gap, x1: Math.max(x1 + 0.8, MAST[0] + 1.3), y1: y1 + 0.8 };
   }
-  const cellCenter = (c, r) => [c * CELL + 1 + 3.5, r * CELL + 1 + 3.5];
 
 
 
@@ -1000,7 +1039,16 @@
   // the residents drawn from the kit rather than from Code Lab
   const NPC_LOOK = { cargo: { role: 'crew', species: 'robot', world: 'space', tier: 1, tint: '#ffb454' }, courier: { role: 'crew', world: 'cyber', tier: 2, skin: 3, hair: 4, hairC: 5, tint: '#ff5ce0' }, dj: { role: 'creator', species: 'robot', world: 'cyber', tier: 3 }, receptionist: { role: 'client', species: 'blob', world: 'alien', tier: 1, tint: '#b06bff' }, accountant: { role: 'fulfiller', species: 'octo', world: 'ocean', tier: 3 } };
   const NPC_BARK = { mordra: 'coin', vex: 'dots', mott: 'heart', warg: 'bang', mumblecrow: 'q', cargo: 'dots', courier: 'bang', dj: 'note', receptionist: 'heart', accountant: 'coin', crab: 'heart' };
-  const dockSpot = () => { const [dx, dy] = cellOrigin(...DOCK); for (let k = 0; k < 30; k++) { const x = dx + 0.6 + Math.random() * 5.8, y = dy + 0.6 + Math.random() * 5.8; if (nav && walkable(x, y) && walkable(x + 0.3, y) && walkable(x, y + 0.3)) return [x, y]; } return cellCenter(...DOCK); };
+  // somewhere free to stand anywhere on a cell's floor, clear of the furniture by a little
+  function spotIn(c, r, fallback) {
+    const b = cellBox(c, r);
+    for (let k = 0; k < 40; k++) {
+      const x = b.x0 + 0.7 + Math.random() * (b.w - 1.4), y = b.y0 + 0.7 + Math.random() * (b.d - 1.4);
+      if (nav && onFloor(b, x, y, 0.6) && walkable(x, y) && walkable(x + 0.3, y) && walkable(x - 0.3, y) && walkable(x, y + 0.3) && walkable(x, y - 0.3)) return [x, y];
+    }
+    return fallback || cellCenter(c, r);
+  }
+  const dockSpot = () => spotIn(...DOCK);
   function residentsFor(w) {
     const out = [], [hx, hy] = cellCenter(...HUB), [dx, dy] = cellCenter(...DOCK);
     const add = (npc, home, x, y, k = '') => { const [px, py] = nearestWalkable(x, y); out.push({ id: `npc:${npc}${k}`, npc, home, x: px, y: py, roam: Boolean(NPC[npc].roam) }); };
@@ -1043,8 +1091,11 @@
       const [c, r] = PATH_CELLS[i];
       const [x0, y0] = cellOrigin(c, r);
       cells.set(c + ',' + r, 'path');
-      rooms.push({ id: spec.id, spec, c, r, x0, y0 });
+      rooms.push({ id: spec.id, spec, c, r, x0, y0, box: cellBox(c, r) });
     });
+    // the mast stands on the back ledge, in the gap between the third and fourth columns
+    MAST[0] = (cellBox(2, 0).x1 + cellBox(3, 0).x0) / 2;
+    const bk = backdropBounds(); MAST[1] = bk ? bk.y0 + 1.05 : -0.35;
   }
   const pathState = (id) => snap.state.paths[id];
   const isGated = (spec) => Boolean(spec.gate && !(snap.state.gates[spec.gate] && snap.state.gates[spec.gate].cleared));
@@ -1077,9 +1128,9 @@
     return out;
   }
   // ---- navigation: a fine walk grid over floors and halls, furniture blocked, A* plus string-pulling
-  const NR = 4, NGW = 44 * NR, NGH = 34 * NR;
+  const NR = 4, NGW = (4 * CELL + 6) * NR, NGH = (3 * CELL + 6) * NR;
   const HUB_SPAWN = [1.9, 1.9];                             // hub-local spot where crew beam in and out
-  const MAST = [29, -0.35];                                 // world spot of the comm mast (income sync)
+  const MAST = [3 * CELL, -0.35];                           // world spot of the comm mast (income sync), set by buildRooms
   // Income sync health, read from the snapshot: drives the mast beacon, the Sync button and the mast tooltip.
   function syncStatus() {
     const list = (snap && snap.sync && snap.sync.connections) || [];
@@ -1093,7 +1144,7 @@
     if (!oldest) return { key: 'stale', color: '#ffb347', blink: 0, text: 'linked, waiting for the first sync' };
     return { key: 'ok', color: '#3ddc97', blink: 0, text: `${live.length} linked · synced ${ago(new Date(Math.max(...times)).toISOString())}` };
   }
-  let nav = null;
+  let nav = null, navBuf = null;
   function buildNav() {
     const g = new Uint8Array(NGW * NGH);
     const mark = (xa, ya, xb, yb, v) => {
@@ -1101,18 +1152,21 @@
         for (let x = Math.max(0, Math.floor(xa * NR)); x < Math.min(NGW, Math.ceil(xb * NR)); x++) g[y * NGW + x] = v;
     };
     for (const key of cells.keys()) {
-      const [c, r] = key.split(',').map(Number); const [x0, y0] = cellOrigin(c, r);
-      mark(x0 + 0.25, y0 + 0.25, x0 + 6.75, y0 + 6.75, 1);
-      if (cells.has((c + 1) + ',' + r)) mark(c * CELL + 7.5, r * CELL + 4.15, c * CELL + 11.5, r * CELL + 4.85, 1);
-      if (cells.has(c + ',' + (r + 1))) mark(c * CELL + 4.15, r * CELL + 7.5, c * CELL + 4.85, r * CELL + 11.5, 1);
+      const [c, r] = key.split(',').map(Number), b = cellBox(c, r);
+      for (let gy = Math.max(0, Math.floor(b.y0 * NR)); gy < Math.min(NGH, Math.ceil(b.y1 * NR)); gy++)
+        for (let gx = Math.max(0, Math.floor(b.x0 * NR)); gx < Math.min(NGW, Math.ceil(b.x1 * NR)); gx++)
+          if (onFloor(b, (gx + 0.5) / NR, (gy + 0.5) / NR, 0.25)) g[gy * NGW + gx] = 1;
+      // the walkways, run half a unit into each building through its door
+      for (const [c1, r1] of [[c + 1, r], [c, r + 1]]) if (cells.has(c1 + ',' + r1)) { const h = hallBox(c, r, c1, r1); if (h.horiz) mark(h.x0 - 0.6, h.y0 + 0.1, h.x0 + h.w + 0.6, h.y0 + h.d - 0.1, 1); else mark(h.x0 + 0.1, h.y0 - 0.6, h.x0 + h.w - 0.1, h.y0 + h.d + 0.6, 1); }
     }
     // every piece of furniture blocks its footprint, so the folk walk around what the renderer draws
     for (const key of cells.keys()) {
       const [c, r] = key.split(',').map(Number), [x0, y0] = cellOrigin(c, r), kind = cells.get(key);
       const rm = kind === 'path' ? rooms.find((m) => m.c === c && m.r === r) : null;
-      for (const [fx, fy, fw, fd] of WR.footprints(kind, rm)) mark(x0 + fx, y0 + fy, x0 + fx + fw, y0 + fy + fd, 0);
+      for (const [fx, fy, fw, fd] of WR.footprints(kind, rm, c, r)) mark(x0 + fx, y0 + fy, x0 + fx + fw, y0 + fy + fd, 0);
     }
     nav = g;
+    navBuf = null;
   }
   const walkable = (x, y) => { const gx = Math.floor(x * NR), gy = Math.floor(y * NR); return gx >= 0 && gy >= 0 && gx < NGW && gy < NGH && nav[gy * NGW + gx] === 1; };
   function nearestWalkable(x, y) {
@@ -1129,16 +1183,18 @@
     if (!nav) return [to];
     const s = nearestWalkable(...from), e = nearestWalkable(...to);
     const sx = Math.floor(s[0] * NR), sy = Math.floor(s[1] * NR), ex = Math.floor(e[0] * NR), ey = Math.floor(e[1] * NR);
-    const N = NGW * NGH, gS = new Float32Array(N).fill(Infinity), came = new Int32Array(N).fill(-1), closed = new Uint8Array(N);
+    const N = NGW * NGH;
+    if (!navBuf) navBuf = { gS: new Float32Array(N), came: new Int32Array(N), closed: new Uint8Array(N) };
+    const { gS, came, closed } = navBuf; gS.fill(Infinity); came.fill(-1); closed.fill(0);
     const heap = [];
     const hpush = (f, i) => { heap.push([f, i]); let c = heap.length - 1; while (c > 0) { const p = (c - 1) >> 1; if (heap[p][0] <= heap[c][0]) break; [heap[p], heap[c]] = [heap[c], heap[p]]; c = p; } };
     const hpop = () => { const top = heap[0], lastE = heap.pop(); if (heap.length) { heap[0] = lastE; let c = 0; for (;;) { const l = 2 * c + 1, r = l + 1; let m = c; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === c) break; [heap[m], heap[c]] = [heap[c], heap[m]]; c = m; } } return top; };
-    const hf = (x, y) => { const dx = Math.abs(x - ex), dy = Math.abs(y - ey); return dx + dy + (Math.SQRT2 - 2) * Math.min(dx, dy); };
+    const hf = (x, y) => { const dx = Math.abs(x - ex), dy = Math.abs(y - ey); return (dx + dy + (Math.SQRT2 - 2) * Math.min(dx, dy)) * 1.15; };
     const si = sy * NGW + sx, ei = ey * NGW + ex;
     gS[si] = 0; hpush(hf(sx, sy), si);
     const DIRS = [[1, 0, 1], [-1, 0, 1], [0, 1, 1], [0, -1, 1], [1, 1, Math.SQRT2], [1, -1, Math.SQRT2], [-1, 1, Math.SQRT2], [-1, -1, Math.SQRT2]];
     let found = false, guard = 0;
-    while (heap.length && guard++ < 60000) {
+    while (heap.length && guard++ < 250000) {
       const cur = hpop()[1];
       if (closed[cur]) continue;
       closed[cur] = 1;
@@ -1165,7 +1221,7 @@
     return out;
   }
   const hubSpawn = () => { const [hx, hy] = cellOrigin(...HUB); return [hx + HUB_SPAWN[0], hy + HUB_SPAWN[1]]; };
-  const hubSpot = () => { const [hx, hy] = cellOrigin(...HUB); for (let k = 0; k < 30; k++) { const x = hx + 0.6 + Math.random() * 5.8, y = hy + 0.6 + Math.random() * 5.8; if (nav && walkable(x, y) && walkable(x + 0.3, y) && walkable(x, y + 0.3)) return [x, y]; } return hubSpawn(); };
+  const hubSpot = () => spotIn(...HUB, hubSpawn());
   function beam(x, y, col) {
     const [sx, sy] = P(x, y, 8);
     for (let k = 0; k < 16; k++) particles.push({ x: sx + (Math.random() - 0.5) * 6, y: sy + 6 - Math.random() * 18, vx: (Math.random() - 0.5) * 8, vy: -8 - Math.random() * 20, g: 0, life: 0.5 + Math.random() * 0.5, col, glow: true });
@@ -1181,13 +1237,7 @@
     return pref;
   }
   // somewhere to stand in a room when a standing agent is between runs
-  function idleSpot(room) {
-    for (let k = 0; k < 30; k++) {
-      const x = room.x0 + 0.6 + Math.random() * 5.8, y = room.y0 + 0.6 + Math.random() * 5.8;
-      if (nav && walkable(x, y) && walkable(x + 0.3, y) && walkable(x - 0.3, y) && walkable(x, y + 0.3) && walkable(x, y - 0.3)) return [x, y];
-    }
-    return cellCenter(room.c, room.r);
-  }
+  const idleSpot = (room) => spotIn(room.c, room.r);
   const jobsOn = (pathId) => Object.values((snap && snap.state.jobs) || {}).filter((j) => j.path === pathId);
   const jobNext = (j) => {
     if (!j.enabled) return 'off';
@@ -1485,7 +1535,7 @@
   const roomTier = (room) => tierOf(roomActivity(room));
   function fireworks(room, n = 3) {
     const [cx, cy] = cellCenter(room.c, room.r);
-    for (let k = 0; k < n; k++) fx.push({ kind: 'fw', x: cx + (Math.random() - 0.5) * 3, y: cy + (Math.random() - 0.5) * 3, t: -k * 0.45, dur: 0.9, col: [themeOf(room.id).accent, '#ffd23f', '#ffffff', '#ff5c7a', '#5affc8'][k % 5], done: false });
+    for (let k = 0; k < n; k++) fx.push({ kind: 'fw', x: cx + (Math.random() - 0.5) * 6, y: cy + (Math.random() - 0.5) * 6, t: -k * 0.45, dur: 0.9, col: [themeOf(room.id).accent, '#ffd23f', '#ffffff', '#ff5c7a', '#5affc8'][k % 5], done: false });
   }
   function fwTick() {
     for (const e of fx) {
@@ -1736,15 +1786,23 @@
       a.actT -= dt;
       if (a.act === 'phone' && Math.random() < dt * 0.35) bubble(a, CROWD_BARK[(Math.random() * CROWD_BARK.length) | 0], 1.1);
       if (a.act === 'chat' && a.partner) { const p = agents.get(a.partner); if (p) a.face = p.x - p.y > a.x - a.y ? 1 : -1; }
-      if (a.actT > 0) return;
       const room = roomById(a.path); if (!room) return;
+      // hauling: fetch from a crate or rack, carry it to the packer or a pallet, set it down
+      if (a.act === 'haul') {
+        if (a.haul === 0) { if (a.actT > 0) return; a.haul = 1; a.carry = 1; a.lookAt = a.haulTo.look; a.queue = findPath([a.x, a.y], [a.haulTo.x, a.haulTo.y]); a.actT = 1.2 + Math.random(); return; }
+        if (a.carry) { a.carry = 0; a.act = 'tinker'; a.actT = 0.8 + Math.random() * 0.8; bubble(a, Math.random() < 0.5 ? 'check' : 'coin', 0.9); return; }
+      }
+      if (a.actT > 0) return;
       const r = Math.random();
-      a.carry = 0; a.partner = null;
+      a.carry = 0; a.partner = null; a.lookAt = null;
       const desk = () => { const [cx, cy] = deskCenter(room, (Math.random() * 6) | 0); return nearestWalkable(cx + 0.5 + (Math.random() - 0.5) * 0.6, cy + 0.9); };
+      const fs = WR.factorySpots(room), pickOf = (list) => list[(Math.random() * list.length) | 0];
       if (a.holo) { if (r < 0.6) { a.act = 'tinker'; a.queue = findPath([a.x, a.y], desk()); a.actT = 3 + Math.random() * 5; } else { a.act = 'idle'; a.carry = 1; a.queue = findPath([a.x, a.y], idleSpot(room)); a.actT = 0.8 + Math.random(); } return; }
-      if (r < 0.3) { a.act = 'phone'; a.queue = findPath([a.x, a.y], idleSpot(room)); a.actT = 3 + Math.random() * 4; }
-      else if (r < 0.52) { a.act = 'tinker'; a.queue = findPath([a.x, a.y], desk()); a.actT = 2.5 + Math.random() * 4; }
-      else if (r < 0.72) { a.act = 'idle'; a.carry = 1; a.queue = findPath([a.x, a.y], idleSpot(room)); a.actT = 0.6 + Math.random() * 1.2; }
+      if (r < 0.14) { a.act = 'phone'; a.queue = findPath([a.x, a.y], idleSpot(room)); a.actT = 3 + Math.random() * 4; }
+      else if (r < 0.3) { a.act = 'tinker'; a.queue = findPath([a.x, a.y], desk()); a.actT = 2.5 + Math.random() * 4; }
+      else if (r < 0.56 && fs.work.length) { const sp = pickOf(fs.work); a.act = 'tinker'; a.lookAt = sp.look; a.queue = findPath([a.x, a.y], [sp.x, sp.y]); a.actT = 4 + Math.random() * 6; }
+      else if (r < 0.72 && fs.pick.length && fs.drop.length) { const from = pickOf(fs.pick); a.act = 'haul'; a.haul = 0; a.haulTo = pickOf(fs.drop); a.lookAt = from.look; a.queue = findPath([a.x, a.y], [from.x, from.y]); a.actT = 0.7 + Math.random() * 0.6; }
+      else if (r < 0.76) { a.act = 'idle'; a.carry = 1; a.queue = findPath([a.x, a.y], idleSpot(room)); a.actT = 0.6 + Math.random() * 1.2; }
       else if (r < 0.9) {
         const mate = [...agents.values()].find((b) => b !== a && b.kind === 'extra' && !b.holo && b.path === a.path && b.act !== 'chat' && !b.queue.length && Math.hypot(b.x - a.x, b.y - a.y) < 3.5);
         if (mate) { a.act = 'chat'; a.partner = mate.id; mate.act = 'chat'; mate.partner = a.id; mate.actT = a.actT = 2.5 + Math.random() * 3; a.queue = findPath([a.x, a.y], nearestWalkable(mate.x + 0.55, mate.y + 0.2)); }
@@ -1831,6 +1889,8 @@
       } else lifeTick(a, dt);
       // face the station while working it
       if (!a.queue.length && a.station >= 0 && (a.act === 'tinker' || a.act === 'serve' || a.act === 'chore')) { const room = roomById(a.path); if (room) { const [cx, cy] = deskCenter(room, a.station); a.face = (cx - cy) - (a.x - a.y) > 0 ? 1 : -1; a.view = 'back'; } }
+      // or the machine, belt, bench or crate they came to
+      else if (!a.queue.length && a.lookAt && (a.act === 'tinker' || a.act === 'haul')) { const [cx, cy] = a.lookAt; a.face = (cx - cy) - (a.x - a.y) > 0 ? 1 : -1; a.view = cx + cy < a.x + a.y ? 'back' : 'front'; }
       if (a.state === 'work' && !a.queue.length && a.kind !== 'lead') {
         const room = roomById(a.path);
         if (room) {
@@ -2023,7 +2083,7 @@
   let home = { x: 480, y: 280 };
   const cam = { x: 480, y: 280, z: 1 }, camT = { x: 480, y: 280, z: 1 };
   let camBounce = false, camVz = 0;
-  const Z_MIN = 0.72, Z_MAX = 9;
+  const Z_MIN = 0.72, Z_MAX = 18;
   let vx0e = 0, vy0e = 0, S = 1;
   let quality = 2;
   const overlayMode = () => window.innerWidth > 900;
@@ -2031,8 +2091,8 @@
   function stationBBox() {
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const key of cells.keys()) {
-      const [c, r] = key.split(',').map(Number); const [ox, oy] = cellOrigin(c, r);
-      for (const [x, y, z] of [[ox, oy, WH + 30], [ox + ROOM, oy, WH + 20], [ox, oy + ROOM, WH], [ox + ROOM, oy + ROOM, -SLAB]]) { const [sx, sy] = P(x, y, z); x0 = Math.min(x0, sx); y0 = Math.min(y0, sy); x1 = Math.max(x1, sx); y1 = Math.max(y1, sy); }
+      const [c, r] = key.split(',').map(Number), b = cellBox(c, r);
+      for (const [x, y, z] of [[b.x0, b.y0, WH + 30], [b.x1, b.y0, WH + 20], [b.x0, b.y1, WH], [b.x1, b.y1, -SLAB]]) { const [sx, sy] = P(x, y, z); x0 = Math.min(x0, sx); y0 = Math.min(y0, sy); x1 = Math.max(x1, sx); y1 = Math.max(y1, sy); }
     }
     const bk = backdropBounds();
     if (bk) for (const [x, y, z] of [[bk.x0, bk.y0, BACK.h * HW + 58], [bk.x1, bk.y0, BACK.h * HW + 50], [bk.x0, bk.y1, BACK.h * HW + 50]]) { const [sx, sy] = P(x, y, z); x0 = Math.min(x0, sx); y0 = Math.min(y0, sy); x1 = Math.max(x1, sx); y1 = Math.max(y1, sy); }
@@ -2121,9 +2181,9 @@
   function targets() {
     const hubO = cellOrigin(...HUB), dockO = cellOrigin(...DOCK);
     return [
-      ...rooms.map((m) => ({ id: m.id, c: m.c, r: m.r, x0: m.x0, y0: m.y0, accent: themeOf(m.id).accent, room: m })),
-      { id: 'hub', c: HUB[0], r: HUB[1], x0: hubO[0], y0: hubO[1], accent: '#ffcf5a' },
-      { id: 'dock', c: DOCK[0], r: DOCK[1], x0: dockO[0], y0: dockO[1], accent: '#cfd6e6' },
+      ...rooms.map((m) => ({ id: m.id, c: m.c, r: m.r, x0: m.x0, y0: m.y0, box: m.box, accent: themeOf(m.id).accent, room: m })),
+      { id: 'hub', c: HUB[0], r: HUB[1], x0: hubO[0], y0: hubO[1], box: cellBox(...HUB), accent: '#ffcf5a' },
+      { id: 'dock', c: DOCK[0], r: DOCK[1], x0: dockO[0], y0: dockO[1], box: cellBox(...DOCK), accent: '#cfd6e6' },
     ].sort((a, b) => (b.c + b.r) - (a.c + a.r));
   }
   const targetById = (id) => targets().find((t) => t.id === id) || null;
@@ -2153,15 +2213,14 @@
       const tag = look !== 'active' ? `<span class="tag ${look}">${look.toUpperCase()}</span>` : live ? '<span class="tag live">LIVE</span>' : '';
       const crown = room.id === topId ? `<span class="crown" title="Most profit per hour, last 30 days">${ic('crown')}</span>` : '';
       html.push(`<div class="lbl${selected === room.id ? ' sel area' : ''}" style="--c:${themeOf(room.id).accent}"><i class="stem"></i><div class="plate" data-sel="${esc(room.id)}"><b class="rk">${String(room.spec.rank).padStart(2, '0')}</b>${crown}<span class="nm">${esc(shortName(room.spec))}</span>${tierHtml(room)}<span class="m">${usd(p.earnedUsd)}</span>${folkHtml(room)}${tag}</div></div>`);
-      anchors.push({ id: room.id, pt: P(room.x0 + ROOM, room.y0 + ROOM, -6) });
+      anchors.push({ id: room.id, pt: P(...frontOf(room.box), -6) });
     }
-    const hubO = cellOrigin(...HUB), dockO = cellOrigin(...DOCK);
     html.push(`<div class="lbl${selected === 'hub' || !selected ? ' sel' : ''}" style="--c:#ffcf5a"><i class="stem"></i><div class="plate" data-sel="hub"><b class="rk">L${snap.level.level}</b><span class="nm">${esc(NM().hub)}</span><span class="m">${usd(snap.state.earnedUsd)}</span></div></div>`);
-    anchors.push({ id: 'hub', pt: P(hubO[0] + ROOM, hubO[1] + ROOM, -6) });
+    anchors.push({ id: 'hub', pt: P(...frontOf(cellBox(...HUB)), -6) });
     const drafts = Object.values(snap.outbox || {}).reduce((s, n) => s + n, 0), fam = MODE() === 'allowance';
     const dockM = fam ? `${usd(owedAll())} owed` : `${drafts} draft${drafts === 1 ? '' : 's'}`;
     html.push(`<div class="lbl${selected === 'dock' ? ' sel' : ''}" style="--c:#cfd6e6"><i class="stem"></i><div class="plate" data-sel="dock"><b class="rk">${ic(fam ? 'coin' : 'mail').replace('class="i"', 'class="i" style="width:11px;height:11px;display:block"')}</b><span class="nm">${esc(NM().dock)}</span><span class="m" style="color:#e8eefc">${dockM}</span></div></div>`);
-    anchors.push({ id: 'dock', pt: P(dockO[0] + ROOM, dockO[1] + ROOM, -6) });
+    anchors.push({ id: 'dock', pt: P(...frontOf(cellBox(...DOCK)), -6) });
     const joined = html.join('');
     if (joined === lastLabels && labelEls.length) return;
     lastLabels = joined;
@@ -2291,7 +2350,7 @@
       closeUpOn();
     } else if (fly && t && t.room) {
       // stepping back out of the close-up: the room still fills the view, walls down, neighbours in sight
-      const wh = WR.FULLH * HW, pts = [P(t.x0, t.y0, wh + 10), P(t.x0 + ROOM, t.y0, wh), P(t.x0, t.y0 + ROOM, wh * 0.7), P(t.x0 + ROOM, t.y0 + ROOM, -SLAB - 2), P(t.x0, t.y0 + ROOM, -SLAB)];
+      const b = t.box, wh = WR.FULLH * HW, pts = [P(b.x0, b.y0, wh + 10), P(b.x1, b.y0, wh), P(b.x0, b.y1, wh * 0.7), P(b.x1, b.y1, -SLAB - 2), P(b.x0, b.y1, -SLAB)];
       const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
       const bw = Math.max(...xs) - Math.min(...xs), bh = Math.max(...ys) - Math.min(...ys);
       const sFit = Math.min((avail.x1 - avail.x0) * 0.94 / bw, (avail.y1 - avail.y0) * 0.9 / bh);
@@ -2301,7 +2360,7 @@
     } else if (fly && (!id || id === 'hub')) {
       camT.x = home.x; camT.y = home.y; camT.z = 1;
     } else if (fly && t) {
-      const [cx, cy] = P(t.x0 + 3.5, t.y0 + 3.5, 8);
+      const [cx, cy] = P(t.box.cx, t.box.cy, 8);
       camT.x = cx; camT.y = cy; camT.z = Math.max(camT.z, 1.5); clampCam();
     }
     sheetTitleUpdate();
@@ -3911,6 +3970,7 @@
     let g = dctx;
     const N = ROOM, u = HW, FULLH = 4.3, LOWH = 1.45, DOWNH = 0.14;
     let rx0 = 0, ry0 = 0;                          // origin for room-local drawing
+    let curBox = cellBox(0, 0), wallDept = false;  // the building being drawn; wall art placed along the department
     let us = 12, LOD = 2, px1 = 1, tt = 0, curTheme = 'office';
     const wallH = new Map();                       // per cell: current wall height (animated)
     const lights = [];                             // [worldX, worldY, radius(world px), color, strength]
@@ -4005,13 +4065,18 @@
     }
     // drawing on a wall, in wall units: s along the wall (R: from the back corner to the right, L: from the left end to
     // the back corner), v down from the top of a full-height wall. Anything above the wall's current height is cut away.
+    // Wall art hung by a room's theme (mirrors, the name sign, screens) is placed along the department, which sits in
+    // the middle of the wall; while it draws, room-local points are measured from that side's stretch of wall.
     function onWall(side, fn, H = FULLH, clipIt = true) {
+      const b = curBox, len = side === 'R' ? b.w : b.d;
       g.save();
-      if (side === 'R') g.transform(u, 0.5 * u, 0, u, ...Pl(0, 0, FULLH));
-      else g.transform(u, -0.5 * u, 0, u, ...Pl(0, N, FULLH));
-      if (clipIt) { g.beginPath(); g.rect(0, FULLH - H, N, H); g.clip(); }
+      if (side === 'R') g.transform(u, 0.5 * u, 0, u, ...P(b.x0, b.y0, FULLH * u));
+      else g.transform(u, -0.5 * u, 0, u, ...P(b.x0, b.y1, FULLH * u));
+      if (clipIt) { g.beginPath(); g.rect(0, FULLH - H, len, H); g.clip(); }
+      if (wallDept) g.translate(side === 'R' ? b.ox : b.d - b.oy - N, 0);
       fn();
       g.restore();
+      if (wallDept) { rx0 = side === 'R' ? b.x0 + b.ox : b.x0; ry0 = side === 'R' ? b.y0 : b.y0 + b.oy; }
     }
     // text in unit space, set large and scaled down so small sizes stay crisp
     function utext(txt, x, y, size, o = {}) {
@@ -4025,8 +4090,7 @@
     function umeasure(txt, size, o = {}) { g.save(); g.font = `${o.weight || 700} ${size * 64}px ${o.family || 'system-ui,sans-serif'}`; const w = g.measureText(txt).width / 64; g.restore(); return w; }
 
     // ---- floors
-    function floorTile(x, y, S, th, look) {
-      const q = [Pl(x, y), Pl(x + 1, y), Pl(x + 1, y + 1), Pl(x, y + 1)];
+    function tileCol(x, y, S, th, look) {
       const chk = (x + y) % 2 === 0;
       let col;
       if (th === 'yard') col = chk ? '#6fbf4a' : '#66b544';
@@ -4035,91 +4099,183 @@
       else if (th === 'bedroom' || th === 'playroom') col = mixc(S.floor[0], '#b79bd6', 0.35);
       else if (S.fk === 'planks') col = S.floor[(x * 3 + y) % 2];
       else col = S.floor[chk ? 0 : 1];
+      if (th === 'factory') col = shade(col, -0.1);
       if (look === 'killed') col = mixc(col, '#3a1016', 0.55); else if (look === 'paused') col = mixc(col, '#3a3d46', 0.5); else if (look === 'gated') col = mixc(col, '#3a3222', 0.35);
-      poly(q); g.fillStyle = col; g.fill();
-      if (LOD < 2) return;
-      if (th === 'yard') {
-        g.strokeStyle = 'rgba(40,90,30,0.35)'; g.lineWidth = lw(0.02);
-        for (let k = 0; k < 4; k++) { const bx = x + 0.15 + ((hsh(x * 31 + y * 7 + k) % 70) / 100), by = y + 0.15 + ((hsh(k * 13 + x + y * 17) % 70) / 100); const [px, py] = Pl(bx, by); g.beginPath(); g.moveTo(px, py); g.lineTo(px - u * 0.04, py - u * 0.14); g.moveTo(px, py); g.lineTo(px + u * 0.05, py - u * 0.12); g.stroke(); }
-      } else if (th === 'kitchen' || th === 'laundry' || th === 'trash' || S.fk === 'tiles') { g.strokeStyle = S.fk === 'tiles' && !['kitchen', 'laundry', 'trash'].includes(th) ? alpha(S.acc, 0.14) : 'rgba(0,0,0,0.12)'; g.lineWidth = lw(0.015); g.stroke(); }
-      else if (th !== 'barber' && th !== 'salon' && th !== 'bedroom' && th !== 'playroom') {
-        if (S.fk === 'planks') { g.strokeStyle = 'rgba(0,0,0,0.16)'; g.lineWidth = lw(0.016); for (let k = 1; k < 3; k++) { g.beginPath(); g.moveTo(...Pl(x, y + k / 3)); g.lineTo(...Pl(x + 1, y + k / 3)); g.stroke(); } const off = (hsh(x * 7 + y) % 3) / 3; g.beginPath(); g.moveTo(...Pl(x + off, y)); g.lineTo(...Pl(x + off, y + 1 / 3)); g.stroke(); }
-        else if (S.fk === 'organic') { const [cx, cy] = Pl(x + 0.5, y + 0.5); g.beginPath(); g.ellipse(cx, cy, u * 0.5, u * 0.22, 0, 0, 7); g.fillStyle = 'rgba(180,120,255,0.08)'; g.fill(); }
-        else if (S.fk === 'grate') { g.strokeStyle = 'rgba(0,0,0,0.18)'; g.lineWidth = lw(0.012); for (let k = 1; k < 4; k++) { g.beginPath(); g.moveTo(...Pl(x + k / 4, y)); g.lineTo(...Pl(x + k / 4, y + 1)); g.stroke(); } }
-        else { g.strokeStyle = 'rgba(0,0,0,0.2)'; g.lineWidth = lw(0.018); g.stroke(); for (const [a, b] of [[0.12, 0.12], [0.88, 0.12], [0.12, 0.88], [0.88, 0.88]]) { const [px, py] = Pl(x + a, y + b); g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(px - px1, py - px1, px1 * 2, px1 * 2); } }
-      }
+      return col;
     }
+    // the tiles of a floor W by D (less its yard), each color filled in one go; the department's tiles take the room's
+    // theme, the factory floor around them the world's own
+    function drawTiles(W, D, yard, S, th, look, dept) {
+      const inYard = (x, y) => yard && x >= W - yard[0] && y >= D - yard[1];
+      const inDept = (x, y) => dept && x >= dept[0] && x < dept[0] + N && y >= dept[1] && y < dept[1] + N;
+      const thAt = (x, y) => (inDept(x, y) ? th : 'factory');
+      if (LOD === 0) { poly(floorOutline(W, D, yard)); g.fillStyle = tileCol(0, 1, S, 'factory', look); g.fill(); if (dept) { poly([Pl(dept[0], dept[1]), Pl(dept[0] + N, dept[1]), Pl(dept[0] + N, dept[1] + N), Pl(dept[0], dept[1] + N)]); g.fillStyle = tileCol(0, 1, S, th, look); g.fill(); } return; }
+      const fills = new Map();
+      for (let y = 0; y < D; y++) for (let x = 0; x < W; x++) { if (inYard(x, y)) continue; const col = tileCol(x, y, S, thAt(x, y), look); let arr = fills.get(col); if (!arr) fills.set(col, (arr = [])); arr.push(x, y); }
+      for (const [col, arr] of fills) {
+        g.beginPath();
+        for (let i = 0; i < arr.length; i += 2) { const x = arr[i], y = arr[i + 1]; g.moveTo(...Pl(x, y)); g.lineTo(...Pl(x + 1, y)); g.lineTo(...Pl(x + 1, y + 1)); g.lineTo(...Pl(x, y + 1)); g.closePath(); }
+        g.fillStyle = col; g.fill();
+      }
+      if (LOD < 2) return;
+      // the grain of each floor, gathered into a few strokes
+      const grass = new Path2D(), lines = new Path2D(), dots = new Path2D(), blobs = new Path2D();
+      let lineCol = null, lineW = 0.016;
+      for (let y = 0; y < D; y++) for (let x = 0; x < W; x++) {
+        if (inYard(x, y)) continue;
+        const t2 = thAt(x, y);
+        if (t2 === 'yard') { for (let k = 0; k < 4; k++) { const bx = x + 0.15 + ((hsh(x * 31 + y * 7 + k) % 70) / 100), by = y + 0.15 + ((hsh(k * 13 + x + y * 17) % 70) / 100); const [px, py] = Pl(bx, by); grass.moveTo(px, py); grass.lineTo(px - u * 0.04, py - u * 0.14); grass.moveTo(px, py); grass.lineTo(px + u * 0.05, py - u * 0.12); } continue; }
+        if (t2 === 'barber' || t2 === 'salon' || t2 === 'bedroom' || t2 === 'playroom') continue;
+        const quad = () => { lines.moveTo(...Pl(x, y)); lines.lineTo(...Pl(x + 1, y)); lines.lineTo(...Pl(x + 1, y + 1)); lines.lineTo(...Pl(x, y + 1)); lines.closePath(); };
+        if (t2 === 'kitchen' || t2 === 'laundry' || t2 === 'trash') { quad(); lineCol = lineCol || 'rgba(0,0,0,0.12)'; }
+        else if (S.fk === 'tiles') { quad(); lineCol = lineCol || alpha(S.acc, 0.14); }
+        else if (S.fk === 'planks') { for (let k = 1; k < 3; k++) { lines.moveTo(...Pl(x, y + k / 3)); lines.lineTo(...Pl(x + 1, y + k / 3)); } const off = (hsh(x * 7 + y) % 3) / 3; lines.moveTo(...Pl(x + off, y)); lines.lineTo(...Pl(x + off, y + 1 / 3)); lineCol = lineCol || 'rgba(0,0,0,0.16)'; }
+        else if (S.fk === 'organic') { const [cx, cy] = Pl(x + 0.5, y + 0.5); blobs.moveTo(cx + u * 0.5, cy); blobs.ellipse(cx, cy, u * 0.5, u * 0.22, 0, 0, 7); }
+        else if (S.fk === 'grate') { for (let k = 1; k < 4; k++) { lines.moveTo(...Pl(x + k / 4, y)); lines.lineTo(...Pl(x + k / 4, y + 1)); } lineCol = lineCol || 'rgba(0,0,0,0.18)'; lineW = 0.012; }
+        else { quad(); lineCol = lineCol || 'rgba(0,0,0,0.2)'; lineW = 0.018; for (const [a, b] of [[0.12, 0.12], [0.88, 0.12], [0.12, 0.88], [0.88, 0.88]]) { const [px, py] = Pl(x + a, y + b); dots.rect(px - px1, py - px1, px1 * 2, px1 * 2); } }
+      }
+      g.strokeStyle = 'rgba(40,90,30,0.35)'; g.lineWidth = lw(0.02); g.stroke(grass);
+      if (lineCol) { g.strokeStyle = lineCol; g.lineWidth = lw(lineW); g.stroke(lines); }
+      g.fillStyle = 'rgba(255,255,255,0.35)'; g.fill(dots);
+      g.fillStyle = 'rgba(180,120,255,0.08)'; g.fill(blobs);
+    }
+    // a floor's edge, room-local: the rectangle, less the yard in its front corner
+    const floorOutline = (W, D, yard) => (yard ? [Pl(0, 0), Pl(W, 0), Pl(W, D - yard[1]), Pl(W - yard[0], D - yard[1]), Pl(W - yard[0], D), Pl(0, D)] : [Pl(0, 0), Pl(W, 0), Pl(W, D), Pl(0, D)]);
     // a cell's floor: a raised plate with its tiles, contact shadows along the walls, a trim in the room's color
     function drawFloor(kind, rm, th, S, acc, look) {
-      const T0 = 0.28;
-      poly([Pl(0, N, 0), Pl(N, N, 0), Pl(N, N, -T0), Pl(0, N, -T0)]); g.fillStyle = S.slab; g.fill();
-      poly([Pl(N, 0, 0), Pl(N, N, 0), Pl(N, N, -T0), Pl(N, 0, -T0)]); g.fillStyle = S.slab2; g.fill();
-      if (LOD) { g.fillStyle = alpha(acc, 0.9); poly([Pl(0, N, -0.04), Pl(N, N, -0.04), Pl(N, N, -0.12), Pl(0, N, -0.12)]); g.fill(); poly([Pl(N, 0, -0.04), Pl(N, N, -0.04), Pl(N, N, -0.12), Pl(N, 0, -0.12)]); g.fillStyle = alpha(shade(acc, -0.25), 0.9); g.fill(); }
-      if (kind === 'room') { for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) floorTile(x, y, S, th, look); }
-      else if (kind === 'hub') {
-        poly([Pl(0, 0), Pl(N, 0), Pl(N, N), Pl(0, N)]); g.fillStyle = mixc(S.floor[0], '#2d3550', skinId() === 'space' ? 0.55 : 0.2); g.fill();
-        // the dais: rings of gold trim around the vault
-        for (const [r, col, wdt] of [[2.9, alpha('#ffcf5a', 0.55), 0.06], [2.3, alpha('#ffcf5a', 0.35), 0.04], [1.6, alpha('#ffcf5a', 0.8), 0.07]]) { const [cx, cy] = Pl(3.5, 3.5); g.beginPath(); g.ellipse(cx, cy, r * u * 1.414, r * u * 0.707, 0, 0, 7); g.strokeStyle = col; g.lineWidth = lw(wdt); g.stroke(); }
-        const [cx, cy] = Pl(3.5, 3.5); g.beginPath(); g.ellipse(cx, cy, 2.3 * u * 1.414, 2.3 * u * 0.707, 0, 0, 7); g.fillStyle = 'rgba(255,207,90,0.06)'; g.fill();
-      } else {
-        poly([Pl(0, 0), Pl(N, 0), Pl(N, N), Pl(0, N)]); g.fillStyle = S.floor[1]; g.fill();
-        if (LOD) { g.strokeStyle = 'rgba(255,207,90,0.5)'; g.lineWidth = lw(0.05); g.setLineDash([u * 0.25, u * 0.2]); for (const y of [4.3, 6.3]) { g.beginPath(); g.moveTo(...Pl(0.4, y)); g.lineTo(...Pl(6.6, y)); g.stroke(); } g.setLineDash([]); }
+      const b = curBox;
+      if (b.round) return drawRoundFloor(S, acc);
+      const T0 = 0.28, W = b.w, D = b.d, yard = b.yard, [yw, yd] = yard || [0, 0];
+      // the plate's front faces, and the room's color trim along them (the yard's two inner faces too)
+      const faceY = (y, xa, xb, z0, z1) => poly([Pl(xa, y, z0), Pl(xb, y, z0), Pl(xb, y, z1), Pl(xa, y, z1)]);
+      const faceX = (x, ya, yb, z0, z1) => poly([Pl(x, ya, z0), Pl(x, yb, z0), Pl(x, yb, z1), Pl(x, ya, z1)]);
+      const fronts = [['y', D, 0, W - yw], ['x', W, 0, D - yd]];
+      if (yard) fronts.push(['y', D - yd, W - yw, W], ['x', W - yw, D - yd, D]);
+      for (const [k, at, a0, a1] of fronts) {
+        (k === 'y' ? faceY : faceX)(at, a0, a1, 0, -T0); g.fillStyle = k === 'y' ? S.slab : S.slab2; g.fill();
+        if (LOD) { (k === 'y' ? faceY : faceX)(at, a0, a1, -0.04, -0.12); g.fillStyle = k === 'y' ? alpha(acc, 0.9) : alpha(shade(acc, -0.25), 0.9); g.fill(); }
+      }
+      if (kind === 'room') drawTiles(W, D, yard, S, th, look, [b.ox, b.oy]);
+      else if (kind === 'hub') drawTiles(W, D, yard, S, 'factory', look, null);
+      else {
+        poly(floorOutline(W, D, yard)); g.fillStyle = S.floor[1]; g.fill();
+        if (LOD) { g.strokeStyle = 'rgba(255,207,90,0.5)'; g.lineWidth = lw(0.05); g.setLineDash([u * 0.25, u * 0.2]); for (const y of [b.oy + 4.3, b.oy + 6.3]) { g.beginPath(); g.moveTo(...Pl(0.4, y)); g.lineTo(...Pl(W - 0.4, y)); g.stroke(); } g.setLineDash([]); }
       }
       if (LOD) {
-        for (const q of [[Pl(0, 0), Pl(N, 0), Pl(N, 0.6), Pl(0.6, 0.6)], [Pl(0, 0), Pl(0, N), Pl(0.6, N), Pl(0.6, 0.6)]]) { poly(q); const [a0, b0] = q[0], [a3, b3] = q[3]; const gr = g.createLinearGradient(a0, b0, a3, b3); gr.addColorStop(0, 'rgba(0,0,0,0.26)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fill(); }
-        poly([Pl(0, 0), Pl(N, 0), Pl(N, N), Pl(0, N)]); g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke();
+        for (const q of [[Pl(0, 0), Pl(W, 0), Pl(W, 0.6), Pl(0.6, 0.6)], [Pl(0, 0), Pl(0, D), Pl(0.6, D), Pl(0.6, 0.6)]]) { poly(q); const [a0, b0] = q[0], [a3, b3] = q[3]; const gr = g.createLinearGradient(a0, b0, a3, b3); gr.addColorStop(0, 'rgba(0,0,0,0.26)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fill(); }
+        poly(floorOutline(W, D, yard)); g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke();
       }
-      if (look === 'gated' && LOD) { g.save(); poly([Pl(0, N - 0.35), Pl(N, N - 0.35), Pl(N, N), Pl(0, N)]); g.clip(); for (let k = -2; k < 18; k++) { poly([Pl(k * 0.5, N - 0.35), Pl(k * 0.5 + 0.25, N - 0.35), Pl(k * 0.5 + 0.05, N), Pl(k * 0.5 - 0.2, N)]); g.fillStyle = k % 2 ? '#1a1a1a' : '#ffcf3a'; g.fill(); } g.restore(); }
+      if (look === 'gated' && LOD) { g.save(); poly([Pl(0, D - 0.35), Pl(W - yw, D - 0.35), Pl(W - yw, D), Pl(0, D)]); g.clip(); for (let k = -2; k < W * 2 + 4; k++) { poly([Pl(k * 0.5, D - 0.35), Pl(k * 0.5 + 0.25, D - 0.35), Pl(k * 0.5 + 0.05, D), Pl(k * 0.5 - 0.2, D)]); g.fillStyle = k % 2 ? '#1a1a1a' : '#ffcf3a'; g.fill(); } g.restore(); }
+    }
+    // the vault's round hall: a disc on a round plinth, rings of stone laid out from the middle, the gold dais
+    function drawRoundFloor(S, acc) {
+      const b = curBox, R = b.R, [cx, cy] = P(b.cx, b.cy, 0), E = (r) => [r * u * 1.414, r * u * 0.707], [rx, ry] = E(R), T0 = 0.28 * u;
+      const band = (z0, z1, fill) => { g.beginPath(); g.ellipse(cx, cy - z0, rx, ry, 0, 0, Math.PI); g.lineTo(cx - rx, cy - z1); g.ellipse(cx, cy - z1, rx, ry, 0, Math.PI, 0, true); g.closePath(); g.fillStyle = fill; g.fill(); };
+      { const gr = g.createLinearGradient(cx - rx, 0, cx + rx, 0); gr.addColorStop(0, S.slab); gr.addColorStop(1, S.slab2); band(0, -T0, gr); }
+      if (LOD) band(-0.04 * u, -0.12 * u, alpha(acc, 0.9));
+      g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, 0, 7); g.fillStyle = mixc(S.floor[0], '#2d3550', skinId() === 'space' ? 0.55 : 0.2); g.fill();
+      if (LOD) {
+        // courses of stone in rings, and joints running out from the middle
+        g.strokeStyle = 'rgba(0,0,0,0.16)'; g.lineWidth = lw(0.02);
+        for (let r = 3.4; r < R; r += 1.1) { const [a, c2] = E(r); g.beginPath(); g.ellipse(cx, cy, a, c2, 0, 0, 7); g.stroke(); }
+        if (LOD === 2) { g.beginPath(); for (let k = 0; k < 24; k++) { const an = k / 24 * Math.PI * 2, [x1, y1] = P(b.cx + Math.cos(an) * 3.4, b.cy + Math.sin(an) * 3.4), [x2, y2] = P(b.cx + Math.cos(an) * R, b.cy + Math.sin(an) * R); g.moveTo(x1, y1); g.lineTo(x2, y2); } g.stroke(); }
+        // the shadow the curved wall throws on the floor at the back
+        const [sx, sy] = E(R - 0.7); g.save(); g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, 0, 7); g.ellipse(cx, cy, sx, sy, 0, 0, 7); g.clip('evenodd'); const gr = g.createLinearGradient(0, cy - ry, 0, cy); gr.addColorStop(0, 'rgba(0,0,0,0.3)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(cx - rx, cy - ry, rx * 2, ry); g.restore();
+      }
+      // the dais: rings of gold trim around the vault
+      for (const [r, col, wdt] of [[2.9, alpha('#ffcf5a', 0.55), 0.06], [2.3, alpha('#ffcf5a', 0.35), 0.04], [1.6, alpha('#ffcf5a', 0.8), 0.07]]) { const [a, c2] = E(r); g.beginPath(); g.ellipse(cx, cy, a, c2, 0, 0, 7); g.strokeStyle = col; g.lineWidth = lw(wdt); g.stroke(); }
+      { const [a, c2] = E(2.3); g.beginPath(); g.ellipse(cx, cy, a, c2, 0, 0, 7); g.fillStyle = 'rgba(255,207,90,0.06)'; g.fill(); }
+      if (LOD) { g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, 0, 7); g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke(); }
     }
 
     // ---- walls: the two back walls of every cell, cut away to a low rail until you go in, with a door wherever a hall
     // arrives from behind. Everything hung on them is clipped to their current height, so it rises into view.
-    const DOORH = 2.2;
-    function wallPath(H, door) {
-      g.beginPath(); g.rect(0, FULLH - H, N, H);
-      if (door) { const top = Math.max(FULLH - H, FULLH - DOORH); g.rect(3, top, 1, FULLH - top); }
+    const DOORH = 2.2, DOORW = 1.4;
+    // a wall's length and where its door opens: on the department's middle line, where the walkway arrives
+    const wallLen = (side) => (side === 'R' ? curBox.w : curBox.d);
+    const doorAt = (side) => (side === 'R' ? curBox.ox + N / 2 : curBox.d - curBox.oy - N / 2) - DOORW / 2;
+    function wallPath(H, door, L, d0) {
+      g.beginPath(); g.rect(0, FULLH - H, L, H);
+      if (door) { const top = Math.max(FULLH - H, FULLH - DOORH); g.rect(d0, top, DOORW, FULLH - top); }
     }
     function wallFace(side, S, th, H, door, look) {
-      const fence = th === 'yard';
+      const fence = th === 'yard', L = wallLen(side), d0 = doorAt(side), d1 = d0 + DOORW;
       const base = look === 'killed' ? mixc(side === 'R' ? S.wall : S.wall2, '#4a1c22', 0.5) : look === 'gated' ? mixc(side === 'R' ? S.wall : S.wall2, '#6a5a2a', 0.3) : side === 'R' ? S.wall : S.wall2;
       onWall(side, () => {
         if (fence) {
           const fh = Math.min(H, 2.0);
-          for (let s = 0; s < N; s += 0.5) { if (door && s >= 2.95 && s < 4) continue; g.fillStyle = shade('#c98f55', (s * 2) % 2 ? -0.08 : 0.04); g.beginPath(); g.moveTo(s + 0.03, FULLH); g.lineTo(s + 0.03, FULLH - fh + 0.2); g.lineTo(s + 0.25, FULLH - fh); g.lineTo(s + 0.47, FULLH - fh + 0.2); g.lineTo(s + 0.47, FULLH); g.fill(); }
-          g.fillStyle = '#a8703e'; for (const hb of [0.55, 1.35]) if (hb < fh) { g.fillRect(0, FULLH - hb - 0.14, door ? 3 : N, 0.14); if (door) g.fillRect(4, FULLH - hb - 0.14, 3, 0.14); }
+          for (let s = 0; s < L; s += 0.5) { if (door && s >= d0 - 0.05 && s < d1) continue; g.fillStyle = shade('#c98f55', (s * 2) % 2 ? -0.08 : 0.04); g.beginPath(); g.moveTo(s + 0.03, FULLH); g.lineTo(s + 0.03, FULLH - fh + 0.2); g.lineTo(s + 0.25, FULLH - fh); g.lineTo(s + 0.47, FULLH - fh + 0.2); g.lineTo(s + 0.47, FULLH); g.fill(); }
+          g.fillStyle = '#a8703e'; for (const hb of [0.55, 1.35]) if (hb < fh) { g.fillRect(0, FULLH - hb - 0.14, door ? d0 : L, 0.14); if (door) g.fillRect(d1, FULLH - hb - 0.14, L - d1, 0.14); }
           return;
         }
-        wallPath(H, door); g.fillStyle = base; g.fill('evenodd');
+        wallPath(H, door, L, d0); g.fillStyle = base; g.fill('evenodd');
         if (LOD) {
-          g.save(); wallPath(H, door); g.clip('evenodd');
-          if (S.brick && LOD === 2) { g.drawImage(castleMasonry(N, FULLH, side === 'R' ? 11 : 17, { room: true }), 0, 0, N, FULLH); if (look === 'killed' || look === 'gated' || side === 'L') { g.fillStyle = look === 'killed' ? 'rgba(90,20,30,0.35)' : look === 'gated' ? 'rgba(110,90,30,0.22)' : 'rgba(12,8,20,0.14)'; g.fillRect(0, 0, N, FULLH); } }
-          else if (S.brick) { g.strokeStyle = 'rgba(0,0,0,0.18)'; g.lineWidth = 0.025; for (let r = 0; r < FULLH / 0.35; r++) { const v = r * 0.35; g.beginPath(); g.moveTo(0, v); g.lineTo(N, v); g.stroke(); for (let s = (r % 2) * 0.35; s < N; s += 0.7) { g.beginPath(); g.moveTo(s, v); g.lineTo(s, v + 0.35); g.stroke(); } } }
-          else if (th === 'barber' || th === 'salon') { g.fillStyle = 'rgba(0,0,0,0.05)'; for (let s = 0; s < N; s += 0.6) g.fillRect(s, 0, 0.3, FULLH); g.fillStyle = shade(S.wall, -0.35, 0.9); g.fillRect(0, FULLH - 1.35, N, 1.35); g.fillStyle = 'rgba(255,255,255,0.1)'; for (let s = 0.2; s < N; s += 0.4) g.fillRect(s, FULLH - 1.3, 0.03, 1.25); }
-          else if (th === 'kitchen') { g.fillStyle = '#eef3f5'; g.fillRect(0, FULLH - 2.2, N, 1.2); g.strokeStyle = 'rgba(0,0,0,0.1)'; g.lineWidth = 0.02; for (let v = FULLH - 2.2; v < FULLH - 1; v += 0.3) { g.beginPath(); g.moveTo(0, v); g.lineTo(N, v); g.stroke(); } for (let s = 0; s < N; s += 0.3) { g.beginPath(); g.moveTo(s, FULLH - 2.2); g.lineTo(s, FULLH - 1); g.stroke(); } }
-          else if (th === 'bedroom' || th === 'playroom') { g.fillStyle = 'rgba(255,255,255,0.18)'; for (let s = 0.2; s < N; s += 0.55) for (let v = 0.3; v < FULLH - 0.4; v += 0.55) { g.beginPath(); g.arc(s + ((v * 10) % 2 ? 0.27 : 0), v, 0.06, 0, 7); g.fill(); } }
-          else if (S.neon) { g.fillStyle = 'rgba(255,255,255,0.03)'; for (let s = 0; s < N; s += 1) g.fillRect(s + 0.02, 0, 0.96, FULLH); }
-          else if (S.fk === 'plates' || S.fk === 'grate') { g.strokeStyle = 'rgba(0,0,0,0.12)'; g.lineWidth = 0.025; for (let s = 1; s < N; s += 1.4) { g.beginPath(); g.moveTo(s, 0); g.lineTo(s, FULLH); g.stroke(); } }
-          else if (S.fk === 'organic') { g.strokeStyle = alpha(S.acc, 0.22); g.lineWidth = 0.05; for (let k = 0; k < 5; k++) { g.beginPath(); g.moveTo(k * 1.6, FULLH); g.bezierCurveTo(k * 1.6 + 0.6, FULLH - 1.5, k * 1.6 - 0.4, 1.4, k * 1.6 + 0.5, 0); g.stroke(); } }
-          else { g.fillStyle = 'rgba(0,0,0,0.04)'; for (let s = 0; s < N; s += 0.5) g.fillRect(s, 0, 0.25, FULLH); }
-          g.fillStyle = shade(S.trim, 0.1); g.fillRect(0, FULLH - 0.26, N, 0.26);
-          g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(0, FULLH - 0.26, N, 0.03);
+          g.save(); wallPath(H, door, L, d0); g.clip('evenodd');
+          if (S.brick && LOD === 2) { g.drawImage(castleMasonry(L, FULLH, side === 'R' ? 11 : 17, { room: true }), 0, 0, L, FULLH); if (look === 'killed' || look === 'gated' || side === 'L') { g.fillStyle = look === 'killed' ? 'rgba(90,20,30,0.35)' : look === 'gated' ? 'rgba(110,90,30,0.22)' : 'rgba(12,8,20,0.14)'; g.fillRect(0, 0, L, FULLH); } }
+          else if (S.brick) { g.strokeStyle = 'rgba(0,0,0,0.18)'; g.lineWidth = 0.025; g.beginPath(); for (let r = 0; r < FULLH / 0.35; r++) { const v = r * 0.35; g.moveTo(0, v); g.lineTo(L, v); for (let s = (r % 2) * 0.35; s < L; s += 0.7) { g.moveTo(s, v); g.lineTo(s, v + 0.35); } } g.stroke(); }
+          else if (th === 'barber' || th === 'salon') { g.fillStyle = 'rgba(0,0,0,0.05)'; for (let s = 0; s < L; s += 0.6) g.fillRect(s, 0, 0.3, FULLH); g.fillStyle = shade(S.wall, -0.35, 0.9); g.fillRect(0, FULLH - 1.35, L, 1.35); g.fillStyle = 'rgba(255,255,255,0.1)'; for (let s = 0.2; s < L; s += 0.4) g.fillRect(s, FULLH - 1.3, 0.03, 1.25); }
+          else if (th === 'kitchen') { g.fillStyle = '#eef3f5'; g.fillRect(0, FULLH - 2.2, L, 1.2); g.strokeStyle = 'rgba(0,0,0,0.1)'; g.lineWidth = 0.02; g.beginPath(); for (let v = FULLH - 2.2; v < FULLH - 1; v += 0.3) { g.moveTo(0, v); g.lineTo(L, v); } for (let s = 0; s < L; s += 0.3) { g.moveTo(s, FULLH - 2.2); g.lineTo(s, FULLH - 1); } g.stroke(); }
+          else if (th === 'bedroom' || th === 'playroom') { g.fillStyle = 'rgba(255,255,255,0.18)'; g.beginPath(); for (let s = 0.2; s < L; s += 0.55) for (let v = 0.3; v < FULLH - 0.4; v += 0.55) { const px = s + ((v * 10) % 2 ? 0.27 : 0); g.moveTo(px + 0.06, v); g.arc(px, v, 0.06, 0, 7); } g.fill(); }
+          else if (S.neon) { g.fillStyle = 'rgba(255,255,255,0.03)'; for (let s = 0; s < L; s += 1) g.fillRect(s + 0.02, 0, 0.96, FULLH); }
+          else if (S.fk === 'plates' || S.fk === 'grate') { g.strokeStyle = 'rgba(0,0,0,0.12)'; g.lineWidth = 0.025; g.beginPath(); for (let s = 1; s < L; s += 1.4) { g.moveTo(s, 0); g.lineTo(s, FULLH); } g.stroke(); }
+          else if (S.fk === 'organic') { g.strokeStyle = alpha(S.acc, 0.22); g.lineWidth = 0.05; g.beginPath(); for (let k = 0; k * 1.6 < L; k++) { g.moveTo(k * 1.6, FULLH); g.bezierCurveTo(k * 1.6 + 0.6, FULLH - 1.5, k * 1.6 - 0.4, 1.4, k * 1.6 + 0.5, 0); } g.stroke(); }
+          else { g.fillStyle = 'rgba(0,0,0,0.04)'; for (let s = 0; s < L; s += 0.5) g.fillRect(s, 0, 0.25, FULLH); }
+          g.fillStyle = shade(S.trim, 0.1); g.fillRect(0, FULLH - 0.26, L, 0.26);
+          g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(0, FULLH - 0.26, L, 0.03);
           // light falls across the wall: brighter toward the back corner
-          const gr = g.createLinearGradient(0, 0, N, 0);
+          const gr = g.createLinearGradient(0, 0, L, 0);
           if (side === 'R') { gr.addColorStop(0, 'rgba(255,255,255,0.07)'); gr.addColorStop(1, 'rgba(0,0,0,0.12)'); } else { gr.addColorStop(0, 'rgba(0,0,0,0.2)'); gr.addColorStop(1, 'rgba(255,255,255,0.05)'); }
-          g.fillStyle = gr; g.fillRect(0, 0, N, FULLH);
+          g.fillStyle = gr; g.fillRect(0, 0, L, FULLH);
           g.restore();
           // the door: a frame around the opening
-          if (door) { g.strokeStyle = shade(S.trim, -0.2); g.lineWidth = 0.1; const top = Math.max(FULLH - H, FULLH - DOORH); g.beginPath(); g.moveTo(3, FULLH); g.lineTo(3, top); if (H > DOORH) g.lineTo(4, top); g.moveTo(4, top); g.lineTo(4, FULLH); g.stroke(); }
+          if (door) { g.strokeStyle = shade(S.trim, -0.2); g.lineWidth = 0.1; const top = Math.max(FULLH - H, FULLH - DOORH); g.beginPath(); g.moveTo(d0, FULLH); g.lineTo(d0, top); if (H > DOORH) g.lineTo(d1, top); g.moveTo(d1, top); g.lineTo(d1, FULLH); g.stroke(); }
         }
-        wallPath(H, door); g.strokeStyle = INK; g.lineWidth = lw(0.03) / u; g.stroke();
+        wallPath(H, door, L, d0); g.strokeStyle = INK; g.lineWidth = lw(0.03) / u; g.stroke();
       }, H, false);
       if (fence) return;
       // the cut-away cap along the top: what makes it read as a doll's house
-      const t = 0.2, capSeg = (a, b) => (side === 'R' ? [Pl(a, 0, H), Pl(b, 0, H), Pl(b, -t, H), Pl(a - (a === 0 ? t : 0), -t, H)] : [Pl(0, N - a, H), Pl(0, N - b, H), Pl(-t, N - b - (b === N ? t : 0), H), Pl(-t, N - a, H)]);
-      const segs = door && H <= DOORH ? [[0, 3], [4, N]] : [[0, N]];
+      const t = 0.2, capSeg = (a, b) => (side === 'R' ? [Pl(a, 0, H), Pl(b, 0, H), Pl(b, -t, H), Pl(a - (a === 0 ? t : 0), -t, H)] : [Pl(0, L - a, H), Pl(0, L - b, H), Pl(-t, L - b - (b === L ? t : 0), H), Pl(-t, L - a, H)]);
+      const segs = door && H <= DOORH ? [[0, d0], [d1, L]] : [[0, L]];
       for (const [a, b] of segs) { poly(capSeg(a, b)); g.fillStyle = S.cap; g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); } }
-      const endCap = side === 'R' ? [Pl(N, 0, 0), Pl(N, -t, 0), Pl(N, -t, H), Pl(N, 0, H)] : [Pl(0, N, 0), Pl(-t, N, 0), Pl(-t, N, H), Pl(0, N, H)];
+      const endCap = side === 'R' ? [Pl(L, 0, 0), Pl(L, -t, 0), Pl(L, -t, H), Pl(L, 0, H)] : [Pl(0, L, 0), Pl(-t, L, 0), Pl(-t, L, H), Pl(0, L, H)];
       poly(endCap); g.fillStyle = shade(S.wall2, -0.35); g.fill();
+    }
+    // the vault's hall is round: the back half of its wall stands, curving from the left end round to the right, with a
+    // door wherever a walkway comes in from behind (from the west at the left, from the north at the right)
+    function roundWall(S, H, doorW, doorN) {
+      const b = curBox, R = b.R, t = 0.22, a0 = Math.PI * 0.75, a1 = Math.PI * 1.75, n = LOD === 2 ? 48 : 24, gap = (DOORW / 2) / R;
+      const doors = [doorW ? Math.PI : null, doorN ? Math.PI * 1.5 : null].filter((v) => v != null);
+      const inDoor = (a) => doors.some((d) => Math.abs(a - d) < gap);
+      const W3 = (a, r, z) => P(b.cx + Math.cos(a) * r, b.cy + Math.sin(a) * r, z * u);
+      const brick = S.brick && LOD, ink = LOD ? INK : null;
+      for (let i = 0; i < n; i++) {
+        const a = a0 + (a1 - a0) * i / n, c = a0 + (a1 - a0) * (i + 1) / n, m = (a + c) / 2;
+        const door = inDoor(m), z0 = door ? DOORH : 0;
+        if (door && H <= DOORH) continue;
+        // the inside face, lit by how it turns toward the light (over a door, just the lintel)
+        const k = (m - a0) / (a1 - a0), lit = 0.5 - 0.5 * Math.cos(k * Math.PI);
+        poly([W3(a, R, z0), W3(c, R, z0), W3(c, R, H), W3(a, R, H)]); g.fillStyle = mixc(shade(S.wall2, -0.12), S.wall, lit); g.fill();
+      }
+      if (LOD) {
+        // courses and a trim band, drawn as rings round the curve
+        g.strokeStyle = brick ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.08)'; g.lineWidth = lw(0.02);
+        const ring = (z) => { g.beginPath(); let pen = false; for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; if (inDoor(a)) { pen = false; continue; } const [x, y] = W3(a, R, z); if (pen) g.lineTo(x, y); else { g.moveTo(x, y); pen = true; } } g.stroke(); };
+        for (let z = brick ? 0.35 : 1.4; z < H - 0.3; z += brick ? 0.35 : 1.4) ring(z);
+        g.strokeStyle = alpha(S.trim, 0.9); g.lineWidth = lw(0.12); ring(Math.max(0.1, H - 0.14));
+      }
+      // the doors' frames, and the cap along the top
+      for (const d of doors) for (const e of [d - gap, d + gap]) { g.strokeStyle = shade(S.trim, -0.2); g.lineWidth = lw(0.1); const [x0, y0] = W3(e, R, 0), [, y1] = W3(e, R, Math.min(H, DOORH)); g.beginPath(); g.moveTo(x0, y0); g.lineTo(x0, y1); g.stroke(); }
+      // the cap, in runs broken where a door cuts right through a low wall
+      const cuts = H <= DOORH ? doors.map((d) => [d - gap, d + gap]).sort((p, q) => p[0] - q[0]) : [];
+      const runs = []; let from = a0; for (const [c0, c1] of cuts) { runs.push([from, c0]); from = c1; } runs.push([from, a1]);
+      for (const [ra, rb] of runs) {
+        const m = Math.max(2, Math.ceil(n * (rb - ra) / (a1 - a0)));
+        g.beginPath();
+        for (let i = 0; i <= m; i++) { const a = ra + (rb - ra) * i / m, [x, y] = W3(a, R, H); if (i) g.lineTo(x, y); else g.moveTo(x, y); }
+        for (let i = m; i >= 0; i--) g.lineTo(...W3(ra + (rb - ra) * i / m, R + t, H));
+        g.closePath(); g.fillStyle = S.cap; g.fill(); if (ink) { g.strokeStyle = ink; g.lineWidth = lw(0.025); g.stroke(); }
+      }
+      for (const a of [a0, a1]) { poly([W3(a, R, 0), W3(a, R + t, 0), W3(a, R + t, H), W3(a, R, H)]); g.fillStyle = shade(S.wall2, -0.35); g.fill(); }
     }
     // windows onto the world outside, following the real time of day
     function sky(side, s0, s1, v0, v1, S) {
@@ -4147,7 +4303,7 @@
         if (LOD === 2) { g.lineWidth = 0.05; g.beginPath(); g.moveTo((s0 + s1) / 2, v0); g.lineTo((s0 + s1) / 2, v1); g.moveTo(s0, (v0 + v1) / 2); g.lineTo(s1, (v0 + v1) / 2); g.stroke(); g.fillStyle = 'rgba(255,255,255,0.1)'; g.beginPath(); g.moveTo(s0 + 0.1, v1 - 0.1); g.lineTo(s0 + 0.5, v0 + 0.1); g.lineTo(s0 + 0.7, v0 + 0.1); g.lineTo(s0 + 0.3, v1 - 0.1); g.fill(); }
         g.fillStyle = shade(S.trim, 0.25); g.fillRect(s0 - 0.12, v1, s1 - s0 + 0.24, 0.1);
       }, curWallH);
-      if (dark < 0.4) { const [wx, wy] = side === 'L' ? Pl(0.2, N - (s0 + s1) / 2, FULLH - (v0 + v1) / 2) : Pl((s0 + s1) / 2, 0.2, FULLH - (v0 + v1) / 2); lights.push([wx, wy, 2.4 * u, '#fff4d2', 0.25 * (1 - dark)]); }
+      if (dark < 0.4) { const [wx, wy] = side === 'L' ? Pl(0.2, (wallDept ? N : curBox.d) - (s0 + s1) / 2, FULLH - (v0 + v1) / 2) : Pl((s0 + s1) / 2, 0.2, FULLH - (v0 + v1) / 2); lights.push([wx, wy, 2.4 * u, '#fff4d2', 0.25 * (1 - dark)]); }
     }
     let curWallH = FULLH;
     // the room's name on the back wall: neon in the city, in space and on the ship, a painted board elsewhere
@@ -4565,6 +4721,451 @@
       return items;
     }
 
+    // ---- the factory floor around each department, dressed for the world: a conveyor line on each open side that
+    // carries what the room makes to a packer on the front corner, machines against the walls (a producer at the head
+    // of each line), benches for the crowd, crates to haul and pallets that stack up with the room's sales, a yard with
+    // a vehicle where the front corner is cut away, and something tall outside at the back: a chimney, a silo, a mast.
+    // The lines run on the ledger: a room with money in the last 30 days (or leads in the last 7) runs its belts and
+    // machines, busier the more it made; a quiet room stands still; a paused, locked or closed room goes dark.
+    const FAC = {
+      space: { body: '#c9d3e6', dark: '#3a4262', trim: '#56617e', glow: '#5fd4ff', warn: '#ffcf3a', belt: '#262b3d', crate: '#d0d8e8', wood: '#8a95a8', producer: 'printer', slots: ['tank', 'rack', 'arm', 'press'], out: 'antenna' },
+      castle: { body: '#6e6258', dark: '#2b2230', trim: '#8a7a6a', glow: '#ff9a4a', warn: '#c9a24a', belt: '#4a3a2c', crate: '#8a5a2e', wood: '#6b4a2e', producer: 'forge', slots: ['cauldron', 'rack', 'grind', 'press'], out: 'chimney' },
+      farm: { body: '#b8423a', dark: '#5a3b20', trim: '#8a5a32', glow: '#ffe2a0', warn: '#f2c94a', belt: '#5a4030', crate: '#c9a06a', wood: '#a8743f', producer: 'mill', slots: ['churn', 'rack', 'press', 'tank'], out: 'silo' },
+      cyber: { body: '#2e3144', dark: '#15161f', trim: '#3b3f56', glow: '#ff3fa4', glow2: '#00f0ff', warn: '#f2e14e', belt: '#101118', crate: '#3b3f56', wood: '#2b2f3c', producer: 'server', slots: ['arm', 'rack', 'tank', 'press'], out: 'vent' },
+      alien: { body: '#62407f', dark: '#2a1640', trim: '#7a55a0', glow: '#7dffb0', warn: '#d8ff6a', belt: '#3a2352', crate: '#553570', wood: '#40295a', producer: 'vat', slots: ['pod', 'rack', 'vat', 'tank'], out: 'spire' },
+      ocean: { body: '#86a2b6', dark: '#2f4a5e', trim: '#6d8797', glow: '#39e0ff', warn: '#ffcf5a', belt: '#1b2e3c', crate: '#9fb7c8', wood: '#5c7483', producer: 'aquarium', slots: ['tank', 'rack', 'press', 'arm'], out: 'pipe' },
+    };
+    const facCache = new Map(), NOOP = () => {};
+    const BELT_AT = N + 1.3, BELT_W = 0.7, LANE = [N / 2 - 0.7, N / 2 + 0.7];
+    // where everything goes in one building (box-local units), worked out once per cell, world and kind
+    function factoryPlan(b, kind, world) {
+      const key = `${b.c},${b.r}|${kind}|${world}`;
+      if (facCache.has(key)) return facCache.get(key);
+      const F = FAC[world] || FAC.space, W = b.w, D = b.d, [yw, yd] = b.yard || [0, 0], seed = hsh(key);
+      const plan = { F, belts: [], machines: [], benches: [], crates: [], pallets: [], collector: null, crossings: [], lamps: [], spots: { work: [], pick: [], drop: [] }, walls: [], out: null };
+      facCache.set(key, plan);
+      if (b.round) {
+        for (let k = 0; k < 8; k++) { const a = Math.PI / 8 + k * Math.PI / 4, x = b.R + Math.cos(a) * (b.R - 0.8), y = b.R + Math.sin(a) * (b.R - 0.8); plan.lamps.push({ x, y, tall: Math.cos(a) + Math.sin(a) < 0 }); }
+        return plan;
+      }
+      const ex = W - N, ey = D - N, bR = ex >= 3, bF = ey >= 3, B = BELT_AT;
+      const endR = bF ? B - 0.35 : D - 1.7, endF = bR ? B - 0.35 : W - 1.7;
+      if (bR) {
+        plan.belts.push({ horiz: false, x: B, y: 1.5, len: endR - 1.5, cross: LANE });
+        plan.machines.push({ type: F.producer, x: B - 0.55, y: 0.1, w: 1.8, d: 1.35, side: 'R', head: true });
+        plan.crossings.push({ horiz: false, x: B, y: LANE[0], w: BELT_W, d: LANE[1] - LANE[0] });
+        for (const y of [2.1, 5.2, 6.7]) if (y < endR - 0.3) plan.spots.work.push({ x: N + 0.6, y, look: [B + 0.35, y] });
+      }
+      if (bF) {
+        plan.belts.push({ horiz: true, x: 1.5, y: B, len: endF - 1.5, cross: LANE });
+        plan.machines.push({ type: F.producer, x: 0.1, y: B - 0.55, w: 1.35, d: 1.8, side: 'L', head: true });
+        plan.crossings.push({ horiz: true, x: LANE[0], y: B, w: LANE[1] - LANE[0], d: BELT_W });
+        for (const x of [2.1, 5.2, 6.7]) if (x < endF - 0.3) plan.spots.work.push({ x, y: N + 0.6, look: [x, B + 0.35] });
+      }
+      if (bR || bF) {
+        const cx = bR ? B - 0.35 : endF, cy = bF ? B - 0.35 : endR;
+        plan.collector = { x: cx, y: cy, w: 1.4, d: 1.4 };
+        plan.spots.drop.push({ x: cx - 0.45, y: cy + 0.7, look: [cx + 0.7, cy + 0.7] }, { x: cx + 0.7, y: cy - 0.45, look: [cx + 0.7, cy + 0.7] });
+      }
+      // machines along the walls beyond the department, each with its operator's spot in front
+      const slotsOn = (from, to) => { const n = Math.max(0, Math.floor((to - from + 0.3) / 2.5)), used = n * 2.5 - 0.3, s0 = from + (to - from - used) / 2; return Array.from({ length: n }, (_, i) => s0 + i * 2.5); };
+      let pick = seed;
+      const nextType = () => F.slots[(pick++) % F.slots.length];
+      for (const s of slotsOn(bR ? B + 1.6 : N + 0.4, W - 0.2)) { const type = nextType(); plan.machines.push({ type, x: s, y: 0.1, w: 2.2, d: 1.3, side: 'R' }); (type === 'rack' ? plan.spots.pick : plan.spots.work).push({ x: s + 1.1, y: 1.85, look: [s + 1.1, 1.0] }); }
+      for (const s of slotsOn(bF ? B + 1.6 : N + 0.4, D - 0.2)) { const type = nextType(); plan.machines.push({ type, x: 0.1, y: s, w: 1.3, d: 2.2, side: 'L' }); (type === 'rack' ? plan.spots.pick : plan.spots.work).push({ x: 1.85, y: s + 1.1, look: [1.0, s + 1.1] }); }
+      // benches past the lines, the crowd standing behind them facing out; crates to haul at their far ends
+      const bx0 = (bR ? B + BELT_W : N) + 0.9, bxe = W - 0.5 - (yw && D - yd < 6.2 ? yw : 0);
+      if (bxe - bx0 >= 1.0) {
+        plan.benches.push({ x: bx0, y: 5.2, w: Math.min(3.2, bxe - bx0), d: 0.7 });
+        for (let x = bx0 + 0.5; x < bx0 + Math.min(3.2, bxe - bx0) - 0.3; x += 1.1) plan.spots.work.push({ x, y: 4.7, look: [x, 5.55] });
+      }
+      const by0 = (bF ? B + BELT_W : N) + 0.9, bye = D - 0.5 - (yd && W - yw < 6.2 ? yd : 0);
+      if (bye - by0 >= 1.0) {
+        plan.benches.push({ x: 5.2, y: by0, w: 0.7, d: Math.min(3.2, bye - by0) });
+        for (let y = by0 + 0.5; y < by0 + Math.min(3.2, bye - by0) - 0.3; y += 1.1) plan.spots.work.push({ x: 4.7, y, look: [5.55, y] });
+      }
+      const freeOf = (x, y, w, d) => x >= 0.2 && y >= 0.2 && x + w <= W - 0.2 && y + d <= D - 0.2 && !(yw && x + w > W - yw - 0.2 && y + d > D - yd - 0.2);
+      for (const [x, y] of [[W - 1.5, 6.3], [6.4, D - 1.5]]) if (freeOf(x, y, 1.1, 1.1) && !(bR && Math.abs(x - B) < 1.3) && !(bF && Math.abs(y - B) < 1.3)) { plan.crates.push({ x, y, w: 1.1, d: 1.1 }); plan.spots.pick.push(x < W - 2 ? { x: x - 0.45, y: y + 0.55, look: [x + 0.55, y + 0.55] } : { x: x + 0.55, y: y - 0.45, look: [x + 0.55, y + 0.55] }); }
+      // the shipping corner: pallets that fill up with the room's sales
+      if (plan.collector) for (const [x, y] of [[plan.collector.x + 1.9, plan.collector.y + 0.15], [plan.collector.x + 0.15, plan.collector.y + 1.9], [plan.collector.x + 3.3, plan.collector.y + 0.15]]) if (freeOf(x, y, 1.1, 1.1)) { plan.pallets.push({ x, y, w: 1.1, d: 1.1, k: plan.pallets.length }); plan.spots.drop.push({ x: x + 0.55, y: y - 0.45, look: [x + 0.55, y + 0.55] }); }
+      plan.out = { type: F.out, tall: 5.2 + (seed % 5) * 0.7, seed };
+      return plan;
+    }
+    // this building's floor, walls and outside, as drawable pieces; footprints are box-local
+    function layoutFactory(kind, rm, b, look) {
+      const world = curWorld || skinId(), plan = factoryPlan(b, kind, world), F = plan.F, items = [], wall = [], back = [];
+      const add = (d, fp, fn) => items.push({ d, fp, fn });
+      const alive = look === 'active' || look === undefined;
+      let speed = 0, prod = 'money', every = 1.25;
+      if (kind === 'path' && rm) { const f = roomFlow(rm); if (f.usd > 0) speed = 0.35 + Math.min(0.75, Math.log10(1 + f.usd) / 5); else if (f.leads > 0) { speed = 0.3; prod = 'lead'; every = 2.1; } }
+      else if (kind === 'dock') { const drafts = Object.values((snap && snap.outbox) || {}).reduce((s2, n) => s2 + n, 0); if (drafts > 0) { speed = 0.45; prod = 'lead'; every = 1.6; } }
+      else speed = 0.5;
+      if (!alive) speed = 0;
+      const on = speed > 0;
+      if (b.round) { for (const L of plan.lamps) add(L.x + L.y, [L.x - 0.25, L.y - 0.25, 0.5, 0.5], () => hubLamp(L.x, L.y, L.tall, F, world)); return { items, wall, back }; }
+      // floor paint: safety lines round the department, walkway stripes out through each side
+      add(-20, null, () => floorPaint(b, plan, F));
+      if (b.yard) add(b.w - b.yard[0] + b.d - b.yard[1] - 0.5, null, () => yardPad(b, F, world, on));
+      for (const bl of plan.belts) {
+        // cut at the crossing, then one piece per unit of belt, so the folk beside it sort in front of or behind the
+        // right stretch; the plate over the crossing hides the belt under it, and the parts either side block the walk
+        const a0 = bl.horiz ? bl.x : bl.y, a1 = a0 + bl.len, parts = [[a0, Math.min(a1, bl.cross[0])], [Math.max(a0, bl.cross[1]), a1]];
+        for (const [p0, p1] of parts) {
+          if (p1 - p0 < 0.05) continue;
+          const rect = bl.horiz ? [p0, bl.y, p1 - p0, BELT_W] : [bl.x, p0, BELT_W, p1 - p0];
+          add(-30, rect, NOOP);
+          for (let k = p0; k < p1 - 0.02; k += 1) { const k1 = Math.min(p1, k + 1), x = bl.horiz ? k : bl.x, y = bl.horiz ? bl.y : k; add(x + y + 0.2, null, () => beltPiece(bl, k - a0, k1 - a0, F, world, speed, prod, every)); }
+        }
+      }
+      for (const c of plan.crossings) add(c.x + c.y - 0.6, null, () => crossPlate(c, F));
+      for (const m of plan.machines) add(m.x + m.y + (m.side === 'R' ? m.d : m.w) * 0.5 + 0.2, [m.x, m.y, m.w, m.d], () => machine(m, F, world, on, look));
+      if (plan.collector) { const c = plan.collector; add(c.x + c.y + 1.2, [c.x, c.y, c.w, c.d], () => collector(c, F, world, on)); }
+      for (const bn of plan.benches) add(bn.x + bn.y + Math.max(bn.w, bn.d) * 0.5 + 0.5, [bn.x, bn.y, bn.w, bn.d], () => workbench(bn, F, world, on));
+      for (const c of plan.crates) add(c.x + c.y + 1.0, [c.x, c.y, c.w, c.d], () => crateStack(c.x, c.y, F, world, 3 + (hsh(c.x * 7 + c.y) % 3)));
+      if (plan.pallets.length) {
+        const sold = kind === 'path' && rm ? Math.min(36, Math.ceil(svcStats(rm, 30).monthCount / 2)) : kind === 'dock' ? Math.min(24, Object.values((snap && snap.outbox) || {}).reduce((s2, n) => s2 + n, 0)) : 0;
+        for (const p of plan.pallets) { const n = clamp(sold - p.k * 12, 0, 12); add(p.x + p.y + 1.0, [p.x, p.y, p.w, p.d], () => pallet(p.x, p.y, n, F, world)); }
+      }
+      // on the walls beyond the department: pipes, vents, a high window
+      if (!b.round) {
+        wall.push(() => factoryWall('R', N, b.w, F, world, on));
+        wall.push(() => factoryWall('L', 0, b.d - N, F, world, on));
+      }
+      if (plan.out) back.push(() => outside(plan.out, F, world, on));
+      return { items, wall, back };
+    }
+    // where the floor crowd can work in a room: at a machine, a belt or a bench; crates to fetch; pallets to fill
+    function factorySpots(room) {
+      const b = room.box, plan = factoryPlan(b, 'path', skinId()), w = (s) => ({ x: b.x0 + s.x, y: b.y0 + s.y, look: [b.x0 + s.look[0], b.y0 + s.look[1]] }), ok = (s) => walkable(s.x, s.y);
+      return { work: plan.spots.work.map(w).filter(ok), pick: plan.spots.pick.map(w).filter(ok), drop: plan.spots.drop.map(w).filter(ok) };
+    }
+    // walking over a belt crossing lifts you onto its plate (world units up)
+    function liftAt(x, y) {
+      const c = Math.floor(x / CELL), r = Math.floor(y / CELL), kind = cells.get(c + ',' + r);
+      if (!kind) return 0;
+      const b = cellBox(c, r); if (b.round) return 0;
+      const plan = factoryPlan(b, kind, curWorld || skinId()), lx = x - b.x0, ly = y - b.y0;
+      for (const cr of plan.crossings) {
+        const along = cr.horiz ? lx : ly, across = cr.horiz ? ly : lx, a0 = cr.horiz ? cr.x : cr.y, a1 = a0 + (cr.horiz ? cr.w : cr.d), c0 = cr.horiz ? cr.y : cr.x, c1 = c0 + BELT_W;
+        if (along < a0 || along > a1 || across < c0 - 0.45 || across > c1 + 0.45) continue;
+        return across < c0 ? 0.56 * (across - c0 + 0.45) / 0.45 : across > c1 ? 0.56 * (c1 + 0.45 - across) / 0.45 : 0.56;
+      }
+      return 0;
+    }
+
+    // ---- the pieces
+    function floorPaint(b, plan, F) {
+      if (!LOD) return;
+      const W = b.w, D = b.d, [yw, yd] = b.yard || [0, 0];
+      g.lineCap = 'butt';
+      // the department's edge: a yellow safety line
+      g.strokeStyle = alpha(F.warn, 0.7); g.lineWidth = lw(0.07);
+      g.beginPath(); g.moveTo(...Pl(N + 0.2, 0.2)); g.lineTo(...Pl(N + 0.2, N + 0.2)); g.lineTo(...Pl(0.2, N + 0.2)); g.stroke();
+      // walkways: dashed lanes from the department's doors out to the building's edge
+      g.strokeStyle = alpha('#ffffff', 0.28); g.lineWidth = lw(0.05); g.setLineDash([u * 0.35, u * 0.25]);
+      g.beginPath();
+      for (const s of [LANE[0], LANE[1]]) { g.moveTo(...Pl(N + 0.3, s)); g.lineTo(...Pl(W - 0.2, s)); g.moveTo(...Pl(s, N + 0.3)); g.lineTo(...Pl(s, D - 0.2)); }
+      g.stroke(); g.setLineDash([]);
+      // hazard stripes where the lines end
+      if (plan.collector && LOD === 2) {
+        const c = plan.collector; g.save(); poly([Pl(c.x - 0.3, c.y - 0.3), Pl(c.x + c.w + 0.3, c.y - 0.3), Pl(c.x + c.w + 0.3, c.y + c.d + 0.3), Pl(c.x - 0.3, c.y + c.d + 0.3)]); g.clip();
+        for (let k = -4; k < 12; k++) { poly([Pl(c.x - 0.3 + k * 0.4, c.y - 0.3), Pl(c.x - 0.1 + k * 0.4, c.y - 0.3), Pl(c.x - 2.1 + k * 0.4, c.y + c.d + 0.3), Pl(c.x - 2.3 + k * 0.4, c.y + c.d + 0.3)]); g.fillStyle = k % 2 ? 'rgba(20,20,20,0.35)' : alpha(F.warn, 0.45); g.fill(); }
+        g.restore();
+      }
+      void yw; void yd;
+    }
+    // the yard cut out of the front corner: a pad outside, a little lower, with a vehicle waiting on it
+    function yardPad(b, F, world, on) {
+      const [yw, yd] = b.yard, x0 = b.w - yw, y0 = b.d - yd, z = -0.14;
+      const pad = { space: '#4a5470', castle: '#5b5468', farm: '#8a6a3e', cyber: '#23252f', alien: '#2f1d45', ocean: '#c9b98a' }[world] || '#4a5470';
+      poly([Pl(x0 + 0.05, y0 + 0.05, z), Pl(b.w, y0 + 0.05, z), Pl(b.w, b.d, z), Pl(x0 + 0.05, b.d, z)]); g.fillStyle = pad; g.fill();
+      poly([Pl(x0 + 0.05, b.d, z), Pl(b.w, b.d, z), Pl(b.w, b.d, -0.3), Pl(x0 + 0.05, b.d, -0.3)]); g.fillStyle = shade(pad, -0.35); g.fill();
+      poly([Pl(b.w, y0 + 0.05, z), Pl(b.w, b.d, z), Pl(b.w, b.d, -0.3), Pl(b.w, y0 + 0.05, -0.3)]); g.fillStyle = shade(pad, -0.5); g.fill();
+      if (LOD) {
+        if (world === 'castle' || world === 'ocean' || world === 'farm') { g.fillStyle = 'rgba(0,0,0,0.12)'; for (let i = 0; i < yw * yd * 3; i++) { const px = x0 + 0.2 + (hsh(i * 13 + b.c) % 100) / 100 * (yw - 0.4), py = y0 + 0.2 + (hsh(i * 7 + b.r * 3) % 100) / 100 * (yd - 0.4), [a, c2] = Pl(px, py, z); g.beginPath(); g.ellipse(a, c2, u * 0.16, u * 0.08, 0, 0, 7); g.fill(); } }
+        else { g.strokeStyle = alpha(F.warn, 0.55); g.lineWidth = lw(0.06); poly([Pl(x0 + 0.35, y0 + 0.35, z), Pl(b.w - 0.3, y0 + 0.35, z), Pl(b.w - 0.3, b.d - 0.3, z), Pl(x0 + 0.35, b.d - 0.3, z)]); g.stroke(); }
+      }
+      const vx = x0 + yw / 2, vy = y0 + yd / 2;
+      vehicle(vx, vy, F, world, on);
+    }
+    function vehicle(x, y, F, world, on) {
+      const bob = on ? Math.sin(tt * 3) * 0.03 : 0;
+      if (world === 'castle') {
+        box(x - 0.8, y - 0.45, 1.6, 0.9, 0.35, 0.35, '#7a5230'); box(x - 0.8, y - 0.45, 1.6, 0.08, 0.35, 0.7, '#6b4424'); box(x - 0.8, y + 0.37, 1.6, 0.08, 0.35, 0.7, '#6b4424');
+        for (const [dx, dy] of [[-0.5, 0.48], [0.5, 0.48]]) { const [a, c2] = Pl(x + dx, y + dy, 0.3); g.fillStyle = '#4a2f1b'; g.beginPath(); g.ellipse(a, c2, u * 0.32, u * 0.34, 0.5, 0, 7); g.fill(); g.strokeStyle = '#2b1d14'; g.lineWidth = lw(0.04); g.stroke(); }
+        cyl(x - 0.3, y, 0.22, 0.45, 0.7, '#8a5a2e'); cyl(x + 0.3, y - 0.05, 0.22, 0.45, 0.7, '#8a5a2e'); box(x - 0.15, y - 0.2, 0.4, 0.4, 0.3, 0.7, '#e8d6a8');
+      } else if (world === 'farm') {
+        box(x - 0.55, y - 0.35, 1.1, 0.7, 0.55, 0.35, '#c8342c', { gloss: true }); box(x - 0.55, y - 0.3, 0.55, 0.6, 0.6, 0.9, '#c8342c'); box(x - 0.5, y - 0.25, 0.45, 0.5, 0.4, 0.95, '#bfe6ff', { lf: 'rgba(190,230,255,0.8)' });
+        box(x + 0.35, y - 0.05, 0.08, 0.08, 0.5, 0.9, '#3a3a3a');
+        for (const [dx, dy, r] of [[-0.35, 0.4, 0.4], [0.45, 0.4, 0.25]]) { const [a, c2] = Pl(x + dx, y + dy, r); g.fillStyle = '#23262e'; g.beginPath(); g.ellipse(a, c2, u * r * 0.9, u * r, 0.5, 0, 7); g.fill(); g.fillStyle = '#e8c878'; g.beginPath(); g.ellipse(a, c2, u * r * 0.35, u * r * 0.4, 0.5, 0, 7); g.fill(); }
+        if (on) steam(x + 0.39, y, 1.5);
+      } else if (world === 'cyber') {
+        const z = 0.35 + bob; glowAt(...Pl(x, y, 0.02), u * 1.2, F.glow2, 0.5);
+        box(x - 0.8, y - 0.4, 1.6, 0.8, 0.6, z, '#2a2d3e', { gloss: true }); box(x - 0.8, y - 0.4, 0.5, 0.8, 0.35, z + 0.6, '#1d2030', { rf: alpha(F.glow2, 0.8) });
+        box(x - 0.8, y + 0.36, 1.6, 0.05, 0.08, z + 0.25, F.glow, { noInk: true });
+      } else if (world === 'alien') {
+        const [a, c2] = Pl(x, y, 0.5 + bob * 3); glowAt(a, c2 + u * 0.4, u * 1.3, F.glow, 0.35);
+        g.fillStyle = '#9a8ab8'; g.beginPath(); g.ellipse(a, c2, u * 1.0, u * 0.32, 0, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke();
+        g.fillStyle = alpha(F.glow, 0.55); g.beginPath(); g.ellipse(a, c2 - u * 0.18, u * 0.45, u * 0.35, 0, Math.PI, 0); g.fill();
+        for (let k = 0; k < 5; k++) { g.fillStyle = (Math.floor(tt * 4) + k) % 5 ? '#4a3a6a' : F.glow; g.beginPath(); g.arc(a - u * 0.7 + k * u * 0.35, c2 + u * 0.05, u * 0.06, 0, 7); g.fill(); }
+      } else if (world === 'ocean') {
+        const [a, c2] = Pl(x, y, 0.55 + bob * 2);
+        g.fillStyle = '#ffb454'; g.beginPath(); g.ellipse(a, c2, u * 0.95, u * 0.42, -0.45, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke();
+        g.fillStyle = '#bfe8ff'; g.beginPath(); g.arc(a - u * 0.35, c2 - u * 0.05, u * 0.18, 0, 7); g.fill(); g.stroke();
+        box(x - 0.1, y - 0.1, 0.2, 0.2, 0.45, 0.8, '#e0913a'); const [pa, pb] = Pl(x + 0.75, y + 0.45, 0.55); g.strokeStyle = '#3a3a3a'; g.lineWidth = lw(0.06); g.beginPath(); g.moveTo(pa, pb - u * 0.2 * Math.sin(tt * 12)); g.lineTo(pa, pb + u * 0.2 * Math.sin(tt * 12)); g.stroke();
+      } else {
+        box(x - 0.75, y - 0.45, 1.5, 0.9, 0.3, 0.15, '#3a4262'); box(x - 0.7, y - 0.4, 0.7, 0.8, 0.6, 0.45, '#e8eef8', { gloss: true }); box(x - 0.65, y - 0.35, 0.35, 0.7, 0.3, 0.6, '#5fd4ff', { lf: alpha('#5fd4ff', 0.8) });
+        box(x + 0.1, y - 0.35, 0.6, 0.7, 0.4, 0.45, '#ffb454'); cyl(x + 0.55, y + 0.3, 0.08, 0.5, 0.85, '#8a93a8');
+        if (on) { const [a, c2] = Pl(x + 0.55, y + 0.3, 1.4); g.fillStyle = Math.sin(tt * 6) > 0 ? '#3ddc97' : '#1d5a40'; g.beginPath(); g.arc(a, c2, u * 0.07, 0, 7); g.fill(); }
+      }
+    }
+    function beltPiece(bl, k0, k1, F, world, speed, prod, every) {
+      const hz = bl.horiz, x = hz ? bl.x + k0 : bl.x, y = hz ? bl.y : bl.y + k0, len = k1 - k0, w = hz ? len : BELT_W, d = hz ? BELT_W : len, Z = 0.42;
+      // frame and legs
+      box(x, y, w, d, 0.1, Z - 0.1, F.dark, { noInk: LOD < 2 });
+      if (LOD) for (const t of [0.12, len - 0.18]) box(hz ? x + t : x + 0.05, hz ? y + 0.05 : y + t, 0.06, 0.06, Z - 0.1, 0, F.trim, { noInk: true });
+      // the belt, and slats running along it
+      const top = [Pl(x, y, Z), Pl(x + w, y, Z), Pl(x + w, y + d, Z), Pl(x, y + d, Z)];
+      poly(top); g.fillStyle = F.belt; g.fill();
+      if (LOD) {
+        g.strokeStyle = 'rgba(255,255,255,0.12)'; g.lineWidth = lw(0.025); g.beginPath();
+        const off = (tt * speed) % 0.25;
+        for (let s = off; s < len; s += 0.25) { if (hz) { g.moveTo(...Pl(x + s, y + 0.06, Z)); g.lineTo(...Pl(x + s, y + d - 0.06, Z)); } else { g.moveTo(...Pl(x + 0.06, y + s, Z)); g.lineTo(...Pl(x + w - 0.06, y + s, Z)); } }
+        g.stroke();
+        // side rails
+        for (const e of [0, 1]) { if (hz) box(x, y + e * (d - 0.07), w, 0.07, 0.1, Z, F.trim, { noInk: true }); else box(x + e * (w - 0.07), y, 0.07, d, 0.1, Z, F.trim, { noInk: true }); }
+      }
+      // what rides on it: the room's own goods, spaced by how busy it is
+      if (!speed || LOD === 0) return;
+      const L = bl.len, n = Math.floor(L / every), sh = (tt * speed) % every;
+      const r = u * 0.22;
+      for (let i = 0; i < n; i++) {
+        const p = i * every + sh;
+        if (p < k0 || p >= k1 || p > L - 0.2) continue;
+        if (p > bl.cross[0] - 0.1 && p < bl.cross[1] + 0.1) continue;
+        const [X, Y] = Pl(hz ? bl.x + p : bl.x + BELT_W / 2, hz ? bl.y + BELT_W / 2 : bl.y + p, Z + 0.28);
+        if (LOD === 1) { g.fillStyle = FLOW_THEME[world] ? FLOW_THEME[world].gold : '#ffcf5a'; g.beginPath(); g.arc(X, Y, r * 0.7, 0, 7); g.fill(); continue; }
+        drawToken({ kind: prod, seed: (hsh(bl.x * 31 + bl.y * 7) + i * 7) % 997 }, world, X, Y, r, hz ? 0 : Math.PI / 2);
+      }
+    }
+    // a plate over the belt where the walkway crosses it, ramped on both sides
+    function crossPlate(c, F) {
+      const Z = 0.56, hz = c.horiz, x = c.x, y = c.y, w = c.w, d = c.d, R = 0.45;
+      const plate = F.trim === '#3b3f56' ? '#4a4f68' : mixc(F.trim, '#c8ccd6', 0.5);
+      // ramps: up from the floor on the near side, down on the far side
+      const ramp = (a0, a1, zA, zB) => hz ? poly([Pl(x, a0, zA), Pl(x + w, a0, zA), Pl(x + w, a1, zB), Pl(x, a1, zB)]) : poly([Pl(a0, y, zA), Pl(a0, y + d, zA), Pl(a1, y + d, zB), Pl(a1, y, zB)]);
+      const c0 = hz ? y : x, c1 = c0 + BELT_W;
+      ramp(c0 - R, c0, 0.01, Z); g.fillStyle = shade(plate, -0.1); g.fill();
+      ramp(c0, c1, Z, Z); g.fillStyle = plate; g.fill();
+      ramp(c1, c1 + R, Z, 0.01); g.fillStyle = shade(plate, 0.08); g.fill();
+      // its side faces and hazard edges
+      if (hz) { poly([Pl(x + w, c0 - R, 0), Pl(x + w, c0, Z), Pl(x + w, c1, Z), Pl(x + w, c1 + R, 0)]); } else { poly([Pl(c0 - R, y + d, 0), Pl(c0, y + d, Z), Pl(c1, y + d, Z), Pl(c1 + R, y + d, 0)]); }
+      g.fillStyle = shade(plate, -0.35); g.fill();
+      if (LOD) {
+        g.strokeStyle = INK; g.lineWidth = lw(0.025); ramp(c0 - R, c1 + R, 0.01, 0.01);
+        g.fillStyle = alpha(F.warn, 0.85);
+        for (const e of [c0 - R, c1 + R - 0.08]) { if (hz) poly([Pl(x, e, 0.02), Pl(x + w, e, 0.02), Pl(x + w, e + 0.08, 0.02), Pl(x, e + 0.08, 0.02)]); else poly([Pl(e, y, 0.02), Pl(e, y + d, 0.02), Pl(e + 0.08, y + d, 0.02), Pl(e + 0.08, y, 0.02)]); g.fill(); }
+        if (LOD === 2) { g.strokeStyle = 'rgba(0,0,0,0.18)'; g.lineWidth = lw(0.015); g.beginPath(); for (let s = 0.1; s < (hz ? w : d); s += 0.18) { if (hz) { g.moveTo(...Pl(x + s, c0 + 0.05, Z)); g.lineTo(...Pl(x + s + 0.08, c1 - 0.05, Z)); } else { g.moveTo(...Pl(c0 + 0.05, y + s, Z)); g.lineTo(...Pl(c1 - 0.05, y + s + 0.08, Z)); } } g.stroke(); }
+      }
+    }
+    function collector(c, F, world, on) {
+      const x = c.x, y = c.y, w = c.w, d = c.d;
+      box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.75, 0, F.body, { gloss: true });
+      // a hopper on top that takes both lines
+      const t = [Pl(x - 0.05, y - 0.05, 1.3), Pl(x + w + 0.05, y - 0.05, 1.3), Pl(x + w + 0.05, y + d + 0.05, 1.3), Pl(x - 0.05, y + d + 0.05, 1.3)], bI = [Pl(x + 0.3, y + 0.3, 0.75), Pl(x + w - 0.3, y + 0.3, 0.75), Pl(x + w - 0.3, y + d - 0.3, 0.75), Pl(x + 0.3, y + d - 0.3, 0.75)];
+      poly([t[3], t[2], bI[2], bI[3]]); g.fillStyle = shade(F.trim, -0.1); g.fill();
+      poly([t[1], t[2], bI[2], bI[1]]); g.fillStyle = shade(F.trim, -0.3); g.fill();
+      poly(t); g.fillStyle = shade(F.dark, -0.2); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke(); }
+      const lamp = on ? (Math.sin(tt * 5) > 0 ? '#3ddc97' : '#1f8a5a') : '#5a2a30';
+      const [lx, ly] = Pl(x + w - 0.2, y + d - 0.2, 1.45); g.fillStyle = lamp; g.beginPath(); g.arc(lx, ly, u * 0.09, 0, 7); g.fill();
+      if (on) { light(x + w / 2, y + d / 2, 1.2, 1.8, F.glow, 0.45); if (LOD === 2 && Math.sin(tt * 2.2) > 0.6) steam(x + w / 2, y + d / 2, 1.3); }
+      if (LOD) { box(x + w - 0.1, y + 0.35, 0.12, d - 0.7, 0.3, 0.2, shade(F.body, -0.25)); }
+    }
+    function workbench(bn, F, world, on) {
+      const x = bn.x, y = bn.y, w = bn.w, d = bn.d, top = world === 'castle' || world === 'farm' ? F.wood : mixc(F.body, '#dfe4ec', 0.4);
+      legs(x + 0.05, y + 0.05, w - 0.1, d - 0.1, 0.82, F.dark);
+      box(x, y, w, d, 0.08, 0.82, top, { gloss: world !== 'castle' && world !== 'farm' });
+      if (!LOD) return;
+      const n = Math.floor(Math.max(w, d) / 0.55);
+      for (let i = 0; i < n; i++) {
+        const px = w > d ? x + 0.3 + i * 0.55 : x + d / 2, py = w > d ? y + d / 2 : y + 0.3 + i * 0.55, k = hsh(i * 17 + x * 5 + y) % 4;
+        if (k === 0) box(px - 0.12, py - 0.1, 0.24, 0.2, 0.18, 0.9, F.crate);
+        else if (k === 1) cyl(px, py, 0.08, 0.2, 0.9, F.glow);
+        else if (k === 2 && LOD === 2) { const [a, c2] = Pl(px, py, 0.92); g.fillStyle = FLOW_THEME[world] ? FLOW_THEME[world].gold : '#ffcf5a'; g.beginPath(); g.ellipse(a, c2, u * 0.1, u * 0.05, 0, 0, 7); g.fill(); }
+        else box(px - 0.18, py - 0.04, 0.36, 0.08, 0.04, 0.9, F.trim, { noInk: true });
+      }
+      if (on && LOD === 2 && world !== 'farm') { const [a, c2] = Pl(x + w * 0.5, y + d * 0.5, 1.0); if (Math.sin(tt * 7 + x) > 0.85) { g.fillStyle = '#fff6c8'; for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(a + (Math.random() - 0.5) * u * 0.3, c2 - Math.random() * u * 0.2, u * 0.025, 0, 7); g.fill(); } } }
+    }
+    function crateStack(x, y, F, world, n) {
+      for (let i = 0; i < n; i++) {
+        const lvl = Math.floor(i / 2), j = i % 2, px = x + 0.05 + j * 0.5, py = y + 0.1 + (j ? 0.4 : 0);
+        if (world === 'castle' || world === 'farm') { if (i % 2) cyl(px + 0.25, py + 0.25, 0.22, 0.45, lvl * 0.45, F.wood); else box(px, py, 0.5, 0.5, 0.45, lvl * 0.45, F.crate); }
+        else if (world === 'alien') { if (i > 3) break; const ex = x + [0.3, 0.8, 0.35, 0.8][i], ey = y + [0.3, 0.35, 0.8, 0.8][i], [a, c2] = Pl(ex, ey, 0.32); g.fillStyle = shade(F.crate, 0.2); g.beginPath(); g.ellipse(a, c2, u * 0.26, u * 0.34, 0, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); g.fillStyle = alpha(F.glow, 0.35 + 0.25 * Math.sin(tt * 2 + i)); g.beginPath(); g.ellipse(a - u * 0.05, c2 - u * 0.06, u * 0.1, u * 0.13, 0, 0, 7); g.fill(); }
+        else box(px, py, 0.5, 0.5, 0.42, lvl * 0.42, i % 3 ? F.crate : shade(F.crate, -0.15), { gloss: true });
+      }
+    }
+    function pallet(x, y, n, F, world) {
+      box(x, y, 1.1, 1.1, 0.14, 0, '#9a7446', { noInk: LOD < 2 });
+      if (LOD === 2) { g.strokeStyle = 'rgba(0,0,0,0.3)'; g.lineWidth = lw(0.02); g.beginPath(); for (const s of [0.37, 0.73]) { g.moveTo(...Pl(x + s, y + 1.1, 0.07)); g.lineTo(...Pl(x + s, y + 1.1, 0)); } g.stroke(); }
+      for (let i = 0; i < n; i++) {
+        const lvl = Math.floor(i / 4), j = i % 4, px = x + 0.05 + (j % 2) * 0.52, py = y + 0.05 + Math.floor(j / 2) * 0.52;
+        if (world === 'farm' && i % 2) { box(px, py, 0.48, 0.48, 0.34, 0.14 + lvl * 0.34, '#e6c25a'); continue; }
+        box(px, py, 0.48, 0.48, 0.34, 0.14 + lvl * 0.34, [F.crate, shade(F.crate, -0.12), mixc(F.crate, F.glow, 0.25)][i % 3], { noInk: LOD < 2 });
+      }
+      if (n && LOD === 2) { const top = 0.14 + Math.ceil(n / 4) * 0.34; const [a, c2] = Pl(x + 0.55, y + 0.55, top + 0.01); g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = lw(0.02); g.beginPath(); g.moveTo(a - u * 0.5, c2); g.lineTo(a + u * 0.5, c2); g.stroke(); }
+    }
+    function hubLamp(x, y, tall, F, world) {
+      const h = tall ? 2.3 : 0.9, col = world === 'castle' ? '#ffb866' : F.glow;
+      cyl(x, y, 0.18, 0.12, 0, F.dark);
+      box(x - 0.05, y - 0.05, 0.1, 0.1, h, 0.12, world === 'castle' || world === 'farm' ? F.wood : F.trim, { noInk: LOD < 2 });
+      const [a, c2] = Pl(x, y, h + 0.25); glowAt(a, c2, u * 0.6, col, 0.5);
+      if (world === 'castle') { g.fillStyle = '#ffb347'; g.beginPath(); g.moveTo(a, c2 - u * 0.25 - Math.sin(tt * 9 + x) * u * 0.05); g.quadraticCurveTo(a + u * 0.12, c2, a, c2 + u * 0.06); g.quadraticCurveTo(a - u * 0.12, c2, a, c2 - u * 0.25); g.fill(); }
+      else { g.fillStyle = col; g.beginPath(); g.arc(a, c2, u * 0.12, 0, 7); g.fill(); }
+      light(x, y, h + 0.25, tall ? 2.4 : 1.4, col, 0.55);
+    }
+    // on the long walls: pipes along the top with valves, vents, and a window high up (or the world's own touch)
+    function factoryWall(side, s0, s1, F, world, on) {
+      if (s1 - s0 < 1.2) return;
+      const pipe = world === 'castle' ? '#4a4050' : world === 'farm' ? '#8a5a32' : mixc(F.trim, '#9aa6b8', 0.4);
+      onWall(side, () => {
+        const L = s1 - s0;
+        // two pipes, lit along their top
+        for (const [v, r] of [[0.55, 0.09], [0.82, 0.06]]) { g.fillStyle = pipe; g.fillRect(s0, v - r, L, r * 2); g.fillStyle = 'rgba(255,255,255,0.22)'; g.fillRect(s0, v - r, L, r * 0.5); }
+        if (LOD === 2) for (let s = s0 + 0.8; s < s1 - 0.4; s += 1.6) { g.fillStyle = shade(pipe, -0.3); g.fillRect(s - 0.04, 0.4, 0.08, 0.6); }
+        // a valve wheel, and a gauge whose needle moves with the line
+        const vs = s0 + Math.min(1.2, L * 0.3); g.strokeStyle = '#c8342c'; g.lineWidth = 0.05; g.beginPath(); g.arc(vs, 0.55, 0.16, 0, 7); g.moveTo(vs - 0.16, 0.55); g.lineTo(vs + 0.16, 0.55); g.moveTo(vs, 0.39); g.lineTo(vs, 0.71); g.stroke();
+        if (L > 2.4) { const gs = s1 - 0.8; g.fillStyle = '#f2efe6'; g.beginPath(); g.arc(gs, 1.35, 0.22, 0, 7); g.fill(); g.strokeStyle = '#333'; g.lineWidth = 0.03; g.stroke(); const an = -2.2 + (on ? 1.8 + Math.sin(tt * 2) * 0.3 : 0.2); g.beginPath(); g.moveTo(gs, 1.35); g.lineTo(gs + Math.cos(an) * 0.17, 1.35 + Math.sin(an) * 0.17); g.strokeStyle = '#c8342c'; g.stroke(); }
+        // vents low on the wall
+        if (L > 3.2 && LOD) { const vs2 = s0 + L * 0.55; g.fillStyle = shade(F.dark, 0.1); g.fillRect(vs2 - 0.5, FULLH - 1.3, 1.0, 0.6); g.fillStyle = 'rgba(0,0,0,0.45)'; for (let v = FULLH - 1.22; v < FULLH - 0.75; v += 0.11) g.fillRect(vs2 - 0.44, v, 0.88, 0.05); }
+        // the world's own touch
+        if (world === 'castle' && L > 2) { const bs = s0 + L * 0.5; wallBanner(bs, 1.1, 0.8, 1.9, '#8a1c2b', hsh(bs * 10) % 7); }
+        else if (world === 'cyber') { g.fillStyle = alpha(F.glow2, 0.7 + (on ? Math.sin(tt * 3) * 0.2 : -0.4)); g.fillRect(s0 + 0.2, 1.05, L - 0.4, 0.05); }
+        else if (world === 'alien') { g.strokeStyle = alpha(F.glow, on ? 0.5 + Math.sin(tt * 2) * 0.2 : 0.2); g.lineWidth = 0.05; g.beginPath(); g.moveTo(s0 + 0.3, FULLH); g.bezierCurveTo(s0 + L * 0.3, 1.2, s0 + L * 0.6, 2.6, s1 - 0.3, 0.9); g.stroke(); }
+      }, curWallH);
+      if (s1 - s0 > 3.6 && world !== 'castle') { const mid = (s0 + s1) / 2; sky(side, mid - 1.1, mid + 0.4, 1.35, 2.35, sk()); }
+    }
+    // the machines
+    function machine(m, F, world, on, look) {
+      const { x, y, w, d, side } = m, t = m.type, dim = look === 'killed' ? 0.45 : 1;
+      // a panel on its front face: for side R the face toward +y, for side L the one toward +x
+      const facePt = (a, v) => (side === 'R' ? Pl(x + w * a, y + d, v) : Pl(x + w, y + d * (1 - a), v));
+      const faceQuad = (a0, a1, v0, v1) => poly([facePt(a0, v0), facePt(a1, v0), facePt(a1, v1), facePt(a0, v1)]);
+      const status = () => { const [a, c2] = facePt(0.88, 1.55); g.fillStyle = on ? (Math.sin(tt * 4 + x) > 0 ? '#3ddc97' : '#1f8a5a') : '#6a2a30'; g.beginPath(); g.arc(a, c2, u * 0.06, 0, 7); g.fill(); };
+      const glow = (a, v, r, s) => { if (on) { const [X, Y] = facePt(a, v); lights.push([X, Y, r * u, F.glow, s]); } };
+      if (t === 'printer' || t === 'server' || t === 'aquarium' || t === 'mill') {
+        const H = t === 'server' ? 2.2 : 1.7;
+        box(x, y, w, d, H, 0, t === 'mill' ? F.wood : F.body, { gloss: true });
+        box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.12, H, shade(F.body, -0.2));
+        if (!LOD) return;
+        faceQuad(0.12, 0.8, 0.45, H - 0.2); g.fillStyle = t === 'aquarium' ? '#0a5a85' : t === 'mill' ? '#e8d6a8' : '#0c1220'; g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke();
+        if (t === 'printer') { const p = on ? 0.5 + Math.sin(tt * 2.1) * 0.25 : 0.45, [a, c2] = facePt(p, 1.1); g.fillStyle = '#c8d0e0'; g.fillRect(a - u * 0.12, c2 - u * 0.08, u * 0.24, u * 0.12); if (on) { glowAt(a, c2 + u * 0.12, u * 0.3, F.glow, 0.8 * dim); const [b0, b1] = facePt(0.46, 0.55); g.fillStyle = alpha(F.glow, 0.6); g.fillRect(b0 - u * 0.25, b1 - u * 0.1, u * 0.5, u * 0.08); } }
+        else if (t === 'server') { for (let r = 0; r < 6; r++) for (let k = 0; k < 4; k++) { const [a, c2] = facePt(0.18 + k * 0.16, 0.6 + r * 0.24); g.fillStyle = on && (hsh(r * 7 + k + Math.floor(tt * 6)) % 3) ? (k % 2 ? F.glow : F.glow2 || F.glow) : '#2a2e40'; g.fillRect(a - u * 0.04, c2 - u * 0.03, u * 0.08, u * 0.05); } }
+        else if (t === 'aquarium') { for (let k = 0; k < 3; k++) { const p = on ? (tt * 0.12 + k * 0.33) % 1 : 0.3 + k * 0.2, [a, c2] = facePt(0.15 + p * 0.6, 0.8 + k * 0.25); g.fillStyle = ['#ffb454', '#ff7a59', '#ffd84d'][k]; g.beginPath(); g.ellipse(a, c2, u * 0.09, u * 0.05, 0, 0, 7); g.fill(); } }
+        else { const [a, c2] = facePt(0.45, 1.05), sp = on ? tt * 2 : 0.4; g.strokeStyle = '#7a4e2a'; g.lineWidth = lw(0.07); g.beginPath(); for (let k = 0; k < 4; k++) { const an = sp + k * Math.PI / 2; g.moveTo(a, c2); g.lineTo(a + Math.cos(an) * u * 0.32, c2 + Math.sin(an) * u * 0.32); } g.stroke(); const [h0, h1] = Pl(x + w / 2, y + d / 2, H + 0.12); g.fillStyle = '#c9a06a'; g.beginPath(); g.moveTo(h0 - u * 0.5, h1 - u * 0.45); g.lineTo(h0 + u * 0.5, h1 - u * 0.45); g.lineTo(h0 + u * 0.15, h1); g.lineTo(h0 - u * 0.15, h1); g.closePath(); g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke(); }
+        status(); glow(0.46, 1.1, 1.8, 0.45 * dim);
+      } else if (t === 'forge') {
+        box(x, y, w, d, 1.3, 0, '#5a5060'); box(x - 0.05, y - 0.05, w + 0.1, d + 0.1, 0.18, 1.3, '#6e6278');
+        box(x + w * 0.3, y + d * 0.3, w * 0.4, d * 0.4, 1.4, 1.48, '#4a4050');
+        faceQuad(0.25, 0.75, 0.25, 0.95); g.fillStyle = on ? `rgba(255,${140 + Math.sin(tt * 11) * 40},50,1)` : '#2a1a14'; g.fill();
+        if (on) { const [a, c2] = facePt(0.5, 0.6); glowAt(a, c2, u * 1.4, '#ff9a4a', 0.55 * dim); glow(0.5, 0.6, 3, 0.6); if (LOD === 2) steam(x + w / 2, y + d / 2, 2.9); }
+      } else if (t === 'vat' || t === 'tank' || t === 'churn' || t === 'cauldron') {
+        const n = t === 'churn' ? 3 : w > 2 || d > 2 ? 2 : 1, r = t === 'churn' ? 0.3 : 0.52, H = t === 'churn' ? 0.9 : t === 'cauldron' ? 0.8 : 2.1;
+        for (let i = 0; i < n; i++) {
+          const cx = side === 'R' ? x + (i + 0.5) * w / n : x + w / 2, cy = side === 'R' ? y + d / 2 : y + (i + 0.5) * d / n;
+          if (t === 'cauldron') { for (const [dx, dy] of [[-0.3, 0.2], [0.3, 0.2], [0, -0.3]]) box(cx + dx - 0.04, cy + dy - 0.04, 0.08, 0.08, 0.35, 0, '#23262e', { noInk: true }); cyl(cx, cy, 0.55, 0.6, 0.3, '#2b2b33'); const [a, c2] = Pl(cx, cy, 0.9); g.fillStyle = on ? '#6fe06a' : '#3a5a38'; g.beginPath(); g.ellipse(a, c2, u * 0.62, u * 0.3, 0, 0, 7); g.fill(); if (on && LOD) { for (let k = 0; k < 3; k++) { const p = (tt * 0.8 + k / 3 + i * 0.2) % 1; g.fillStyle = `rgba(190,255,170,${1 - p})`; g.beginPath(); g.arc(a + Math.sin(k * 3 + i) * u * 0.25, c2 - p * u * 0.5, u * (0.05 + p * 0.06), 0, 7); g.fill(); } const [fa, fb] = Pl(cx, cy, 0.12); glowAt(fa, fb, u * 0.7, '#ff9a4a', 0.6); lights.push([a, c2, u * 1.6, '#6fe06a', 0.4]); } continue; }
+          if (t === 'vat') { cyl(cx, cy, r, 0.25, 0, F.dark); const [a, b0] = Pl(cx, cy, 0.25), [, b1] = Pl(cx, cy, H), rx = r * u * 1.414; g.fillStyle = alpha(F.glow, on ? 0.45 : 0.18); g.fillRect(a - rx, b1, rx * 2, b0 - b1); const fl = on ? 0.5 + Math.sin(tt * 1.5 + i) * 0.1 : 0.5; g.fillStyle = shade(F.glow, -0.2, 0.7); g.beginPath(); g.ellipse(a, b0 - (b0 - b1) * fl, rx * 0.35, rx * 0.3, 0, 0, 7); g.fill(); g.strokeStyle = alpha('#e8fff0', 0.6); g.lineWidth = lw(0.03); g.strokeRect(a - rx, b1, rx * 2, b0 - b1); cyl(cx, cy, r * 1.05, 0.15, H, F.trim); if (on) lights.push([a, (b0 + b1) / 2, u * 2, F.glow, 0.5]); continue; }
+          cyl(cx, cy, r, H, 0, t === 'churn' ? '#c9ced8' : F.body);
+          if (LOD) { for (const z of [H * 0.3, H * 0.7]) cyl(cx, cy, r * 1.04, 0.06, z, shade(t === 'churn' ? '#c9ced8' : F.body, -0.25)); }
+          if (t === 'tank' && LOD) { const [a, c2] = Pl(cx + (side === 'R' ? 0 : r * 0.7), cy + (side === 'R' ? r * 0.7 : 0), H * 0.55); g.fillStyle = '#f2efe6'; g.beginPath(); g.arc(a, c2, u * 0.13, 0, 7); g.fill(); g.strokeStyle = '#333'; g.lineWidth = lw(0.02); g.stroke(); const an = on ? -0.6 + Math.sin(tt * 1.7 + i) * 0.4 : 2.2; g.beginPath(); g.moveTo(a, c2); g.lineTo(a + Math.cos(an) * u * 0.1, c2 + Math.sin(an) * u * 0.1); g.strokeStyle = '#c8342c'; g.stroke(); }
+        }
+        if (t === 'churn') { box(side === 'R' ? x + w - 0.6 : x + 0.2, side === 'R' ? y + 0.2 : y + d - 0.6, 0.4, 0.4, 1.2, 0, F.wood); }
+      } else if (t === 'rack') {
+        const long = side === 'R' ? w : d;
+        for (const e of [0.05, long - 0.12]) for (const f of [0.05, (side === 'R' ? d : w) - 0.12]) box(side === 'R' ? x + e : x + f, side === 'R' ? y + f : y + e, 0.07, 0.07, 2.0, 0, world === 'castle' || world === 'farm' ? F.wood : '#d06a2a', { noInk: LOD < 2 });
+        for (const z of [0.1, 0.75, 1.4]) {
+          box(x, y, w, d, 0.05, z, shade(F.trim, -0.1), { noInk: true });
+          if (!LOD) continue;
+          const n = Math.floor(long / 0.55);
+          for (let i = 0; i < n; i++) {
+            const k = hsh(i * 13 + z * 10 + x * 3 + y) % 4; if (k === 3) continue;
+            const px = side === 'R' ? x + 0.1 + i * 0.55 : x + 0.2, py = side === 'R' ? y + 0.2 : y + 0.1 + i * 0.55;
+            if (world === 'castle' || world === 'farm') { if (k === 0) cyl(px + 0.22, py + 0.25, 0.2, 0.45, z + 0.05, F.wood); else if (k === 1) { const [a, c2] = Pl(px + 0.22, py + 0.25, z + 0.28); g.fillStyle = '#d8c090'; g.beginPath(); g.ellipse(a, c2, u * 0.28, u * 0.24, 0, 0, 7); g.fill(); } else box(px, py, 0.45, 0.45, 0.45, z + 0.05, F.crate); }
+            else if (world === 'alien') { const [a, c2] = Pl(px + 0.22, py + 0.25, z + 0.3); g.fillStyle = shade(F.crate, 0.3); g.beginPath(); g.ellipse(a, c2, u * 0.22, u * 0.26, 0, 0, 7); g.fill(); g.fillStyle = alpha(F.glow, 0.35 + (on ? Math.sin(tt * 2 + i) * 0.2 : 0)); g.beginPath(); g.arc(a, c2, u * 0.1, 0, 7); g.fill(); }
+            else box(px, py, 0.45, 0.45, 0.45, z + 0.05, [F.crate, shade(F.crate, -0.15), mixc(F.crate, F.glow, 0.3)][k], { noInk: LOD < 2 });
+          }
+        }
+      } else if (t === 'press' || t === 'grind') {
+        box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.55, 0, F.dark);
+        if (t === 'grind') {
+          const [a, c2] = Pl(x + w / 2, y + d / 2, 1.1), sp = on ? tt * 5 : 0;
+          box(x + w / 2 - 0.5, y + d / 2 - 0.1, 1.0, 0.2, 0.6, 0.55, F.wood);
+          g.fillStyle = '#9a96a6'; g.beginPath(); g.ellipse(a, c2, u * 0.55, u * 0.6, 0.6, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke();
+          g.strokeStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.moveTo(a, c2); g.lineTo(a + Math.cos(sp) * u * 0.45, c2 + Math.sin(sp) * u * 0.5); g.stroke();
+          if (on && LOD === 2) for (let k = 0; k < 4; k++) { const p = (tt * 3 + k / 4) % 1; g.fillStyle = `rgba(255,${200 - p * 100},80,${1 - p})`; g.beginPath(); g.arc(a + u * 0.5 + p * u * 0.6, c2 + u * 0.3 - p * u * 0.4 + k * u * 0.05, u * 0.03, 0, 7); g.fill(); }
+          return;
+        }
+        for (const e of [0.2, (side === 'R' ? w : d) - 0.35]) box(side === 'R' ? x + e : x + w / 2 - 0.08, side === 'R' ? y + d / 2 - 0.08 : y + e, 0.15, 0.15, 1.7, 0.55, F.trim, { noInk: LOD < 2 });
+        box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.3, 2.25, F.body, { gloss: true });
+        const ram = on ? 1.25 + Math.abs(Math.sin(tt * 2.2)) * 0.8 : 1.9;
+        box(x + w / 2 - 0.35, y + d / 2 - 0.35, 0.7, 0.7, 0.35, ram, shade(F.body, -0.15));
+        box(x + w / 2 - 0.08, y + d / 2 - 0.08, 0.16, 0.16, 2.25 - ram - 0.35, ram + 0.35, METAL, { noInk: true });
+        if (LOD) { faceQuad(0.05, 0.95, 0.3, 0.5); g.fillStyle = F.warn; g.fill(); }
+        if (on && ram < 1.3) { const [a, c2] = Pl(x + w / 2, y + d / 2, 0.6); glowAt(a, c2, u * 0.5, '#fff1c4', 0.6); }
+        status();
+      } else if (t === 'arm') {
+        box(x + 0.15, y + 0.15, w - 0.3, d - 0.3, 0.8, 0, F.dark);
+        const bx = side === 'R' ? x + 0.6 : x + w / 2, by = side === 'R' ? y + d / 2 : y + 0.6;
+        cyl(bx, by, 0.25, 0.25, 0.8, F.trim);
+        const sw = on ? Math.sin(tt * 1.4) : 0.3, [a, c2] = Pl(bx, by, 1.05), l1 = u * 0.8, l2 = u * 0.65;
+        const e = [a + Math.cos(-1.2 + sw * 0.5) * l1, c2 + Math.sin(-1.2 + sw * 0.5) * l1], h = [e[0] + Math.cos(0.3 + sw) * l2, e[1] + Math.sin(0.3 + sw) * l2];
+        g.lineCap = 'round'; g.strokeStyle = INK; g.lineWidth = u * 0.2; g.beginPath(); g.moveTo(a, c2); g.lineTo(...e); g.lineTo(...h); g.stroke();
+        g.strokeStyle = world === 'cyber' ? '#f2e14e' : '#ffb454'; g.lineWidth = u * 0.14; g.beginPath(); g.moveTo(a, c2); g.lineTo(...e); g.lineTo(...h); g.stroke();
+        g.fillStyle = F.dark; for (const p of [[a, c2], e]) { g.beginPath(); g.arc(p[0], p[1], u * 0.1, 0, 7); g.fill(); }
+        g.strokeStyle = METAL; g.lineWidth = u * 0.05; g.beginPath(); g.moveTo(h[0] - u * 0.1, h[1] + u * 0.12); g.lineTo(h[0], h[1]); g.lineTo(h[0] + u * 0.1, h[1] + u * 0.12); g.stroke();
+        if (on && LOD === 2 && Math.sin(tt * 9) > 0.7) { glowAt(h[0], h[1] + u * 0.15, u * 0.35, '#bfe8ff', 0.9); }
+        box(side === 'R' ? x + w - 0.95 : x + 0.2, side === 'R' ? y + 0.2 : y + d - 0.95, 0.75, 0.75, 0.25, 0.8, F.crate);
+      } else if (t === 'pod') {
+        for (let i = 0; i < 3; i++) {
+          const cx = side === 'R' ? x + 0.4 + i * 0.7 : x + w / 2 + (i % 2) * 0.15, cy = side === 'R' ? y + d / 2 + (i % 2) * 0.15 : y + 0.4 + i * 0.7;
+          const [a, c2] = Pl(cx, cy, 0.55), p = on ? 0.5 + 0.5 * Math.sin(tt * 2 + i * 2) : 0.2;
+          g.fillStyle = shade(F.body, 0.15); g.beginPath(); g.ellipse(a, c2, u * 0.34, u * 0.5, 0, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke();
+          g.fillStyle = alpha(F.glow, 0.25 + p * 0.5); g.beginPath(); g.ellipse(a, c2 + u * 0.05, u * 0.2, u * 0.3, 0, 0, 7); g.fill();
+          if (on) lights.push([a, c2, u * 1.4, F.glow, 0.25 * p]);
+        }
+      }
+    }
+    // the tall thing outside the back corner: a mast, a chimney, a silo, a vent stack, a spire, a pipe stack
+    function outside(o, F, world, on) {
+      const x = -1.15, y = -1.15, H = o.tall;
+      if (world === 'castle') {
+        box(x - 0.45, y - 0.45, 0.9, 0.9, H, 0, '#6e6278'); box(x - 0.55, y - 0.55, 1.1, 1.1, 0.25, H, '#7a7289');
+        if (LOD) { g.strokeStyle = 'rgba(20,14,30,0.3)'; g.lineWidth = lw(0.02); g.beginPath(); for (let z = 0.4; z < H; z += 0.4) { g.moveTo(...Pl(x - 0.45, y + 0.45, z)); g.lineTo(...Pl(x + 0.45, y + 0.45, z)); g.lineTo(...Pl(x + 0.45, y - 0.45, z)); } g.stroke(); }
+        if (on) smoke(x, y, H + 0.3, 'rgba(120,110,130,');
+      } else if (world === 'farm') {
+        cyl(x, y, 0.85, H, 0, '#d8d2c4'); if (LOD) for (let z = 0.8; z < H; z += 0.8) cyl(x, y, 0.87, 0.05, z, '#b8b2a4');
+        const [a, c2] = Pl(x, y, H); g.fillStyle = '#b8423a'; g.beginPath(); g.ellipse(a, c2, 0.85 * u * 1.414, 0.85 * u * 0.707, 0, Math.PI, 0); g.quadraticCurveTo(a + 0.85 * u * 1.414, c2 - u * 1.2, a, c2 - u * 1.3); g.quadraticCurveTo(a - 0.85 * u * 1.414, c2 - u * 1.2, a - 0.85 * u * 1.414, c2); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke(); }
+      } else if (world === 'cyber') {
+        cyl(x, y, 0.5, H, 0, '#2b2f3c');
+        for (let k = 1; k < 5; k++) { const z = H * k / 5, [a, c2] = Pl(x, y, z); g.strokeStyle = alpha(k % 2 ? F.glow : F.glow2, on ? 0.9 : 0.35); g.lineWidth = lw(0.07); g.beginPath(); g.ellipse(a, c2, 0.52 * u * 1.414, 0.52 * u * 0.707, 0, 0, Math.PI); g.stroke(); if (on) lights.push([a, c2, u * 1.6, k % 2 ? F.glow : F.glow2, 0.3]); }
+        if (on) smoke(x, y, H, 'rgba(180,120,220,');
+      } else if (world === 'alien') {
+        const [a, b0] = Pl(x, y, 0), [, b1] = Pl(x, y, H), sway = Math.sin(tt * 0.8 + x) * u * 0.15;
+        g.fillStyle = shade(F.body, -0.1); g.beginPath(); g.moveTo(a - u * 0.6, b0); g.bezierCurveTo(a - u * 0.5, b0 - (b0 - b1) * 0.5, a + sway - u * 0.1, b1 + u * 0.8, a + sway, b1); g.bezierCurveTo(a + sway + u * 0.1, b1 + u * 0.8, a + u * 0.5, b0 - (b0 - b1) * 0.5, a + u * 0.6, b0); g.closePath(); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke(); }
+        const p = on ? 0.6 + 0.4 * Math.sin(tt * 2) : 0.3; glowAt(a + sway, b1, u * 1.2, F.glow, 0.6 * p); g.fillStyle = shade(F.glow, 0.3); g.beginPath(); g.arc(a + sway, b1, u * 0.25, 0, 7); g.fill(); lights.push([a + sway, b1, u * 3, F.glow, 0.5 * p]);
+      } else if (world === 'ocean') {
+        for (const [dx, dy, hh] of [[0, 0, H], [0.6, -0.4, H * 0.7]]) { cyl(x + dx, y + dy, 0.28, hh, 0, '#6d8797'); cyl(x + dx, y + dy, 0.34, 0.2, hh, '#2f4a5e'); if (on) bubbles(x + dx, y + dy, hh + 0.2); }
+      } else {
+        // a lattice mast with a dish and a light on top
+        const [a, b0] = Pl(x, y, 0), [, b1] = Pl(x, y, H);
+        g.strokeStyle = '#8a93a8'; g.lineWidth = lw(0.06); g.beginPath(); g.moveTo(a - u * 0.35, b0); g.lineTo(a, b1); g.lineTo(a + u * 0.35, b0); g.stroke();
+        if (LOD) { g.lineWidth = lw(0.025); g.beginPath(); for (let k = 1; k < 8; k++) { const yy = b0 - (b0 - b1) * k / 8, hw = u * 0.35 * (1 - k / 8); g.moveTo(a - hw, yy); g.lineTo(a + hw * 0.8, yy - (b0 - b1) / 8); } g.stroke(); }
+        const [da, db] = Pl(x, y, H * 0.72); g.fillStyle = '#d8dde6'; g.beginPath(); g.ellipse(da + u * 0.3, db, u * 0.4, u * 0.25, 0.6, 0, 7); g.fill();
+        const blink = on && Math.sin(tt * 3 + x) > 0; g.fillStyle = blink ? '#ff5c6c' : '#5a2a30'; g.beginPath(); g.arc(a, b1, u * 0.1, 0, 7); g.fill(); if (blink) lights.push([a, b1, u * 2, '#ff5c6c', 0.5]);
+      }
+    }
+    function smoke(x, y, z, rgb) { if (LOD === 0) return; for (let k = 0; k < 5; k++) { const p = (tt * 0.18 + k / 5) % 1, [a, c2] = Pl(x + p * 0.8, y - p * 0.4, z + p * 3.2); g.fillStyle = rgb + (0.35 * (1 - p)).toFixed(3) + ')'; g.beginPath(); g.arc(a, c2, u * (0.25 + p * 0.55), 0, 7); g.fill(); } }
+    function bubbles(x, y, z) { if (LOD === 0) return; g.strokeStyle = 'rgba(220,248,255,0.7)'; g.lineWidth = lw(0.02); for (let k = 0; k < 4; k++) { const p = (tt * 0.4 + k / 4) % 1, [a, c2] = Pl(x + Math.sin(k * 2 + tt) * 0.1, y, z + p * 2.4); g.beginPath(); g.arc(a, c2, u * (0.05 + p * 0.06), 0, 7); g.stroke(); } }
+
     // ---- castle masonry, baked once per wall into a texture (wall units, v down): coursed stones in eight tones with
     // bevels, grain, chips and hairline cracks; piers that stand proud; a string course on corbels under the parapet;
     // cruciform arrow slits in dressed surrounds; a plinth of big foundation blocks; rain streaks, damp, moss and ivy.
@@ -4847,9 +5448,7 @@
     }
     // ---- halls between cells: a walkway with rails, guide lights, and data packets racing along during a live run
     function drawHall(c0, r0, c1, r1, S) {
-      const horiz = r0 === r1;
-      const x0 = horiz ? c0 * CELL + 8 : c0 * CELL + 3.9, y0 = horiz ? r0 * CELL + 3.9 : r0 * CELL + 8;
-      const w = horiz ? 3 : 1.2, d = horiz ? 1.2 : 3;
+      const h = hallBox(c0, r0, c1, r1), horiz = h.horiz, x0 = h.x0, y0 = h.y0, w = h.w, d = h.d, L = horiz ? w : d;
       rx0 = 0; ry0 = 0;
       const T0 = 0.22;
       poly([Pl(x0, y0 + d, 0), Pl(x0 + w, y0 + d, 0), Pl(x0 + w, y0 + d, -T0), Pl(x0, y0 + d, -T0)]); g.fillStyle = S.slab; g.fill();
@@ -4857,18 +5456,19 @@
       poly([Pl(x0, y0), Pl(x0 + w, y0), Pl(x0 + w, y0 + d), Pl(x0, y0 + d)]); g.fillStyle = S.hall; g.fill();
       if (LOD) {
         g.strokeStyle = 'rgba(0,0,0,0.25)'; g.lineWidth = lw(0.02);
-        for (let k = 0.5; k < 3; k += 0.5) { g.beginPath(); if (horiz) { g.moveTo(...Pl(x0 + k, y0)); g.lineTo(...Pl(x0 + k, y0 + d)); } else { g.moveTo(...Pl(x0, y0 + k)); g.lineTo(...Pl(x0 + w, y0 + k)); } g.stroke(); }
+        g.beginPath(); for (let k = 0.5; k < L; k += 0.5) { if (horiz) { g.moveTo(...Pl(x0 + k, y0)); g.lineTo(...Pl(x0 + k, y0 + d)); } else { g.moveTo(...Pl(x0, y0 + k)); g.lineTo(...Pl(x0 + w, y0 + k)); } } g.stroke();
         // rails on both sides
         for (const side of [0, 1]) {
           const pts = horiz ? [[x0, y0 + side * d], [x0 + w, y0 + side * d]] : [[x0 + side * w, y0], [x0 + side * w, y0 + d]];
           g.strokeStyle = S.rail; g.lineWidth = lw(0.05);
           g.beginPath(); g.moveTo(...Pl(pts[0][0], pts[0][1], 0.55)); g.lineTo(...Pl(pts[1][0], pts[1][1], 0.55)); g.stroke();
-          for (let k = 0; k <= 3; k += 1) { const px = horiz ? x0 + k : pts[0][0], py = horiz ? pts[0][1] : y0 + k; g.beginPath(); g.moveTo(...Pl(px, py, 0)); g.lineTo(...Pl(px, py, 0.55)); g.stroke(); if (LOD === 2) { const [lx, ly] = Pl(px, py, 0.05); g.fillStyle = S.neon ? '#00f0ff' : '#ffe9a8'; g.beginPath(); g.arc(lx, ly, u * 0.04, 0, 7); g.fill(); } }
+          const posts = Math.max(1, Math.round(L)), step = L / posts;
+          for (let k = 0; k <= posts; k++) { const px = horiz ? x0 + k * step : pts[0][0], py = horiz ? pts[0][1] : y0 + k * step; g.beginPath(); g.moveTo(...Pl(px, py, 0)); g.lineTo(...Pl(px, py, 0.55)); g.stroke(); if (LOD === 2) { const [lx, ly] = Pl(px, py, 0.05); g.fillStyle = S.neon ? '#00f0ff' : '#ffe9a8'; g.beginPath(); g.arc(lx, ly, u * 0.04, 0, 7); g.fill(); } }
         }
       }
       const key = `${c0},${r0}|${c1},${r1}`, live = liveHalls.get(key);
       if (live) for (let k = 0; k < 3; k++) {
-        const p = ((tt * 0.8 * live.dir + k / 3) % 1 + 1) % 1, px = horiz ? x0 + p * 3 : x0 + 0.6, py = horiz ? y0 + 0.6 : y0 + p * 3;
+        const p = ((tt * 0.8 * 3 / L * live.dir + k / 3) % 1 + 1) % 1, px = horiz ? x0 + p * L : x0 + 0.6, py = horiz ? y0 + 0.6 : y0 + p * L;
         const [X, Y] = Pl(px, py, 0.15); glowAt(X, Y, u * 0.6, live.col, 0.7); g.fillStyle = '#fff'; g.beginPath(); g.arc(X, Y, u * 0.07, 0, 7); g.fill();
         lights.push([X, Y, u * 1.2, live.col, 0.4]);
       }
@@ -4989,7 +5589,7 @@
       if ((a.state === 'work') || (a.kind === 'guest' && a.act === 'seated')) return 'sit';
       if (a.act === 'serve') return 'serve';
       if (a.act === 'chore') return 'chore';
-      if (a.act === 'tinker') return 'tinker';
+      if (a.act === 'tinker' || (a.act === 'haul' && !a.carry)) return 'tinker';
       if (a.act === 'chat') return 'chat';
       if (a.carry) return 'carry';
       return 'stand';
@@ -5417,7 +6017,7 @@
       if (a.dying && T - a.dying > 0.95) return;
       const id = identity(a);
       curTheme = roomThemeOf(a);
-      const [X, Y] = P(a.x, a.y, a.jz > 0 ? Math.sin(a.jz * Math.PI) * 0.35 * u : 0), [, Yf] = P(a.x, a.y);
+      const lift = liftAt(a.x, a.y) * u, [X, Y] = P(a.x, a.y, lift + (a.jz > 0 ? Math.sin(a.jz * Math.PI) * 0.35 * u : 0)), [, Yf] = P(a.x, a.y, lift);
       const fade = (a.dying ? Math.max(0, 1 - (T - a.dying) / 0.95) : 1) * (a.born && T - a.born < 0.8 ? (T - a.born) / 0.8 : 1);
       if (fade <= 0.01) return;
       g.save(); g.globalAlpha = fade;
@@ -5733,8 +6333,15 @@
 
     // ---- the silhouette of a cell (floor plus walls as they stand now), for outlines, focus and clicks
     function silhouetteOf(c, r) {
-      const [x0, y0] = cellOrigin(c, r), H = (wallH.get(c + ',' + r) || LOWH) * u;
-      return [P(x0, y0 + N, 0), P(x0, y0 + N, H), P(x0, y0, H), P(x0 + N, y0, H), P(x0 + N, y0, 0), P(x0 + N, y0 + N, -0.3 * u), P(x0, y0 + N, -0.3 * u)];
+      const b = cellBox(c, r), H = (wallH.get(c + ',' + r) || LOWH) * u, lo = -0.3 * u;
+      if (b.round) {
+        const out = [], at = (a, z) => P(b.cx + Math.cos(a) * b.R, b.cy + Math.sin(a) * b.R, z);
+        for (let i = 0; i <= 16; i++) out.push(at(Math.PI * (0.75 + i / 16), H));
+        for (let i = 0; i <= 16; i++) out.push(at(Math.PI * (1.75 + i / 16), lo));
+        return out;
+      }
+      const front = b.yard ? [P(b.x1, b.y1 - b.yard[1], lo), P(b.x1 - b.yard[0], b.y1 - b.yard[1], lo), P(b.x1 - b.yard[0], b.y1, lo)] : [P(b.x1, b.y1, lo)];
+      return [P(b.x0, b.y1, 0), P(b.x0, b.y1, H), P(b.x0, b.y0, H), P(b.x1, b.y0, H), P(b.x1, b.y0, 0), ...front, P(b.x0, b.y1, lo)];
     }
     function outline(t, col, a) {
       const s = silhouetteOf(t.c, t.r);
@@ -5743,31 +6350,42 @@
 
     // ---- one cell: floor, walls, then everything in it back to front with the characters among the furniture
     function drawCell(c, r, kind, inHere, over, selId, S) {
-      const [x0, y0] = cellOrigin(c, r); rx0 = x0; ry0 = y0;
+      const b = cellBox(c, r), [x0, y0] = cellOrigin(c, r); curBox = b; rx0 = b.x0; ry0 = b.y0;
       const key = c + ',' + r, H = wallH.get(key) || LOWH; curWallH = H;
       const rm = kind === 'path' ? rooms.find((m) => m.c === c && m.r === r) : null;
       const th = rm ? themeOfRoom(rm) : kind, look = lookForce || (rm ? roomLook(rm) : 'active'), acc = rm ? themeOf(rm.id).accent : kind === 'hub' ? '#ffcf5a' : '#cfd6e6';
       curTheme = th;
+      const lay = rm ? layoutRoom(rm) : kind === 'hub' ? { items: layoutHub(), wall: [] } : { items: layoutDock(), wall: [] };
+      const fac = layoutFactory(kind, rm, b, look);
+      // what stands outside, behind the walls (stacks, silos, spires), goes first
+      for (const e of fac.back) { rx0 = b.x0; ry0 = b.y0; e(); }
+      rx0 = b.x0; ry0 = b.y0;
       drawFloor(kind === 'path' ? 'room' : kind, rm, th, S, acc, look);
       const doorL = cells.has((c - 1) + ',' + r), doorR = cells.has(c + ',' + (r - 1));
-      const lay = rm ? layoutRoom(rm) : kind === 'hub' ? { items: layoutHub(), wall: [] } : { items: layoutDock(), wall: [] };
-      {
+      if (b.round) roundWall(S, H, doorL, doorR);
+      else {
         wallFace('L', S, th, H, doorL, look); wallFace('R', S, th, H, doorR, look);
         if (H > 1.9 && LOD) {
+          if (th !== 'yard') for (const w of fac.wall) { rx0 = b.x0; ry0 = b.y0; w(); }
+          wallDept = true;
           if (rm) {
             if (th !== 'yard') { sky('L', 0.5, 2.0, 0.9, 2.6, S); dataScreen(rm); clock(S); }
             if (isService(rm) && th !== 'yard') openSign(S);
             sign(shortName(rm.spec), acc, S);
           } else if (kind === 'dock') sign(NM().dockSign || NM().dock, acc, S);
           for (const w of lay.wall) w();
+          wallDept = false;
         }
-        rx0 = x0; ry0 = y0;
       }
+      rx0 = b.x0; ry0 = b.y0;
       if (rm) pennant(rm, H);
-      const list = lay.items.slice();
+      // the department's pieces are placed from its corner, the factory's from the building's; both sort together
+      const list = lay.items.slice(), sh = b.ox + b.oy;
+      for (const it of fac.items) list.push({ d: it.d - sh, bx: true, fn: it.fn });
       for (const a of inHere) list.push({ d: (a.x - x0) + (a.y - y0) + 0.02, a });
       list.sort((p, q) => p.d - q.d);
-      for (const it of list) { if (it.a) drawChar(it.a, over, selId); else { rx0 = x0; ry0 = y0; it.fn(); } }
+      for (const it of list) { if (it.a) drawChar(it.a, over, selId); else { if (it.bx) { rx0 = b.x0; ry0 = b.y0; } else { rx0 = x0; ry0 = y0; } it.fn(); } }
+      rx0 = x0; ry0 = y0;
     }
 
     // ---- the frame
@@ -5797,13 +6415,16 @@
       const buckets = new Map(), put = (k, a) => { if (!buckets.has(k)) buckets.set(k, []); buckets.get(k).push(a); };
       for (const a of agents.values()) {
         if (o.folk === false) break;
-        const c = Math.floor((a.x - 1 + 0.5) / CELL), r = Math.floor((a.y - 1 + 0.5) / CELL), [ox0, oy0] = cellOrigin(c, r);
-        if (cells.has(c + ',' + r) && a.x >= ox0 - 0.4 && a.x <= ox0 + N + 0.4 && a.y >= oy0 - 0.4 && a.y <= oy0 + N + 0.4) { put('c' + c + ',' + r, a); continue; }
-        // between cells: which hall are they on?
-        const hc = Math.floor((a.x - 8) / CELL), hr = Math.round((a.y - 4.5) / CELL), vc = Math.round((a.x - 4.5) / CELL), vr = Math.floor((a.y - 8) / CELL);
-        const inH = Math.abs(a.y - (hr * CELL + 4.5)) < 1.2 && a.x >= hc * CELL + 7.5 && a.x <= hc * CELL + 11.5;
-        const inV = Math.abs(a.x - (vc * CELL + 4.5)) < 1.2 && a.y >= vr * CELL + 7.5 && a.y <= vr * CELL + 11.5;
-        put(inH ? 'H' + hc + ',' + hr : inV ? 'V' + vc + ',' + vr : 'X', a);
+        const c = Math.floor(a.x / CELL), r = Math.floor(a.y / CELL), key = c + ',' + r;
+        if (cells.has(key)) {
+          const b = cellBox(c, r);
+          if (b.round ? Math.hypot(a.x - b.cx, a.y - b.cy) <= b.R + 0.4 : a.x >= b.x0 - 0.4 && a.x <= b.x1 + 0.4 && a.y >= b.y0 - 0.4 && a.y <= b.y1 + 0.4) { put('c' + key, a); continue; }
+          // between cells: the walkway east or south of this cell, or the one arriving from the west or north
+          const hallOf = (c0, r0, c1, r1) => { if (!cells.has(c0 + ',' + r0) || !cells.has(c1 + ',' + r1)) return null; const h = hallBox(c0, r0, c1, r1); return a.x >= h.x0 - 0.6 && a.x <= h.x0 + h.w + 0.6 && a.y >= h.y0 - 0.6 && a.y <= h.y0 + h.d + 0.6 ? (h.horiz ? 'H' : 'V') + c0 + ',' + r0 : null; };
+          put(hallOf(c, r, c + 1, r) || hallOf(c, r, c, r + 1) || hallOf(c - 1, r, c, r) || hallOf(c, r - 1, c, r) || 'X', a);
+          continue;
+        }
+        put('X', a);
       }
       const order = [];
       for (const o of list) {
@@ -5811,7 +6432,7 @@
         if (cells.has((o.c + 1) + ',' + o.r)) order.push({ k: o.c + o.r + 0.5, t: 'hall', c0: o.c, r0: o.r, c1: o.c + 1, r1: o.r });
         if (cells.has(o.c + ',' + (o.r + 1))) order.push({ k: o.c + o.r + 0.5, t: 'hall', c0: o.c, r0: o.r, c1: o.c, r1: o.r + 1 });
       }
-      order.push({ k: (MAST[0] + MAST[1]) / CELL, t: 'mast' });
+      order.push({ k: (MAST[0] + MAST[1]) / CELL - 0.5, t: 'mast' });
       order.sort((p, q) => p.k - q.k || (p.c0 ?? p.c ?? 0) - (q.c0 ?? q.c ?? 0));
       const over = [], selId = follow || (selected && selected.startsWith('a:') ? selected.slice(2) : null);
       const hallsDone = new Set();
@@ -5871,9 +6492,10 @@
     }
     const mastAt = (X, Y) => { if (!mastHit) return false; const [a, b] = toCss(mastHit[0], mastHit[1]), [c2, d2] = toCss(mastHit[2], mastHit[3]); return X >= a && X <= c2 && Y >= b && Y <= d2; };
     // what the walk grid must avoid in each cell: every piece of furniture's footprint
-    function footprints(kind, rm) {
+    function footprints(kind, rm, c, r) {
       const items = rm ? layoutRoom(rm).items : kind === 'hub' ? layoutHub() : layoutDock();
-      return items.filter((i) => i.fp).map((i) => i.fp);
+      const b = cellBox(c, r), fac = layoutFactory(kind, rm, b, rm ? roomLook(rm) : 'active').items;
+      return [...items.filter((i) => i.fp).map((i) => i.fp), ...fac.filter((i) => i.fp).map((i) => [i.fp[0] - b.ox, i.fp[1] - b.oy, i.fp[2], i.fp[3]])];
     }
 
     // ---- the art export: one character, one room, the backdrop or the whole map drawn on a canvas of its own, through
@@ -5919,8 +6541,8 @@
     }
     // a walkway between two cells, on its own
     function exportHall(ctx, c0, r0, c1, r1, width) {
-      const horiz = r0 === r1, x0w = horiz ? c0 * CELL + 8 : c0 * CELL + 3.9, y0w = horiz ? r0 * CELL + 3.9 : r0 * CELL + 8;
-      const pts = [[x0w, y0w], [x0w + (horiz ? 3 : 1.2), y0w], [x0w, y0w + (horiz ? 1.2 : 3)], [x0w + (horiz ? 3 : 1.2), y0w + (horiz ? 1.2 : 3)]].flatMap(([x, y]) => [P(x, y, 0), P(x, y, 0.8 * u), P(x, y, -0.3 * u)]);
+      const h = hallBox(c0, r0, c1, r1);
+      const pts = [[h.x0, h.y0], [h.x0 + h.w, h.y0], [h.x0, h.y0 + h.d], [h.x0 + h.w, h.y0 + h.d]].flatMap(([x, y]) => [P(x, y, 0), P(x, y, 0.8 * u), P(x, y, -0.3 * u)]);
       const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]), x0 = Math.min(...xs) - u * 0.4, y0 = Math.min(...ys) - u * 0.4;
       const s = width / (Math.max(...xs) + u * 0.4 - x0);
       ctx.canvas.width = Math.round(width); ctx.canvas.height = Math.round((Math.max(...ys) + u * 0.4 - y0) * s);
@@ -5942,7 +6564,7 @@
     // the whole station: o: { width, sky, folk, walls ('low' | 'full'), hour }
     function exportMap(ctx, o) {
       const pts = [];
-      for (const key of cells.keys()) { const [c, r] = key.split(',').map(Number); const [x0, y0] = cellOrigin(c, r); for (const [x, y] of [[x0, y0], [x0 + N, y0], [x0, y0 + N], [x0 + N, y0 + N]]) pts.push(P(x, y, FULLH * u + 3 * u), P(x, y, -0.6 * u)); }
+      for (const key of cells.keys()) { const [c, r] = key.split(',').map(Number), b = cellBox(c, r); for (const [x, y] of [[b.x0, b.y0], [b.x1, b.y0], [b.x0, b.y1], [b.x1, b.y1]]) pts.push(P(x, y, FULLH * u + 3 * u), P(x, y, -0.6 * u)); }
       pts.push(P(MAST[0], MAST[1], 6 * u), P(MAST[0] + 1, MAST[1] + 1, -0.6 * u));
       const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
       const m = u * 2, x0 = Math.min(...xs) - m, y0 = Math.min(...ys) - m, s = o.width / (Math.max(...xs) + m - x0);
@@ -5954,7 +6576,7 @@
       finally { ({ S, dpr, vx0e, vy0e, vwCss, vhCss } = keep); wallH.clear(); for (const [k, v] of keepWalls) wallH.set(k, v); selected = keepSel; cam.x = cx; cam.y = cy; g = dctx; }
     }
     const exp = { figure: exportFigure, cell: exportCell, hall: exportHall, mast: exportMast, background: exportBackground, map: exportMap, themeOfRoom, hsh, COSTUME, SKIN_TONES, HAIR_COLS, PANTS };
-    return { kit: () => KIT, kitLook: (a, id) => { curWorld = skinId(); return kitLook(a, id); }, exp, draw, pickAt, mastAt, silhouetteOf, footprints, wallHeight: (c, r) => wallH.get(c + ',' + r) || LOWH, FULLH, drawPerson: (gg, a, id, L, pose, t) => { const keep = g; g = gg; curWorld = skinId(); const top = drawPerson(a, id, L, pose, t); g = keep; return top; }, lookFor, drawAnimal: (gg, a, t) => { const keep = g; g = gg; const top = drawAnimal(a, t); g = keep; return top; } };
+    return { kit: () => KIT, kitLook: (a, id) => { curWorld = skinId(); return kitLook(a, id); }, exp, draw, pickAt, mastAt, silhouetteOf, footprints, factorySpots, liftAt, wallHeight: (c, r) => wallH.get(c + ',' + r) || LOWH, FULLH, drawPerson: (gg, a, id, L, pose, t) => { const keep = g; g = gg; curWorld = skinId(); const top = drawPerson(a, id, L, pose, t); g = keep; return top; }, lookFor, drawAnimal: (gg, a, t) => { const keep = g; g = gg; const top = drawAnimal(a, t); g = keep; return top; } };
   })();
   // ---- the close-up is a camera framing, not a mode: the same world, the room filling the view with its walls up
   let closeZ = 3;
@@ -5965,7 +6587,7 @@
     // on a phone the panel drops to its handle first, so the room gets the screen
     if (!overlayMode()) { setSheet('peek'); layout(); }
     const H = WR.FULLH * HW;
-    const pts = [P(rm.x0, rm.y0, H * 0.72), P(rm.x0 + ROOM, rm.y0, H * 0.6), P(rm.x0, rm.y0 + ROOM, H * 0.6), P(rm.x0 + ROOM, rm.y0 + ROOM, -4), P(rm.x0, rm.y0 + ROOM, -4), P(rm.x0 + ROOM, rm.y0, 0)];
+    const b = rm.box, pts = [P(b.x0, b.y0, H * 0.72), P(b.x1, b.y0, H * 0.6), P(b.x0, b.y1, H * 0.6), P(b.x1, b.y1, -4), P(b.x0, b.y1, -4), P(b.x1, b.y0, 0)];
     const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
     const bw = Math.max(...xs) - Math.min(...xs), bh = Math.max(...ys) - Math.min(...ys);
     const th = 0, aw = overlayMode() ? avail.x1 - avail.x0 : vwCss - 8, ah = avail.y1 - avail.y0;
