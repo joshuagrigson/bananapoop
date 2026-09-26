@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070a14">
+<title>Proxyfolk on every screen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070a14; --panel: #0f1528; --line: #22305a; --line2: #33467c; --ink: #e8eeff; --dim: #93a3cc; --accent: #7aa2ff; --gold: #ffd84d;
+    --metal: linear-gradient(145deg, #3a3f4c, #15171d 45%, #2a2e38);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 500 14px/1.4 Nunito, system-ui, sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden;
+    background: radial-gradient(1200px 700px at 70% -10%, #1a2550 0%, transparent 60%), radial-gradient(900px 600px at 0% 110%, #1b1440 0%, transparent 55%), var(--bg); }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: rgba(7, 10, 20, .7); backdrop-filter: blur(8px); position: relative; z-index: 2; }
+  h1 { margin: 0; font: 700 17px/1 Oxanium, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+  h1 small { display: block; margin-top: 4px; font: 500 12px/1.2 Nunito, sans-serif; letter-spacing: 0; text-transform: none; color: var(--dim); }
+  .grp { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .grp .k { font: 600 10.5px/1 Oxanium, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-right: 2px; }
+  .chip { font: 700 12.5px/1 Nunito, sans-serif; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-height: 34px; }
+  .chip:hover { border-color: var(--line2); }
+  .chip[aria-pressed="true"] { background: #1c2a55; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .chip svg { width: 16px; height: 16px; flex: none; }
+  .chip .sz { color: var(--dim); font-weight: 600; font-size: 11px; }
+  .spacer { flex: 1; }
+  a.chip { text-decoration: none; }
+  #stage { flex: 1; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; gap: 28px; padding: 18px 16px 34px; }
+  .dev { position: relative; flex: none; display: flex; flex-direction: column; align-items: center; }
+  .dev .cap { position: absolute; left: 0; right: 0; text-align: center; font: 600 12px/1.2 Oxanium, sans-serif; letter-spacing: .08em; color: var(--dim); white-space: nowrap; }
+  .dev .cap a { color: var(--accent); margin-left: 8px; font-family: Nunito, sans-serif; letter-spacing: 0; }
+  .body { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  .screen { position: absolute; overflow: hidden; background: #000; }
+  .screen iframe { border: 0; display: block; background: #05070d; }
+  .screen .boot { position: absolute; inset: 0; display: grid; place-items: center; color: var(--dim); font: 600 13px Oxanium, sans-serif; letter-spacing: .1em; pointer-events: none; transition: opacity .4s; }
+
+  /* iPhone: rounded titanium, dynamic island */
+  .f-iphone { border-radius: 58px; background: var(--metal); box-shadow: 0 0 0 2px #50566a inset, 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px #000; }
+  .f-iphone .screen { border-radius: 46px; }
+  .f-iphone .isl { position: absolute; left: 50%; top: 11px; width: 120px; height: 34px; margin-left: -60px; border-radius: 20px; background: #000; z-index: 3; pointer-events: none; }
+  .f-iphone .btn { position: absolute; width: 4px; border-radius: 2px; background: #2a2e38; }
+  /* Android: flatter slab, punch-hole camera */
+  .f-android { border-radius: 38px; background: linear-gradient(160deg, #1e2230, #0b0c11 55%, #1a1d27); box-shadow: 0 0 0 2px #2e3446 inset, 0 30px 80px rgba(0,0,0,.6); }
+  .f-android .screen { border-radius: 28px; }
+  .f-android .cam { position: absolute; left: 50%; top: 16px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: radial-gradient(circle at 40% 40%, #334 0 30%, #000 60%); z-index: 3; pointer-events: none; }
+  /* Tablet: even bezel, front camera on the long edge */
+  .f-tablet { border-radius: 36px; background: linear-gradient(150deg, #2c303b, #121318 50%, #262a33); box-shadow: 0 0 0 2px #454b5c inset, 0 30px 90px rgba(0,0,0,.6); }
+  .f-tablet .screen { border-radius: 18px; }
+  .f-tablet .cam { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #05060a; box-shadow: 0 0 0 2px #1d2029; }
+  /* PC: monitor on a stand */
+  .f-pc .mon { position: absolute; left: 0; top: 0; border-radius: 16px; background: linear-gradient(180deg, #1b1e27, #0c0d12); box-shadow: 0 0 0 2px #333a4c inset, 0 30px 90px rgba(0,0,0,.6); }
+  .f-pc .screen { border-radius: 4px; }
+  .f-pc .neck { position: absolute; background: linear-gradient(90deg, #555c6c, #9aa2b4 50%, #555c6c); }
+  .f-pc .foot { position: absolute; border-radius: 10px 10px 4px 4px; background: linear-gradient(180deg, #a3abbd, #5d6475); box-shadow: 0 16px 30px rgba(0,0,0,.5); }
+
+  .note { flex: none; padding: 0 16px 12px; text-align: center; color: var(--dim); font-size: 12px; }
+  /* what the phone itself owns: status bar on top, gesture bar at the bottom. The page gets the rest, as on the real thing */
+  .sb { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 34px; color: #fff; font: 600 15px/1 -apple-system, "SF Pro Text", Nunito, system-ui, sans-serif; background: #05070d; }
+  .sb svg { height: 12px; width: auto; margin-left: 5px; fill: #fff; }
+  .f-android .sb { padding: 0 18px; font: 500 13px/1 Roboto, Nunito, system-ui, sans-serif; }
+  .f-tablet .sb { padding: 0 22px; font-size: 12px; }
+  .home { position: absolute; left: 0; right: 0; bottom: 0; background: #05070d; }
+  .home::after { content: ""; position: absolute; left: 50%; top: 50%; width: 134px; height: 5px; margin: -2.5px 0 0 -67px; border-radius: 3px; background: rgba(255,255,255,.85); }
+  .f-android .home::after { width: 108px; height: 4px; margin: -2px 0 0 -54px; }
+  .f-tablet .home::after { width: 180px; }
+  @media (max-width: 700px) {
+    header { padding: 10px 12px; gap: 8px 10px; }
+    h1 small { display: none; }
+    .grp .k { display: none; }
+    .chip { padding: 7px 10px; font-size: 12px; }
+    .chip .sz { display: none; }
+    h1 { font-size: 14px; width: 100%; }
+    .spacer { display: none; }
+    .grp { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
+    .grp::-webkit-scrollbar { display: none; }
+    .chip { flex: none; }
+    #stage { gap: 14px; padding: 12px 8px 30px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Proxyfolk on every screen<small>The live mock, running in real phone, tablet and PC sizes. Tap around inside any screen.</small></h1>
+  <div class="spacer"></div>
+  <div class="grp" id="gDev"><span class="k">Device</span></div>
+  <div class="grp" id="gWorld"><span class="k">Station</span></div>
+  <div class="grp" id="gPage"><span class="k">Page</span></div>
+</header>
+<main id="stage"></main>
+<div class="note" id="note"></div>
+<script>
+(() => {
+  const I = {
+    phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4"/></svg>',
+    android: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><circle cx="12" cy="5" r=".8" fill="currentColor"/></svg>',
+    tablet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2.5"/><path d="M11 18.5h2"/></svg>',
+    pc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="13" rx="2"/><path d="M8 21h8M12 16v5"/></svg>',
+    all: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1.5" y="6" width="7" height="12" rx="1.5"/><rect x="10.5" y="3" width="12" height="15" rx="1.5"/><path d="M14 21h5"/></svg>',
+    rotate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 0 1 14-5.3M20 4v4h-4M20 12a8 8 0 0 1-14 5.3M4 20v-4h4"/></svg>',
+  };
+  // screen sizes in CSS px, the same numbers the real devices report, so each page gets its real layout
+  const DEV = {
+    phone: { label: 'iPhone', w: 393, h: 852, frame: 'iphone' },
+    android: { label: 'Android', w: 360, h: 800, frame: 'android' },
+    tablet: { label: 'Tablet', w: 820, h: 1180, frame: 'tablet' },
+    pc: { label: 'PC', w: 1440, h: 900, frame: 'pc' },
+  };
+  const WORLDS = [['business', 'Business', '/'], ['barber', 'Barber', '/barber/'], ['family', 'Family', '/family/']];
+  const PAGES = [['station', 'Station', ''], ['ledger', 'Ledger', 'ledger/'], ['terminal', 'Terminal', 'terminal/']];
+
+  const q = new URLSearchParams(location.hash.slice(1));
+  const st = {
+    dev: ['phone', 'android', 'tablet', 'pc', 'all'].includes(q.get('device')) ? q.get('device') : (innerWidth < 700 ? 'phone' : 'all'),
+    world: WORLDS.some((w) => w[0] === q.get('world')) ? q.get('world') : 'barber',
+    page: PAGES.some((p) => p[0] === q.get('page')) ? q.get('page') : 'station',
+    land: q.get('land') === '1',
+  };
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const src = () => WORLDS.find((w) => w[0] === st.world)[2] + PAGES.find((p) => p[0] === st.page)[2];
+
+  function chips() {
+    const devs = [['phone', 'iPhone', '393×852'], ['android', 'Android', '360×800'], ['tablet', 'Tablet', st.land ? '1180×820' : '820×1180'], ['pc', 'PC', '1440×900'], ['all', 'All four', '']];
+    $('#gDev').innerHTML = '<span class="k">Device</span>' + devs.map(([k, t, s]) => `<button type="button" class="chip" data-dev="${k}" aria-pressed="${st.dev === k}">${I[k]}${t}${s ? ` <span class="sz">${s}</span>` : ''}</button>`).join('')
+      + (st.dev === 'tablet' || st.dev === 'all' ? `<button type="button" class="chip" data-rot aria-pressed="${st.land}" title="Turn the tablet sideways">${I.rotate}${st.land ? 'Landscape' : 'Portrait'}</button>` : '');
+    $('#gWorld').innerHTML = '<span class="k">Station</span>' + WORLDS.map(([k, t]) => `<button type="button" class="chip" data-world="${k}" aria-pressed="${st.world === k}">${t}</button>`).join('');
+    $('#gPage').innerHTML = '<span class="k">Page</span>' + PAGES.map(([k, t]) => `<button type="button" class="chip" data-page="${k}" aria-pressed="${st.page === k}">${t}</button>`).join('');
+  }
+
+  // geometry of each frame around its screen: bezel sizes, extra parts, total box
+  function geo(id) {
+    const d = DEV[id]; let w = d.w, h = d.h;
+    if (id === 'tablet' && st.land) [w, h] = [h, w];
+    if (d.frame === 'iphone') return { w, h, bx: 14, by: 14, W: w + 28, H: h + 28 };
+    if (d.frame === 'android') return { w, h, bx: 11, by: 13, W: w + 22, H: h + 26 };
+    if (d.frame === 'tablet') return { w, h, bx: 26, by: 26, W: w + 52, H: h + 52 };
+    return { w, h, bx: 22, by: 22, W: w + 44, H: h + 44 + 150 };
+  }
+
+  // status bar and gesture bar heights each device keeps for itself (portrait / landscape)
+  const BARS = {
+    iphone: () => [54, 34],
+    android: () => [32, 20],
+    tablet: () => [24, 20],
+  };
+  const SIG = '<svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>';
+  const WIFI = '<svg viewBox="0 0 16 12"><path d="M8 12 5.3 8.8a4 4 0 0 1 5.4 0zM2.6 5.9a8 8 0 0 1 10.8 0l-1.4 1.6a6 6 0 0 0-8 0zM0 3a12 12 0 0 1 16 0l-1.3 1.5a10 10 0 0 0-13.4 0z"/></svg>';
+  const BATT = '<svg viewBox="0 0 27 12"><rect x=".5" y=".5" width="23" height="11" rx="3" fill="none" stroke="#fff" stroke-opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6"/><rect x="24.5" y="4" width="2" height="4" rx="1" fill-opacity=".5"/></svg>';
+
+  function frameHtml(id, g) {
+    const d = DEV[id], f = d.frame;
+    const [top, bot] = BARS[f] ? BARS[f](g) : [0, 0], ih = g.h - top - bot;
+    const sb = top ? `<div class="sb" style="height:${top}px"><span>9:41</span><span>${SIG}${WIFI}${BATT}</span></div>` : '';
+    const home = bot ? `<div class="home" style="height:${bot}px"></div>` : '';
+    const scr = `<div class="screen" style="left:${g.bx}px;top:${g.by}px;width:${g.w}px;height:${g.h}px">${sb}<iframe title="${esc(d.label)} screen" src="${esc(src())}" width="${g.w}" height="${ih}" style="margin-top:${top}px" allow="clipboard-write"></iframe>${home}<div class="boot">Starting the station…</div></div>`;
+    if (f === 'iphone') return `<div class="body f-iphone" style="width:${g.W}px;height:${g.H}px">${scr}<div class="isl"></div><i class="btn" style="left:-3px;top:180px;height:34px"></i><i class="btn" style="left:-3px;top:240px;height:62px"></i><i class="btn" style="left:-3px;top:315px;height:62px"></i><i class="btn" style="right:-3px;top:260px;height:96px"></i></div>`;
+    if (f === 'android') return `<div class="body f-android" style="width:${g.W}px;height:${g.H}px">${scr}<div class="cam"></div></div>`;
+    if (f === 'tablet') {
+      const cam = `left:${g.W / 2 - 4}px;top:9px`;
+      return `<div class="body f-tablet" style="width:${g.W}px;height:${g.H}px">${scr}<i class="cam" style="${cam}"></i></div>`;
+    }
+    const mh = g.h + 44;
+    return `<div class="body f-pc" style="width:${g.W}px;height:${g.H}px"><div class="mon" style="width:${g.W}px;height:${mh}px">${scr}</div><div class="neck" style="left:${g.W / 2 - 40}px;top:${mh}px;width:80px;height:118px"></div><div class="foot" style="left:${g.W / 2 - 190}px;top:${mh + 116}px;width:380px;height:28px"></div></div>`;
+  }
+
+  let built = '';
+  function build() {
+    const ids = st.dev === 'all' ? ['phone', 'android', 'tablet', 'pc'] : [st.dev];
+    const key = ids.join() + '|' + src() + '|' + st.land;
+    if (key === built) return fit();
+    built = key;
+    $('#stage').innerHTML = ids.map((id) => {
+      const g = geo(id);
+      return `<div class="dev" data-id="${id}" data-w="${g.W}" data-h="${g.H}">${frameHtml(id, g)}<div class="cap">${esc(DEV[id].label)} · ${g.w}×${g.h}<a href="${esc(src())}" target="_blank" rel="noopener">open ↗</a></div></div>`;
+    }).join('');
+    for (const f of document.querySelectorAll('#stage iframe')) f.addEventListener('load', () => { const b = f.parentNode.querySelector('.boot'); if (b) b.style.opacity = 0; }, { once: true });
+    $('#note').textContent = ids.length > 1
+      ? 'Every screen runs its own copy of the same demo, saved in this browser. Changes made in one show up in the others after a reload.'
+      : 'Real ' + DEV[ids[0]].label + ' size, scaled to fit. Pinch-zoom, drag and tap work inside the screen.';
+    fit();
+  }
+
+  // scale every frame by one factor so they sit side by side at true relative size
+  function fit() {
+    const stage = $('#stage'), devs = [...stage.querySelectorAll('.dev')];
+    if (!devs.length) return;
+    const cs = getComputedStyle(stage);
+    const aw = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const ah = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 22;
+    const gap = parseFloat(cs.columnGap) || 0;
+    const sumW = devs.reduce((a, d) => a + +d.dataset.w, 0), maxH = Math.max(...devs.map((d) => +d.dataset.h));
+    const s = Math.min(1, (aw - gap * (devs.length - 1)) / sumW, ah / maxH);
+    for (const d of devs) {
+      const W = +d.dataset.w * s, H = +d.dataset.h * s;
+      d.style.width = W + 'px'; d.style.height = H + 'px';
+      d.querySelector('.body').style.transform = `scale(${s})`;
+      d.querySelector('.cap').style.top = (H + 8) + 'px';
+    }
+    stage.style.alignItems = devs.length > 1 ? 'flex-end' : 'center';
+  }
+
+  function save() { history.replaceState(null, '', '#' + new URLSearchParams({ device: st.dev, world: st.world, page: st.page, ...(st.land ? { land: '1' } : {}) })); }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.dev) st.dev = b.dataset.dev;
+    else if (b.dataset.world) st.world = b.dataset.world;
+    else if (b.dataset.page) st.page = b.dataset.page;
+    else if ('rot' in b.dataset) st.land = !st.land;
+    else return;
+    save(); chips(); build();
+  });
+  addEventListener('resize', fit);
+  chips(); build();
+})();
+</script>
+</body>
+</html>

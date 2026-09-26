@@ -69,8 +69,9 @@ const shim = (station, prefix) => `<script type="importmap">${JSON.stringify({ i
 })();</script>
 <script type="module" src="/engine/mock/station.js" onerror="window.__PF_MOCK.ready(null)"></script>`;
 const BANNER = `<div id="pfMockBar" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#1d2a4d;color:#cfe0ff;padding:5px 12px;font:12px/1.3 ui-monospace,Menlo,Consolas,monospace;border-bottom:1px solid #2c3f73;position:relative;z-index:50">
-<style>#pfMockBar .s{display:none}@media (max-width:900px){#pfMockBar{position:fixed!important;top:0;left:0;right:0;z-index:100!important;padding:4px 8px!important;gap:6px!important;font-size:10.5px!important;flex-wrap:nowrap!important}#pfMockBar .l{display:none}#pfMockBar .s{display:inline}#pfMockBar button{padding:3px 7px!important}}</style>
+<style>#pfMockBar .s{display:none}@media (max-width:900px){#pfMockBar{position:fixed!important;top:0;left:0;right:0;z-index:100!important;padding:4px 8px!important;gap:6px!important;font-size:10.5px!important;flex-wrap:nowrap!important}#pfMockBar .l{display:none}#pfMockBar .s{display:inline}#pfMockBar button,#pfDev{padding:3px 7px!important}}</style>
 <b style="color:#ffd84d">MOCK</b><span class="l" style="flex:1;min-width:220px">Every button works here, on made-up data saved only in this browser. Nothing is sent anywhere: income links sync from pretend Stripe and Square, and agents replay scripted work.</span><span class="s" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Everything works · made-up data</span>
+<a id="pfDev" href="/devices/" target="_top" title="See this demo on an iPhone, Android, tablet and PC side by side" style="color:#ffd84d;text-decoration:none;border:1px solid #4a64a8;border-radius:6px;padding:3px 9px;white-space:nowrap"><span class="l">Phone · tablet · PC</span><span class="s">Devices</span></a><script>if(top!==self)document.getElementById('pfDev').remove()</script>
 <button id="pfAuto" type="button" onclick="if(window.__PF_MOCK.autopilot)this.textContent='Autopilot: '+(window.__PF_MOCK.autopilot()?'on':'off')" title="Scheduled agents, income syncs and chores happen on their own, as on a real station" style="font:inherit;background:#2c3f73;color:#fff;border:1px solid #4a64a8;border-radius:6px;padding:3px 9px;cursor:pointer">Autopilot: on</button>
 <button type="button" onclick="if(window.__PF_MOCK.reset&&confirm('Put the demo back the way it started? Everything you tried here is cleared.'))window.__PF_MOCK.reset()" style="font:inherit;background:#2c3f73;color:#fff;border:1px solid #4a64a8;border-radius:6px;padding:3px 9px;cursor:pointer">Reset demo</button></div>`;
 
@@ -127,6 +128,9 @@ write('family/api/clients', '{}');
 write('family/api/runs', '[]');
 write('family/api/connections', JSON.stringify({ connectors: connectorSpecs(), csvSources: CSV_SOURCES, connections: listConnections(fdata), syncing: false }));
 write('family/api/rooms', JSON.stringify(roomsInfo(fledger, fcat, fdata)));
+
+// the same demo inside real phone, tablet and PC frames, side by side
+write('devices/index.html', raw('devices.html'));
 
 for (const f of ENGINE) write('engine/' + f, raw(f));
 for (const f of MOCK) write('engine/mock/' + f, raw('mock/' + f));
