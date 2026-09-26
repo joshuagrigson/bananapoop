@@ -224,6 +224,13 @@ test('HTTP: the room designer reads and saves rooms.json, and the station follow
     assert.equal(st.state.paths['gift-cards'].earnedUsd, 50);
     assert.equal(st.state.earnedUsd, 90);
 
+    // the dashboard's world picker changes the skin and leaves the rooms alone
+    assert.equal((await post('/api/rooms', { skin: 'castle' })).status, 200);
+    st = await (await fetch(base + '/api/state')).json();
+    assert.equal(st.station.skin, 'castle');
+    assert.equal(st.state.paths['gift-cards'].earnedUsd, 50);
+    assert.equal((await post('/api/rooms', { skin: 'moon-base' })).status, 400);
+
     assert.equal((await post('/api/rooms', { config: { rooms: [] } })).status, 400);
     assert.equal((await post('/api/rooms', { template: 'barber' }, { origin: 'https://evil.example' })).status, 403);
 

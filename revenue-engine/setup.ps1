@@ -1,9 +1,10 @@
 # Revenue Station setup and daily start for Windows. Safe to run again any time: it skips what is already done.
 # From PowerShell, in the folder that holds bananapoop:
 #   powershell -ExecutionPolicy Bypass -File .\bananapoop\revenue-engine\setup.ps1
-# A second, separate station (a barbershop, a salon, any business with its own rooms) keeps its own ledger, rooms and
-# links in data-<name> and runs on its own port, side by side with the first:
+# A second, separate station (a barbershop, a salon, a family allowance chart, any business with its own rooms) keeps
+# its own ledger, rooms and links in data-<name> and runs on its own port, side by side with the first:
 #   powershell -ExecutionPolicy Bypass -File .\bananapoop\revenue-engine\setup.ps1 -Station shop
+#   powershell -ExecutionPolicy Bypass -File .\bananapoop\revenue-engine\setup.ps1 -Station family
 param([switch]$NoServe, [string]$Station = '', [int]$Port = 0)
 
 # 'Continue', not 'Stop': Windows PowerShell 5.1 can treat git's and npm's normal progress output on stderr as a
@@ -74,9 +75,11 @@ if ($named) {
   Write-Host "Its ledger, rooms and income links live in $env:REVENUE_ENGINE_DATA (never uploaded anywhere)."
   if ($NoServe) { Say 'Setup done (not starting the station because -NoServe was given).'; exit 0 }
   Say 'Starting the station'
-  Write-Host 'Your browser opens in a moment. The first time, pick what the station runs (Barber shop) and name it.'
-  Write-Host 'Then open Sync, link Square, and every sale lands in the room for its service.'
-  Write-Host 'Leave this window open: closing it stops the Square sync. Paste the same command again to update and restart.'
+  Write-Host 'Your browser opens in a moment. The first time, pick what it is for (a service shop like a barber, or an'
+  Write-Host 'allowance tracker for kids), pick a world (space, castle, farm, cyber city, alien ship, ocean) and name it.'
+  Write-Host 'A shop: open Sync, link Square, and every sale lands in the room for its service.'
+  Write-Host 'An allowance chart: add the kids, then check chores off in their rooms and pay them from the vault.'
+  Write-Host 'Leave this window open: closing it stops the sync. Paste the same command again to update and restart.'
   & node src/cli.js serve --port $Port --open
   exit 0
 }

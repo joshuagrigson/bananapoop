@@ -1,28 +1,76 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-mode="loading">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Money Dashboard</title>
 <link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Cinzel:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Audiowide&family=Exo+2:wght@500;600;700&family=Righteous&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f1115; --panel: #171a21; --line: #262b36; --ink: #e6e8ee; --muted: #8b93a7;
-    --good: #3ddc97; --warn: #f5a623; --bad: #ff5c5c; --accent: #7aa2ff; --radius: 10px;
+    --bg: #04060c; --panel: rgba(14, 19, 33, .86); --field: rgba(6, 9, 16, .8); --btn: #1b2339; --line: #242d48; --ink: #e6e8ee; --muted: #8b93a7;
+    --good: #3ddc97; --warn: #f5a623; --bad: #ff5c5c; --accent: #7aa2ff; --gold: #ffcf5a; --radius: 10px;
+    --f-ui: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; --f-head: "Oxanium", "Segoe UI", system-ui, sans-serif; --f-num: var(--f-ui);
+    --title: linear-gradient(90deg, #fff, #ffe7a8 60%, #ffcf5a); --glow: 0 10px 30px rgba(0, 0, 0, .45);
+  }
+  /* each station world re-themes the ledger: same numbers, different dress */
+  :root[data-skin="castle"] {
+    --bg: #0a0710; --panel: rgba(30, 20, 30, .88); --field: rgba(14, 9, 14, .85); --btn: #2e2029; --line: #4a3530; --ink: #f1e8d8; --muted: #a8957c;
+    --good: #8fd17a; --bad: #ff6a5a; --accent: #e9b949; --gold: #e9b949; --radius: 4px;
+    --f-ui: "Alegreya Sans", "Segoe UI", system-ui, sans-serif; --f-head: "Cinzel", Georgia, serif; --f-num: "Cinzel", Georgia, serif;
+    --title: linear-gradient(90deg, #fff4dc, #f1d28a 55%, #c98f1e); --glow: 0 10px 30px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 220, 150, .07);
+  }
+  :root[data-skin="farm"] {
+    --bg: #5db8ee; --panel: rgba(58, 38, 24, .9); --field: rgba(30, 19, 11, .85); --btn: #5a3d26; --line: #6a4a2c; --ink: #fff6e6; --muted: #cdb492;
+    --good: #8fe06a; --bad: #ff7a6a; --accent: #ffcf5a; --gold: #ffcf5a; --radius: 14px;
+    --f-ui: "Nunito", "Segoe UI", system-ui, sans-serif; --f-head: "Fredoka", "Nunito", sans-serif; --f-num: "Fredoka", "Nunito", sans-serif;
+    --title: linear-gradient(90deg, #fffbe8, #ffe08a 60%, #f0a91c); --glow: 0 10px 28px rgba(40, 24, 10, .35), inset 0 1px 0 rgba(255, 230, 180, .1);
+  }
+  :root[data-skin="cyber"] {
+    --bg: #07040f; --panel: rgba(18, 6, 34, .86); --field: rgba(8, 3, 18, .85); --btn: #251040; --line: #3a1f66; --ink: #f2ecff; --muted: #9a8fc4;
+    --good: #3dffa0; --bad: #ff3d6e; --warn: #ffe066; --accent: #00f0ff; --gold: #ffe066; --radius: 2px;
+    --f-ui: "Rajdhani", "Segoe UI", system-ui, sans-serif; --f-head: "Orbitron", "Rajdhani", sans-serif; --f-num: "Share Tech Mono", ui-monospace, monospace;
+    --title: linear-gradient(90deg, #ffffff, #00f0ff 50%, #ff2bd6); --glow: 0 0 0 1px rgba(255, 43, 214, .12), 0 0 24px rgba(255, 43, 214, .1);
+  }
+  :root[data-skin="alien"] {
+    --bg: #030a08; --panel: rgba(8, 30, 26, .86); --field: rgba(4, 15, 13, .85); --btn: #123a32; --line: #1f5446; --ink: #e8fff6; --muted: #86b3a2;
+    --good: #5affc8; --accent: #5affc8; --gold: #d6ff5a; --radius: 18px;
+    --f-ui: "Exo 2", "Segoe UI", system-ui, sans-serif; --f-head: "Audiowide", "Exo 2", sans-serif; --f-num: "Exo 2", sans-serif;
+    --title: linear-gradient(90deg, #f2fff9, #b8ff6a 55%, #5affc8); --glow: 0 10px 30px rgba(0, 0, 0, .45), 0 0 18px rgba(90, 255, 200, .06);
+  }
+  :root[data-skin="ocean"] {
+    --bg: #02101c; --panel: rgba(6, 34, 56, .84); --field: rgba(3, 16, 30, .85); --btn: #0f3b5c; --line: #1b4d72; --ink: #e8f7ff; --muted: #8fb3c9;
+    --good: #4fe3b0; --accent: #4ee6ff; --gold: #ffd166; --radius: 18px;
+    --f-ui: "Nunito", "Segoe UI", system-ui, sans-serif; --f-head: "Righteous", "Nunito", sans-serif; --f-num: "Nunito", sans-serif;
+    --title: linear-gradient(90deg, #ffffff, #bdf3ff 55%, #4ee6ff); --glow: 0 10px 30px rgba(0, 10, 20, .45);
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
-  header { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-  header h1 { margin: 0; font-size: 16px; letter-spacing: .08em; text-transform: uppercase; }
+  html { background: var(--bg); }
+  body { margin: 0; background: transparent; color: var(--ink); font: 14px/1.45 var(--f-ui); }
+  #world { position: fixed; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; z-index: -1; }
+  header { padding: 14px 20px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--panel); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  header h1 { margin: 0; font: 700 17px/1.2 var(--f-head); letter-spacing: .08em; text-transform: uppercase; background: var(--title); -webkit-background-clip: text; background-clip: text; color: transparent; }
   header .law { color: var(--muted); font-size: 12px; }
+  .worlds { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .worlds .k { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; margin-right: 2px; }
+  .worlds button { width: auto; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 6px; border-radius: 999px; font: 600 12px/1.2 var(--f-ui); background: var(--field); color: var(--muted); }
+  .worlds button i { width: 12px; height: 12px; border-radius: 50%; background: var(--wc); box-shadow: 0 0 8px var(--wc); }
+  .worlds button.on { color: var(--ink); border-color: var(--wc); background: var(--btn); }
   main { padding: 16px 20px 60px; max-width: 1200px; margin: 0 auto; display: grid; gap: 16px; }
   .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--glow); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
   .tile .k { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
-  .tile .v { font-size: 24px; margin-top: 4px; }
+  .tile .v { font: 600 24px/1.2 var(--f-num); margin-top: 4px; }
+  .tile.gold .v { color: var(--gold); }
   .tile .s { color: var(--muted); font-size: 12px; margin-top: 2px; }
-  section { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
-  section h2 { margin: 0 0 10px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--glow); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); min-width: 0; }
+  section h2 { margin: 0 0 10px; font: 600 12.5px/1.3 var(--f-head); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+  :root[data-skin="castle"] section h2::before, :root[data-skin="castle"] section h2::after { content: "\2766"; margin: 0 8px 0 0; opacity: .7; }
+  :root[data-skin="castle"] section h2::after { content: "\2767"; margin: 0 0 0 8px; }
+  :root[data-skin="cyber"] section { border-left: 2px solid var(--accent); clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px)); }
+  :root[data-skin="cyber"] section h2 { text-shadow: 0 0 10px rgba(0, 240, 255, .5); }
   .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
   .quest { display: grid; grid-template-columns: 22px 1fr; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); }
   .quest:first-of-type { border-top: 0; }
@@ -49,9 +97,11 @@
   .badge.gated { border-color: var(--warn); color: var(--warn); }
   form { display: grid; gap: 6px; }
   form label { display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
-  input, select, textarea, button { font: inherit; width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
-  button { cursor: pointer; background: #1f2633; }
+  input, select, textarea, button { font: inherit; width: 100%; background: var(--field); color: var(--ink); border: 1px solid var(--line); border-radius: min(6px, var(--radius)); padding: 6px 8px; }
+  button { cursor: pointer; background: var(--btn); }
   button:hover { border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: default; }
+  button.go { border-color: var(--gold); color: var(--gold); }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
   .msg { font-size: 12px; min-height: 16px; color: var(--muted); }
   .msg.err { color: var(--bad); }
@@ -59,27 +109,57 @@
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
   th, td { text-align: left; padding: 6px 4px; border-top: 1px solid var(--line); vertical-align: top; }
   th { color: var(--muted); font-weight: 500; border-top: 0; }
+  td .sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; background: var(--kc); box-shadow: 0 0 6px var(--kc); }
+  td button { width: auto; padding: 3px 10px; }
   .empty { color: var(--muted); font-size: 12px; }
   .cite { color: var(--muted); font-size: 11px; }
-  @media (max-width: 640px) { main { padding: 12px 16px 60px; } .row { grid-template-columns: 1fr; } }
+  a { color: var(--accent); }
+  /* a station in service or allowance mode hides the agent machinery it does not use */
+  :root[data-mode="loading"] [data-only] { display: none; }
+  :root[data-mode="service"] [data-only]:not([data-only~="service"]) { display: none; }
+  :root[data-mode="allowance"] [data-only]:not([data-only~="allowance"]) { display: none; }
+  :root[data-mode="agents"] [data-only]:not([data-only~="agents"]) { display: none; }
+  @media (max-width: 640px) { main { padding: 12px 16px 60px; } header { padding: 12px 16px; } .row { grid-template-columns: 1fr; } .grid2 { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
+<canvas id="world" aria-hidden="true"></canvas>
 <header>
-  <h1>Money Dashboard</h1>
-  <span class="law"><a href="/" style="color:var(--accent)">&larr; station</a> · Nothing on this page is simulated. Every number cites a ledger line.</span>
+  <div><h1 id="title">Money Dashboard</h1>
+  <span class="law"><a href="/" data-keep>&larr; station</a> · <a href="/terminal" data-keep>terminal</a> · Nothing on this page is simulated. Every number cites a ledger line.</span></div>
+  <div class="worlds" id="worlds" role="group" aria-label="World"></div>
 </header>
 <main>
   <div class="tiles" id="tiles"></div>
   <div class="grid2">
-    <section><h2>Money by path</h2><div id="m-path"></div></section>
-    <section><h2>Money by month</h2><div id="m-month"></div></section>
+    <section><h2 id="h-path">Money by path</h2><div id="m-path"></div></section>
+    <section><h2 id="h-month">Money by month</h2><div id="m-month"></div></section>
   </div>
-  <div class="grid2">
+  <div class="grid2" data-only="allowance">
+    <section>
+      <h2>Kids</h2>
+      <div id="kids"></div>
+      <div class="empty" style="margin-top:6px">Pay records what you handed a kid, so their balance goes back to zero. It never moves real money.</div>
+    </section>
+    <section>
+      <h2>Check off a chore</h2>
+      <form id="f-chore">
+        <div class="row">
+          <label>Chore <select name="path" data-paths></select></label>
+          <label>Who did it <select name="kid" data-kids></select></label>
+        </div>
+        <label>Note (optional) <input name="note" placeholder="extra neat, did it without being asked"></label>
+        <button>Check it off</button>
+        <div class="msg"></div>
+      </form>
+    </section>
+  </div>
+  <section data-only="service"><h2>What sold · 30 days</h2><div id="m-items"></div></section>
+  <div class="grid2" data-only="agents">
     <section><h2>Money by platform</h2><div id="m-platform"></div></section>
     <section><h2>Posts, best earners first</h2><div id="m-posts"></div></section>
   </div>
-  <div class="grid2">
+  <div class="grid2" data-only="agents">
     <section>
       <h2>Freelance inbox: hand work to the agents</h2>
       <div class="empty" style="margin-bottom:8px">Paste a job post to score (the Job scout drafts a proposal if it fits), or a job you won (the Deliverable drafter does the work). Agents never touch Upwork or Fiverr; you copy posts in and send everything out.</div>
@@ -97,7 +177,7 @@
     </section>
     <section><h2>Money by gig type</h2><div id="m-tag"></div></section>
   </div>
-  <div class="grid2">
+  <div class="grid2" data-only="agents">
     <section>
       <h2>GBP clients (monthly packs)</h2>
       <div class="empty" style="margin-bottom:8px">Paying clients get a monthly pack: 6 posts, Q&amp;A, review replies, a photo list and a report. Paste new reviews and this month's promos into their notes before the pack is due.</div>
@@ -123,12 +203,12 @@
       <form id="f-harvest"><button>Harvest new businesses now</button><div class="msg"></div></form>
     </section>
   </div>
-  <section>
+  <section data-only="agents">
     <h2>Outbox: drafts waiting for you to publish or send</h2>
     <div class="empty" style="margin-bottom:8px">Agents write here and never send anything. Copy a draft, publish or send it yourself, then log the live URL so money can be tied to it.</div>
     <div id="outbox"></div>
   </section>
-  <div class="grid2">
+  <div class="grid2" data-only="agents">
     <section>
       <h2>Jobs (standing orders the scheduler runs)</h2>
       <div id="jobs"></div>
@@ -159,13 +239,13 @@
       </form>
     </section>
   </div>
-  <div class="grid2">
+  <div class="grid2" data-only="agents">
     <section><h2>Open quests</h2><div id="quests-open"></div></section>
     <section><h2>Paths</h2><div id="paths"></div></section>
   </div>
-  <div class="grid2">
+  <div class="grid2" data-only="agents service">
     <section>
-      <h2>Log revenue (evidence required)</h2>
+      <h2 id="h-money">Log revenue (evidence required)</h2>
       <form id="f-money">
         <div class="row">
           <label>USD received <input name="usd" type="number" step="0.01" min="0.01" required></label>
@@ -182,7 +262,7 @@
         <div class="msg"></div>
       </form>
     </section>
-    <section>
+    <section data-only="agents">
       <h2>Log an outcome</h2>
       <form id="f-outcome">
         <div class="row">
@@ -196,7 +276,7 @@
       </form>
     </section>
   </div>
-  <div class="grid2">
+  <div class="grid2" data-only="agents">
     <section>
       <h2>Gates and path status</h2>
       <form id="f-gate">
@@ -233,8 +313,8 @@
       <div id="runs" style="margin-top:10px"></div>
     </section>
   </div>
-  <section><h2>Money ladder</h2><div id="ladder"></div></section>
-  <section><h2>Done quests (trophy shelf)</h2><div id="quests-done"></div></section>
+  <section data-only="agents service"><h2>Money ladder</h2><div id="ladder"></div></section>
+  <section data-only="agents"><h2>Done quests (trophy shelf)</h2><div id="quests-done"></div></section>
   <section><h2>Ledger tail</h2><div id="tail"></div></section>
 </main>
 <script>
@@ -243,10 +323,168 @@
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const usd = (n) => { const v = Number(n || 0); return (v < 0 ? '−$' : '$') + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: Math.abs(v) % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
   let snap = null;
+  const MODE = () => (snap && snap.station && snap.station.mode) || 'agents';
+  const DAY = 864e5;
+  const within = (e, days) => Date.now() - Date.parse(e.ts) < days * DAY;
+  const kidsList = () => (snap && snap.station && snap.station.kids) || [];
+  const kidColor = (name) => (kidsList().find((k) => k.name.toLowerCase() === String(name || '').toLowerCase()) || {}).color || '#8fb0ff';
+  // a kid's allowance straight from the ledger: what their chores earned, what was paid to them, what is still owed
+  function kidStats(name) {
+    const key = name.toLowerCase();
+    let earned = 0, paid = 0, week = 0, done = 0;
+    for (const e of snap.state.moneyIn) if ((e.kid || '').toLowerCase() === key) { earned += e.usd; if (within(e, 7)) { week += e.usd; done += e.qty || 1; } }
+    for (const e of snap.state.moneyOut) if ((e.payee || '').toLowerCase() === key) paid += e.usd;
+    return { earned, paid, week, done, owed: Math.round((earned - paid) * 100) / 100 };
+  }
+
+  // ---- the world behind the numbers: the station's skin, painted once as a pixel backdrop (scenery only, no data)
+  const WORLDS = [['space', 'Space station', '#7aa2ff', 'Space'], ['castle', 'Dark castle', '#e9b949', 'Castle'], ['farm', 'Farm', '#8ad65f', 'Farm'], ['cyber', 'Cyber city', '#ff2bd6', 'Cyber'], ['alien', 'Alien ship', '#5affc8', 'Alien'], ['ocean', 'Ocean base', '#4ee6ff', 'Ocean']];
+  const WORLD_IDS = WORLDS.map((w) => w[0]);
+  function paintWorld(cv, skin) {
+    const S = 3, w = Math.ceil(innerWidth / S), h = Math.ceil(innerHeight / S);
+    cv.width = w; cv.height = h;
+    const g = cv.getContext('2d');
+    let seed = 1234567;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const grad = (stops) => { const l = g.createLinearGradient(0, 0, 0, h); stops.forEach(([o, c]) => l.addColorStop(o, c)); g.fillStyle = l; g.fillRect(0, 0, w, h); };
+    const glow = (x, y, r, c) => { const q = g.createRadialGradient(x, y, 0, x, y, r); q.addColorStop(0, c); q.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = q; g.fillRect(x - r, y - r, 2 * r, 2 * r); };
+    const disc = (x, y, r, c) => { g.fillStyle = c; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); };
+    const lit = (x, y, r, dark, light) => { disc(x, y, r, dark); g.save(); g.beginPath(); g.arc(x, y, r, 0, 7); g.clip(); disc(x - r * .28, y - r * .22, r * .92, light); g.restore(); };
+    const stars = (n, maxY, c) => { g.fillStyle = c; for (let i = 0; i < n; i++) { g.globalAlpha = .25 + rnd() * .75; g.fillRect(rnd() * w | 0, rnd() * maxY | 0, 1, rnd() < .06 ? 2 : 1); } g.globalAlpha = 1; };
+    // a rolling line of land; returns its height at every x so things can stand on it
+    const ridge = (base, amp, c, f = .02) => { const ph = rnd() * 99, ys = []; g.fillStyle = c; for (let x = 0; x < w; x++) { const y = base + Math.sin(x * f + ph) * amp + Math.sin(x * f * 2.7 + ph * 2) * amp * .4 | 0; ys.push(y); g.fillRect(x, y, 1, h - y); } return ys; };
+    const tri = (x1, y1, x2, y2, x3, y3, c) => { g.fillStyle = c; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.lineTo(x3, y3); g.fill(); };
+    const windows = (x, y, bw, bh, cols, p) => { for (let yy = y + 3; yy < y + bh - 2; yy += 3) for (let xx = x + 2; xx < x + bw - 2; xx += 3) if (rnd() < p) { g.fillStyle = cols[rnd() * cols.length | 0]; g.fillRect(xx, yy, 1, 1); } };
+    if (skin === 'castle') {
+      grad([[0, '#07050d'], [.55, '#1a0f24'], [1, '#3e1a2e']]);
+      stars(w * h / 110, h * .6, '#e8dcff');
+      glow(w * .8, h * .2, h * .3, 'rgba(255,226,170,.22)'); lit(w * .8, h * .2, h * .065, '#b9a98a', '#f3e6c4');
+      ridge(h * .66, h * .05, '#1c1024', .012);
+      const base = h * .84 | 0;
+      g.fillStyle = '#0d0811'; g.fillRect(0, base - 8, w, h);
+      for (let x = 0; x < w; x += 4) g.fillRect(x, base - 11, 2, 3);
+      for (let x = rnd() * 20 | 0; x < w;) {
+        const tw = 8 + rnd() * 12 | 0, th = h * (.1 + rnd() * .24) | 0, y = base - th;
+        g.fillStyle = '#0d0811'; g.fillRect(x, y, tw, th + 1);
+        if (rnd() < .45) tri(x - 2, y, x + tw / 2, y - tw * 1.3, x + tw + 2, y, '#140b18');
+        else for (let i = 0; i < tw; i += 3) g.fillRect(x + i, y - 2, 2, 2);
+        g.fillStyle = 'rgba(240,178,74,.85)';
+        for (let k = 0; k < 3; k++) if (rnd() < .6) g.fillRect(x + 2 + (rnd() * (tw - 4) | 0), y + 4 + (rnd() * Math.max(1, th - 12) | 0), 1, 2);
+        x += tw + 8 + (rnd() * 36 | 0);
+      }
+      g.fillStyle = '#0a060c';
+      for (let i = 0; i < 7; i++) { const bx = rnd() * w | 0, by = h * (.1 + rnd() * .35) | 0; g.fillRect(bx - 2, by, 2, 1); g.fillRect(bx, by + 1, 1, 1); g.fillRect(bx + 1, by, 2, 1); }
+      glow(w * .5, h, w * .6, 'rgba(120,30,60,.18)');
+    } else if (skin === 'farm') {
+      grad([[0, '#5db8ee'], [.55, '#b8e4ff'], [1, '#e6f6ff']]);
+      glow(w * .14, h * .16, h * .34, 'rgba(255,244,190,.7)'); disc(w * .14, h * .16, h * .06, '#fff6c8');
+      for (let i = 0; i < 6; i++) { const cx = rnd() * w, cy = h * (.08 + rnd() * .3), s = 6 + rnd() * 10; g.globalAlpha = .9; for (let k = 0; k < 5; k++) disc(cx + (k - 2) * s * .7, cy + (k % 2 ? -s * .3 : 0), s * (.6 + rnd() * .4), '#ffffff'); g.globalAlpha = 1; }
+      ridge(h * .6, h * .04, '#a6d884', .008);
+      const mid = ridge(h * .7, h * .05, '#7cc257', .012);
+      const bx = w * .72 | 0, by = mid[bx] + 2, bw = Math.max(20, w * .07 | 0), bh = bw * .7 | 0;
+      g.fillStyle = '#b8322a'; g.fillRect(bx, by - bh, bw, bh + 4);
+      tri(bx - 3, by - bh, bx + bw / 2, by - bh - bw * .45, bx + bw + 3, by - bh, '#6b1a14');
+      g.fillStyle = '#f4e9d8'; g.fillRect(bx + bw / 2 - 3, by - bh * .55, 6, bh * .55 + 4); g.fillStyle = '#7a1e18'; g.fillRect(bx + bw / 2 - 2, by - bh * .5, 4, bh * .5 + 4);
+      g.fillStyle = '#b9bfc6'; g.fillRect(bx + bw + 3, by - bh * 1.5, 8, bh * 1.5 + 4); disc(bx + bw + 7, by - bh * 1.5, 4, '#9aa2ab');
+      for (let i = 0; i < 9; i++) { const tx = rnd() * w | 0; if (Math.abs(tx - bx) < bw + 16) continue; const ty = mid[tx] + 1; g.fillStyle = '#6b4a2a'; g.fillRect(tx, ty - 6, 2, 7); disc(tx + 1, ty - 9, 5, '#3f8f3a'); disc(tx - 1, ty - 11, 3, '#4fa845'); }
+      const near = ridge(h * .84, h * .025, '#5aa83c', .02);
+      g.fillStyle = '#e8d9b8'; for (let x = 0; x < w; x += 7) { g.fillRect(x, near[x] - 6, 1, 6); } for (let x = 0; x < w; x++) g.fillRect(x, near[x] - 5, 1, 1);
+    } else if (skin === 'cyber') {
+      grad([[0, '#05030c'], [.5, '#150629'], [.85, '#3c0a4c'], [1, '#5c1060']]);
+      glow(w * .5, h * 1.05, w * .55, 'rgba(255,43,214,.28)');
+      for (let x = 0; x < w;) { const bw = 10 + rnd() * 18 | 0, bh = h * (.25 + rnd() * .3) | 0; g.fillStyle = '#1b0d33'; g.fillRect(x, h - bh, bw, bh); windows(x, h - bh, bw, bh, ['rgba(0,240,255,.35)', 'rgba(255,43,214,.3)'], .18); x += bw + (rnd() * 3 | 0); }
+      for (let x = -4; x < w;) {
+        const bw = 12 + rnd() * 22 | 0, bh = h * (.14 + rnd() * .26) | 0, y = h - bh;
+        g.fillStyle = '#0a0617'; g.fillRect(x, y, bw, bh);
+        windows(x, y, bw, bh, ['#00f0ff', '#ff2bd6', '#ffe066', '#8a7bff'], .22);
+        if (rnd() < .5) { const c = rnd() < .5 ? '#00f0ff' : '#ff2bd6'; g.fillStyle = c; g.fillRect(x + 2, y - 2, bw - 4, 1); glow(x + bw / 2, y - 2, bw * .8, c === '#00f0ff' ? 'rgba(0,240,255,.25)' : 'rgba(255,43,214,.25)'); }
+        if (rnd() < .3) { g.fillStyle = '#0a0617'; g.fillRect(x + bw / 2 | 0, y - 10, 1, 10); g.fillStyle = '#ff3d6e'; g.fillRect(x + bw / 2 | 0, y - 11, 1, 1); }
+        x += bw + 2 + (rnd() * 6 | 0);
+      }
+      g.strokeStyle = 'rgba(160,200,255,.12)'; g.lineWidth = 1; g.beginPath();
+      for (let i = 0; i < w * h / 250; i++) { const rx = rnd() * w, ry = rnd() * h; g.moveTo(rx, ry); g.lineTo(rx - 2, ry + 6); } g.stroke();
+    } else if (skin === 'alien') {
+      grad([[0, '#020605'], [.6, '#06201a'], [1, '#0d3a2d']]);
+      stars(w * h / 80, h * .75, '#d8fff0');
+      glow(w * .22, h * .3, h * .45, 'rgba(160,90,255,.18)');
+      lit(w * .22, h * .3, h * .15, '#3a1a5e', '#6a3aa0');
+      g.save(); g.translate(w * .22, h * .3); g.rotate(-.35); g.strokeStyle = 'rgba(184,255,106,.7)'; g.lineWidth = 2; g.beginPath(); g.ellipse(0, 0, h * .28, h * .05, 0, 0, 7); g.stroke(); g.restore();
+      lit(w * .62, h * .14, h * .035, '#2f6a58', '#7fd8b8');
+      const land = ridge(h * .74, h * .06, '#081e18', .018);
+      for (let i = 0; i < 16; i++) { const x = rnd() * w | 0, sh = h * (.06 + rnd() * .16) | 0, y = land[x]; tri(x - 3, y + 1, x, y - sh, x + 3, y + 1, '#0b2a22'); g.fillStyle = '#5affc8'; g.fillRect(x, y - sh, 1, 1); glow(x, y - sh, 6, 'rgba(90,255,200,.45)'); }
+      ridge(h * .88, h * .02, '#051410', .03);
+      for (let i = 0; i < 40; i++) { const x = rnd() * w, y = h * (.8 + rnd() * .2); glow(x, y, 3, rnd() < .5 ? 'rgba(90,255,200,.5)' : 'rgba(195,139,255,.5)'); }
+    } else if (skin === 'ocean') {
+      grad([[0, '#0e5c88'], [.45, '#063553'], [1, '#02101c']]);
+      for (let i = 0; i < 7; i++) { const x = rnd() * w, s = 6 + rnd() * 16; g.fillStyle = 'rgba(190,240,255,.05)'; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + s, 0); g.lineTo(x + s * 3 + h * .25, h * .9); g.lineTo(x + h * .25, h * .9); g.fill(); }
+      g.strokeStyle = 'rgba(210,245,255,.35)'; g.lineWidth = 1;
+      for (let i = 0; i < 26; i++) { g.beginPath(); g.arc(rnd() * w, rnd() * h * .85, .8 + rnd() * 2, 0, 7); g.stroke(); }
+      g.fillStyle = 'rgba(4,20,34,.8)';
+      for (let i = 0; i < 5; i++) { const fx = rnd() * w, fy = h * (.25 + rnd() * .4), s = 2 + rnd() * 3; g.beginPath(); g.ellipse(fx, fy, s * 1.8, s * .8, 0, 0, 7); g.fill(); tri(fx + s * 1.6, fy, fx + s * 2.8, fy - s, fx + s * 2.8, fy + s, 'rgba(4,20,34,.8)'); }
+      const bed = ridge(h * .86, h * .03, '#1d3238', .02);
+      for (let i = 0; i < 18; i++) { const x = rnd() * w | 0, kh = h * (.14 + rnd() * .28), y0 = bed[x] + 1; g.strokeStyle = rnd() < .5 ? '#1f6b4a' : '#2a8a5a'; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y0); for (let t = 0; t <= 1; t += .1) g.lineTo(x + Math.sin(t * 7 + i) * 3, y0 - kh * t); g.stroke(); }
+      for (let i = 0; i < 14; i++) { const x = rnd() * w | 0; disc(x, bed[x] + 1, 2 + rnd() * 4, ['#ff7a8a', '#ffb454', '#c38bff', '#ff8fb8'][i % 4]); }
+    } else {
+      grad([[0, '#04060c'], [.6, '#070b18'], [1, '#0b1226']]);
+      glow(w * .2, h * .3, w * .35, 'rgba(90,60,200,.16)'); glow(w * .78, h * .55, w * .3, 'rgba(40,120,220,.12)');
+      stars(w * h / 55, h, '#ffffff');
+      lit(w * .9, h * 1.08, h * .38, '#16224a', '#2d4488');
+      glow(w * .9, h * 1.08, h * .5, 'rgba(90,140,255,.12)');
+      lit(w * .12, h * .18, h * .03, '#6a6f80', '#c9cedb');
+    }
+  }
+
+  const urlSkin = (() => { try { const q = new URLSearchParams(location.search).get('skin'); return WORLD_IDS.includes(q) ? q : null; } catch { return null; } })();
+  let skinOverride = urlSkin, painted = '', worldsSig = '';
+  const skinNow = () => skinOverride || (snap && snap.station && WORLD_IDS.includes(snap.station.skin) ? snap.station.skin : 'space');
+  function applyWorld() {
+    const id = skinNow();
+    document.documentElement.dataset.skin = id;
+    const key = id + ':' + innerWidth + 'x' + innerHeight;
+    if (key !== painted) { painted = key; paintWorld($('#world'), id); }
+    if (worldsSig !== id) {
+      worldsSig = id;
+      $('#worlds').innerHTML = '<span class="k">World</span>' + WORLDS.map(([k, t, c, short]) => `<button type="button" data-world="${k}" class="${k === id ? 'on' : ''}" style="--wc:${c}" title="${esc(t)}" aria-pressed="${k === id}"><i></i>${esc(short)}</button>`).join('');
+    }
+    // a world picked on the URL (a preview, a try-on) follows you to the station and the terminal
+    document.querySelectorAll('a[data-keep]').forEach((a) => { const base = a.dataset.href || (a.dataset.href = a.getAttribute('href')); a.setAttribute('href', skinOverride ? base + '?skin=' + skinOverride : base); });
+  }
+  let resizeT = 0;
+  addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(applyWorld, 150); });
 
   function tiles(s) {
     const st = s.state, lv = s.level;
     const y = st.spentUsd > 0 ? st.yieldRatio.toFixed(2) : 'n/a';
+    const tile = ([k, v, d, cls]) => `<div class="tile ${cls || ''}"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(d)}</div></div>`;
+    const count = (lines) => lines.reduce((a, e) => a + (e.qty || 1), 0);
+    if (MODE() === 'allowance') {
+      const kids = kidsList().map((k) => ({ k, s: kidStats(k.name) })), wk = st.moneyIn.filter((e) => within(e, 7));
+      const pays = st.moneyOut.filter((e) => e.payee), top = kids.slice().sort((a, b) => b.s.week - a.s.week)[0];
+      $('#tiles').innerHTML = [
+        ['Earned', usd(st.earnedUsd), count(st.moneyIn) + ' chores checked off, all time', 'gold'],
+        ['Owed to kids', usd(kids.reduce((a, x) => a + Math.max(0, x.s.owed), 0)), 'earned and not paid yet', 'gold'],
+        ['Paid out', usd(pays.reduce((a, e) => a + e.usd, 0)), pays.length + ' payout' + (pays.length === 1 ? '' : 's')],
+        ['Chores · 7 days', String(count(wk)), usd(wk.reduce((a, e) => a + e.usd, 0)) + ' earned this week'],
+        ['Top this week', top && top.s.week > 0 ? top.k.name : 'nobody yet', top && top.s.week > 0 ? usd(top.s.week) + ' · ' + top.s.done + ' chores' : 'check off a chore'],
+        ['Kids', String(kids.length), kids.map((x) => x.k.name).join(', ') || 'add kids on the station'],
+      ].map(tile).join('');
+      return;
+    }
+    if (MODE() === 'service') {
+      const m30 = st.moneyIn.filter((e) => within(e, 30)), n30 = count(m30), r30 = m30.reduce((a, e) => a + e.usd, 0);
+      const d0 = new Date(); d0.setHours(0, 0, 0, 0);
+      const today = st.moneyIn.filter((e) => Date.parse(e.ts) >= d0.getTime());
+      const best = s.catalog.map((c) => ({ c, usd: m30.filter((e) => e.path === c.id).reduce((a, e) => a + e.usd, 0) })).sort((a, b) => b.usd - a.usd)[0];
+      $('#tiles').innerHTML = [
+        ['Earned', usd(st.earnedUsd), st.moneyIn.length ? count(st.moneyIn) + ' sales with evidence' : 'no sales recorded', 'gold'],
+        ['30 days', usd(r30), n30 + ' sales'],
+        ['Avg ticket', n30 ? usd(r30 / n30) : 'n/a', 'last 30 days'],
+        ['Today', usd(today.reduce((a, e) => a + e.usd, 0)), count(today) + ' sales today'],
+        ['Top service', best && best.usd > 0 ? (best.c.short || best.c.name) : 'n/a', best && best.usd > 0 ? usd(best.usd) + ' in 30 days' : 'no sales in 30 days'],
+        ['Level', 'L' + lv.level, lv.next ? usd(lv.next.remainingUsd) + ' to ' + lv.next.title : lv.title],
+      ].map(tile).join('');
+      return;
+    }
     $('#tiles').innerHTML = [
       ['Earned', usd(st.earnedUsd), st.moneyIn.length ? st.moneyIn.length + ' payments with evidence' : 'no revenue recorded'],
       ['Spent', usd(st.spentUsd), st.moneyOut.length + ' spend lines'],
@@ -254,7 +492,7 @@
       ['Commander', 'L' + lv.level, lv.next ? usd(lv.next.remainingUsd) + ' to ' + lv.next.title : lv.title],
       ['Quests', s.questSummary.open + ' open', s.questSummary.done + ' done'],
       ['Runs', st.runs.length + (st.running.length ? ' (+' + st.running.length + ' live)' : ''), st.runs.length ? 'last ' + (st.runs[st.runs.length-1].reason) : 'none yet'],
-    ].map(([k, v, d]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(d)}</div></div>`).join('');
+    ].map(tile).join('');
   }
 
   function questHtml(q) {
@@ -296,8 +534,8 @@
   function tail(s) {
     const runs = s.state.runs.slice(-8).reverse();
     $('#runs').innerHTML = runs.length ? `<table><tr><th>run</th><th>role</th><th>path</th><th>reason</th><th>usd</th><th>iters</th></tr>${runs.map((r) => `<tr><td>${esc(r.runId)}</td><td>${esc(r.role)}</td><td>${esc(r.path)}</td><td>${esc(r.reason)}</td><td>${usd(r.usd)}</td><td>${r.iterations}</td></tr>`).join('')}</table>` : '<div class="empty">no runs yet</div>';
-    const rows = [...s.state.moneyIn.map((e) => ({ ts: e.ts, what: 'money.in', path: e.path, detail: `${usd(e.usd)} from ${e.source} (${e.evidence})` })),
-      ...s.state.moneyOut.slice(-20).map((e) => ({ ts: e.ts, what: 'money.out', path: e.path, detail: `${usd(e.usd)} ${e.category} ${e.evidence || e.runId || ''}` }))]
+    const rows = [...s.state.moneyIn.map((e) => ({ ts: e.ts, what: e.kid ? 'chore' : 'money.in', path: e.path, detail: e.kid ? `${usd(e.usd)} to ${e.kid} for ${e.item || e.path} (${e.evidence})` : `${usd(e.usd)} from ${e.source} (${e.evidence})` })),
+      ...s.state.moneyOut.slice(-20).map((e) => ({ ts: e.ts, what: e.payee ? 'payout' : 'money.out', path: e.path, detail: e.payee ? `${usd(e.usd)} paid to ${e.payee}` : `${usd(e.usd)} ${e.category} ${e.evidence || e.runId || ''}` }))]
       .sort((a, b) => (a.ts < b.ts ? 1 : -1)).slice(0, 15);
     $('#tail').innerHTML = rows.length ? `<table><tr><th>when</th><th>what</th><th>path</th><th>detail</th></tr>${rows.map((r) => `<tr><td>${esc(r.ts.slice(0, 16).replace('T', ' '))}</td><td>${esc(r.what)}</td><td>${esc(r.path)}</td><td>${esc(r.detail)}</td></tr>`).join('')}</table>` : '<div class="empty">ledger is empty</div>';
   }
@@ -309,17 +547,34 @@
     document.querySelectorAll('[data-gates]').forEach((el) => { if (!el.options.length) el.innerHTML = Object.entries(s.gates).map(([k, g]) => opt(k, g.title)).join(''); });
     document.querySelectorAll('[data-roles]').forEach((el) => { if (!el.options.length) el.innerHTML = Object.entries(s.roles).map(([k, r]) => opt(k, r.title + (r.logs.length ? ' (logs ' + r.logs.join(',') + ')' : ' (drafts only)'))).join(''); });
     document.querySelectorAll('[data-model]').forEach((el) => { el.placeholder = 'role default (cheapest that fits)'; });
+    document.querySelectorAll('[data-kids]').forEach((el) => { const cur = el.value, sig = kidsList().map((k) => k.name).join('|'); if (el.dataset.sig !== sig) { el.dataset.sig = sig; el.innerHTML = kidsList().map((k) => opt(k.name, k.name)).join(''); if (cur) el.value = cur; } });
   }
 
   const table = (head, rows) => rows.length ? `<table><tr>${head.map((h) => `<th>${esc(h)}</th>`).join('')}</tr>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</table>` : '<div class="empty">nothing yet</div>';
   function money(s) {
     const st = s.state;
+    const mode = MODE(), n = (lines) => lines.reduce((a, e) => a + (e.qty || 1), 0);
     const byPath = s.catalog.map((c) => { const p = st.paths[c.id]; return [p, c]; }).filter(([p]) => p.earnedUsd || p.spentUsd || p.posts.length);
-    $('#m-path').innerHTML = table(['path', 'earned', 'spent', 'net', 'yield'], byPath.map(([p, c]) => [esc('#' + c.rank + ' ' + c.name), usd(p.earnedUsd), usd(p.spentUsd), usd(p.earnedUsd - p.spentUsd), p.spentUsd > 0 ? (p.earnedUsd / p.spentUsd).toFixed(2) : 'n/a']));
+    $('#h-path').textContent = mode === 'allowance' ? 'Earned by chore' : mode === 'service' ? 'Money by service' : 'Money by path';
+    $('#h-month').textContent = mode === 'allowance' ? 'Earned and paid out by month' : 'Money by month';
+    $('#h-money').textContent = mode === 'service' ? 'Log a sale (evidence required)' : 'Log revenue (evidence required)';
+    if (mode === 'allowance') $('#m-path').innerHTML = table(['chore', 'pays', 'done', 'earned'], byPath.map(([p, c]) => [esc(c.name), c.priceUsd ? usd(c.priceUsd) : 'n/a', n(p.moneyIn), usd(p.earnedUsd)]));
+    else if (mode === 'service') $('#m-path').innerHTML = table(['service', 'sales', 'earned', 'avg ticket'], byPath.map(([p, c]) => [esc(c.name), n(p.moneyIn), usd(p.earnedUsd), p.moneyIn.length ? usd(p.earnedUsd / n(p.moneyIn)) : 'n/a']));
+    else $('#m-path').innerHTML = table(['path', 'earned', 'spent', 'net', 'yield'], byPath.map(([p, c]) => [esc('#' + c.rank + ' ' + c.name), usd(p.earnedUsd), usd(p.spentUsd), usd(p.earnedUsd - p.spentUsd), p.spentUsd > 0 ? (p.earnedUsd / p.spentUsd).toFixed(2) : 'n/a']));
     const months = {};
     for (const e of st.moneyIn) { const m = e.ts.slice(0, 7); (months[m] = months[m] || { in: 0, out: 0 }).in += e.usd; }
     for (const e of st.moneyOut) { const m = e.ts.slice(0, 7); (months[m] = months[m] || { in: 0, out: 0 }).out += e.usd; }
-    $('#m-month').innerHTML = table(['month', 'earned', 'spent', 'net'], Object.entries(months).sort((a, b) => (a[0] < b[0] ? 1 : -1)).map(([m, v]) => [m, usd(v.in), usd(v.out), usd(v.in - v.out)]));
+    const mrows = Object.entries(months).sort((a, b) => (a[0] < b[0] ? 1 : -1));
+    $('#m-month').innerHTML = mode === 'allowance'
+      ? table(['month', 'earned', 'paid out'], mrows.map(([m, v]) => [m, usd(v.in), usd(v.out)]))
+      : table(['month', 'earned', 'spent', 'net'], mrows.map(([m, v]) => [m, usd(v.in), usd(v.out), usd(v.in - v.out)]));
+    if (mode === 'service') {
+      const items = new Map();
+      for (const e of st.moneyIn) if (within(e, 30)) { const k = String(e.item || e.tag || 'sale').trim(); const x = items.get(k) || { n: 0, usd: 0, path: e.path }; x.n += e.qty || 1; x.usd += e.usd; items.set(k, x); }
+      const nameOf = (id) => (s.catalog.find((c) => c.id === id) || {}).name || id;
+      $('#m-items').innerHTML = table(['item', 'room', 'sold', 'earned'], [...items.entries()].sort((a, b) => b[1].usd - a[1].usd).slice(0, 15).map(([k, x]) => [esc(k), esc(nameOf(x.path)), x.n, usd(x.usd)]));
+    }
+    if (mode === 'allowance') kids(s);
     const plats = Object.entries(st.byPlatform).sort((a, b) => b[1].earnedUsd - a[1].earnedUsd);
     $('#m-platform').innerHTML = table(['platform', 'posts', 'earned', 'per post'], plats.map(([k, v]) => [esc(k), v.posts, usd(v.earnedUsd), usd(v.posts ? v.earnedUsd / v.posts : 0)]))
       + (st.unattributedUsd > 0 ? `<div class="empty" style="margin-top:6px">${usd(st.unattributedUsd)} earned is not tied to any post.</div>` : '');
@@ -332,6 +587,20 @@
     $('#jobs').innerHTML = table(['job', 'role', 'path', 'every', 'max', 'runs', 'last', ''], jobs.map((j) => [esc(j.jobId), esc(j.role), esc(j.path), j.everyHours + 'h', usd(j.maxUsd), j.runs, esc((j.lastRunAt || 'never').slice(0, 16).replace('T', ' ')), `<button data-job="${esc(j.jobId)}" data-on="${j.enabled ? '0' : '1'}">${j.enabled ? 'turn off' : 'turn on'}</button>`]));
     $('#jobs').querySelectorAll('button[data-job]').forEach((b) => b.onclick = async () => { const j = st.jobs[b.dataset.job]; await post('/api/jobs', { jobId: j.jobId, role: j.role, path: j.path, everyHours: j.everyHours, maxUsd: j.maxUsd, enabled: b.dataset.on === '1' }); refresh(); });
     document.querySelectorAll('[data-posts]').forEach((el) => { const cur = el.value; el.innerHTML = '<option value="">not from a post</option>' + st.posts.map((p) => `<option value="${esc(p.id)}">${esc(p.platform + ': ' + p.title)}</option>`).join(''); el.value = cur; });
+  }
+  let payArm = null;
+  function kids(s) {
+    const rows = kidsList().map((k) => ({ k, s: kidStats(k.name) }));
+    $('#kids').innerHTML = rows.length ? table(['kid', 'this week', 'all time', 'paid', 'owed', ''], rows.map(({ k, s: ks }) => [
+      `<span class="sw" style="--kc:${esc(k.color)}"></span>${esc(k.name)}`, usd(ks.week), usd(ks.earned), usd(ks.paid), `<b style="color:var(--gold)">${usd(Math.max(0, ks.owed))}</b>`,
+      `<button type="button" data-pay="${esc(k.name)}" class="${payArm === k.name ? 'go' : ''}"${ks.owed > 0 ? '' : ' disabled'}>${payArm === k.name ? 'Confirm ' + usd(ks.owed) : 'Pay'}</button>`])) : '<div class="empty">No kids yet. Add them on the station (press C).</div>';
+    $('#kids').querySelectorAll('button[data-pay]').forEach((b) => b.onclick = async () => {
+      const name = b.dataset.pay, ks = kidStats(name);
+      if (payArm !== name) { payArm = name; kids(snap); return; }
+      payArm = null; b.disabled = true;
+      try { await post('/api/events', { kind: 'money.out', usd: ks.owed, category: 'other', path: 'general', payee: name, evidence: `paid ${name} ${usd(ks.owed)} allowance` }); refresh(); }
+      catch (err) { b.textContent = err.message.slice(0, 60); }
+    });
   }
   let clientSig = '';
   async function clients() {
@@ -378,7 +647,14 @@
     try {
       const r = await fetch('/api/state', { cache: 'no-store' });
       snap = await r.json();
-      fillSelects(snap); tiles(snap); money(snap); quests(snap); paths(snap); tail(snap); outbox(); inbox(); clients();
+      const mode = MODE(), st = snap.station || {};
+      document.documentElement.dataset.mode = mode;
+      const name = st.configured && st.name ? st.name : '';
+      $('#title').textContent = name || 'Money Dashboard';
+      document.title = name ? name + ' · ' + (mode === 'allowance' ? 'allowance ledger' : 'ledger') : 'Money Dashboard';
+      applyWorld();
+      fillSelects(snap); tiles(snap); money(snap); tail(snap);
+      if (mode === 'agents') { quests(snap); paths(snap); outbox(); inbox(); clients(); } else if (mode === 'service') quests(snap);
     } catch (e) { $('#tiles').innerHTML = `<div class="tile"><div class="k">error</div><div class="s">${esc(e.message)}</div></div>`; }
   }
 
@@ -404,6 +680,21 @@
     });
   }
 
+  wire('#f-chore', async (d) => {
+    const spec = snap.catalog.find((c) => c.id === d.path), v = (spec && spec.priceUsd) || 1;
+    if (!d.kid) throw new Error('add a kid on the station first');
+    await post('/api/events', { kind: 'money.in', path: d.path, usd: v, item: spec ? spec.name : d.path, qty: 1, source: d.kid, kid: d.kid, evidence: `checked off${d.note && d.note.trim() ? ' · ' + d.note.trim() : ''}` });
+    return `${d.kid} earned ${usd(v)}`;
+  });
+  $('#worlds').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-world]'); if (!b) return;
+    const id = b.dataset.world, u = new URL(location.href);
+    try { await post('/api/rooms', { skin: id }); skinOverride = null; u.searchParams.delete('skin'); if (snap && snap.station) snap.station.skin = id; }
+    catch { skinOverride = id; u.searchParams.set('skin', id); }
+    history.replaceState(null, '', u);
+    applyWorld();
+  });
+  applyWorld();
   wire('#f-money', async (d) => { const j = await post('/api/events', { kind: 'money.in', usd: Number(d.usd), path: d.path, source: d.source, evidence: d.evidence, ...(d.postId ? { postId: d.postId } : {}), ...(d.tag ? { tag: d.tag } : {}), ...(d.hours ? { hours: Number(d.hours) } : {}) }); return 'appended ' + j.event.id; });
   wire('#f-inbox', async (d) => { const j = await post('/api/inbox', { type: d.type, path: d.path, url: d.url || undefined, text: d.text }); inboxSig = ''; return 'added ' + j.item.id + '. Run the ' + ({ post: 'Job scout', job: 'Deliverable drafter', lead: 'Google profile auditor' })[d.type] + ' or let its job pick it up.'; });
   wire('#f-client', async (d) => { const j = await post('/api/clients', { path: 'gbp-management', name: d.name, city: d.city, category: d.category, website: d.website || undefined, notes: d.notes, monthlyUsd: Number(d.monthlyUsd) }); clientSig = ''; return 'added ' + j.client.name + '. The manager writes their first pack on its next run.'; });

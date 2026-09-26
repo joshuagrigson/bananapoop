@@ -5,24 +5,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Production Terminal</title>
 <link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Cinzel:wght@700&family=Fredoka:wght@600&family=Nunito:wght@600;700&family=Orbitron:wght@700&family=Share+Tech+Mono&family=Audiowide&family=Exo+2:wght@500;600&family=Righteous&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root { --bg: #020904; --panel: #03130a; --line: #0f4a24; --ph: #39ff88; --ph2: #1fbf5f; --dim: #138a44; --warn: #ffd34d; --bad: #ff5c5c; }
+  :root {
+    --bg: #020904; --panel: rgba(3, 19, 10, .9); --line: #0f4a24; --ph: #39ff88; --ph2: #1fbf5f; --dim: #138a44; --warn: #ffd34d; --bad: #ff5c5c; --hi: #b9ffd6;
+    --glowc: rgba(57, 255, 136, .55); --done: rgba(57, 255, 136, .07); --st-a: #062a14; --st-b: #041d0e;
+    --f-term: "VT323", ui-monospace, Menlo, Consolas, monospace; --f-head: var(--f-term); --fs: 15px; --world: .32;
+  }
+  /* each station world gets its own screen: the castle's scrying glass, the farm's chalkboard, the ocean's sonar */
+  :root[data-skin="castle"] { --bg: #0b0706; --panel: rgba(22, 13, 9, .9); --line: #5a3a18; --ph: #ffc45a; --ph2: #d9962a; --dim: #9a6a2a; --hi: #ffe6b0; --glowc: rgba(255, 180, 70, .5); --done: rgba(255, 196, 90, .07); --st-a: #2a1a0c; --st-b: #1c1108; --f-head: "Cinzel", Georgia, serif; }
+  :root[data-skin="farm"] { --bg: #1e2a22; --panel: rgba(34, 48, 38, .93); --line: #7a5a36; --ph: #f4f1e6; --ph2: #d8d2bf; --dim: #a8b4a4; --hi: #ffffff; --warn: #ffd96a; --glowc: rgba(255, 255, 255, 0); --done: rgba(255, 255, 255, .05); --st-a: #2c3c30; --st-b: #253329; --f-term: "Nunito", "Segoe UI", sans-serif; --f-head: "Fredoka", "Nunito", sans-serif; --fs: 13px; --world: .55; }
+  :root[data-skin="cyber"] { --bg: #07040f; --panel: rgba(16, 6, 30, .9); --line: #3a1f66; --ph: #00f0ff; --ph2: #ff2bd6; --dim: #8a6ac0; --hi: #ffffff; --warn: #ffe066; --glowc: rgba(0, 240, 255, .55); --done: rgba(255, 43, 214, .08); --st-a: #1c0a36; --st-b: #120624; --f-term: "Share Tech Mono", ui-monospace, monospace; --f-head: "Orbitron", sans-serif; --fs: 13px; }
+  :root[data-skin="alien"] { --bg: #020805; --panel: rgba(6, 24, 20, .9); --line: #1f5446; --ph: #b8ff6a; --ph2: #5affc8; --dim: #4f9a7a; --hi: #eaffd0; --glowc: rgba(184, 255, 106, .5); --done: rgba(90, 255, 200, .07); --st-a: #0b2a22; --st-b: #071c17; --f-term: "Exo 2", sans-serif; --f-head: "Audiowide", sans-serif; --fs: 13px; }
+  :root[data-skin="ocean"] { --bg: #020d16; --panel: rgba(4, 26, 44, .9); --line: #1b4d72; --ph: #4ee6ff; --ph2: #2fb8d8; --dim: #4f8fae; --hi: #d8f8ff; --warn: #ffd166; --glowc: rgba(78, 230, 255, .5); --done: rgba(78, 230, 255, .07); --st-a: #06243c; --st-b: #041a2c; --f-term: "JetBrains Mono", ui-monospace, monospace; --f-head: "Righteous", sans-serif; --fs: 12.5px; }
   * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); color: var(--ph); font: 13px/1.35 "VT323", ui-monospace, Menlo, Consolas, monospace; }
+  html { background: var(--bg); }
+  body { margin: 0; background: transparent; color: var(--ph); font: var(--fs)/1.35 var(--f-term); }
+  #world { position: fixed; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; z-index: -1; opacity: var(--world); }
+  :root[data-skin="farm"] body::after { display: none; }
   body::after { content: ""; position: fixed; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, transparent 1px 3px); mix-blend-mode: multiply; }
   body::before { content: ""; position: fixed; inset: 0; pointer-events: none; box-shadow: inset 0 0 140px rgba(0,0,0,.85); z-index: 2; }
-  .glow { text-shadow: 0 0 6px rgba(57,255,136,.55); }
+  .glow { text-shadow: 0 0 6px var(--glowc); }
   .demo { background: #3a0f14; color: #ffb3b8; padding: 5px 14px; font-size: 12px; display: none; }
-  .ticker { display: flex; gap: 0; border-bottom: 1px solid var(--line); overflow-x: auto; white-space: nowrap; }
+  .ticker { display: flex; gap: 0; border-bottom: 1px solid var(--line); overflow-x: auto; white-space: nowrap; background: var(--panel); }
   .ticker div { padding: 6px 14px; border-right: 1px solid var(--line); font-size: 12px; }
-  .ticker b { color: #b9ffd6; }
+  .ticker b { color: var(--hi); }
   .ticker a { color: var(--ph); }
   main { padding: 14px; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); }
   @media (max-width: 420px) { main { grid-template-columns: 1fr; padding: 10px; } }
-  .term { border: 1px solid var(--line); background: var(--panel); box-shadow: 0 0 18px rgba(31,191,95,.08) inset; }
+  .term { border: 1px solid var(--line); background: var(--panel); box-shadow: 0 0 18px var(--done) inset; min-width: 0; }
+  :root[data-skin="farm"] .term { border: 3px solid var(--line); border-radius: 6px; }
+  :root[data-skin="cyber"] .term { border-left: 2px solid var(--ph2); }
+  :root[data-skin="alien"] .term, :root[data-skin="ocean"] .term { border-radius: 14px; overflow: hidden; }
   .term.killed { opacity: .55; filter: hue-rotate(-100deg); }
   .term header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
-  .term header h2 { margin: 0; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; }
+  .term header h2 { margin: 0; font: 700 15px/1.2 var(--f-head); letter-spacing: .08em; text-transform: uppercase; }
   .tag { font-size: 10px; border: 1px solid currentColor; padding: 0 5px; }
   .tag.gated { color: var(--warn); } .tag.killed { color: var(--bad); } .tag.live { color: var(--ph); }
   .kpis { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--line); }
@@ -35,27 +54,28 @@
   .pipe { border-right: 1px solid var(--line); padding: 8px 10px; }
   .step { border: 1px solid var(--line); padding: 4px 6px; margin-bottom: 5px; font-size: 12px; }
   .step .n { color: var(--dim); font-size: 10px; }
-  .step.done { border-color: var(--ph2); background: rgba(57,255,136,.07); }
+  .step.done { border-color: var(--ph2); background: var(--done); }
   .step.next { border-color: var(--ph); animation: pulse 1.6s ease-in-out infinite; }
   .step.gated { border-color: var(--warn); color: var(--warn); }
-  @keyframes pulse { 50% { box-shadow: 0 0 10px rgba(57,255,136,.45); } }
+  @keyframes pulse { 50% { box-shadow: 0 0 10px var(--glowc); } }
   .bar { height: 3px; background: var(--line); margin-top: 3px; }
   .bar i { display: block; height: 100%; background: var(--ph); }
   .out { padding: 8px 10px; }
   .out h3, .pipe h3 { margin: 0 0 6px; font-size: 10px; color: var(--dim); letter-spacing: .12em; text-transform: uppercase; font-weight: normal; }
   .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
   .card { border: 1px solid var(--line); padding: 5px; font-size: 11px; min-height: 58px; overflow: hidden; }
-  .card .thumb { height: 26px; margin-bottom: 4px; background: repeating-linear-gradient(45deg, #062a14 0 4px, #041d0e 4px 8px); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--dim); }
+  .card .thumb { height: 26px; margin-bottom: 4px; background: repeating-linear-gradient(45deg, var(--st-a) 0 4px, var(--st-b) 4px 8px); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--dim); }
   .card.earned { border-color: var(--warn); }
   .card.earned .thumb { color: var(--warn); }
   .card a { color: var(--ph); text-decoration: none; }
   .log { border-top: 1px solid var(--line); padding: 6px 10px; font-size: 11px; color: var(--ph2); max-height: 76px; overflow: hidden; }
   .empty { color: var(--dim); font-size: 11px; }
-  .crew { color: #b9ffd6; }
+  .crew { color: var(--hi); }
   .blink { animation: blink 1s steps(1) infinite; } @keyframes blink { 50% { opacity: 0; } }
 </style>
 </head>
 <body>
+<canvas id="world" aria-hidden="true"></canvas>
 <div class="demo" id="demo">DEMO LEDGER: fictional preview data.</div>
 <div class="ticker glow" id="ticker"></div>
 <main id="grid"></main>
@@ -66,19 +86,146 @@
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const usd = (n) => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   let outbox = [];
+  const DAY = 864e5, within = (e, days) => Date.now() - Date.parse(e.ts) < days * DAY;
+  const count = (lines) => lines.reduce((a, e) => a + (e.qty || 1), 0);
+  // ---- the world behind the numbers: the station's skin, painted once as a pixel backdrop (scenery only, no data)
+  const WORLDS = [['space', 'Space station', '#7aa2ff', 'Space'], ['castle', 'Dark castle', '#e9b949', 'Castle'], ['farm', 'Farm', '#8ad65f', 'Farm'], ['cyber', 'Cyber city', '#ff2bd6', 'Cyber'], ['alien', 'Alien ship', '#5affc8', 'Alien'], ['ocean', 'Ocean base', '#4ee6ff', 'Ocean']];
+  const WORLD_IDS = WORLDS.map((w) => w[0]);
+  function paintWorld(cv, skin) {
+    const S = 3, w = Math.ceil(innerWidth / S), h = Math.ceil(innerHeight / S);
+    cv.width = w; cv.height = h;
+    const g = cv.getContext('2d');
+    let seed = 1234567;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const grad = (stops) => { const l = g.createLinearGradient(0, 0, 0, h); stops.forEach(([o, c]) => l.addColorStop(o, c)); g.fillStyle = l; g.fillRect(0, 0, w, h); };
+    const glow = (x, y, r, c) => { const q = g.createRadialGradient(x, y, 0, x, y, r); q.addColorStop(0, c); q.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = q; g.fillRect(x - r, y - r, 2 * r, 2 * r); };
+    const disc = (x, y, r, c) => { g.fillStyle = c; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); };
+    const lit = (x, y, r, dark, light) => { disc(x, y, r, dark); g.save(); g.beginPath(); g.arc(x, y, r, 0, 7); g.clip(); disc(x - r * .28, y - r * .22, r * .92, light); g.restore(); };
+    const stars = (n, maxY, c) => { g.fillStyle = c; for (let i = 0; i < n; i++) { g.globalAlpha = .25 + rnd() * .75; g.fillRect(rnd() * w | 0, rnd() * maxY | 0, 1, rnd() < .06 ? 2 : 1); } g.globalAlpha = 1; };
+    // a rolling line of land; returns its height at every x so things can stand on it
+    const ridge = (base, amp, c, f = .02) => { const ph = rnd() * 99, ys = []; g.fillStyle = c; for (let x = 0; x < w; x++) { const y = base + Math.sin(x * f + ph) * amp + Math.sin(x * f * 2.7 + ph * 2) * amp * .4 | 0; ys.push(y); g.fillRect(x, y, 1, h - y); } return ys; };
+    const tri = (x1, y1, x2, y2, x3, y3, c) => { g.fillStyle = c; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.lineTo(x3, y3); g.fill(); };
+    const windows = (x, y, bw, bh, cols, p) => { for (let yy = y + 3; yy < y + bh - 2; yy += 3) for (let xx = x + 2; xx < x + bw - 2; xx += 3) if (rnd() < p) { g.fillStyle = cols[rnd() * cols.length | 0]; g.fillRect(xx, yy, 1, 1); } };
+    if (skin === 'castle') {
+      grad([[0, '#07050d'], [.55, '#1a0f24'], [1, '#3e1a2e']]);
+      stars(w * h / 110, h * .6, '#e8dcff');
+      glow(w * .8, h * .2, h * .3, 'rgba(255,226,170,.22)'); lit(w * .8, h * .2, h * .065, '#b9a98a', '#f3e6c4');
+      ridge(h * .66, h * .05, '#1c1024', .012);
+      const base = h * .84 | 0;
+      g.fillStyle = '#0d0811'; g.fillRect(0, base - 8, w, h);
+      for (let x = 0; x < w; x += 4) g.fillRect(x, base - 11, 2, 3);
+      for (let x = rnd() * 20 | 0; x < w;) {
+        const tw = 8 + rnd() * 12 | 0, th = h * (.1 + rnd() * .24) | 0, y = base - th;
+        g.fillStyle = '#0d0811'; g.fillRect(x, y, tw, th + 1);
+        if (rnd() < .45) tri(x - 2, y, x + tw / 2, y - tw * 1.3, x + tw + 2, y, '#140b18');
+        else for (let i = 0; i < tw; i += 3) g.fillRect(x + i, y - 2, 2, 2);
+        g.fillStyle = 'rgba(240,178,74,.85)';
+        for (let k = 0; k < 3; k++) if (rnd() < .6) g.fillRect(x + 2 + (rnd() * (tw - 4) | 0), y + 4 + (rnd() * Math.max(1, th - 12) | 0), 1, 2);
+        x += tw + 8 + (rnd() * 36 | 0);
+      }
+      g.fillStyle = '#0a060c';
+      for (let i = 0; i < 7; i++) { const bx = rnd() * w | 0, by = h * (.1 + rnd() * .35) | 0; g.fillRect(bx - 2, by, 2, 1); g.fillRect(bx, by + 1, 1, 1); g.fillRect(bx + 1, by, 2, 1); }
+      glow(w * .5, h, w * .6, 'rgba(120,30,60,.18)');
+    } else if (skin === 'farm') {
+      grad([[0, '#5db8ee'], [.55, '#b8e4ff'], [1, '#e6f6ff']]);
+      glow(w * .14, h * .16, h * .34, 'rgba(255,244,190,.7)'); disc(w * .14, h * .16, h * .06, '#fff6c8');
+      for (let i = 0; i < 6; i++) { const cx = rnd() * w, cy = h * (.08 + rnd() * .3), s = 6 + rnd() * 10; g.globalAlpha = .9; for (let k = 0; k < 5; k++) disc(cx + (k - 2) * s * .7, cy + (k % 2 ? -s * .3 : 0), s * (.6 + rnd() * .4), '#ffffff'); g.globalAlpha = 1; }
+      ridge(h * .6, h * .04, '#a6d884', .008);
+      const mid = ridge(h * .7, h * .05, '#7cc257', .012);
+      const bx = w * .72 | 0, by = mid[bx] + 2, bw = Math.max(20, w * .07 | 0), bh = bw * .7 | 0;
+      g.fillStyle = '#b8322a'; g.fillRect(bx, by - bh, bw, bh + 4);
+      tri(bx - 3, by - bh, bx + bw / 2, by - bh - bw * .45, bx + bw + 3, by - bh, '#6b1a14');
+      g.fillStyle = '#f4e9d8'; g.fillRect(bx + bw / 2 - 3, by - bh * .55, 6, bh * .55 + 4); g.fillStyle = '#7a1e18'; g.fillRect(bx + bw / 2 - 2, by - bh * .5, 4, bh * .5 + 4);
+      g.fillStyle = '#b9bfc6'; g.fillRect(bx + bw + 3, by - bh * 1.5, 8, bh * 1.5 + 4); disc(bx + bw + 7, by - bh * 1.5, 4, '#9aa2ab');
+      for (let i = 0; i < 9; i++) { const tx = rnd() * w | 0; if (Math.abs(tx - bx) < bw + 16) continue; const ty = mid[tx] + 1; g.fillStyle = '#6b4a2a'; g.fillRect(tx, ty - 6, 2, 7); disc(tx + 1, ty - 9, 5, '#3f8f3a'); disc(tx - 1, ty - 11, 3, '#4fa845'); }
+      const near = ridge(h * .84, h * .025, '#5aa83c', .02);
+      g.fillStyle = '#e8d9b8'; for (let x = 0; x < w; x += 7) { g.fillRect(x, near[x] - 6, 1, 6); } for (let x = 0; x < w; x++) g.fillRect(x, near[x] - 5, 1, 1);
+    } else if (skin === 'cyber') {
+      grad([[0, '#05030c'], [.5, '#150629'], [.85, '#3c0a4c'], [1, '#5c1060']]);
+      glow(w * .5, h * 1.05, w * .55, 'rgba(255,43,214,.28)');
+      for (let x = 0; x < w;) { const bw = 10 + rnd() * 18 | 0, bh = h * (.25 + rnd() * .3) | 0; g.fillStyle = '#1b0d33'; g.fillRect(x, h - bh, bw, bh); windows(x, h - bh, bw, bh, ['rgba(0,240,255,.35)', 'rgba(255,43,214,.3)'], .18); x += bw + (rnd() * 3 | 0); }
+      for (let x = -4; x < w;) {
+        const bw = 12 + rnd() * 22 | 0, bh = h * (.14 + rnd() * .26) | 0, y = h - bh;
+        g.fillStyle = '#0a0617'; g.fillRect(x, y, bw, bh);
+        windows(x, y, bw, bh, ['#00f0ff', '#ff2bd6', '#ffe066', '#8a7bff'], .22);
+        if (rnd() < .5) { const c = rnd() < .5 ? '#00f0ff' : '#ff2bd6'; g.fillStyle = c; g.fillRect(x + 2, y - 2, bw - 4, 1); glow(x + bw / 2, y - 2, bw * .8, c === '#00f0ff' ? 'rgba(0,240,255,.25)' : 'rgba(255,43,214,.25)'); }
+        if (rnd() < .3) { g.fillStyle = '#0a0617'; g.fillRect(x + bw / 2 | 0, y - 10, 1, 10); g.fillStyle = '#ff3d6e'; g.fillRect(x + bw / 2 | 0, y - 11, 1, 1); }
+        x += bw + 2 + (rnd() * 6 | 0);
+      }
+      g.strokeStyle = 'rgba(160,200,255,.12)'; g.lineWidth = 1; g.beginPath();
+      for (let i = 0; i < w * h / 250; i++) { const rx = rnd() * w, ry = rnd() * h; g.moveTo(rx, ry); g.lineTo(rx - 2, ry + 6); } g.stroke();
+    } else if (skin === 'alien') {
+      grad([[0, '#020605'], [.6, '#06201a'], [1, '#0d3a2d']]);
+      stars(w * h / 80, h * .75, '#d8fff0');
+      glow(w * .22, h * .3, h * .45, 'rgba(160,90,255,.18)');
+      lit(w * .22, h * .3, h * .15, '#3a1a5e', '#6a3aa0');
+      g.save(); g.translate(w * .22, h * .3); g.rotate(-.35); g.strokeStyle = 'rgba(184,255,106,.7)'; g.lineWidth = 2; g.beginPath(); g.ellipse(0, 0, h * .28, h * .05, 0, 0, 7); g.stroke(); g.restore();
+      lit(w * .62, h * .14, h * .035, '#2f6a58', '#7fd8b8');
+      const land = ridge(h * .74, h * .06, '#081e18', .018);
+      for (let i = 0; i < 16; i++) { const x = rnd() * w | 0, sh = h * (.06 + rnd() * .16) | 0, y = land[x]; tri(x - 3, y + 1, x, y - sh, x + 3, y + 1, '#0b2a22'); g.fillStyle = '#5affc8'; g.fillRect(x, y - sh, 1, 1); glow(x, y - sh, 6, 'rgba(90,255,200,.45)'); }
+      ridge(h * .88, h * .02, '#051410', .03);
+      for (let i = 0; i < 40; i++) { const x = rnd() * w, y = h * (.8 + rnd() * .2); glow(x, y, 3, rnd() < .5 ? 'rgba(90,255,200,.5)' : 'rgba(195,139,255,.5)'); }
+    } else if (skin === 'ocean') {
+      grad([[0, '#0e5c88'], [.45, '#063553'], [1, '#02101c']]);
+      for (let i = 0; i < 7; i++) { const x = rnd() * w, s = 6 + rnd() * 16; g.fillStyle = 'rgba(190,240,255,.05)'; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + s, 0); g.lineTo(x + s * 3 + h * .25, h * .9); g.lineTo(x + h * .25, h * .9); g.fill(); }
+      g.strokeStyle = 'rgba(210,245,255,.35)'; g.lineWidth = 1;
+      for (let i = 0; i < 26; i++) { g.beginPath(); g.arc(rnd() * w, rnd() * h * .85, .8 + rnd() * 2, 0, 7); g.stroke(); }
+      g.fillStyle = 'rgba(4,20,34,.8)';
+      for (let i = 0; i < 5; i++) { const fx = rnd() * w, fy = h * (.25 + rnd() * .4), s = 2 + rnd() * 3; g.beginPath(); g.ellipse(fx, fy, s * 1.8, s * .8, 0, 0, 7); g.fill(); tri(fx + s * 1.6, fy, fx + s * 2.8, fy - s, fx + s * 2.8, fy + s, 'rgba(4,20,34,.8)'); }
+      const bed = ridge(h * .86, h * .03, '#1d3238', .02);
+      for (let i = 0; i < 18; i++) { const x = rnd() * w | 0, kh = h * (.14 + rnd() * .28), y0 = bed[x] + 1; g.strokeStyle = rnd() < .5 ? '#1f6b4a' : '#2a8a5a'; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y0); for (let t = 0; t <= 1; t += .1) g.lineTo(x + Math.sin(t * 7 + i) * 3, y0 - kh * t); g.stroke(); }
+      for (let i = 0; i < 14; i++) { const x = rnd() * w | 0; disc(x, bed[x] + 1, 2 + rnd() * 4, ['#ff7a8a', '#ffb454', '#c38bff', '#ff8fb8'][i % 4]); }
+    } else {
+      grad([[0, '#04060c'], [.6, '#070b18'], [1, '#0b1226']]);
+      glow(w * .2, h * .3, w * .35, 'rgba(90,60,200,.16)'); glow(w * .78, h * .55, w * .3, 'rgba(40,120,220,.12)');
+      stars(w * h / 55, h, '#ffffff');
+      lit(w * .9, h * 1.08, h * .38, '#16224a', '#2d4488');
+      glow(w * .9, h * 1.08, h * .5, 'rgba(90,140,255,.12)');
+      lit(w * .12, h * .18, h * .03, '#6a6f80', '#c9cedb');
+    }
+  }
+
+  const urlSkin = (() => { try { const q = new URLSearchParams(location.search).get('skin'); return WORLD_IDS.includes(q) ? q : null; } catch { return null; } })();
+  let painted = '', lastSnap = null;
+  function applyWorld(s) {
+    const id = urlSkin || (s && s.station && WORLD_IDS.includes(s.station.skin) ? s.station.skin : 'space');
+    document.documentElement.dataset.skin = id;
+    const key = id + ':' + innerWidth + 'x' + innerHeight;
+    if (key !== painted) { painted = key; paintWorld($('#world'), id); }
+  }
+  let resizeT = 0;
+  addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => applyWorld(lastSnap), 150); });
 
   function render(s) {
-    const st = s.state;
+    const st = s.state, mode = (s.station && s.station.mode) || 'agents';
+    lastSnap = s; applyWorld(s);
     $('#demo').style.display = st.demo ? 'block' : 'none';
     const live = st.posts.length;
     const net = st.earnedUsd - st.spentUsd;
-    const tick = [
+    const m30 = st.moneyIn.filter((e) => within(e, 30)), d0 = new Date(); d0.setHours(0, 0, 0, 0);
+    const kids = (s.station && s.station.kids) || [];
+    const kidOwed = (name) => { const k = name.toLowerCase(); return st.moneyIn.filter((e) => (e.kid || '').toLowerCase() === k).reduce((a, e) => a + e.usd, 0) - st.moneyOut.filter((e) => (e.payee || '').toLowerCase() === k).reduce((a, e) => a + e.usd, 0); };
+    const topOf = (lines, key) => { const m = new Map(); for (const e of lines) { const k = key(e); if (k) m.set(k, (m.get(k) || 0) + e.usd); } return [...m.entries()].sort((a, b) => b[1] - a[1])[0]; };
+    const tick = mode === 'allowance' ? [
+      ['EARNED', usd(st.earnedUsd)], ['OWED', usd(kids.reduce((a, k) => a + Math.max(0, kidOwed(k.name)), 0))],
+      ['PAID', usd(st.moneyOut.filter((e) => e.payee).reduce((a, e) => a + e.usd, 0))],
+      ['CHORES 7D', String(count(st.moneyIn.filter((e) => within(e, 7))))],
+      ['TOP KID', (() => { const t = topOf(st.moneyIn.filter((e) => within(e, 7)), (e) => e.kid); return t ? t[0] + ' ' + usd(t[1]) : 'nobody yet'; })()],
+    ] : mode === 'service' ? [
+      ['REV 30D', usd(m30.reduce((a, e) => a + e.usd, 0))], ['SALES 30D', String(count(m30))],
+      ['AVG', count(m30) ? usd(m30.reduce((a, e) => a + e.usd, 0) / count(m30)) : 'n/a'],
+      ['TODAY', usd(st.moneyIn.filter((e) => Date.parse(e.ts) >= d0.getTime()).reduce((a, e) => a + e.usd, 0))],
+      ['TOP', (() => { const t = topOf(m30, (e) => e.path); const c = t && s.catalog.find((x) => x.id === t[0]); return t ? (c ? c.short || c.name : t[0]) + ' ' + usd(t[1]) : 'n/a'; })()],
+      ['LEVEL', 'L' + s.level.level + (s.level.next ? ' · ' + usd(s.level.next.remainingUsd) + ' to ' + s.level.next.title : '')],
+    ] : [
       ['REV', usd(st.earnedUsd)], ['SPEND', usd(st.spentUsd)], ['NET', usd(net)],
       ['YIELD', st.spentUsd > 0 ? st.yieldRatio.toFixed(2) + 'x' : 'n/a'],
       ['AGENTS', st.running.length + ' on the job'], ['LIVE', live + ' posts'],
       ['LEVEL', 'L' + s.level.level + (s.level.next ? ' · ' + usd(s.level.next.remainingUsd) + ' to ' + s.level.next.title : '')],
     ];
-    $('#ticker').innerHTML = tick.map(([k, v]) => `<div>${k} <b>${esc(v)}</b></div>`).join('') + `<div><a href="/">station</a> · <a href="/ledger">ledger</a></div>`;
+    const keep = urlSkin ? '?skin=' + urlSkin : '';
+    $('#ticker').innerHTML = tick.map(([k, v]) => `<div>${k} <b>${esc(v)}</b></div>`).join('') + `<div><a href="/" data-keep>station</a> · <a href="/ledger" data-keep>ledger</a></div>`;
+    if (keep) $('#ticker').querySelectorAll('a[data-keep]').forEach((a) => a.setAttribute('href', a.getAttribute('href') + keep));
 
     $('#grid').innerHTML = s.catalog.map((spec) => {
       const p = st.paths[spec.id];
@@ -100,7 +247,7 @@
         .map((o) => `<div class="card"><div class="thumb">DRAFT</div>${esc(o.file)}</div>`);
       const cards = [...posts, ...drafts];
       // a service room (a barber's skin fade, a shop's retail) shows its sales instead of a sales pipeline
-      const svc = spec.kind === 'service';
+      const svc = spec.kind === 'service', chores = svc && mode === 'allowance';
       let sales = '', sold = '';
       if (svc) {
         const DAY = 864e5, now = Date.now(), lines = st.moneyIn.filter((e) => e.path === spec.id);
@@ -113,30 +260,38 @@
         const hours = n30 * (spec.minutes || 0) / 60, profit = r30 - n30 * (spec.costUsd || 0);
         const row = (k, v) => `<div class="step done"><span class="n">${k}</span><span style="float:right">${v}</span></div>`;
         const goal = spec.goalUsd || 0, gp = goal ? Math.min(100, 100 * month / goal) : 0;
-        sales = row('SOLD · 30 DAYS', n30) + row('REVENUE · 30 DAYS', usd(r30)) + row('AVG TICKET', n30 ? usd(r30 / n30) : '-') + row('PROFIT PER HOUR', hours ? usd(Math.round(profit / hours)) + '/hr' : 'n/a') + row('SOLD TODAY', today) +
+        sales = (chores
+          ? row('DONE · 30 DAYS', n30) + row('EARNED · 30 DAYS', usd(r30)) + row('PAYS', usd(spec.priceUsd || 1)) + row('PAY PER HOUR', spec.minutes ? usd((spec.priceUsd || 1) * 60 / spec.minutes) + '/hr' : 'n/a') + row('DONE TODAY', today)
+          : row('SOLD · 30 DAYS', n30) + row('REVENUE · 30 DAYS', usd(r30)) + row('AVG TICKET', n30 ? usd(r30 / n30) : '-') + row('PROFIT PER HOUR', hours ? usd(Math.round(profit / hours)) + '/hr' : 'n/a') + row('SOLD TODAY', today)) +
           `<div class="step ${goal && month >= goal ? 'done' : 'next'}"><span class="n">THIS MONTH</span> ${usd(month)}${goal ? ` of ${usd(goal)}` : ''}<div class="bar"><i style="width:${gp}%"></i></div></div>`;
         const items = new Map();
-        for (const e of m30) { const k = String(e.item || e.tag || 'sale').trim(); const x = items.get(k) || { n: 0, usd: 0 }; x.n += e.qty || 1; x.usd += e.usd; items.set(k, x); }
+        // a chore chart groups by who did it; a shop by what sold
+        for (const e of m30) { const k = String((chores ? e.kid : e.item) || e.tag || (chores ? 'someone' : 'sale')).trim(); const x = items.get(k) || { n: 0, usd: 0 }; x.n += e.qty || 1; x.usd += e.usd; items.set(k, x); }
         sold = [...items.entries()].sort((a, b) => b[1].usd - a[1].usd).slice(0, 5).map(([k, x]) => `<div class="card"><div class="thumb">×${x.n} · ${usd(x.usd)}</div>${esc(k)}</div>`).join('');
       }
       const events = st.tail.filter((e) => e.path === spec.id && e.kind !== 'money.out').slice(-4).reverse().map((e) => {
         const t = (e.ts || '').slice(5, 16).replace('T', ' ');
-        const txt = e.kind === 'money.in' ? `+${usd(e.usd)} ${e.source}` : e.kind === 'outcome' ? `${e.stage}: ${e.ref}` : e.kind === 'post' ? `posted ${e.platform}: ${e.title}` : e.kind === 'agent.run.start' ? `${e.role} dispatched` : e.kind === 'agent.run.end' ? `${e.role} ${e.reason} ${usd(e.usd)}` : (e.text || e.kind);
+        const txt = e.kind === 'money.in' ? (e.kid ? `${e.kid} +${usd(e.usd)}${e.evidence && e.evidence !== 'checked off' ? ' · ' + e.evidence : ''}` : `+${usd(e.usd)} ${e.source}`) : e.kind === 'outcome' ? `${e.stage}: ${e.ref}` : e.kind === 'post' ? `posted ${e.platform}: ${e.title}` : e.kind === 'agent.run.start' ? `${e.role} dispatched` : e.kind === 'agent.run.end' ? `${e.role} ${e.reason} ${usd(e.usd)}` : (e.text || e.kind);
         return `<div>&gt; ${esc(t)} ${esc(txt)}</div>`;
       }).join('');
       return `<section class="term ${p.status === 'killed' ? 'killed' : ''}">
-        <header><h2 class="glow">#${spec.rank} ${esc(spec.short || spec.name)} terminal</h2>${status ? `<span class="tag ${status}">${status.toUpperCase()}</span>` : ''}</header>
-        <div class="kpis glow">
+        <header><h2 class="glow">#${spec.rank} ${esc(spec.short || spec.name)} ${chores ? 'chore' : 'terminal'}</h2>${status ? `<span class="tag ${status}">${status.toUpperCase()}</span>` : ''}</header>
+        <div class="kpis glow">${svc && mode !== 'agents' ? (() => {
+          const lines = st.moneyIn.filter((e) => e.path === spec.id), l30 = lines.filter((e) => within(e, 30)), r = l30.reduce((a, e) => a + e.usd, 0);
+          const k = (a, b) => `<div><div class="k">${a}</div><div class="v">${b}</div></div>`;
+          return chores ? k('Earned', usd(p.earnedUsd)) + k('Done 30d', count(l30)) + k('Pays', usd(spec.priceUsd || 1)) + k('This week', count(lines.filter((e) => within(e, 7))))
+            : k('Revenue', usd(p.earnedUsd)) + k('Sales 30d', count(l30)) + k('Avg', count(l30) ? usd(r / count(l30)) : '-') + k('Today', count(lines.filter((e) => Date.parse(e.ts) >= d0.getTime())));
+        })() : `
           <div><div class="k">Revenue</div><div class="v">${usd(p.earnedUsd)}</div></div>
           <div><div class="k">Spend</div><div class="v">${usd(p.spentUsd)}</div></div>
           <div><div class="k">Crew</div><div class="v crew">${crew.length ? crew.length + '<span class="blink">_</span>' : '0'}</div></div>
-          <div><div class="k">Live</div><div class="v">${p.posts.length}</div></div>
+          <div><div class="k">Live</div><div class="v">${p.posts.length}</div></div>`}
         </div>
         <div class="body">
-          <div class="pipe"><h3>${svc ? 'Sales' : 'Pipeline'}</h3>${svc ? sales : steps}</div>
-          <div class="out">${svc ? `<h3>What sold · 30 days</h3>${sold ? `<div class="cards">${sold}</div>` : '<div class="empty">nothing sold in 30 days.</div>'}` : `<h3>Output</h3>${cards.length ? `<div class="cards">${cards.join('')}</div>` : '<div class="empty">no output yet. Dispatch an agent from the station.</div>'}`}
-            <h3 style="margin-top:10px">Agent budget</h3><div class="bar" style="height:6px"><i style="width:${Math.min(100, 100 * p.spentUsd / (spec.budgetUsd || 1))}%;background:${p.spentUsd / (spec.budgetUsd || 1) > 0.8 ? 'var(--bad)' : 'var(--ph)'}"></i></div>
-            <div class="empty" style="margin-top:3px">${usd(p.spentUsd)} of ${usd(spec.budgetUsd)}${spec.killTest ? ` · kill test: ${esc(spec.killTest)}` : ''}</div>
+          <div class="pipe"><h3>${chores ? 'Chore log' : svc ? 'Sales' : 'Pipeline'}</h3>${svc ? sales : steps}</div>
+          <div class="out">${chores ? `<h3>Who did it · 30 days</h3>${sold ? `<div class="cards">${sold}</div>` : '<div class="empty">nobody has done this one in 30 days.</div>'}` : svc ? `<h3>What sold · 30 days</h3>${sold ? `<div class="cards">${sold}</div>` : '<div class="empty">nothing sold in 30 days.</div>'}` : `<h3>Output</h3>${cards.length ? `<div class="cards">${cards.join('')}</div>` : '<div class="empty">no output yet. Dispatch an agent from the station.</div>'}`}
+            ${svc && mode !== 'agents' && !p.spentUsd ? '' : `<h3 style="margin-top:10px">Agent budget</h3><div class="bar" style="height:6px"><i style="width:${Math.min(100, 100 * p.spentUsd / (spec.budgetUsd || 1))}%;background:${p.spentUsd / (spec.budgetUsd || 1) > 0.8 ? 'var(--bad)' : 'var(--ph)'}"></i></div>
+            <div class="empty" style="margin-top:3px">${usd(p.spentUsd)} of ${usd(spec.budgetUsd)}${spec.killTest ? ` · kill test: ${esc(spec.killTest)}` : ''}</div>`}
           </div>
         </div>
         <div class="log">${events || '<div class="empty">&gt; idle<span class="blink">_</span></div>'}</div>

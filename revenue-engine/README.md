@@ -13,7 +13,7 @@ It is a small, honest machine for driving one operator from $0 to a first dollar
 
 ## Look first
 
-Live preview on demo data, buttons switched off: https://revenue-station-preview.netlify.app (station), `/terminal/` (production terminal), `/ledger/` (money dashboard). A second station built for a barbershop, one room per service with Square sales split by service, is at https://revenue-station-preview.netlify.app/barber/. Rebuild both with `npm run preview`, which writes a static copy to `preview/`.
+Live preview on demo data, buttons switched off: https://revenue-station-preview.netlify.app (station), `/terminal/` (production terminal), `/ledger/` (money dashboard). A second station built for a barbershop, one room per service with Square sales split by service, is at https://revenue-station-preview.netlify.app/barber/, and a family allowance tracker on the farm is at https://revenue-station-preview.netlify.app/family/. Add `?skin=castle` (or `farm`, `cyber`, `alien`, `ocean`, `space`) to any page to see the same numbers in another world, for example https://revenue-station-preview.netlify.app/barber/?skin=cyber. Rebuild all of it with `npm run preview`, which writes a static copy to `preview/`.
 
 Click anywhere on a room (floor, walls or its label) to open its stats, the vault for the station roster, or the outbox dock for drafts. Drag to pan, scroll or pinch to zoom, double-click a room to fly in, `1`-`9` jump to a room, `C` customizes the rooms, `Esc` returns to the overview, `?` opens the field guide that says which objects are bound to the ledger and which are scenery.
 
@@ -51,7 +51,21 @@ Rooms are views, not buckets. Renaming a room, changing its keywords or reorderi
 
 A service room shows what it sold, revenue, average ticket, tips, estimated profit after supplies, and **profit per hour of chair time** (set minutes and supply cost per service), with a daily takings chart and a monthly goal. The roster ranks the services by profit per hour, revenue, count or profit over 7, 30 or 90 days, and the top earner per hour wears a crown on the map. On the map: mirror bulbs light for each sale today, towels stack up with this month's sales, and the tube fills toward the room's goal (gold once met).
 
-The design lives in `data/rooms.json`. From the command line: `node src/cli.js rooms`, `rooms template barber --name "Kim's Cuts"`, `rooms reset`.
+The design lives in `data/rooms.json`. From the command line: `node src/cli.js rooms`, `rooms template barber --name "Kim's Cuts"`, `rooms skin castle`, `rooms mode allowance`, `rooms reset`.
+
+### What the station is for, and which world it lives in
+
+A station runs in one of three modes, picked on first open or under **Customize** (`C`):
+
+- **Command center**: the built-in money paths, with agents you hire and dispatch for money-making jobs.
+- **Service station**: one room per service you sell (a barber's cuts, a salon's treatments), ranked by profit per hour.
+- **Allowance tracker**: one room per chore, for parents. See below.
+
+And in one of six worlds, each with its own backdrop, building materials and residents in every room: a **space station**, a **dark castle** (a crypt of skeletons, a witch's kitchen, a goblin forge, a haunted library, a dragon's hoard, a vampire's parlor), a **farm** (a cow pasture, a pig pen, a chicken coop, a sheep meadow, a horse stable, a veggie garden full of bunnies, with farmhands at work), a **cyber city** (a hacker den, a neon bar of androids, a street dojo, a chop shop, a night club, a ripperdoc clinic), an **alien ship** (a specimen lab, a hatchery, the bridge, a spore garden, a probe bay, a watcher lounge) and an **ocean base** (a coral reef, an octopus grotto, a shipwreck of crabs, a kelp forest, a sub bay of sea turtles, the deep with its jellyfish). Each room picks its own look in the designer. The world is only dress: every world draws the same ledger, and switching never touches a number. The HUD, the money dashboard (`/ledger`, which has a world picker of its own) and the production terminal (`/terminal`: an amber scrying glass in the castle, a chalkboard on the farm, sonar under the sea) all follow the station's world. The dashboard also hides the agent machinery a shop or a family does not use.
+
+### Allowance tracker
+
+Pick **Allowance tracker** and the **Chore chart** template (dishes, make bed, tidy room, homework, feed pets, trash, laundry, yard work), add each kid's name, and set what every chore pays and how long it takes. To log a chore, open its room, pick the kid who did it and press **Check it off**: that appends a `money.in` line with the kid's name, and the kid shows up on the map standing in that room, name overhead. The vault totals what every kid has earned and what each is owed. **Pay** (two clicks) records a `money.out` line with the kid as payee, which zeroes their balance. Nothing moves real money. Chores are ranked by pay per hour, so it is easy to see which ones are worth the most to a kid's time. A second station keeps a family's chores apart from your business: `setup.ps1 -Station family`, or `REVENUE_ENGINE_DATA=./data-family node src/cli.js serve --port 8792`.
 
 ### A second station for someone else's business
 
@@ -74,9 +88,10 @@ Requirements: Node 22+. One dependency (`@anthropic-ai/sdk`).
 ```bash
 cd revenue-engine
 npm install
-npm test                       # 68 tests, zero spend (replay provider, fake payment APIs)
+npm test                       # 71 tests, zero spend (replay provider, fake payment APIs)
 REVENUE_ENGINE_DATA=./demo node src/cli.js seed-demo   # optional: labeled fake data to preview the station
 REVENUE_ENGINE_DATA=./demo-shop node src/cli.js seed-demo --barber   # optional: the barbershop demo
+REVENUE_ENGINE_DATA=./demo-family node src/cli.js seed-demo --family  # optional: the allowance demo (three kids, the farm)
 node src/cli.js status         # headline numbers, level, open quests
 node src/cli.js paths          # the catalog
 node src/cli.js serve          # station at http://127.0.0.1:8790, money at /ledger, scheduler on

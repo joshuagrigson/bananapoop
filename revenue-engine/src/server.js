@@ -220,6 +220,11 @@ export function createServer({ ledger, catalog: fixedCatalog = null, dataDir, ru
         const body = await readJson(req);
         try {
           if (body.reset) { resetConfig(dataDir); return send(res, 200, { ok: true, config: null }); }
+          // just the world: the dashboard's skin picker changes the station's skin and nothing else
+          if (body.skin && !body.template && !body.config) {
+            const cur = loadConfig(dataDir) || { name: 'Revenue Station', rooms: null };
+            return send(res, 200, { ok: true, config: saveConfig(dataDir, { ...cur, skin: body.skin }) });
+          }
           const cfg = body.template ? fromTemplate(body.template, { name: body.name, skin: body.skin, mode: body.mode, kids: body.kids }) : body.config;
           const saved = saveConfig(dataDir, cfg);
           return send(res, 200, { ok: true, config: saved });

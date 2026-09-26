@@ -1,14 +1,16 @@
 // Builds a static, click-around preview of the Revenue Station from labeled demo data.
 // Output: preview/ with the station (/), the production terminal (/terminal/), the money dashboard (/ledger/),
 // and frozen copies of every GET endpoint under /api/. A second station, a barbershop built from custom service
-// rooms with Square sales split by service, lives under /barber/ with its own pages and endpoints. Any POST (dispatch, log, add client) is answered by a
+// rooms with Square sales split by service, lives under /barber/ with its own pages and endpoints, and a third, a
+// family allowance tracker on the farm skin, lives under /family/. Every page takes ?skin=castle (or farm, cyber, alien,
+// ocean, space) to show the same data in another world. Any POST (dispatch, log, add client) is answered by a
 // shim with "preview only", so nothing in the preview can spend money or pretend to act.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Ledger } from '../src/ledger.js';
-import { seedDemo, seedBarberDemo } from '../src/demo.js';
+import { seedDemo, seedBarberDemo, seedAllowanceDemo } from '../src/demo.js';
 import { snapshot, listOutbox, roomsInfo } from '../src/server.js';
 import { loadCatalog } from '../src/rooms.js';
 import { CATALOG } from '../src/paths.js';
@@ -51,10 +53,10 @@ const BANNER = '<div style="background:#1d2a4d;color:#cfe0ff;padding:6px 16px;fo
 const page = (file) => fs.readFileSync(path.join(root, 'src', file), 'utf8')
   .replace('<head>', '<head>\n' + SHIM)
   .replace(/<body>/, '<body>\n' + BANNER);
-// the same pages, re-pointed at the barbershop's endpoints and links under /barber/
-const barberPage = (file) => page(file)
-  .replace(/(['"`])\/api\//g, '$1/barber/api/')
-  .replace(/href="\/"/g, 'href="/barber/"').replace(/href="\/terminal"/g, 'href="/barber/terminal/"').replace(/href="\/ledger"/g, 'href="/barber/ledger/"');
+// the same pages, re-pointed at a second station's endpoints and links under /barber/ or /family/
+const subPage = (dir, file) => page(file)
+  .replace(/(['"`])\/api\//g, `$1/${dir}/api/`)
+  .replace(/href="\/"/g, `href="/${dir}/"`).replace(/href="\/terminal"/g, `href="/${dir}/terminal/"`).replace(/href="\/ledger"/g, `href="/${dir}/ledger/"`);
 
 fs.rmSync(out, { recursive: true, force: true });
 const write = (rel, body) => { const f = path.join(out, rel); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, body); };
@@ -74,9 +76,9 @@ const bdata = fs.mkdtempSync(path.join(os.tmpdir(), 'station-barber-'));
 const bledger = new Ledger(path.join(bdata, 'ledger.jsonl'));
 seedBarberDemo(bledger, bdata);
 const bcat = loadCatalog(bdata);
-write('barber/index.html', barberPage('station.html'));
-write('barber/terminal/index.html', barberPage('terminal.html'));
-write('barber/ledger/index.html', barberPage('dashboard.html'));
+write('barber/index.html', subPage('barber', 'station.html'));
+write('barber/terminal/index.html', subPage('barber', 'terminal.html'));
+write('barber/ledger/index.html', subPage('barber', 'dashboard.html'));
 write('barber/api/state', JSON.stringify(snapshot(bledger, bcat, bdata)));
 write('barber/api/outbox', JSON.stringify(listOutbox(bdata, bcat)));
 write('barber/api/inbox', '{}');
@@ -85,7 +87,24 @@ write('barber/api/runs', '[]');
 write('barber/api/connections', JSON.stringify({ connectors: connectorSpecs(), csvSources: CSV_SOURCES, connections: listConnections(bdata), syncing: false }));
 write('barber/api/rooms', JSON.stringify(roomsInfo(bledger, bcat, bdata)));
 
-write('_headers', ['/api/*', '/barber/api/*'].map((p) => `${p}\n  Content-Type: application/json; charset=utf-8\n  Cache-Control: no-store\n`).join(''));
+// ---- the family allowance tracker: chores are rooms, kids earn, payouts zero their balance
+const fdata = fs.mkdtempSync(path.join(os.tmpdir(), 'station-family-'));
+const fledger = new Ledger(path.join(fdata, 'ledger.jsonl'));
+seedAllowanceDemo(fledger, fdata);
+const fcat = loadCatalog(fdata);
+write('family/index.html', subPage('family', 'station.html'));
+write('family/terminal/index.html', subPage('family', 'terminal.html'));
+write('family/ledger/index.html', subPage('family', 'dashboard.html'));
+write('family/api/state', JSON.stringify(snapshot(fledger, fcat, fdata)));
+write('family/api/outbox', JSON.stringify(listOutbox(fdata, fcat)));
+write('family/api/inbox', '{}');
+write('family/api/clients', '{}');
+write('family/api/runs', '[]');
+write('family/api/connections', JSON.stringify({ connectors: connectorSpecs(), csvSources: CSV_SOURCES, connections: listConnections(fdata), syncing: false }));
+write('family/api/rooms', JSON.stringify(roomsInfo(fledger, fcat, fdata)));
+
+write('_headers', ['/api/*', '/barber/api/*', '/family/api/*'].map((p) => `${p}\n  Content-Type: application/json; charset=utf-8\n  Cache-Control: no-store\n`).join(''));
 fs.rmSync(data, { recursive: true, force: true });
 fs.rmSync(bdata, { recursive: true, force: true });
+fs.rmSync(fdata, { recursive: true, force: true });
 console.log(`preview built in ${out}`);

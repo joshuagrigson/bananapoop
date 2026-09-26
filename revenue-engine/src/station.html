@@ -6132,6 +6132,8 @@
   $('#syncbox').addEventListener('click', (e) => { if (e.target.id === 'syncbox') closeSync(); });
   $('#navTerm').innerHTML = ic('term') + '<span class="lbl">Terminal</span>'; $('#navLedger').innerHTML = ic('chart') + '<span class="lbl">Ledger</span>'; $('#navGuide').innerHTML = ic('book') + '<span class="lbl">Guide</span>';
   $('#navTerm').title = 'Production terminal'; $('#navLedger').title = 'Money dashboard'; $('#navGuide').title = 'Field guide (?)';
+  // a world picked on the URL (?skin=castle) follows you to the terminal and the dashboard
+  if (skinFromUrl) for (const a of [$('#navTerm'), $('#navLedger')]) a.setAttribute('href', a.getAttribute('href') + '?skin=' + skinFromUrl);
   $('#zin').addEventListener('click', () => zoomBy(1.35));
   $('#zout').addEventListener('click', () => zoomBy(1 / 1.35));
   $('#zhome').addEventListener('click', () => { camT.x = home.x; camT.y = home.y; camT.z = 1; });
