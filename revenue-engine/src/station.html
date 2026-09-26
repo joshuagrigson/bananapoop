@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 1.5l13 7.5v14l-13 7.5-13-7.5V9z' fill='%23ffcf5a'/%3E%3Cpath d='M16 7l8 4.6v8.8L16 25l-8-4.6v-8.8z' fill='%23704a08'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Silkscreen&family=Cinzel:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Audiowide&family=Exo+2:wght@500;600;700&family=Righteous&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Silkscreen&family=Cinzel:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Audiowide&family=Exo+2:wght@500;600;700&family=Righteous&family=Lilita+One&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #04060c; --ink: #e9eefb; --ink2: #b8c2da; --muted: #7c88a6; --dim: #4d5775;
@@ -212,6 +212,17 @@
   #replay .rb { width: 120px; height: 5px; border-radius: 3px; background: var(--sunk); overflow: hidden; }
   #replay .rb i { display: block; height: 100%; width: 0; background: var(--gold); }
   #replay[hidden] { display: none; }
+  /* the area view title, the way a village game names the building you tapped */
+  #areaTitle { position: absolute; top: calc(var(--top) + 8px); z-index: 6; transform: translateX(-50%); text-align: center; pointer-events: none; font-family: "Lilita One", "Fredoka", sans-serif; color: #fff; paint-order: stroke fill; -webkit-text-stroke: 5px #12131c; }
+  #areaTitle[hidden] { display: none; }
+  #areaTitle b { display: block; font-weight: 400; font-size: 30px; line-height: 1.05; letter-spacing: .01em; filter: drop-shadow(0 3px 0 rgba(0,0,0,.35)); }
+  #areaTitle .lv { display: inline-block; margin-top: 4px; font-size: 16px; -webkit-text-stroke: 4px #12131c; color: #ffe07a; }
+  #areaTitle small { display: block; margin-top: 2px; font-size: 13px; -webkit-text-stroke: 3.5px #12131c; color: #dfe8ff; }
+  #areaTitle.pop { animation: areaPop .5s cubic-bezier(.2, 1.6, .4, 1) both; }
+  @keyframes areaPop { 0% { transform: translateX(-50%) scale(.4); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
+  .lbl.sel .plate { animation: platePop .45s cubic-bezier(.2, 1.8, .4, 1); }
+  @keyframes platePop { 0% { transform: translateX(-50%) translateY(0) scale(.8); } 100% { transform: translateX(-50%) translateY(-3px) scale(1.04); } }
+  @media (max-width: 900px) { #areaTitle { top: 12px; } #areaTitle b { font-size: 22px; } }
   @media (max-width: 900px) { #replay { top: 8px; } #replay .rl, #replay .rb { display: none; } }
   .st { padding: 10px 11px; border-radius: 10px; background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid var(--line); display: flex; align-items: center; gap: 10px; min-width: 0; }
   .st .k { font: 600 9px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
@@ -576,6 +587,7 @@
       <button class="cbtn glass" id="sound" title="Sound off (M)"></button>
       <button class="cbtn glass" id="help" title="Field guide (?)"></button>
     </div>
+    <div id="areaTitle" hidden><b></b><span class="lv"></span><small></small></div>
     <div id="replay" class="glass" hidden><span class="rl">Replay · last 24 hours</span><b class="rt"></b><span class="rn"></span><span class="rb"><i></i></span><button class="btn sm2" type="button" id="replayStop">Stop</button></div>
     <div class="tip" id="tip"></div>
   </div>
@@ -4716,7 +4728,7 @@
       if (a.act === 'sleep' && !moving) spr = lyingSprite(spr, `res:${skinId()}:${lk.id}:0`);
       const z = (R.float && a.kind === 'res' ? R.float + Math.sin(a.t * 2 + a.x) * 1.5 : 0) + hop + (working ? Math.floor(a.t * 6) % 2 : 0);
       const [sx, sy] = P(a.x, a.y, z);
-      return { spr, X: Math.round(sx) - (spr.width >> 1), Y: Math.round(sy) - spr.height + 1, flip: a.face < 0, sx, sy: P(a.x, a.y)[1], view: 'front', z, res: R };
+      return { spr, X: Math.round(sx) - (spr.width >> 1), Y: Math.round(sy) - spr.height + 1, flip: a.face < 0, sx, sy: P(a.x, a.y)[1], fy: sy + 1, view: 'front', z, res: R };
     }
     let view = 'front', frame = 'stand', z = hop, bob = 0;
     const small = Boolean(a.small), role = a.kind === 'folk' ? 'folk' : a.role, tint = a.tint || null;
@@ -4730,7 +4742,249 @@
     if (a.act === 'sleep' && !moving) spr = lyingSprite(spr, `crew:${skinId()}:${role}:${tint}:${small}`);
     const [sx, sy] = P(a.x, a.y, z);
     const X = Math.round(sx) - (spr.width >> 1), Y = Math.round(sy) - spr.height + 1 - bob;
-    return { spr, X, Y, flip: a.face < 0, sx, sy, view, z };
+    return { spr, X, Y, flip: a.face < 0, sx, sy, fy: sy + 1 - (hdOn ? 0 : bob), view, z };
+  }
+
+  // ======================================================================= troop view: the folk up close
+  // Close up, characters are drawn the way a village game draws its troops: half again as big, smoothed from the pixel
+  // sprite (Scale3x, so every edge rounds off but stays pixel art at half-pixel density), bouncing with squash and
+  // stretch, waddling as they walk, on a soft blob shadow, with a level badge and an outlined name. Walls still hide
+  // them where they stand behind one (the depth buffer, sampled per half pixel).
+  const HD_PARAM = (() => { try { return new URLSearchParams(location.search).get('hd'); } catch { return null; } })();
+  const HD_OFF = HD_PARAM === '0';
+  const HD_SRC = HD_PARAM === '1' ? 2 : 3;          // Scale2x draws them at their pixel size, Scale3x half again as big
+  const HDS = HD_SRC / 2;                            // size against the world
+  let hdOn = false;
+  const hdCache = new WeakMap();
+  // Scale2x / Scale3x (AdvMAME): pixel-art upscaling that rounds diagonals without inventing colours
+  function hdSprite(src) {
+    let c = hdCache.get(src);
+    if (c) return c;
+    const w = src.width, h = src.height, s = HD_SRC, d = sprData(src);
+    const px32 = new Uint32Array(d.buffer.slice(0));
+    const at = (x, y) => (x < 0 || y < 0 || x >= w || y >= h ? 0 : px32[y * w + x]);
+    const [oc, og] = mk(w * s, h * s);
+    const img = og.createImageData(w * s, h * s), out = new Uint32Array(img.data.buffer);
+    const put = (x, y, v) => { out[y * w * s + x] = v; };
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const E = at(x, y), A = at(x - 1, y - 1), B = at(x, y - 1), C = at(x + 1, y - 1), D = at(x - 1, y), F = at(x + 1, y), G = at(x - 1, y + 1), H2 = at(x, y + 1), I = at(x + 1, y + 1);
+      const X = x * s, Y = y * s;
+      if (s === 2) {
+        let e0 = E, e1 = E, e2 = E, e3 = E;
+        if (B !== H2 && D !== F) { e0 = D === B ? D : E; e1 = B === F ? F : E; e2 = D === H2 ? D : E; e3 = H2 === F ? F : E; }
+        put(X, Y, e0); put(X + 1, Y, e1); put(X, Y + 1, e2); put(X + 1, Y + 1, e3);
+        continue;
+      }
+      let e = [E, E, E, E, E, E, E, E, E];
+      if (B !== H2 && D !== F) {
+        e = [
+          D === B ? D : E, (D === B && E !== C) || (B === F && E !== A) ? B : E, B === F ? F : E,
+          (D === B && E !== G) || (D === H2 && E !== A) ? D : E, E, (B === F && E !== I) || (H2 === F && E !== C) ? F : E,
+          D === H2 ? D : E, (D === H2 && E !== I) || (H2 === F && E !== G) ? H2 : E, H2 === F ? F : E,
+        ];
+      }
+      for (let k = 0; k < 9; k++) put(X + (k % 3), Y + ((k / 3) | 0), e[k]);
+    }
+    og.putImageData(img, 0, 0);
+    oc._d = img.data;
+    hdCache.set(src, oc);
+    return oc;
+  }
+  // how a character moves up close: stretch as they hop, waddle as they walk, breathe as they stand
+  function hdPose(a, d) {
+    if (reduceMotion || a.act === 'sleep') return { sy: 1, k: 0 };
+    const moving = a.queue.length > 0;
+    if (a.jz > 0) return { sy: 1 + 0.14 * Math.sin(a.jz * Math.PI), k: 0 };
+    if (moving) { const f = a.busy ? 12 : a.kind === 'res' ? 9 : 10; return { sy: 1 + 0.055 * Math.cos(a.t * f * 2), k: 0.075 * Math.sin(a.t * f) }; }
+    if (d.view === 'seat') return { sy: 1 + 0.03 * Math.abs(Math.sin(a.t * 6)), k: 0 };
+    if (a.act === 'serve' || a.act === 'chore' || a.act === 'tinker') return { sy: 1 + (a.busy ? 0.07 : 0.035) * Math.abs(Math.sin(a.t * (a.busy ? 9 : 4))), k: 0.05 * (a.face > 0 ? 1 : -1) * Math.abs(Math.sin(a.t * (a.busy ? 9 : 4))) };
+    return { sy: 1 + 0.028 * Math.sin(a.t * 2.3 + a.x * 3), k: 0 };
+  }
+  // one character, resampled into half-pixel space with the pose, and hidden wherever a wall stands in front of it
+  let hdBuf = null, hdBg = null;
+  function hdDrawSprite(spr, flip, fx, fy, pose, dcode, silCol, dim, kUpL, wox, woy) {
+    const src = hdSprite(spr), sw = src.width, sh = src.height, sd = src._d;
+    const sy = pose.sy, sxs = 1 / sy, k = pose.k;
+    const DH = Math.ceil(sh * sy) + 2, DWr = Math.ceil(sw * sxs + Math.abs(k) * DH) + 4, DW = DWr + (DWr & 1);
+    const footX = Math.round(fx * 2) / 2, footY = Math.round(fy * 2) / 2;
+    const ox = footX - DW / 4, oy = footY - DH / 2;
+    if (!hdBuf || hdBuf.width < DW || hdBuf.height < DH) { [hdBuf, hdBg] = mk(Math.max(DW, 64), Math.max(DH, 96)); }
+    const img = hdBg.createImageData(DW, DH), out = img.data;
+    const cx = DW / 2;
+    let any = false;
+    for (let j = 0; j < DH; j++) {
+      const up = DH - j - 0.5, srow = Math.floor(sh - up / sy);
+      if (srow < 0 || srow >= sh) continue;
+      const NY = Math.floor(oy + (j + 0.5) / 2);
+      if (NY < 0 || NY >= H) continue;
+      for (let i = 0; i < DW; i++) {
+        const xc = ((i + 0.5 - cx) - k * up) / sxs;
+        const scol = Math.floor(sw / 2 + (flip ? -xc : xc));
+        if (scol < 0 || scol >= sw) continue;
+        const si = (srow * sw + scol) * 4, al = sd[si + 3];
+        if (!al) continue;
+        const NX = Math.floor(ox + (i + 0.5) / 2);
+        if (NX < 0 || NX >= W) continue;
+        const di = (j * DW + i) * 4;
+        if (dbData[(NY * W + NX) * 4] > dcode) { if (silCol) { out[di] = silCol[0]; out[di + 1] = silCol[1]; out[di + 2] = silCol[2]; out[di + 3] = 80; any = true; } continue; }
+        out[di] = sd[si] * dim; out[di + 1] = sd[si + 1] * dim; out[di + 2] = sd[si + 2] * dim; out[di + 3] = al; any = true;
+      }
+    }
+    if (!any) return null;
+    hdBg.putImageData(img, 0, 0);
+    ug.drawImage(hdBuf, 0, 0, DW, DH, wox + ox * kUpL, woy + oy * kUpL, DW * kUpL / 2, DH * kUpL / 2);
+    return { top: oy + (DH - sh * sy) , footX, footY };
+  }
+  // a character's level, from the ledger: how much they have done in 30 days (folk) or runs so far (agents)
+  let lvlSig = '', lvlCache = new Map();
+  function charLevel(a) {
+    if (lvlSig !== String(snap.state.eventCount)) { lvlSig = String(snap.state.eventCount); lvlCache = new Map(); }
+    if (lvlCache.has(a.id)) return lvlCache.get(a.id);
+    let n = 0;
+    if (a.kind === 'folk') { const from = Date.now() - 30 * 86400e3, key = a.name.toLowerCase(); for (const e of snap.state.moneyIn) if ((kidOf(e) || '').toLowerCase() === key && Date.parse(e.ts) >= from) n += e.qty || 1; }
+    else if (a.kind === 'job') n = a.job ? a.job.runs * 3 : 0;
+    const lv = 1 + tierOf(n);
+    lvlCache.set(a.id, lv);
+    return lv;
+  }
+  // a name plate the way a village game writes it: chunky rounded letters with a dark outline, a level shield in front
+  function plate(g, X, Y, text, col, lvl, scale) {
+    const fs = Math.max(8, Math.round(15 * scale));
+    g.font = `${fs}px "Lilita One", "Fredoka", "Nunito", sans-serif`;
+    g.textBaseline = 'middle'; g.lineJoin = 'round';
+    const tw = g.measureText(text).width, sh = lvl ? fs * 1.15 : 0, gap = lvl ? fs * 0.3 : 0, w = sh + gap + tw;
+    let x = X - w / 2;
+    if (lvl) {
+      const r = sh / 2, cx = x + r, cy = Y;
+      g.beginPath();
+      for (let k = 0; k < 6; k++) { const an = Math.PI / 6 + k * Math.PI / 3; g.lineTo(cx + Math.cos(an) * r, cy + Math.sin(an) * r); }
+      g.closePath();
+      g.fillStyle = '#12131c'; g.lineWidth = fs * 0.4; g.strokeStyle = '#12131c'; g.stroke();
+      const grd = g.createLinearGradient(0, cy - r, 0, cy + r); grd.addColorStop(0, shade(col, 50)); grd.addColorStop(1, shade(col, -30));
+      g.fillStyle = grd; g.fill();
+      g.font = `${Math.round(fs * 0.78)}px "Lilita One", "Fredoka", sans-serif`; g.textAlign = 'center';
+      g.lineWidth = fs * 0.22; g.strokeText(String(lvl), cx, cy + fs * 0.04); g.fillStyle = '#ffffff'; g.fillText(String(lvl), cx, cy + fs * 0.04);
+      g.font = `${fs}px "Lilita One", "Fredoka", "Nunito", sans-serif`;
+      x += sh + gap;
+    }
+    g.textAlign = 'left';
+    g.lineWidth = fs * 0.36; g.strokeStyle = '#12131c'; g.strokeText(text, x, Y);
+    g.fillStyle = '#ffffff'; g.fillText(text, x, Y);
+  }
+  function hdBar(g, X, Y, w, h, f, col) {
+    g.fillStyle = '#12131c'; g.fillRect(X - w / 2 - 1.5, Y - 1.5, w + 3, h + 3);
+    g.fillStyle = '#3a2a1a'; g.fillRect(X - w / 2, Y, w, h);
+    g.fillStyle = col; g.fillRect(X - w / 2, Y, w * clamp(f, 0, 1), h);
+    g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(X - w / 2, Y, w * clamp(f, 0, 1), Math.max(1, h * 0.35));
+  }
+  // the whole troop pass, straight onto the upscaled frame
+  function drawCrewHD(kUpL, wox, woy) {
+    const list = [...agents.values()].sort((a, b) => (a.x + a.y) - (b.x + b.y));
+    const selRoom = selected && roomById(selected), cssK = kUpL / S;      // U pixels per CSS pixel
+    const nx = (x) => wox + x * kUpL, ny = (y) => woy + y * kUpL;
+    const showTags = cam.z >= 1.35;
+    ug.imageSmoothingEnabled = false;
+    const overlays = [];
+    for (const a of list) {
+      const d = crewDraw(a);
+      const dcode = depthCode(a.x + a.y);
+      const col = a.kind === 'res' ? (d.res.sil || '#9aa6c0') : a.tint || roleCol(a.role);
+      const dim = focusA > 0.01 && selRoom && a.path !== selRoom.id ? 1 - 0.45 * focusA : 1;
+      const pose = hdPose(a, d);
+      // soft blob shadow on the ground, smaller while hopping
+      const [gx, gy] = P(a.x, a.y);
+      if (d.view !== 'seat' && !(d.res && d.res.noShadow)) {
+        const X0 = Math.round(gx), Y0 = Math.round(gy);
+        if (X0 > 0 && Y0 > 0 && X0 < W && Y0 < H && dbData[(Y0 * W + X0) * 4] <= dcode) {
+          const rx = d.spr.width * HDS * 0.42 * (a.jz > 0 ? 0.8 : 1), ry = rx * 0.4;
+          ug.fillStyle = `rgba(0,0,0,${(0.3 * dim).toFixed(3)})`; ug.beginPath(); ug.ellipse(nx(gx), ny(gy + 0.5), rx * kUpL, ry * kUpL, 0, 0, 7); ug.fill();
+          ug.fillStyle = `rgba(0,0,0,${(0.22 * dim).toFixed(3)})`; ug.beginPath(); ug.ellipse(nx(gx), ny(gy + 0.5), rx * 0.6 * kUpL, ry * 0.6 * kUpL, 0, 0, 7); ug.fill();
+          if (follow === a.id) {
+            // the selected troop: a gold ring on the ground, breathing
+            const pr = 1 + 0.12 * Math.sin(T * 5);
+            ug.strokeStyle = '#ffd23f'; ug.lineWidth = Math.max(1, kUpL * 0.8);
+            ug.beginPath(); ug.ellipse(nx(gx), ny(gy + 0.5), rx * 1.5 * pr * kUpL, ry * 1.5 * pr * kUpL, 0, 0, 7); ug.stroke();
+          }
+        }
+      }
+      const fy = d.fy ?? (d.Y + d.spr.height);
+      const r = hdDrawSprite(d.spr, d.flip, d.sx, fy, pose, dcode, rgb(col), dim, kUpL, wox, woy);
+      if (!r || a.kind === 'res') continue;
+      const headY = r.top;
+      const X = r.footX;
+      // the tool in their hands while they work a station
+      if (!a.queue.length && (a.act === 'serve' || a.act === 'chore' || a.act === 'tinker') && a.station >= 0) {
+        const t = toolFor(roomById(a.path)), sw = Math.floor(a.t * (a.busy ? 8 : 3)) % 2;
+        const ic2 = iconSprite(t);
+        ug.drawImage(ic2, nx(X + (a.face > 0 ? 4 : -11) + (sw ? a.face : 0)), ny(fy - 12 - sw), 5 * kUpL * 1.4, 5 * kUpL * 1.4);
+      }
+      if (a.carry > 0 && (a.state === 'leave' || a.state === 'deliver')) {
+        const cx0 = X - 4, cy0 = headY - 7;
+        ug.fillStyle = '#12131c'; ug.fillRect(nx(cx0 - 0.5), ny(cy0 - 0.5), 9 * kUpL, 8 * kUpL);
+        ug.fillStyle = '#b0844c'; ug.fillRect(nx(cx0), ny(cy0), 8 * kUpL, 7 * kUpL);
+        ug.fillStyle = '#d9ac6a'; ug.fillRect(nx(cx0), ny(cy0), 8 * kUpL, 1.5 * kUpL);
+        ug.fillStyle = '#7f5a31'; ug.fillRect(nx(cx0 + 3.5), ny(cy0), kUpL, 7 * kUpL);
+      }
+      overlays.push({ a, X, headY, col, dim });
+    }
+    // everything above heads last, so no body covers a name
+    for (const o of overlays) {
+      const { a, X, col } = o;
+      let y = o.headY - 2;
+      if (a.kind === 'folk' || a.kind === 'job' || a.kind === 'visit') {
+        // the marker: a turning diamond in their colour, gold while a real event is theirs
+        const mc = a.real > 0 || a.busy || a.runId ? '#ffd23f' : col;
+        const turn = Math.abs(Math.sin(a.t * 2.2 + a.x)), w = 1 + 2.2 * turn, bob = Math.sin(a.t * 3) * 1.2;
+        const my = y - 7 + bob, g = ug;
+        g.beginPath(); g.moveTo(nx(X), ny(my - 3.4)); g.lineTo(nx(X + w), ny(my)); g.lineTo(nx(X), ny(my + 3.4)); g.lineTo(nx(X - w), ny(my)); g.closePath();
+        g.fillStyle = '#12131c'; g.lineWidth = kUpL * 0.9; g.strokeStyle = '#12131c'; g.stroke();
+        const grd = g.createLinearGradient(nx(X - w), 0, nx(X + w), 0); grd.addColorStop(0, shade(mc, 55)); grd.addColorStop(0.5, mc); grd.addColorStop(1, shade(mc, -35));
+        g.fillStyle = grd; g.fill();
+        y = my - 5;
+      }
+      if (a.bubble) {
+        const b = a.bubble, pop = Math.min(1, b.t * 6), s2 = bubbleSprite(b.icon);
+        if (pop > 0.3) { const sc = 1.25 * (0.7 + 0.3 * pop); ug.drawImage(s2, nx(X + 4), ny(y - 12 * sc), 11 * kUpL * sc, 11 * kUpL * sc); }
+      }
+      const named = a.kind === 'folk' || a.kind === 'job';
+      const inArea = selRoom && a.path === selRoom.id;
+      if (named && (showTags || inArea || a.real > 0 || a.busy || follow === a.id)) {
+        const nm = a.kind === 'folk' ? a.name : roleTitle(a.role);
+        ug.globalAlpha = o.dim;
+        const py = ny(y - 3) - 9 * cssK;
+        plate(ug, nx(X), py, nm, col, charLevel(a), cssK);
+        if (a.busy) { const b = a.busy, dur = b.chore ? 5 : 7.5; hdBar(ug, nx(X), py - 20 * cssK, 40 * cssK, 5 * cssK, b.t / dur, '#7ee85a'); }
+        else if (a.runId && a.run) { const el = (Date.now() - Date.parse(a.run.startedAt)) / 60000; hdBar(ug, nx(X), py - 20 * cssK, 40 * cssK, 5 * cssK, (el % 5) / 5, roleCol(a.role)); }
+        ug.globalAlpha = 1;
+      }
+    }
+    // a room that took money today shows it the way a mine shows gold ready: a bubble with a coin, bobbing
+    for (const room of rooms) {
+      const sv = svcStatsToday(room);
+      if (!sv.n) continue;
+      const [bx, by] = P(room.x0 + 5.6, room.y0 + 1.4, WH + 20 + Math.sin(T * 2.2 + room.x0) * 1.5);
+      const X = nx(bx), Y = ny(by), R = 13 * cssK;
+      const dim = focusA > 0.01 && selRoom && room !== selRoom ? 0.55 : 1;
+      ug.globalAlpha = dim;
+      ug.beginPath(); ug.moveTo(X - R * 0.35, Y + R * 0.8); ug.lineTo(X, Y + R * 1.45); ug.lineTo(X + R * 0.35, Y + R * 0.8); ug.closePath();
+      ug.fillStyle = '#12131c'; ug.fill();
+      ug.beginPath(); ug.arc(X, Y, R + 1.6 * cssK, 0, 7); ug.fill();
+      const grd = ug.createRadialGradient(X - R * 0.3, Y - R * 0.35, R * 0.1, X, Y, R); grd.addColorStop(0, '#ffffff'); grd.addColorStop(1, '#d9e2f2');
+      ug.fillStyle = grd; ug.beginPath(); ug.arc(X, Y, R, 0, 7); ug.fill();
+      ug.drawImage(iconSprite('coin'), X - R * 0.62, Y - R * 0.62, R * 1.24, R * 1.24);
+      const txt = MODE() === 'allowance' ? `${sv.n} today` : `+${usd(sv.usd)}`;
+      ug.font = `${Math.round(14 * cssK)}px "Lilita One", "Fredoka", sans-serif`; ug.textAlign = 'center'; ug.textBaseline = 'middle'; ug.lineJoin = 'round';
+      ug.lineWidth = 4.5 * cssK; ug.strokeStyle = '#12131c'; ug.strokeText(txt, X, Y + R + 11 * cssK);
+      ug.fillStyle = '#ffe07a'; ug.fillText(txt, X, Y + R + 11 * cssK);
+      ug.globalAlpha = 1;
+    }
+  }
+  let todaySig = '', todayCache = new Map();
+  function svcStatsToday(room) {
+    const d0 = new Date(); d0.setHours(0, 0, 0, 0);
+    const sig = snap.state.eventCount + ':' + d0.getTime();
+    if (sig !== todaySig) { todaySig = sig; todayCache = new Map(); for (const e of snap.state.moneyIn) if (Date.parse(e.ts) >= d0.getTime()) { const x = todayCache.get(e.path) || { n: 0, usd: 0 }; x.n += e.qty || 1; x.usd += e.usd; todayCache.set(e.path, x); } }
+    return todayCache.get(room.id) || { n: 0, usd: 0 };
   }
 
   const nameTag = (text, col) => cached('tag:' + text + col, () => {
@@ -4743,6 +4997,16 @@
   function drawCrew() {
     const list = [...agents.values()].sort((a, b) => (a.x + a.y) - (b.x + b.y));
     const showTags = cam.z >= 1.25;
+    // up close the troop pass draws the characters (after the world, at the display's resolution); only their glow is left here
+    if (hdOn) {
+      for (const a of list) {
+        if (!(a.kind === 'folk' || a.kind === 'job' || a.kind === 'visit')) continue;
+        const d = crewDraw(a), top = (d.fy ?? d.Y + d.spr.height) - d.spr.height * HDS, mc = a.real > 0 || a.busy || a.runId ? '#ffd23f' : a.tint || roleCol(a.role);
+        const dcode = depthCode(a.x + a.y), hx = Math.round(d.sx), hy = Math.round(top - 9);
+        if (hx > 0 && hy > 0 && hx < W && hy < H && dbData[(Math.round(top + 4) * W + hx) * 4] > dcode) continue;
+        bsg.fillStyle = mc; bsg.fillRect(hx - 1, hy - 2, 3, 5);
+      }
+    } else
     for (const a of list) {
       const d = crewDraw(a);
       const dcode = depthCode(a.x + a.y);
@@ -4786,7 +5050,7 @@
       }
       if (a.kind === 'folk' && (showTags || a.real > 0 || a.busy)) { const tg = nameTag(a.name, a.tint || '#e8eefc'); wbg.drawImage(tg, hx - (tg.width >> 1), d.Y + d.spr.height + 1); }
     }
-    // an empty room has a job going: a flickering outline where a worker would stand
+    // an empty room: a flickering outline where a worker would stand
     if (MODE() !== 'allowance') for (const room of rooms) {
       if (workersIn(room).length || roomLook(room) === 'killed') continue;
       const [cx, cy] = stationSpot(room, 0), [sx, sy] = P(cx, cy);
@@ -5133,7 +5397,8 @@
   let bbox = { x0: 150, y0: 80, x1: 810, y1: 480 };
   let home = { x: 480, y: 280 };
   const cam = { x: 480, y: 280, z: 1 }, camT = { x: 480, y: 280, z: 1 };
-  const Z_MIN = 0.72, Z_MAX = 3.4;
+  let camBounce = false, camVz = 0;
+  const Z_MIN = 0.72, Z_MAX = 6;
   let vx0e = 0, vy0e = 0, S = 1, Sd = 1, kUp = 1;
   let quality = 2;
   const overlayMode = () => window.innerWidth > 900;
@@ -5211,7 +5476,13 @@
   function render(dt) {
     const k1 = reduceMotion ? 1 : 1 - Math.exp(-dt * 7);
     const oz = cam.z, ox = cam.x, oy = cam.y;
-    cam.x += (camT.x - cam.x) * k1; cam.y += (camT.y - cam.y) * k1; cam.z += (camT.z - cam.z) * k1;
+    cam.x += (camT.x - cam.x) * k1; cam.y += (camT.y - cam.y) * k1;
+    if (camBounce && !reduceMotion) {
+      // a springy zoom into the area view: a touch past, then settle
+      const kk = 90, cc = 2 * Math.sqrt(kk) * 0.55;
+      camVz += (kk * (camT.z - cam.z) - cc * camVz) * dt; cam.z += camVz * dt;
+      if (Math.abs(camT.z - cam.z) < 0.002 && Math.abs(camVz) < 0.01) { cam.z = camT.z; camVz = 0; camBounce = false; }
+    } else { cam.z += (camT.z - cam.z) * k1; camVz = 0; }
     if (Math.abs(cam.z - oz) + Math.abs(cam.x - ox) + Math.abs(cam.y - oy) > 1e-4) labelsDirty = true;
     S = fitS * cam.z; Sd = S * dpr;
     kUp = clamp(Math.ceil(Sd - 1e-6), 1, 8);
@@ -5258,6 +5529,8 @@
       if (dk > 0.4 && (skinId() === 'farm' || skinId() === 'ocean')) for (let i = 0; i < 90; i++) { const sx2 = hash2(i, 7) * vw, sy2 = hash2(i, 11) * vh * 0.6, tw = 0.3 + 0.7 * Math.max(0, Math.sin(T * (0.5 + hash2(i, 3) * 2) + i)); dot(sx2, sy2, `rgba(235,240,255,${((dk - 0.4) * 1.6 * tw).toFixed(2)})`); } } }
     // the station
     ug.drawImage(WB, wox, woy, W * kUp, H * kUp);
+    if (hdOn) drawCrewHD(kUp, wox, woy);
+    hdOn = !HD_OFF && kUp >= 2;
 
     // up to the display with a gentle filter: crisp pixels at any zoom, no uneven pixel widths
     dctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -5338,9 +5611,10 @@
   function pick(X, Y) {
     const pt = toNative(X, Y);
     { const [mx, my] = P(MAST[0], MAST[1], 0); if (pt[0] >= mx - 7 && pt[0] <= mx + 12 && pt[1] >= my - 58 && pt[1] <= my + 6) return { kind: 'mast', t: null }; }
-    for (const a of agents.values()) {
-      const d = crewDraw(a);
-      if (pt[0] >= d.X - 1 && pt[0] <= d.X + d.spr.width + 1 && pt[1] >= d.Y - 1 && pt[1] <= d.Y + d.spr.height + 1) return { kind: 'crew', agent: a, t: a.path ? targetById(a.path) : targetById('hub') };
+    // front-most first, so a troop standing in front wins
+    for (const a of [...agents.values()].sort((p, q) => (q.x + q.y) - (p.x + p.y))) {
+      const d = crewDraw(a), k = hdOn ? HDS : 1, w = d.spr.width * k, h = d.spr.height * k, fy = d.fy ?? d.Y + d.spr.height;
+      if (pt[0] >= d.sx - w / 2 - 1 && pt[0] <= d.sx + w / 2 + 1 && pt[1] >= fy - h - 1 && pt[1] <= fy + 1) return { kind: 'crew', agent: a, t: a.path ? targetById(a.path) : targetById('hub') };
     }
     const t = targets().find((tt) => inPoly(pt, silhouette(tt.x0, tt.y0)));
     return t ? { kind: 'place', t } : null;
@@ -5469,17 +5743,35 @@
 
   // ======================================================================= selection and camera moves
   let selected = null, follow = null;
+  // the area view title: the room's name, its level (tier) and what is going on in it
+  function showAreaTitle(t) {
+    const el = $('#areaTitle'), room = t.room;
+    const tier = roomTier(room), n = workersIn(room).length, today = svcStatsToday(room);
+    el.querySelector('b').textContent = shortName(room.spec);
+    el.querySelector('.lv').textContent = `Level ${tier + 1}${tier ? '  ' + '★'.repeat(tier) : ''}`;
+    el.querySelector('small').textContent = `${n} working${today.n ? ` · ${MODE() === 'allowance' ? today.n + ' done' : usd(today.usd)} today` : ''} · ${roomActivity(room)} in 30 days`;
+    el.style.left = avail.cx + 'px';
+    el.hidden = false; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  }
+  function hideAreaTitle() { $('#areaTitle').hidden = true; }
   function select(id, { fly = true } = {}) {
     selected = id === 'hub' ? null : id;
+    if (!(id && roomById(id))) hideAreaTitle();
     follow = id && id.startsWith('a:') ? id.slice(2) : null;
     renderPanel(true);
     buildLabels();
     if (follow) { camT.z = Math.max(camT.z, 2.2); clampCam(); return; }
     const t = id ? targetById(id) : null;
     if (fly && t && t.room) {
-      const [cx, cy] = P(t.x0 + 3.5, t.y0 + 3.5, 8);
-      camT.x = cx; camT.y = cy; camT.z = Math.max(camT.z, 1.75);
+      // the area view: fly in until the room fills the view, with a little bounce at the end
+      const pts = [P(t.x0, t.y0, WH + 26), P(t.x0 + ROOM, t.y0, WH + 26), P(t.x0, t.y0 + ROOM, WH), P(t.x0 + ROOM, t.y0 + ROOM, -SLAB - 2), P(t.x0, t.y0 + ROOM, -SLAB)];
+      const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
+      const bw = Math.max(...xs) - Math.min(...xs), bh = Math.max(...ys) - Math.min(...ys);
+      const sFit = Math.min((avail.x1 - avail.x0) * 0.94 / bw, (avail.y1 - avail.y0) * 0.9 / bh);
+      camT.x = (Math.max(...xs) + Math.min(...xs)) / 2; camT.y = (Math.max(...ys) + Math.min(...ys)) / 2;
+      camT.z = clamp(sFit / fitS, 1.75, Z_MAX); camBounce = true;
       clampCam();
+      showAreaTitle(t);
     } else if (fly && (!id || id === 'hub')) {
       camT.x = home.x; camT.y = home.y; camT.z = 1;
     } else if (fly && t) {
@@ -5489,6 +5781,7 @@
     if (!overlayMode() && id) $('#inspector').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   }
   function zoomBy(f, X = avail.cx, Y = avail.cy) {
+    camBounce = false;
     const [nx, ny] = [camT.x + (X - avail.cx) / (fitS * camT.z), camT.y + (Y - avail.cy) / (fitS * camT.z)];
     camT.z = clamp(camT.z * f, Z_MIN, Z_MAX);
     camT.x = nx - (X - avail.cx) / (fitS * camT.z);
@@ -6563,6 +6856,8 @@
           <dt>Folk</dt><dd>One character per person on the roster (a kid, a barber, you), in their colour with a name tag, living in the room of their latest logged work. Pick who did a sale or a chore and they walk to that room and do it. Customize (<kbd>C</kbd>) sets who works which rooms.</dd>
           <dt>Agents</dt><dd>One character per AI agent on a job, in its job's room. Sits at a desk with a ring overhead while its run is live; carries crates of logged outcomes when it ends.</dd>
           <dt>How many in a room</dt><dd>The number of characters in a room is the number working it (the count on the room's label). An empty room has no one assigned: a flickering outline marks the open spot.</dd>
+          <dt>Level badge</dt><dd>The number in front of a name: how much that person did in 30 days (or how many runs an agent has made), on the same 1, 5, 15, 40, 100 steps as room tiers.</dd>
+          <dt>Coin bubble</dt><dd>A room that took money today (or had chores done today) shows it in a bubble with a coin over the room.</dd>
           <dt>Gold marker, bubble</dt><dd>The diamond over a head turns gold and a bubble pops (coin, star, check) when a real event is theirs: a sale, a chore, a finished run.</dd>
           <dt>Visitors</dt><dd>A real sale walks in: a visitor comes from the dock, sits, is served, pays (coins fly to the vault) and leaves.</dd>
           <dt>Stars and pennants</dt><dd>A room's tier by 30 days of activity (1, 5, 15, 40, 100 events), whatever it stands for. Tier 3 raises a pennant; each new tier sets off fireworks.</dd>
@@ -6591,6 +6886,7 @@
             <kbd>scroll · pinch</kbd><span>zoom</span>
             <kbd>1 – 9</kbd><span>jump to room by rank</span>
             <kbd>C</kbd><span>customize: purpose, world, folk, rooms, colours, keywords</span>
+            <kbd>click a room</kbd><span>the area view: the camera flies in until the room fills the screen</span>
             <kbd>click a character</kbd><span>follow them: the camera tracks them and the panel says what they are doing</span>
             <kbd>R</kbd><span>replay the last 24 hours</span>
             <kbd>M</kbd><span>sound on or off</span>
