@@ -1,11 +1,22 @@
 // The sandbox race: every contestant room starts with a stake and one agent who tries to multiply it, and the ledger
-// keeps score. Prizes go to the best score at each horizon (1 week, 30, 90 and 180 days by default).
+// keeps score. Prizes go to the best score at each prize time: 1 week, 30, 90 and 180 days by default, or as short as
+// a test race's 30 minutes, 1 hour and 2 hours. A race of two days or less reads in hours: rates per hour, a recent
+// window of its last half hour to hour, a chart point every 5 minutes.
 // Pure: the reduced state and a clock in, the standings out. Nothing here invents a number. A bankroll is the stake
 // plus evidenced money in minus evidenced money out, counted only between the starting gun and the last horizon.
 // Holdings (stock, inventory, a coin) count at zero until they are sold, so a paper gain never wins a prize.
 import { RACE_METHODS, RACE_MODELS, RACE_SCORING, defaultRaceRules } from './ledger.js';
 
-const DAY = 86400e3;
+const MIN = 60e3, HOUR = 3600e3, DAY = 86400e3;
+// 30 -> "30 min", 120 -> "2 hours", 10080 -> "1 week", 259200 -> "6 months"
+export function spanLabel(m) {
+  const pl = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+  if (m < 60) return `${m} min`;
+  if (m < 1440) return m % 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : pl(m / 60, 'hour');
+  if (m % 1440) return `${Math.round((m / 1440) * 10) / 10} days`;
+  const d = m / 1440;
+  return d === 7 ? '1 week' : d === 14 ? '2 weeks' : d === 180 ? '6 months' : d === 365 ? '1 year' : pl(d, 'day');
+}
 const r2 = (v) => Math.round(v * 100) / 100;
 const iso = (t) => new Date(t).toISOString();
 const sum = (xs, f = (x) => x) => r2(xs.reduce((s, x) => s + f(x), 0));
@@ -21,11 +32,20 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
   const race = state && state.race;
   if (!race) return null;
   const rules = { ...defaultRaceRules(), ...(race.rules || {}) };
+  // a race set before check-ins were counted in minutes said everyHours
+  if (race.rules && race.rules.everyMinutes === undefined && race.rules.everyHours) rules.everyMinutes = race.rules.everyHours * 60;
   const known = catalog.map((p) => p.id);
   const ids = race.rooms ? race.rooms.filter((id) => known.includes(id)) : known;
-  const t0 = Date.parse(race.startedAt), horizons = race.horizons, last = horizons[horizons.length - 1];
-  const tEnd = t0 + last * DAY, tNow = Math.max(t0, Math.min(now, tEnd));
-  const elapsedDays = (tNow - t0) / DAY;
+  const t0 = Date.parse(race.startedAt), hz = race.horizonsMin || (race.horizons || []).map((d) => d * 1440), last = hz[hz.length - 1];
+  const tEnd = t0 + last * MIN, tNow = Math.max(t0, Math.min(now, tEnd));
+  const elapsed = tNow - t0;
+  const short = last <= 2 * 1440, unit = short ? HOUR : DAY, floor = short ? 5 * MIN : DAY;
+  const recent = short ? Math.max(15 * MIN, Math.min(HOUR, (last * MIN) / 4)) : 7 * DAY;
+  const step = last <= 1440 ? 5 * MIN : last <= 14 * 1440 ? HOUR : DAY;
+  // net dollars per hour (short race) or per day; a span shorter than the floor counts as the floor, so one early sale
+  // is not read as a fortune a day
+  const perUnit = (usd, span) => r2((usd / Math.max(floor, span)) * unit);
+  const minOf = (ts) => Math.max(0, Math.floor((Date.parse(ts) - t0) / MIN));
   const stakeOf = (id) => rules.stakes[id] || race.stakeUsd;
   const inWindow = (ts) => { const t = Date.parse(ts); return t >= t0 && t <= tNow; };
   const dayOf = (ts) => Math.floor((Date.parse(ts) - t0) / DAY) + 1;
@@ -58,12 +78,12 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
     const ins = f.filter((x) => x.dir === 'in'), outs = f.filter((x) => x.dir === 'out');
     const inUsd = sum(ins, (x) => x.usd), outUsd = sum(outs, (x) => -x.usd);
     const bankrollUsd = r2(stake + inUsd - outUsd);
-    // net dollars a day: over the last 7 days, and since the gun. A window shorter than a day counts as a day.
-    const w7 = Math.max(t0, tNow - 7 * DAY);
-    const rate7 = r2((bankrollUsd - bankrollAt(id, w7 - 1)) / Math.max(1, (tNow - w7) / DAY));
-    const rateAll = r2((bankrollUsd - stake) / Math.max(1, elapsedDays));
+    // the rate: over the recent window, and since the gun
+    const wR = Math.max(t0, tNow - recent);
+    const rateRecent = perUnit(bankrollUsd - bankrollAt(id, wR - 1), tNow - wR);
+    const rateAll = perUnit(bankrollUsd - stake, elapsed);
     const steps = stepsOf(id);
-    const line = (x) => ({ ts: x.e.ts, day: dayOf(x.e.ts), usd: Math.abs(x.usd), text: x.dir === 'in' ? (x.e.item || x.e.source) : (x.e.payee || x.e.category), source: x.e.source || null, category: x.e.category || null, evidence: x.e.evidence || null, id: x.e.id });
+    const line = (x) => ({ ts: x.e.ts, day: dayOf(x.e.ts), min: minOf(x.e.ts), usd: Math.abs(x.usd), text: x.dir === 'in' ? (x.e.item || x.e.source) : (x.e.payee || x.e.category), source: x.e.source || null, category: x.e.category || null, evidence: x.e.evidence || null, id: x.e.id });
     // the plays: every way this room tried to make money, and the business model behind each
     const plays = playsOf(id).map((p) => {
       const history = p.history.filter((h) => inWindow(h.ts));
@@ -73,15 +93,16 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
       const psteps = steps.filter((s) => s.play === p.id);
       return {
         id: p.id, name: p.name, status: cur.status, plan: p.plan, why: cur.why, model: { ...(p.model || {}) },
-        startedAt: history[0].ts, updatedAt: cur.ts, startedDay: dayOf(history[0].ts), daysActive: r2(Math.max(0, ((cur.status === 'dropped' ? Date.parse(cur.ts) : tNow) - from) / DAY)),
+        startedAt: history[0].ts, updatedAt: cur.ts, startedDay: dayOf(history[0].ts), startedMin: minOf(history[0].ts),
+        activeMin: Math.max(0, Math.round(((cur.status === 'dropped' ? Date.parse(cur.ts) : tNow) - from) / MIN)),
         inUsd: inP, outUsd: outP, netUsd: r2(inP - outP), sales: pin.length,
-        ratePerDay: r2((inP - outP) / Math.max(1, (tNow - from) / DAY)),
+        rate: perUnit(inP - outP, tNow - from),
         avgSaleUsd: pin.length ? r2(inP / pin.length) : null, costPerSaleUsd: pin.length && outP ? r2(outP / pin.length) : null,
-        backPerDollar: outP > 0 ? r2(inP / outP) : null, firstSaleDay: pin.length ? dayOf(pin[0].e.ts) : null,
+        backPerDollar: outP > 0 ? r2(inP / outP) : null, firstSaleDay: pin.length ? dayOf(pin[0].e.ts) : null, firstSaleMin: pin.length ? minOf(pin[0].e.ts) : null,
         bySource: groupBy(pin.map((x) => ({ usd: x.usd, src: x.e.source })), (x) => x.src),
         byCategory: groupBy(pout.map((x) => ({ usd: -x.usd, cat: x.e.category })), (x) => x.cat),
-        history: history.map((h) => ({ ts: h.ts, day: dayOf(h.ts), status: h.status, why: h.why })),
-        steps: psteps.length, stepList: psteps.slice(-60).reverse().map((s) => ({ ts: s.ts, day: dayOf(s.ts), type: s.type, text: s.text, url: s.url })),
+        history: history.map((h) => ({ ts: h.ts, day: dayOf(h.ts), min: minOf(h.ts), status: h.status, why: h.why })),
+        steps: psteps.length, stepList: psteps.slice(-60).reverse().map((s) => ({ ts: s.ts, day: dayOf(s.ts), min: minOf(s.ts), type: s.type, text: s.text, url: s.url })),
         money: mine.slice(-50).reverse().map((x) => ({ ...line(x), dir: x.dir })),
       };
     }).filter(Boolean).sort((a, b) => b.netUsd - a.netUsd || (a.startedAt < b.startedAt ? -1 : 1));
@@ -97,20 +118,20 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
       ...steps.map((s) => ({ ts: s.ts, kind: 'step', type: s.type, text: s.text, url: s.url, play: s.play, by: s.by, id: s.id })),
       ...playsOf(id).flatMap((p) => p.history.filter((h) => inWindow(h.ts)).map((h, i) => ({ ts: h.ts, kind: 'play', status: h.status, first: i === 0, text: p.name, why: h.why, play: p.id, by: h.by, id: h.id }))),
       ...f.map((x) => ({ ...line(x), kind: x.dir, play: x.e.play || null })),
-    ].map((x) => ({ ...x, day: dayOf(x.ts), playName: x.play ? playName(x.play) : null })).sort((a, b) => -byTs(a, b));
-    const out = outAt.has(id) ? { ts: iso(outAt.get(id)), day: dayOf(iso(outAt.get(id))) } : null;
+    ].map((x) => ({ ...x, day: dayOf(x.ts), min: minOf(x.ts), playName: x.play ? playName(x.play) : null })).sort((a, b) => -byTs(a, b));
+    const out = outAt.has(id) ? { ts: iso(outAt.get(id)), day: dayOf(iso(outAt.get(id))), min: minOf(iso(outAt.get(id))) } : null;
     return {
-      id, stakeUsd: stake, bankrollUsd, inUsd, outUsd, netUsd: r2(inUsd - outUsd), profitUsd: r2(bankrollUsd - stake), multiple: r2(bankrollUsd / stake), score: score(id, bankrollUsd), rate7, rateAll,
+      id, stakeUsd: stake, bankrollUsd, inUsd, outUsd, netUsd: r2(inUsd - outUsd), profitUsd: r2(bankrollUsd - stake), multiple: r2(bankrollUsd / stake), score: score(id, bankrollUsd), rateRecent, rateAll,
       sales: ins.length, backPerDollar: outUsd > 0 ? r2(inUsd / outUsd) : null, model: rules.models[id] || null, out,
       // where the money came from, and where it went
       bySource: groupBy(ins.map((x) => ({ usd: x.usd, src: x.e.source })), (x) => x.src),
       byCategory: groupBy(outs.map((x) => ({ usd: -x.usd, cat: x.e.category })), (x) => x.cat),
       plays, loose: loose.length ? { inUsd: sum(loose.filter((x) => x.dir === 'in'), (x) => x.usd), outUsd: sum(loose.filter((x) => x.dir === 'out'), (x) => -x.usd), n: loose.length } : null,
-      plan: planStep ? { text: planStep.text, ts: planStep.ts, day: dayOf(planStep.ts) } : null,
+      plan: planStep ? { text: planStep.text, ts: planStep.ts, day: dayOf(planStep.ts), min: minOf(planStep.ts) } : null,
       // the room's latest move is saying it is stuck and needs a person: shown until it makes any other move
-      blocked: latest && latest.type === 'blocked' ? { text: latest.text, ts: latest.ts, day: dayOf(latest.ts) } : null,
-      // the bankroll at the end of each day so far (index 0 is the gun): what the room's chart draws
-      series: Array.from({ length: Math.max(1, Math.ceil((tNow - t0) / DAY)) + 1 }, (_, i) => bankrollAt(id, Math.min(tNow, t0 + i * DAY))),
+      blocked: latest && latest.type === 'blocked' ? { text: latest.text, ts: latest.ts, day: dayOf(latest.ts), min: minOf(latest.ts) } : null,
+      // the bankroll at each chart step so far (index 0 is the gun): what the room's chart draws
+      series: Array.from({ length: Math.max(1, Math.ceil(elapsed / step)) + 1 }, (_, i) => bankrollAt(id, Math.min(tNow, t0 + i * step))),
       lastAt: items.length ? items[0].ts : null,
       timeline: items.slice(0, timeline), timelineTotal: items.length,
     };
@@ -122,8 +143,8 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
 
   // one prize per horizon, locked the moment it passes
   let liveSet = false;
-  const standings = horizons.map((h) => {
-    const tH = t0 + h * DAY, done = now >= tH, at = Math.min(now, tH);
+  const standings = hz.map((h) => {
+    const tH = t0 + h * MIN, done = now >= tH, at = Math.min(now, tH);
     const ranking = ids.map((id) => { const b = bankrollAt(id, at); const o = outAt.has(id) && outAt.get(id) <= at; return { id, bankrollUsd: b, multiple: r2(b / stakeOf(id)), profitUsd: r2(b - stakeOf(id)), score: score(id, b), out: o }; })
       .sort((a, b) => (a.out ? 1 : 0) - (b.out ? 1 : 0) || b.score - a.score || ids.indexOf(a.id) - ids.indexOf(b.id));
     const live = ranking.filter((r) => !r.out);
@@ -135,17 +156,19 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
     const stateH = done ? 'done' : liveSet ? 'upcoming' : 'live';
     if (!done) liveSet = true;
     return {
-      days: h, endsAt: iso(tH), state: stateH, daysLeft: done ? 0 : Math.ceil((tH - now) / DAY),
+      mins: h, days: h / 1440, label: spanLabel(h), endsAt: iso(tH), state: stateH, minsLeft: done ? 0 : Math.ceil((tH - now) / MIN), daysLeft: done ? 0 : Math.ceil((tH - now) / DAY),
       ranking, leader: !tie && top ? top.id : null, winner: done && !tie && top ? top.id : null, tie, tieBroken,
     };
   });
   const sources = new Map();
   for (const l of lanes) for (const src of l.bySource) { const g = sources.get(src.key) || { key: src.key, usd: 0, n: 0, rooms: [] }; g.usd = r2(g.usd + src.usd); g.n += src.n; g.rooms.push(l.id); sources.set(src.key, g); }
   return {
-    name: race.name, id: race.id, startedAt: race.startedAt, setAt: race.setAt || race.startedAt, endsAt: iso(tEnd), stakeUsd: race.stakeUsd, evidence: race.evidence, horizons, rules,
+    name: race.name, id: race.id, startedAt: race.startedAt, setAt: race.setAt || race.startedAt, endsAt: iso(tEnd), stakeUsd: race.stakeUsd, evidence: race.evidence, rules,
+    horizonsMin: hz, horizons: hz.map((m) => m / 1440), short, rateUnit: short ? 'hour' : 'day', recentLabel: spanLabel(recent / MIN), stepMin: step / MIN,
+    elapsedMin: Math.floor(elapsed / MIN), totalMin: last, startsInMin: now < t0 ? Math.ceil((t0 - now) / MIN) : 0,
     amendments: race.amendments || [],
     started: now >= t0, startsInDays: now < t0 ? Math.ceil((t0 - now) / DAY) : 0,
-    day: now < t0 ? 0 : Math.min(last, Math.floor((now - t0) / DAY) + 1), totalDays: last, elapsedDays: r2(elapsedDays), over: now >= tEnd,
+    day: now < t0 ? 0 : Math.min(Math.ceil(last / 1440), Math.floor((now - t0) / DAY) + 1), totalDays: Math.ceil(last / 1440), elapsedDays: r2(elapsed / DAY), over: now >= tEnd,
     stakedUsd: sum(ids, stakeOf), potUsd: sum(lanes, (l) => l.bankrollUsd), inUsd: sum(lanes, (l) => l.inUsd), outUsd: sum(lanes, (l) => l.outUsd),
     leaderId: order.length > 1 && !order[1].out && order[0].score === order[1].score ? null : (order[0] || {}).id || null,
     // every room's income sources added up: where the race's money is coming from
@@ -158,8 +181,8 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
 export function raceBrief(board, roomId, { roomName, lead, station = 'the station' } = {}) {
   if (!board) return '';
   const r = board.rules, lane = board.lanes.find((l) => l.id === roomId);
+  const every = r.everyMinutes ?? (r.everyHours || 24) * 60;
   const stake = lane ? lane.stakeUsd : board.stakeUsd, name = roomName || roomId, usd = (v) => '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: 2 });
-  const hz = (d) => (d === 7 ? '1 week' : d === 180 ? '6 months' : d === 365 ? '1 year' : `${d} days`);
   const allowed = r.methods.map((m) => `  - ${RACE_METHODS[m]}`).join('\n');
   const barred = Object.keys(RACE_METHODS).filter((m) => !r.methods.includes(m)).map((m) => `  - ${RACE_METHODS[m]}`).join('\n');
   const rules = [
@@ -177,7 +200,7 @@ export function raceBrief(board, roomId, { roomName, lead, station = 'the statio
   ].filter(Boolean).map((t, i) => `${i + 1}. ${t}`).join('\n');
   return `You are the room lead${lead ? ` (${lead})` : ''} for the ${name.toUpperCase()} room in a sandbox race run by Joshua Grigson${board.name ? `: ${board.name}` : ''}.
 
-You start with a stake of ${usd(stake)}. Your job is to turn it into as much as you can, any allowed way you choose, using Claude${lane && lane.model ? ` (${RACE_MODELS[lane.model] || lane.model})` : ''} and your connectors. Prizes: ${RACE_SCORING[r.scoring].toLowerCase()} at ${board.horizons.map(hz).join(', ')}${r.tiebreak === 'earliest' ? '; a tie goes to whoever got there first' : ''}. A strategy that wins the first prize can lose the last, so decide what you are playing for and say so in your plan.
+You start with a stake of ${usd(stake)}. Your job is to turn it into as much as you can, any allowed way you choose, using Claude${lane && lane.model ? ` (${RACE_MODELS[lane.model] || lane.model})` : ''} and your connectors. Prizes: ${RACE_SCORING[r.scoring].toLowerCase()} at ${board.horizonsMin.map(spanLabel).join(', ')} after the start${r.tiebreak === 'earliest' ? '; a tie goes to whoever got there first' : ''}. A strategy that wins the first prize can lose the last, so decide what you are playing for and say so in your plan.
 
 How you are scored: bankroll = your stake + money in - money out, logged on ${station}'s ledger since the starting gun. Money in counts only with evidence (an order number, a charge id, a payout line). Anything you bought and still hold counts as zero until you sell it. Claude is free to you; every other dollar you spend comes out of your stake.
 
@@ -194,5 +217,5 @@ Report everything on the ledger, as it happens:
 - every dollar: log-in / log-out --path ${roomId} --evidence "..." --play <play-id>
 - change a play's status with --why when it starts working, stalls or you drop it.
 
-Check in every ${r.everyHours === 24 ? 'day' : `${r.everyHours} hours`}. Start by reading the board (node src/cli.js race), then log your plan and your first play before you do anything else.`;
+${every === 0 ? 'Work through the whole race in one session: keep going until the last prize time.' : `Check in every ${spanLabel(every).replace(/^1 (day|hour|week)$/, '$1')}.`} Start by reading the board (node src/cli.js race), then log your plan and your first play before you do anything else.`;
 }

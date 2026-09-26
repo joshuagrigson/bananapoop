@@ -44,7 +44,8 @@ export function defaultRaceRules() {
     methods: Object.keys(RACE_METHODS).filter((k) => k !== 'trading' && k !== 'betting'),
     connectors: RACE_CONNECTORS.filter((c) => !RACE_WORK_CONNECTORS.includes(c)),
     ads: true, maxSpendPerDayUsd: null, approveOverUsd: null, knockoutUsd: null,
-    outreach: 'drafts', posting: 'drafts', collab: false, everyHours: 24,
+    // how often each agent checks in, in minutes; 0 means one session that works through the whole race
+    outreach: 'drafts', posting: 'drafts', collab: false, everyMinutes: 1440,
     scoring: 'bankroll', tiebreak: 'none', stakes: {}, models: {}, notes: '',
   };
 }
@@ -77,7 +78,8 @@ function raceRules(input) {
   for (const [k, set] of [['outreach', RACE_CONTACT], ['posting', RACE_CONTACT], ['scoring', RACE_SCORING], ['tiebreak', { none: 1, earliest: 1 }]]) {
     if (input[k] !== undefined) { if (!set[input[k]]) fail(`race rules: ${k} must be one of ${Object.keys(set).join(', ')}`); r[k] = input[k]; }
   }
-  if (input.everyHours !== undefined) { if (!Number.isInteger(input.everyHours) || input.everyHours < 1 || input.everyHours > 168) fail('race rules: everyHours must be a whole number of hours, 1 to 168'); r.everyHours = input.everyHours; }
+  if (input.everyMinutes !== undefined) { if (!Number.isInteger(input.everyMinutes) || input.everyMinutes < 0 || input.everyMinutes > 10080) fail('race rules: everyMinutes must be a whole number of minutes, 0 (all the time) to 10080 (a week)'); r.everyMinutes = input.everyMinutes; }
+  else if (input.everyHours !== undefined) { if (!Number.isInteger(input.everyHours) || input.everyHours < 1 || input.everyHours > 168) fail('race rules: everyHours must be a whole number of hours, 1 to 168'); r.everyMinutes = input.everyHours * 60; }
   if (input.stakes !== undefined) {
     if (!input.stakes || typeof input.stakes !== 'object' || !Object.entries(input.stakes).every(([k, v]) => isRoomId(k) && isUsd(v) && v > 0 && v <= 1e6)) fail('race rules: stakes must map room ids to dollar amounts above zero');
     r.stakes = { ...input.stakes };
@@ -186,9 +188,16 @@ export function validate(input) {
       }
       if (!isUsd(ev.stakeUsd) || ev.stakeUsd <= 0 || ev.stakeUsd > 1e6) fail('race needs stakeUsd > 0: what each contestant room starts with');
       if (!isText(ev.evidence, 3)) fail('race needs evidence: where the stake money actually sits (a card, an account)');
-      if (ev.horizons === undefined) ev.horizons = [...DEFAULT_HORIZONS];
-      if (!(Array.isArray(ev.horizons) && ev.horizons.length >= 1 && ev.horizons.length <= 8 && ev.horizons.every((d) => Number.isInteger(d) && d >= 1 && d <= 3660))) fail('race horizons must be 1-8 whole numbers of days, e.g. [7, 30, 90, 180]');
-      ev.horizons = [...new Set(ev.horizons)].sort((a, b) => a - b);
+      // prize times: horizonsMin in minutes (a test race: [30, 60, 120]), or horizons in whole days
+      if (ev.horizonsMin !== undefined) {
+        if (!(Array.isArray(ev.horizonsMin) && ev.horizonsMin.length >= 1 && ev.horizonsMin.length <= 8 && ev.horizonsMin.every((m) => Number.isInteger(m) && m >= 1 && m <= 3660 * 1440))) fail('race prize times must be 1-8 whole numbers of minutes, e.g. [30, 60, 120]');
+        ev.horizonsMin = [...new Set(ev.horizonsMin)].sort((a, b) => a - b);
+        delete ev.horizons;
+      } else {
+        if (ev.horizons === undefined) ev.horizons = [...DEFAULT_HORIZONS];
+        if (!(Array.isArray(ev.horizons) && ev.horizons.length >= 1 && ev.horizons.length <= 8 && ev.horizons.every((d) => Number.isInteger(d) && d >= 1 && d <= 3660))) fail('race horizons must be 1-8 whole numbers of days, e.g. [7, 30, 90, 180]');
+        ev.horizons = [...new Set(ev.horizons)].sort((a, b) => a - b);
+      }
       if (ev.rooms !== undefined && !(Array.isArray(ev.rooms) && ev.rooms.length >= 1 && ev.rooms.length <= 12 && ev.rooms.every(isRoomId))) fail('race rooms must be a list of 1-12 room ids');
       if (ev.name !== undefined && !(isText(ev.name) && ev.name.length <= 60)) fail('race name must be 1-60 characters');
       // the gun can be set for later: the race counts from startsAt

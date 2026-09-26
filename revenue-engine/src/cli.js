@@ -6,7 +6,7 @@ import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { Ledger, LedgerError } from './ledger.js';
 import { reduce } from './reduce.js';
-import { raceBoard, raceBrief } from './race.js';
+import { raceBoard, raceBrief, spanLabel } from './race.js';
 import { quests, summary } from './quests.js';
 import { commanderLevel } from './level.js';
 import { CATALOG, GATES } from './paths.js';
@@ -50,10 +50,11 @@ const HELP = `revenue-engine
   rooms skin <space|castle|farm|cyber|alien|ocean|haunted|pumpkin>   how the station looks (decoration only)
   rooms mode <agents|service|allowance|race>           what the screens lead with
   race                                                 standings: day, bankrolls, rates, each horizon's winner
-  race start --stake 250 --evidence "where the money sits" [--days 7,30,90,180] [--name N] [--rules rules.json]
+  race start --stake 250 --evidence "where the money sits" [--times 30m,1h,2h | --days 7,30,90,180] [--name N] [--rules rules.json]
                                                        fire the starting gun; rules.json holds any of: methods, connectors,
                                                        ads, maxSpendPerDayUsd, approveOverUsd, knockoutUsd, outreach, posting,
-                                                       collab, everyHours, scoring, tiebreak, stakes, models, notes
+                                                       collab, everyMinutes (0 = one session all race), scoring, tiebreak,
+                                                       stakes, models, notes
   race amend --rules rules.json --evidence "why"       change the rules of the race under way
   race brief <room>                                    the brief to paste into that room's agent session
   race play <room> <play-id> --name N --status trying|working|paused|dropped [--plan P] [--why W] [--by user]
@@ -77,6 +78,15 @@ const HELP = `revenue-engine
   help
 
 Data dir: ${DATA_DIR}  (override with REVENUE_ENGINE_DATA)`;
+
+// "30m", "1h", "2 hours", "3d", "2w", "6mo", "1y" -> minutes; a bare number is days
+function durationMin(t) {
+  const m = /^\s*(\d+(?:\.\d+)?)\s*(m|mins?|minutes?|h|hrs?|hours?|d|days?|w|wks?|weeks?|mo|months?|y|yrs?|years?)?\s*$/i.exec(String(t));
+  if (!m) return null;
+  const u = (m[2] || 'd').toLowerCase(), n = Number(m[1]);
+  const per = u.startsWith('mo') ? 43200 : u[0] === 'm' ? 1 : u[0] === 'h' ? 60 : u[0] === 'd' ? 1440 : u[0] === 'w' ? 10080 : 525600;
+  return Math.round(n * per) || null;
+}
 
 function makeAnthropicProvider() {
   // Lazy import so status/log commands never load the SDK. Zero-arg client resolves ANTHROPIC_API_KEY or an ant profile.
@@ -133,7 +143,7 @@ async function main(argv) {
       name: { type: 'string' }, city: { type: 'string' }, category: { type: 'string' }, website: { type: 'string' },
       monthly: { type: 'string' }, notes: { type: 'string' }, services: { type: 'string' }, 'harvest-daily': { type: 'boolean' }, open: { type: 'boolean' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
       key: { type: 'string' }, secret: { type: 'string' }, item: { type: 'string' }, label: { type: 'string' }, since: { type: 'string' }, 'dry-run': { type: 'boolean' }, 'sync-every': { type: 'string' }, barber: { type: 'boolean' }, family: { type: 'boolean' }, skin: { type: 'string' }, mode: { type: 'string' },
-      race: { type: 'boolean' }, stake: { type: 'string' }, rules: { type: 'string' }, offer: { type: 'string' }, customer: { type: 'string' }, channel: { type: 'string' }, pricing: { type: 'string' }, costs: { type: 'string' }, play: { type: 'string' }, status: { type: 'string' }, plan: { type: 'string' }, why: { type: 'string' }, text: { type: 'string' }, by: { type: 'string' },
+      race: { type: 'boolean' }, stake: { type: 'string' }, times: { type: 'string' }, rules: { type: 'string' }, offer: { type: 'string' }, customer: { type: 'string' }, channel: { type: 'string' }, pricing: { type: 'string' }, costs: { type: 'string' }, play: { type: 'string' }, status: { type: 'string' }, plan: { type: 'string' }, why: { type: 'string' }, text: { type: 'string' }, by: { type: 'string' },
     },
   });
   const [cmd, ...rest] = pos;
@@ -253,8 +263,11 @@ async function main(argv) {
       const room = (id) => { if (!CAT.some((p) => p.id === id)) throw new LedgerError(`unknown room "${id}" (${CAT.map((p) => p.id).join(', ')})`); return id; };
       if (sub === 'start') {
         const rules = v.rules ? JSON.parse(fs.readFileSync(path.resolve(v.rules), 'utf8')) : undefined;
-        const ev = ledger.append({ kind: 'race', stakeUsd: Number(v.stake || 250), evidence: v.evidence, ...(v.days ? { horizons: v.days.split(',').map((d) => Number(d.trim())) } : {}), ...(v.name ? { name: v.name } : {}), ...(rules ? { rules } : {}) });
-        console.log(`starting gun ${ev.id}: ${CAT.length} rooms at ${usd(ev.stakeUsd)} each, prizes at day ${ev.horizons.join(', ')}. Only money logged from now on counts.`); return;
+        const times = v.times ? v.times.split(',').map((t) => durationMin(t)) : null;
+        if (times && times.some((m) => !m)) throw new LedgerError('--times takes durations like 30m, 1h, 2h, 3d, 2w');
+        const ev = ledger.append({ kind: 'race', stakeUsd: Number(v.stake || 250), evidence: v.evidence, ...(times ? { horizonsMin: times } : v.days ? { horizons: v.days.split(',').map((d) => Number(d.trim())) } : {}), ...(v.name ? { name: v.name } : {}), ...(rules ? { rules } : {}) });
+        const mins = ev.horizonsMin || ev.horizons.map((d) => d * 1440);
+        console.log(`starting gun ${ev.id}: ${CAT.length} rooms at ${usd(ev.stakeUsd)} each, prizes at ${mins.map(spanLabel).join(', ')}. Only money logged from now on counts.`); return;
       }
       if (sub === 'amend') {
         if (!v.rules) throw new LedgerError('race amend needs --rules rules.json');
@@ -279,15 +292,15 @@ async function main(argv) {
       if (sub !== 'status') throw new LedgerError('race needs start, amend, brief, play, step or nothing (standings)');
       const b = raceBoard(reduce(ledger.readAll(), CAT), CAT);
       if (!b) { console.log('no race yet. Start one: node src/cli.js race start --stake 250 --evidence "8 virtual cards, $250 each"'); return; }
-      console.log(`${b.name || 'Sandbox race'} · day ${b.day} of ${b.totalDays} · ${usd(b.stakeUsd)} a room · ${usd(b.potUsd)} across ${b.lanes.length} rooms (staked ${usd(b.stakedUsd)})`);
+      console.log(`${b.name || 'Sandbox race'} · ${b.short ? `${spanLabel(Math.max(1, b.elapsedMin))} of ${spanLabel(b.totalMin)}` : `day ${b.day} of ${b.totalDays}`} · ${usd(b.stakeUsd)} a room · ${usd(b.potUsd)} across ${b.lanes.length} rooms (staked ${usd(b.stakedUsd)})`);
       for (const l of b.lanes.slice().sort((x, y) => x.place - y.place)) {
         const nm = (CAT.find((p) => p.id === l.id) || {}).name || l.id;
-        console.log(`  ${String(l.place).padStart(2)}. ${nm.padEnd(14)} ${usd(l.bankrollUsd).padStart(10)}  ×${l.multiple.toFixed(2)}  ${usd(l.rate7)}/day (7d)  ${l.plays.length} plays${l.blocked ? '  BLOCKED: ' + l.blocked.text : ''}`);
-        for (const p of l.plays) console.log(`        ${p.status.padEnd(8)} ${p.name}: ${usd(p.netUsd)} net, ${usd(p.ratePerDay)}/day`);
+        console.log(`  ${String(l.place).padStart(2)}. ${nm.padEnd(14)} ${usd(l.bankrollUsd).padStart(10)}  ×${l.multiple.toFixed(2)}  ${usd(l.rateRecent)}/${b.rateUnit} (last ${b.recentLabel})  ${l.plays.length} plays${l.blocked ? '  BLOCKED: ' + l.blocked.text : ''}`);
+        for (const p of l.plays) console.log(`        ${p.status.padEnd(8)} ${p.name}: ${usd(p.netUsd)} net, ${usd(p.rate)}/${b.rateUnit}`);
       }
       for (const s of b.standings) {
         const who = (id) => (CAT.find((p) => p.id === id) || {}).name || id;
-        console.log(`  day ${s.days}: ${s.state === 'done' ? (s.winner ? `WON by ${who(s.winner)} (${usd(s.ranking[0].bankrollUsd)})` : 'tied, no winner') : s.state === 'live' ? `${s.daysLeft} days left, ${s.leader ? who(s.leader) + ' leads' : 'tied'}` : `in ${s.daysLeft} days`}`);
+        console.log(`  ${s.label}: ${s.state === 'done' ? (s.winner ? `WON by ${who(s.winner)} (${usd(s.ranking[0].bankrollUsd)})` : 'tied, no winner') : s.state === 'live' ? `${s.minsLeft < 1440 ? spanLabel(s.minsLeft) : Math.ceil(s.minsLeft / 1440) + ' days'} left, ${s.leader ? who(s.leader) + ' leads' : 'tied'}` : `in ${s.minsLeft < 1440 ? spanLabel(s.minsLeft) : Math.ceil(s.minsLeft / 1440) + ' days'}`}`);
       }
       return;
     }

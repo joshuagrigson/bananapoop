@@ -149,7 +149,7 @@ export function reduce(events, catalog = CATALOG) {
           st.race.amendments.push({ id: ev.id, ts: ev.ts, evidence: ev.evidence });
           break;
         }
-        st.race = { id: ev.id, startedAt: ev.startsAt || ev.ts, setAt: ev.ts, stakeUsd: ev.stakeUsd, horizons: ev.horizons, name: ev.name || null, evidence: ev.evidence, rooms: ev.rooms || null, rules: ev.rules || defaultRaceRules(), amendments: [] };
+        st.race = { id: ev.id, startedAt: ev.startsAt || ev.ts, setAt: ev.ts, stakeUsd: ev.stakeUsd, horizonsMin: ev.horizonsMin || ev.horizons.map((d) => d * 1440), name: ev.name || null, evidence: ev.evidence, rooms: ev.rooms || null, rules: ev.rules || defaultRaceRules(), amendments: [] };
         break;
       case 'play': {
         const key = `${ev.path}|${ev.play}`;

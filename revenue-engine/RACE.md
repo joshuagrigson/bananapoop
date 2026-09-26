@@ -6,15 +6,16 @@ See it on made-up data: https://revenue-station-preview.netlify.app/race/
 
 ## Setting it up
 
-Open the station in race mode and press **Set up the race** (or **New race** on the board). Every rule is yours to choose, and all of it is written on the ledger with the starting gun:
+Put the station in race mode (Customize > What it's for > Sandbox race; the same screen has a **Set up the race** button), then press **Race** in the main menu (the bottom bar on a phone). With no race yet it opens the setup; with one running it opens the race board, where **Rules and limits** and **New race** sit at the top. Every rule is yours to choose, all of it is written on the ledger with the starting gun, and **Start the race** at the bottom fires it (or **Schedule the race** for a start time later):
 
-- **The basics:** the race name, the stake per room, the prize days (1 week, 2 weeks, 30, 60, 90 days, 6 months, 1 year, or any others), how it is scored (biggest bankroll, most profit, or biggest multiple), what happens on a tie (nobody wins, or whoever got there first), and whether it starts now or later.
+- **Your rules, in your own words:** a box at the top. What you type goes into every agent's brief, word for word.
+- **Time limits:** each one is a prize, won by the best score at that moment. Presets: **Quick test** (30 min, 1 hour, 2 hours), **One day** (1 hour, 6 hours, 1 day) and **Long race** (1 week, 30 days, 90 days, 6 months); tick any of 30 min to 1 year, or type your own (`45m, 3h, 10d`). **Each agent checks in** anywhere from every 5 minutes to once a week, or all the time (one session for the whole race); the presets set it to match (10 minutes for the quick test), and the setup warns you if the first prize comes before the first check-in.
+- **The basics:** the race name, the stake per room, how it is scored (biggest bankroll, most profit, or biggest multiple), what happens on a tie (nobody wins, or whoever got there first), and whether it starts now or later.
 - **Contestants:** which rooms race, each room's own stake (to handicap one), and which Claude model each room's agent runs on (to see which does best).
 - **Ways they may make money:** digital products, freelance services, software and subscriptions, content, affiliate links, physical products and print on demand, work for local businesses, data and lead lists, buying and reselling, trading and investing, betting and prediction markets. Trading and betting start switched off.
 - **Tools and connectors they may use:** Shopify, Wix, Canva, Figma, Adobe, Netlify, Cloudflare, Render, Zapier, Google Drive, GitHub, Hugging Face, Supermetrics, web search, plus any you type in. HubSpot, Microsoft 365 and Slack are marked as work accounts and start switched off.
 - **Money:** paid ads on or off, the most a room may spend in a day, the purchase size that needs you first, a knockout line (a room whose bankroll falls to it is out), and whether rooms may trade with each other.
-- **People and posting:** agents draft and you send or publish, or no contact with people at all; how often each agent checks in.
-- **Anything else:** your own rules in plain words. They go into every brief.
+- **People and posting:** agents draft and you send or publish, or no contact with people at all.
 
 **Change the rules** on the board amends the race under way: the stake, prize days and rooms stay, everything else can change, and the change goes on the ledger with why. Every brief is written again from the new rules.
 
@@ -25,7 +26,7 @@ Open the station in race mode and press **Set up the race** (or **New race** on 
 - **Cash only.** Anything bought and still held counts as zero until it is sold: stock, inventory, a domain, a coin. A paper gain never wins a prize.
 - **Money out** is any dollar that leaves the stake: tools, ads, fees, API use, inventory. Claude itself is free to every room, so it is not counted.
 - Each prize **locks the moment its day passes**. A knocked-out room ranks last and wins nothing after it is out.
-- **Rate** is net dollars a day over the last 7 days. The board also shows each room's rate since the gun, and each play's own rate.
+- **Rate** is net dollars a day over the last 7 days. The board also shows each room's rate since the gun, and each play's own rate. A race of two days or less reads in hours instead: dollars an hour over its last half hour to hour, times like 0:42 into the race, and a chart point every 5 minutes.
 
 ## What you can see
 
@@ -54,9 +55,10 @@ Fire the gun once, when every room is ready:
 ```
 node src/cli.js rooms template race --name "The $250 Race"
 node src/cli.js race start --stake 250 --evidence "where the money actually sits, e.g. eight virtual cards, $250 each" --rules rules.json
+node src/cli.js race start --stake 50 --times 30m,1h,2h --evidence "one test card, $50 a room"     # a quick test race
 ```
 
-`rules.json` holds any of the setup's rules (`methods`, `connectors`, `ads`, `maxSpendPerDayUsd`, `approveOverUsd`, `knockoutUsd`, `outreach`, `posting`, `collab`, `everyHours`, `scoring`, `tiebreak`, `stakes`, `models`, `notes`); anything left out takes its default. `race amend --rules rules.json --evidence "why"` changes them mid-race.
+`rules.json` holds any of the setup's rules (`methods`, `connectors`, `ads`, `maxSpendPerDayUsd`, `approveOverUsd`, `knockoutUsd`, `outreach`, `posting`, `collab`, `everyMinutes` (0 = one session for the whole race), `scoring`, `tiebreak`, `stakes`, `models`, `notes`); anything left out takes its default. `race amend --rules rules.json --evidence "why"` changes them mid-race.
 
 ## The brief each agent gets
 

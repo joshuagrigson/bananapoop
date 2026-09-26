@@ -89,7 +89,7 @@ test('rates, plays and the breakdown come from the ledger', () => {
   const red = raceBoard(reduce(events, CAT), CAT, now).lanes.find((l) => l.id === 'red');
   assert.equal(red.bankrollUsd, 350);
   // last 7 days (day 3 to 10): +60 +70 +10
-  assert.equal(red.rate7, 20);
+  assert.equal(red.rateRecent, 20);
   assert.equal(red.rateAll, 10);
   assert.equal(red.plays.length, 1);
   const shop = red.plays[0];
@@ -191,7 +191,7 @@ test('spend against income, sources, and each play\'s business model', () => {
   assert.equal(shop.firstSaleDay, 3);
   assert.equal(shop.money.length, 4);
   assert.equal(ads.status, 'dropped');
-  assert.equal(ads.daysActive, 4.4);
+  assert.equal(ads.activeMin, Math.round(4.4 * 1440));
   assert.deepEqual(b.bySource.map((s) => s.key), ['Shopify', 'Etsy']);
 });
 
@@ -215,4 +215,31 @@ test('a race set for later has not started yet', () => {
   assert.equal(b.started, false);
   assert.equal(b.startsInDays, 2);
   assert.equal(b.day, 0);
+});
+
+test('a short race: prize times in minutes, rates per hour, check-ins in minutes', () => {
+  const events = [
+    gun({ horizonsMin: [30, 60, 120], rules: { everyMinutes: 10 } }),
+    { kind: 'money.in', id: 'a', ts: new Date(T0 + 20 * 60e3).toISOString(), path: 'red', usd: 30, source: 'buyer', evidence: 'order 1' },
+    { kind: 'money.in', id: 'b', ts: new Date(T0 + 50 * 60e3).toISOString(), path: 'blue', usd: 50, source: 'buyer', evidence: 'order 2' },
+  ].map((e) => validate(e));
+  assert.equal(events[0].horizons, undefined);
+  assert.deepEqual(events[0].horizonsMin, [30, 60, 120]);
+  assert.equal(events[0].rules.everyMinutes, 10);
+  const b = raceBoard(reduce(events, CAT), CAT, T0 + 70 * 60e3);
+  assert.equal(b.short, true);
+  assert.equal(b.rateUnit, 'hour');
+  assert.equal(b.elapsedMin, 70);
+  assert.equal(b.totalMin, 120);
+  assert.deepEqual(b.standings.map((s) => [s.label, s.state, s.winner]), [['30 min', 'done', 'red'], ['1 hour', 'done', 'blue'], ['2 hours', 'live', null]]);
+  assert.equal(b.standings[2].minsLeft, 50);
+  const red = b.lanes.find((l) => l.id === 'red');
+  assert.equal(red.rateAll, Math.round((30 / 70) * 60 * 100) / 100);
+  assert.equal(red.series.length, 15); // a point every 5 minutes, and the gun
+  assert.equal(red.timeline[0].min, 20);
+  assert.match(raceBrief(b, 'red', {}), /at 30 min, 1 hour, 2 hours after the start/);
+  assert.match(raceBrief(b, 'red', {}), /Check in every 10 min\./);
+  assert.match(raceBrief(raceBoard(reduce([validate(gun({ horizonsMin: [60], rules: { everyMinutes: 0 } }))], CAT), CAT, T0), 'red', {}), /in one session/);
+  assert.throws(() => validate(gun({ horizonsMin: [0] })), /prize times/);
+  assert.throws(() => validate(gun({ rules: { everyMinutes: -1 } })), /everyMinutes/);
 });

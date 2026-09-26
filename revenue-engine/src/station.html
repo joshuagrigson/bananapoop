@@ -461,6 +461,9 @@
   .rb.on { color: #fff; border-color: var(--rbc, var(--cyan)); background: color-mix(in srgb, var(--rbc, var(--cyan)) 20%, var(--glass-b)); }
   .rb .sdot { position: absolute; right: 8px; top: 8px; width: 8px; height: 8px; border-radius: 50%; background: #8a93a8; }
   .rb .sdot.pulse { animation: blink 1s infinite; }
+  #navRace { --rbc: #ffcf5a; display: none; } #app.race-mode #navRace { display: flex; }
+  /* one more button in a race: the rail tightens on shorter screens so it clears the feed */
+  @media (min-width: 901px) and (max-height: 1080px) { #app.race-mode #rail { gap: 5px; } #app.race-mode .rb { height: 50px; gap: 4px; } #app.race-mode .rb .i { width: 20px; height: 20px; } }
   #navWorld { --rbc: #5fd4ff; } #navRoomList { --rbc: #ffcf5a; } #navRooms { --rbc: #a78bfa; } #navSync { --rbc: #3ddc97; } #navLedger { --rbc: #ffb454; } #navTerm { --rbc: #8fb0ff; } #navTour { --rbc: #f472b6; } #help { --rbc: #cfd6e6; }
   @media (max-height: 800px) and (min-width: 901px) { .rb { height: 48px; gap: 3px; } .rb .i { width: 19px; height: 19px; } #rail { gap: 4px; } }
   @media (max-height: 660px) and (min-width: 901px) { #navTerm, #help { display: none; } }
@@ -772,6 +775,10 @@
   .rs-foot { position: sticky; bottom: 0; display: grid; grid-template-columns: minmax(220px, 1fr) 2fr auto; gap: 10px 14px; align-items: end; margin: 18px -22px 0; padding: 12px 22px 14px; background: linear-gradient(180deg, color-mix(in srgb, var(--tip-b) 70%, transparent), var(--tip-b) 30%); border-top: 1px solid var(--line); }
   .rs-foot .msg { grid-column: 1 / -1; }
   .rs-sum { font-size: 11.5px; line-height: 1.45; color: var(--ink2); } .rs-sum b { color: var(--gold); font-family: var(--f-num); }
+  .rs-warn { display: flex; align-items: center; gap: 6px; margin-top: 4px; color: #ff9a4a; } .rs-warn .i { width: 12px; height: 12px; flex: none; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+  .presets .btn { flex-direction: column; align-items: flex-start; gap: 3px; padding: 8px 12px; } .presets .btn small { font: 500 10px/1 var(--f-num); letter-spacing: 0; text-transform: none; color: var(--muted); }
+  .presets .btn.on { border-color: var(--gold); color: var(--gold); }
   @media (max-width: 900px) {
     #racebox { position: fixed; top: var(--mockH, 0px); z-index: 60; }
     #racebox .box { width: 100vw; max-width: none; height: 100%; max-height: none; border-radius: 0; padding: 14px 12px 0; }
@@ -853,6 +860,7 @@
     .rb:hover, .rb:focus-visible { transform: none; box-shadow: none; }
     .rb .sdot { right: calc(50% - 20px); top: 6px; }
     #navLedger, #navTerm, #navTour, #help { display: none; }
+    #app.race-mode #navSync { display: none; }
     #tabMore { display: flex; --rbc: #cfd6e6; }
     #inspector { position: absolute; left: 0; right: 0; top: auto; bottom: var(--tabH, 68px); width: auto; height: min(82%, calc(100% - var(--tabH, 68px) - 70px)); z-index: 20; border-radius: 20px 20px 0 0; border-bottom: 0; opacity: 1 !important; pointer-events: auto !important; transform: translateY(calc(100% - var(--peek, 52px))); transition: transform .4s cubic-bezier(.2,.9,.25,1); }
     #app.ins-closed #inspector { transform: translateY(calc(100% - var(--peek, 52px))); }
@@ -923,6 +931,7 @@
     <button class="rb" id="navMap" type="button" data-tip="map"></button>
     <button class="rb" id="navRoomList" type="button" data-tip="rooms" aria-haspopup="true"></button>
     <button class="rb" id="navRooms" type="button" data-tip="customize"></button>
+    <button class="rb" id="navRace" type="button" data-tip="race"></button>
     <button class="rb" id="navSync" type="button" data-tip="income"></button>
     <a class="rb" id="navLedger" href="/ledger" data-tip="ledger"></a>
     <a class="rb" id="navTerm" href="/terminal" data-tip="terminal"></a>
@@ -1157,9 +1166,31 @@
   const RACE = () => (MODE() === 'race' && snap && snap.race) || null;
   const laneOf = (id) => { const r = RACE(); return r ? r.lanes.find((l) => l.id === id) || null : null; };
   const leadOf = (id) => kidsList().find((f) => (f.rooms || []).includes(id)) || null;
-  const hName = (d) => (d === 7 ? '1 week' : d === 14 ? '2 weeks' : d === 180 ? '6 months' : d === 365 ? '1 year' : d + ' days');
   const multFmt = (m) => '×' + (m >= 100 ? Math.round(m) : m >= 10 ? m.toFixed(1) : m.toFixed(2));
-  const rateFmt = (v) => (v < 0 ? '−' : '+') + '$' + Math.abs(v).toLocaleString('en-US', { maximumFractionDigits: Math.abs(v) >= 10 ? 0 : 2 }) + '/day';
+  const rateFmt = (v, unit = (snap && snap.race && snap.race.rateUnit) || 'day') => (v < 0 ? '−' : '+') + '$' + Math.abs(v).toLocaleString('en-US', { maximumFractionDigits: Math.abs(v) >= 10 ? 0 : 2 }) + '/' + unit;
+  // race time: a short race (two days or less) reads in minutes and hours, a long one in days
+  const spanLabel = (m) => {
+    const pl = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+    if (m < 60) return `${m} min`;
+    if (m < 1440) return m % 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : pl(m / 60, 'hour');
+    if (m % 1440) return `${Math.round((m / 1440) * 10) / 10} days`;
+    const d = m / 1440;
+    return d === 7 ? '1 week' : d === 14 ? '2 weeks' : d === 180 ? '6 months' : d === 365 ? '1 year' : pl(d, 'day');
+  };
+  // time left reads in whole days once it is a day or more
+  const leftLabel = (m) => (m < 1440 ? spanLabel(m) : `${Math.ceil(m / 1440)} day${Math.ceil(m / 1440) === 1 ? '' : 's'}`);
+  const leftShort = (m) => (m < 60 ? `${m}m` : m < 1440 ? `${Math.floor(m / 60)}h${m % 60 ? ' ' + (m % 60) + 'm' : ''}` : `${Math.round(m / 1440)}d`);
+  const clockMin = (m) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+  // when something happened in the race: "0:42" into a short race, "day 9" of a long one
+  const raceWhen = (x) => (snap && snap.race && snap.race.short ? clockMin((x && x.min) || 0) : `day ${x ? x.day : 1}`);
+  const raceNow = (r) => (r.short ? `${spanLabel(Math.max(1, r.elapsedMin))} of ${spanLabel(r.totalMin)}` : `day ${r.day} of ${r.totalDays}`);
+  // "30m", "1h", "2 hours", "3d", "2w", "6mo", "1y" -> minutes; a bare number is days
+  const durMin = (t) => {
+    const m = /^\s*(\d+(?:\.\d+)?)\s*(m|mins?|minutes?|h|hrs?|hours?|d|days?|w|wks?|weeks?|mo|months?|y|yrs?|years?)?\s*$/i.exec(String(t));
+    if (!m) return null;
+    const u = (m[2] || 'd').toLowerCase(), per = u.startsWith('mo') ? 43200 : u[0] === 'm' ? 1 : u[0] === 'h' ? 60 : u[0] === 'd' ? 1440 : u[0] === 'w' ? 10080 : 525600;
+    return Math.round(Number(m[1]) * per) || null;
+  };
   const nth = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
   const roomMoney = (id) => { const l = laneOf(id); return l ? l.bankrollUsd : pathState(id).earnedUsd; };
   const kidsList = () => (snap && snap.station && (snap.station.folk || snap.station.kids)) || [];
@@ -2601,8 +2632,11 @@
     const stepN = (now) => { const f = clamp((now - t0) / dur, 0, 1), e = 1 - Math.pow(1 - f, 3); el.textContent = fmt(from + (to - from) * e); if (f < 1 && shown[key] === to) requestAnimationFrame(stepN); };
     requestAnimationFrame(stepN);
   }
+  let raceNudged = false;
   function renderHud() {
     const st = snap.state, lv = snap.level;
+    $('#app').classList.toggle('race-mode', MODE() === 'race');
+    if (MODE() === 'race' && !snap.race && !raceNudged && !tour) { raceNudged = true; setTimeout(() => toast('status', 'No race yet', 'Set the stake, time limits and rules, then start it', '#ffcf5a', 'flag', { label: 'Set up', fn: () => openRaceSetup('new') }), 1200); }
     const res = $('#res');
     const mode = MODE(), int = (v) => String(Math.round(v));
     let items;
@@ -2616,10 +2650,10 @@
         const live = r.standings.find((s) => s.state === 'live'), lead = r.leaderId && roomById(r.leaderId);
         const plays = r.lanes.reduce((a, l) => a + l.plays.filter((p) => p.status === 'trying' || p.status === 'working').length, 0);
         items = [
-          ['day', 'Race day', !r.started ? `starts in ${r.startsInDays}d` : r.over ? 'finished' : `Day ${r.day} of ${r.totalDays}`, null, '#5fd4ff', 'clock', `Days since the starting gun, ${new Date(r.startedAt).toLocaleDateString()}`, ''],
+          ['day', 'Race', !r.started ? `starts in ${leftShort(r.startsInMin)}` : r.over ? 'finished' : r.short ? `${leftShort(Math.max(1, r.elapsedMin))} of ${leftShort(r.totalMin)}` : `Day ${r.day} of ${r.totalDays}`, null, '#5fd4ff', 'clock', `Time since the starting gun, ${new Date(r.startedAt).toLocaleString()}`, ''],
           ['pot', 'All bankrolls', r.potUsd, (v) => usd2(v), '#ffcf5a', 'coin', `Every room's stake plus what it made minus what it spent. ${usd(r.stakedUsd)} was staked.`, 'gold'],
           ['leader', 'Leading', lead ? `${shortName(lead.spec)} ${multFmt(laneOf(lead.id).multiple)}` : 'tied', null, lead ? themeOf(lead.id).accent : '#a78bfa', 'crown', 'The biggest bankroll right now', ''],
-          ['next', 'Next prize', live ? `${hName(live.days)} · ${live.daysLeft}d` : 'all awarded', null, '#a78bfa', 'target', 'The next horizon; its winner locks the moment it passes', ''],
+          ['next', 'Next prize', live ? `${live.label} · ${leftShort(live.minsLeft)}` : 'all awarded', null, '#a78bfa', 'target', 'The next horizon; its winner locks the moment it passes', ''],
           ['plays', 'Plays running', plays, int, '#3ddc97', 'trend', 'Ways the rooms are trying to make money right now (trying or working)', ''],
         ];
       }
@@ -2691,7 +2725,7 @@
       case 'job': return ['clock', '#a78bfa', `job ${e.enabled ? 'on' : 'off'}: ${esc(roleTitle(e.role))} → ${esc(shortOf(e.path))} every ${e.everyHours}h`];
       case 'gate': return [e.cleared ? 'unlock' : 'lock', e.cleared ? '#3ddc97' : '#f5a623', `gate ${esc(e.gate)} ${e.cleared ? 'cleared' : 'blocked'}`];
       case 'path.status': return ['flag', e.status === 'killed' ? '#ff5c6c' : '#cfd6e6', `${esc(shortOf(e.path))} → ${esc(e.status)}: ${esc(e.reason)}`];
-      case 'race': return ['flag', '#ffcf5a', `starting gun: <b style="color:var(--gold)">${usd(e.stakeUsd)}</b> a room, prizes at ${e.horizons.map(hName).join(', ')}`];
+      case 'race': return e.amend ? ['flag', '#ffcf5a', `race rules changed: ${esc(e.evidence)}`] : ['flag', '#ffcf5a', `starting gun: <b style="color:var(--gold)">${usd(e.stakeUsd)}</b> a room, prizes at ${(e.horizonsMin || (e.horizons || []).map((d) => d * 1440)).map(spanLabel).join(', ')}`];
       case 'play': return ['target', PLAYCOL[e.status] || '#8fb0ff', `${esc(shortOf(e.path))} play ${esc(e.status)}: ${esc(e.name)}`];
       case 'step': { const [icn, c] = STEPIC[e.type] || STEPIC.did; return [icn, c, `${esc(shortOf(e.path))}${e.type === 'did' ? '' : ' ' + esc(e.type)}: ${esc(e.text)}`]; }
       default: return ['note', '#7c88a6', esc(e.text || e.kind)];
@@ -2840,7 +2874,7 @@
         <div class="hub-step" style="margin:0 auto"><button type="button" data-step="-1" title="Previous room">${ic('chevL')}</button><span>${rooms.slice().sort((a, b) => a.spec.rank - b.spec.rank).findIndex((r) => r.id === room.id) + 1} / ${rooms.length}</span><button type="button" data-step="1" title="Next room">${ic('chevR')}</button></div>
         ${lane ? `<div class="kv"><span>Place</span><b>${nth(lane.place)} of ${snap.race.lanes.length}${snap.race.leaderId === room.id ? ' ♛' : ''}</b></div>
         <div class="kv"><span>Multiple</span><b style="color:${lane.multiple < 1 ? 'var(--bad)' : 'var(--good)'}">${multFmt(lane.multiple)}</b></div>
-        <div class="kv"><span>Rate · 7 days</span><b>${rateFmt(lane.rate7)}</b></div>
+        <div class="kv"><span>Rate · last ${snap.race.recentLabel}</span><b>${rateFmt(lane.rateRecent)}</b></div>
         <div class="kv"><span>Made · spent</span><b>${usd(Math.round(lane.inUsd))} · ${usd(Math.round(lane.outUsd))}</b></div>
         <div class="kv"><span>Plays</span><b>${lane.plays.filter((x) => x.status === 'working').length} working · ${lane.plays.length} tried</b></div>
         ${lane.blocked ? `<div class="need" style="margin-top:4px"><b>${ic('warn')}Needs you</b>${esc(lane.blocked.text)}</div>` : ''}` : `<div class="kv"><span>Level</span><b>${tier + 1} ${'★'.repeat(tier)}</b></div>
@@ -2853,7 +2887,8 @@
     }
     $('#inspector').style.setProperty('--room', '#ffcf5a');
     const list = rooms.map((m) => ({ m, p: { earnedUsd: roomMoney(m.id) } })).sort((a, b) => b.p.earnedUsd - a.p.earnedUsd || a.m.spec.rank - b.m.spec.rank), top = Math.max(1e-9, ...list.map((x) => x.p.earnedUsd));
-    el.innerHTML = `<div class="stk"><div class="stk-h"><b>${esc(stationName())}</b><small>${usd(st.earnedUsd)} earned · ${st.running.length} working</small></div>
+    const raceBtn = MODE() === 'race' ? `<button class="btn go wide" type="button" data-rsopen="${snap.race ? 'amend' : 'new'}" style="margin-bottom:8px">${ic('flag')}${snap.race ? 'Race rules' : 'Set up the race'}</button>` : '';
+    el.innerHTML = `<div class="stk"><div class="stk-h"><b>${esc(stationName())}</b><small>${usd(st.earnedUsd)} earned · ${st.running.length} working</small></div>${raceBtn}
       ${list.map(({ m, p }) => { const acc = themeOf(m.id).accent, live = st.running.some((r) => r.path === m.id); return `<button type="button" class="srow" data-sel="${esc(m.id)}" style="--c:${acc}" title="${esc(m.spec.name)}"><span class="rk">${String(m.spec.rank).padStart(2, '0')}</span><span class="nm">${esc(shortName(m.spec))}${live ? ' <span style="color:var(--good)">●</span>' : ''}</span><span class="u">${usd(p.earnedUsd)}</span><i class="bar" style="width:${(100 * p.earnedUsd / top).toFixed(1)}%"></i></button>`; }).join('')}
       <button type="button" class="srow" data-sel="dock" style="--c:#cfd6e6"><span class="rk">${ic(fam ? 'coin' : 'mail').replace('class="i"', 'class="i" style="width:10px;height:10px;display:block"')}</span><span class="nm">${esc(NM().dock)}</span><span class="u">${fam ? usd(owedAll()) : Object.values(snap.outbox || {}).reduce((a, n) => a + n, 0)}</span></button></div>`;
   }
@@ -3189,7 +3224,7 @@
   function playCard(p) {
     return `<button type="button" class="play ${p.status}" data-play="${esc(p.id)}" style="--pc:${PLAYCOL[p.status]}" title="See the business model">
       <div class="ph"><b>${esc(p.name)}</b><span class="pill st-${p.status}">${esc(p.status)}</span><span class="pn${p.netUsd < 0 ? ' dn' : ''}">${p.netUsd < 0 ? '−' : '+'}${usd(Math.abs(p.netUsd))}</span></div>
-      <div class="pm"><span>${rateFmt(p.ratePerDay)}</span><span>${usd(p.inUsd)} in · ${usd(p.outUsd)} out</span><span>${p.sales} sale${p.sales === 1 ? '' : 's'}</span><span>since day ${p.startedDay}</span><span>${p.steps} step${p.steps === 1 ? '' : 's'}</span></div>
+      <div class="pm"><span>${rateFmt(p.rate)}</span><span>${usd(p.inUsd)} in · ${usd(p.outUsd)} out</span><span>${p.sales} sale${p.sales === 1 ? '' : 's'}</span><span>since ${raceWhen({ day: p.startedDay, min: p.startedMin })}</span><span>${p.steps} step${p.steps === 1 ? '' : 's'}</span></div>
       ${p.model && p.model.offer ? `<div class="pp">${esc(p.model.offer)}${p.model.customer ? ` <span class="muted">for ${esc(p.model.customer.charAt(0).toLowerCase() + p.model.customer.slice(1))}</span>` : ''}</div>` : p.plan ? `<div class="pp">${esc(p.plan)}</div>` : ''}${p.why ? `<div class="pw">${esc(p.why)}</div>` : ''}
       <span class="pgo">Business model ${ic('chevR')}</span></button>`;
   }
@@ -3234,20 +3269,21 @@
         <div class="sec"><button class="btn go wide" type="button" data-rsopen="new">${ic('flag')}Set up the race</button></div>`;
       return;
     }
-    const hs = r.standings, cur = hs.find((s) => s.days === raceH) || hs.find((s) => s.state === 'live') || hs[hs.length - 1];
+    const hs = r.standings, cur = hs.find((s) => s.mins === raceH) || hs.find((s) => s.state === 'live') || hs[hs.length - 1];
     const leadName = (id) => { const f = leadOf(id); return f ? f.name : ''; };
     const metric = (x) => (r.rules.scoring === 'multiple' ? multFmt(x.multiple) : r.rules.scoring === 'profit' ? (x.profitUsd < 0 ? '−' : '+') + usd(Math.abs(Math.round(x.profitUsd))) : usd(Math.round(x.bankrollUsd)));
     const max = Math.max(1e-9, ...cur.ranking.map((x) => x.bankrollUsd));
     const needs = r.lanes.filter((l) => l.blocked);
     const sm = r.lanes.slice().sort((a, b) => b.inUsd - a.inUsd), smMax = Math.max(1e-9, ...sm.map((l) => Math.max(l.inUsd, l.outUsd)));
-    el.innerHTML = `${head(`<span class="pill cyan">${!r.started ? `starts in ${r.startsInDays} day${r.startsInDays === 1 ? '' : 's'}` : r.over ? 'finished' : `day ${r.day} of ${r.totalDays}`}</span><span class="pill gold">${usd(r.stakeUsd)} a room</span><span class="pill">${r.lanes.length} rooms</span>`)}
-      <div class="muted small">A bankroll is the stake plus evidenced money in minus money out since the gun; anything bought but not yet sold counts as zero. ${esc(M.scoring[r.rules.scoring] || '')} at each horizon wins it.</div>
-      <div class="sec"><h3>Prizes</h3><div class="hz">${hs.map((s) => `<button type="button" class="${s.state}${s === cur ? ' on' : ''}" data-hz="${s.days}"><span class="k">${hName(s.days)}</span><span class="w">${s.state === 'done' ? (s.winner ? ic('crown') + esc(raceNm(s.winner)) : 'tie, no winner') : s.state === 'live' ? (s.leader ? esc(raceNm(s.leader)) + ' leads' : 'tied') : 'not yet'}</span><span class="s">${s.state === 'done' ? (s.winner ? `won with ${metric(s.ranking.find((x) => x.id === s.winner))}${s.tieBroken ? ' · got there first' : ''}` : 'nobody ahead') : s.state === 'live' ? `${s.daysLeft} day${s.daysLeft === 1 ? '' : 's'} left` : `in ${s.daysLeft} days`}</span></button>`).join('')}</div></div>
-      ${needs.length ? `<div class="sec"><h3>Waiting on you · ${needs.length}</h3>${needs.map((l) => `<div class="need" data-sel="${esc(l.id)}"><b>${ic('warn')}${esc(raceNm(l.id))}${leadName(l.id) ? ' · ' + esc(leadName(l.id)) : ''} · day ${l.blocked.day}</b>${esc(l.blocked.text)}</div>`).join('')}</div>` : ''}
-      <div class="sec"><h3>${cur.state === 'done' ? `Final at ${hName(cur.days)}` : `Standings · day ${r.day}`}</h3>
+    el.innerHTML = `${head(`<span class="pill cyan">${!r.started ? `starts in ${leftLabel(r.startsInMin)}` : r.over ? 'finished' : raceNow(r)}</span><span class="pill gold">${usd(r.stakeUsd)} a room</span><span class="pill">${r.lanes.length} rooms</span>`)}
+      <div class="row2" style="margin:10px 0 2px"><button class="btn" type="button" data-rsopen="amend">${ic('sliders')}Rules and limits</button><button class="btn" type="button" data-rsopen="restart">${ic('flag')}New race</button></div>
+      <div class="muted small">A bankroll is the stake plus evidenced money in minus money out since the gun; anything bought but not yet sold counts as zero. ${esc(M.scoring[r.rules.scoring] || '')} at each time limit wins a prize.</div>
+      <div class="sec"><h3>Prizes</h3><div class="hz">${hs.map((s) => `<button type="button" class="${s.state}${s === cur ? ' on' : ''}" data-hz="${s.mins}"><span class="k">${esc(s.label)}</span><span class="w">${s.state === 'done' ? (s.winner ? ic('crown') + esc(raceNm(s.winner)) : 'tie, no winner') : s.state === 'live' ? (s.leader ? esc(raceNm(s.leader)) + ' leads' : 'tied') : 'not yet'}</span><span class="s">${s.state === 'done' ? (s.winner ? `won with ${metric(s.ranking.find((x) => x.id === s.winner))}${s.tieBroken ? ' · got there first' : ''}` : 'nobody ahead') : s.state === 'live' ? `${leftLabel(s.minsLeft)} left` : `in ${leftLabel(s.minsLeft)}`}</span></button>`).join('')}</div></div>
+      ${needs.length ? `<div class="sec"><h3>Waiting on you · ${needs.length}</h3>${needs.map((l) => `<div class="need" data-sel="${esc(l.id)}"><b>${ic('warn')}${esc(raceNm(l.id))}${leadName(l.id) ? ' · ' + esc(leadName(l.id)) : ''} · ${raceWhen(l.blocked)}</b>${esc(l.blocked.text)}</div>`).join('')}</div>` : ''}
+      <div class="sec"><h3>${cur.state === 'done' ? `Final at ${esc(cur.label)}` : `Standings · ${r.short ? spanLabel(Math.max(1, r.elapsedMin)) + ' in' : 'day ' + r.day}`}</h3>
         ${cur.ranking.map((x, i) => { const l = laneOf(x.id), acc = themeOf(x.id).accent, first = i === 0 && (cur.winner === x.id || (cur.state !== 'done' && cur.leader === x.id));
-          return `<div class="rank${first ? ' top' : ''}${x.out ? ' out' : ''}" data-sel="${esc(x.id)}" style="--c:${acc}"><span class="no">${first ? ic('crown') : i + 1}</span><span class="nm">${esc(raceNm(x.id))}${leadName(x.id) ? ` <span style="color:var(--muted);font-weight:500">· ${esc(leadName(x.id))}</span>` : ''}<small>${x.out ? 'knocked out' : cur.state === 'done' ? `at ${hName(cur.days)}` : `${rateFmt(l.rate7)} · ${l.plays.filter((p) => p.status !== 'dropped').length} plays${l.blocked ? ' · needs you' : ''}`}</small></span><span class="v${x.bankrollUsd < l.stakeUsd ? ' dn' : ''}">${metric(x)}<small>${r.rules.scoring === 'multiple' ? usd(Math.round(x.bankrollUsd)) : multFmt(x.multiple)}</small></span><i class="bg" style="width:${(100 * x.bankrollUsd / max).toFixed(1)}%"></i></div>`; }).join('')}
-        <div class="muted small" style="margin-top:6px">Rate is net dollars a day over the last 7 days. Click a room for every play it ran, and the business model behind each.</div></div>
+          return `<div class="rank${first ? ' top' : ''}${x.out ? ' out' : ''}" data-sel="${esc(x.id)}" style="--c:${acc}"><span class="no">${first ? ic('crown') : i + 1}</span><span class="nm">${esc(raceNm(x.id))}${leadName(x.id) ? ` <span style="color:var(--muted);font-weight:500">· ${esc(leadName(x.id))}</span>` : ''}<small>${x.out ? 'knocked out' : cur.state === 'done' ? `at ${esc(cur.label)}` : `${rateFmt(l.rateRecent)} · ${l.plays.filter((p) => p.status !== 'dropped').length} plays${l.blocked ? ' · needs you' : ''}`}</small></span><span class="v${x.bankrollUsd < l.stakeUsd ? ' dn' : ''}">${metric(x)}<small>${r.rules.scoring === 'multiple' ? usd(Math.round(x.bankrollUsd)) : multFmt(x.multiple)}</small></span><i class="bg" style="width:${(100 * x.bankrollUsd / max).toFixed(1)}%"></i></div>`; }).join('')}
+        <div class="muted small" style="margin-top:6px">Rate is net dollars an ${r.rateUnit === 'hour' ? 'hour' : 'day'} over the last ${esc(r.recentLabel)}. Click a room for every play it ran, and the business model behind each.</div></div>
       <div class="sec"><h3>Spent vs made</h3>${sm.map((l) => `<div class="smrow" data-sel="${esc(l.id)}" style="--c:${themeOf(l.id).accent}"><span class="nm">${esc(raceNm(l.id))}</span><span class="bars"><i class="in" style="width:${(100 * l.inUsd / smMax).toFixed(1)}%"></i><i class="out" style="width:${(100 * l.outUsd / smMax).toFixed(1)}%"></i></span><span class="v">${usd(Math.round(l.inUsd))}<small>spent ${usd(Math.round(l.outUsd))}${l.backPerDollar !== null ? ` · $${l.backPerDollar.toFixed(2)} per $1` : ''}</small></span></div>`).join('')}
         <div class="muted small" style="margin-top:6px">Green is money made, red is money spent. Per $1 is what each dollar spent brought back.</div></div>
       <div class="sec"><h3>Where the money comes from</h3>${moneyBars(r.bySource, '#3ddc97')}</div>
@@ -3267,29 +3303,30 @@
       return;
     }
     const f = leadOf(room.id), M = snap.raceMenu;
-    const chips = `<span class="pill gold">${nth(l.place)} of ${r.lanes.length}</span><span class="pill ${l.multiple >= 1 ? 'good' : 'bad'}">${multFmt(l.multiple)}</span>${r.leaderId === room.id ? `<span class="pill gold">${ic('crown')}leading</span>` : ''}${l.out ? `<span class="pill bad">out · day ${l.out.day}</span>` : ''}${l.blocked ? '<span class="pill warn">needs you</span>' : ''}`;
+    const chips = `<span class="pill gold">${nth(l.place)} of ${r.lanes.length}</span><span class="pill ${l.multiple >= 1 ? 'good' : 'bad'}">${multFmt(l.multiple)}</span>${r.leaderId === room.id ? `<span class="pill gold">${ic('crown')}leading</span>` : ''}${l.out ? `<span class="pill bad">out · ${raceWhen(l.out)}</span>` : ''}${l.blocked ? '<span class="pill warn">needs you</span>' : ''}`;
     const tl = raceAll ? l.timeline : l.timeline.slice(0, 40);
     let lastDay = null;
-    const tlHtml = tl.map((x) => { const h = x.day !== lastDay ? `<div class="dh">Day ${x.day}</div>` : ''; lastDay = x.day; return h + tlItem(x); }).join('');
+    const group = (x) => (r.short ? `Hour ${Math.floor((x.min || 0) / 60) + 1}` : `Day ${x.day}`);
+    const tlHtml = tl.map((x) => { const g = group(x), h = g !== lastDay ? `<div class="dh">${g}</div>` : ''; lastDay = g; return h + tlItem(x); }).join('');
     const earning = l.plays.filter((p) => p.inUsd > 0), tried = l.plays.filter((p) => p.inUsd <= 0);
     el.innerHTML = `
       ${hubHead(room, chips)}
       ${f ? `<div class="muted small" style="margin-top:8px">Room lead: <b style="color:${f.color}">${esc(f.name)}</b>${f.role && !/^room lead/i.test(f.role) ? ' · ' + esc(f.role) : /agent/i.test(f.role || '') ? ', an AI agent' : ''}${l.model ? ` · runs on ${esc(M.models[l.model] || l.model)}` : ''}</div>` : ''}
       <div class="stats" style="margin-top:12px">
         <div class="st"><div><div class="k">Bankroll</div><div class="v gold">${usd2(l.bankrollUsd)}</div><div class="s">started with ${usd(l.stakeUsd)}</div></div></div>
-        <div class="st"><div><div class="k">Multiple</div><div class="v"${l.multiple < 1 ? ' style="color:var(--bad)"' : ''}>${multFmt(l.multiple)}</div><div class="s">${nth(l.place)} of ${r.lanes.length} · day ${r.day}</div></div></div>
-        <div class="st"><div><div class="k">Rate · 7 days</div><div class="v"${l.rate7 < 0 ? ' style="color:var(--bad)"' : ''}>${rateFmt(l.rate7)}</div><div class="s">${rateFmt(l.rateAll)} since the gun</div></div></div>
+        <div class="st"><div><div class="k">Multiple</div><div class="v"${l.multiple < 1 ? ' style="color:var(--bad)"' : ''}>${multFmt(l.multiple)}</div><div class="s">${nth(l.place)} of ${r.lanes.length} · ${r.short ? spanLabel(Math.max(1, r.elapsedMin)) + ' in' : 'day ' + r.day}</div></div></div>
+        <div class="st"><div><div class="k">Rate · last ${esc(r.recentLabel)}</div><div class="v"${l.rateRecent < 0 ? ' style="color:var(--bad)"' : ''}>${rateFmt(l.rateRecent)}</div><div class="s">${rateFmt(l.rateAll)} since the gun</div></div></div>
         <div class="st"><div><div class="k">Per $1 spent</div><div class="v"${l.backPerDollar !== null && l.backPerDollar < 1 ? ' style="color:var(--bad)"' : ''}>${l.backPerDollar !== null ? '$' + l.backPerDollar.toFixed(2) : 'n/a'}</div><div class="s">${l.sales} sale${l.sales === 1 ? '' : 's'} · ${usd(Math.round(l.outUsd))} spent</div></div></div>
       </div>
-      <div class="sec"><h3>Bankroll by day</h3>${sparkSvg(l.series, l.stakeUsd, accent)}<div class="spk"><span>gun · ${usd(l.stakeUsd)}</span><span>day ${r.day} · ${usd(Math.round(l.bankrollUsd))}</span></div></div>
-      <div class="sec"><h3>Prizes</h3><div class="hzrow">${r.standings.map((s) => { const x = s.ranking.find((y) => y.id === room.id) || {}, pos = 1 + s.ranking.filter((y) => !y.out && y.score > x.score).length, won = s.winner === room.id; return `<span class="${won ? 'won' : ''}">${won ? ic('crown') : ''}${hName(s.days)}: ${x.out ? 'out' : s.state === 'done' ? (won ? 'won' : nth(pos)) : s.state === 'live' ? nth(pos) + ' so far' : 'not yet'}</span>`; }).join('')}</div></div>
-      ${l.blocked ? `<div class="sec"><div class="need"><b>${ic('warn')}Waiting on you · day ${l.blocked.day}</b>${esc(l.blocked.text)}</div></div>` : ''}
+      <div class="sec"><h3>${r.short ? 'Bankroll over time' : 'Bankroll by day'}</h3>${sparkSvg(l.series, l.stakeUsd, accent)}<div class="spk"><span>gun · ${usd(l.stakeUsd)}</span><span>${r.short ? spanLabel(Math.max(1, r.elapsedMin)) + ' in' : 'day ' + r.day} · ${usd(Math.round(l.bankrollUsd))}</span></div></div>
+      <div class="sec"><h3>Prizes</h3><div class="hzrow">${r.standings.map((s) => { const x = s.ranking.find((y) => y.id === room.id) || {}, pos = 1 + s.ranking.filter((y) => !y.out && y.score > x.score).length, won = s.winner === room.id; return `<span class="${won ? 'won' : ''}">${won ? ic('crown') : ''}${esc(s.label)}: ${x.out ? 'out' : s.state === 'done' ? (won ? 'won' : nth(pos)) : s.state === 'live' ? nth(pos) + ' so far' : 'not yet'}</span>`; }).join('')}</div></div>
+      ${l.blocked ? `<div class="sec"><div class="need"><b>${ic('warn')}Waiting on you · ${raceWhen(l.blocked)}</b>${esc(l.blocked.text)}</div></div>` : ''}
       <div class="sec"><h3>Spent vs made</h3>${spentMade(l.inUsd, l.outUsd, l.backPerDollar || 0)}
         ${l.byCategory.length ? `<div class="sub-h">Where the money went</div>${moneyBars(l.byCategory, '#ff7a8a', (k) => CAT_NAME[k] || k, 'payment')}` : ''}</div>
       <div class="sec"><h3>Where the money comes from</h3>
         ${earning.length ? earning.map((p) => `<button type="button" class="cf" data-play="${esc(p.id)}" style="--c:${PLAYCOL[p.status]}"><span class="t"><b>${esc(p.name)}</b><small>${p.bySource.map((s) => `${esc(s.key)} ${usd(Math.round(s.usd))}`).join(' · ')}</small></span><span class="u">${usd(Math.round(p.inUsd))}<small>${Math.round(100 * p.inUsd / Math.max(1e-9, l.inUsd))}% of income</small></span>${ic('chevR')}</button>`).join('') : '<div class="muted small">No money in yet.</div>'}
         ${l.bySource.length ? `<div class="sub-h">By where it was paid</div>${moneyBars(l.bySource, '#3ddc97')}` : ''}</div>
-      <div class="sec"><h3>The plan</h3>${l.plan ? `<div class="plan">${esc(l.plan.text)}<small>set on day ${l.plan.day}</small></div>` : '<div class="muted small">No plan logged yet.</div>'}</div>
+      <div class="sec"><h3>The plan</h3>${l.plan ? `<div class="plan">${esc(l.plan.text)}<small>set ${r.short ? 'at ' + clockMin(l.plan.min || 0) : 'on day ' + l.plan.day}</small></div>` : '<div class="muted small">No plan logged yet.</div>'}</div>
       <div class="sec"><h3>Every play it tried · ${l.plays.length}</h3>${l.plays.length ? l.plays.map(playCard).join('') : '<div class="muted small">No plays logged yet.</div>'}${tried.length && earning.length ? `<div class="muted small">${tried.length} of them ${tried.length === 1 ? 'has' : 'have'} not made money yet.</div>` : ''}${l.loose ? `<div class="muted small">Not tied to a play: ${usd(l.loose.inUsd)} in, ${usd(l.loose.outUsd)} out.</div>` : ''}</div>
       <div class="sec"><h3>Full breakdown · ${l.timelineTotal} line${l.timelineTotal === 1 ? '' : 's'}</h3><div class="tl">${tlHtml || '<div class="muted small">Nothing logged since the gun.</div>'}</div>
         ${l.timeline.length > 40 ? `<button class="btn wide" type="button" data-tlall style="margin-top:8px">${raceAll ? 'Show the latest 40' : `Show all ${l.timeline.length}`}</button>` : ''}
@@ -3326,31 +3363,35 @@
     if (!p) { racePlay = null; renderRace(el, room); return; }
     const m = p.model || {}, cell = (k, t) => `<div class="bm"><span>${t}</span><p>${m[k] ? esc(m[k]) : '<i class="muted">not logged</i>'}</p></div>`;
     el.innerHTML = `<button class="back" type="button" data-playback>${ic('chevL')}${esc(shortName(room.spec))}</button>
-      <div class="ih"><div class="big" style="--c:${accent}">${ic('target').replace('class="i"', 'class="i" style="width:24px;height:24px"')}</div><div style="min-width:0"><h2>${esc(p.name)}</h2><div class="chips"><span class="pill st-${p.status}">${esc(p.status)}</span><span class="pill">since day ${p.startedDay}</span><span class="pill">${Math.max(1, Math.round(p.daysActive))} day${Math.max(1, Math.round(p.daysActive)) === 1 ? '' : 's'} ${p.status === 'dropped' ? 'before it was dropped' : 'running'}</span></div></div></div>
+      <div class="ih"><div class="big" style="--c:${accent}">${ic('target').replace('class="i"', 'class="i" style="width:24px;height:24px"')}</div><div style="min-width:0"><h2>${esc(p.name)}</h2><div class="chips"><span class="pill st-${p.status}">${esc(p.status)}</span><span class="pill">since ${raceWhen({ day: p.startedDay, min: p.startedMin })}</span><span class="pill">${spanLabel(Math.max(1, p.activeMin))} ${p.status === 'dropped' ? 'before it was dropped' : 'running'}</span></div></div></div>
       ${p.why ? `<div class="pw" style="margin-top:6px">${esc(p.why)}</div>` : ''}
       <div class="stats" style="margin-top:12px">
-        <div class="st"><div><div class="k">Made</div><div class="v gold">${usd2(p.inUsd)}</div><div class="s">${p.sales} sale${p.sales === 1 ? '' : 's'}${p.firstSaleDay ? ` · first on day ${p.firstSaleDay}` : ''}</div></div></div>
+        <div class="st"><div><div class="k">Made</div><div class="v gold">${usd2(p.inUsd)}</div><div class="s">${p.sales} sale${p.sales === 1 ? '' : 's'}${p.firstSaleDay ? ` · first at ${raceWhen({ day: p.firstSaleDay, min: p.firstSaleMin })}` : ''}</div></div></div>
         <div class="st"><div><div class="k">Spent</div><div class="v"${p.outUsd ? ' style="color:var(--bad)"' : ''}>${usd2(p.outUsd)}</div><div class="s">${p.costPerSaleUsd !== null ? `${usd2(p.costPerSaleUsd)} a sale` : 'no cost per sale yet'}</div></div></div>
-        <div class="st"><div><div class="k">Net</div><div class="v"${p.netUsd < 0 ? ' style="color:var(--bad)"' : ''}>${p.netUsd < 0 ? '−' : '+'}${usd2(Math.abs(p.netUsd))}</div><div class="s">${rateFmt(p.ratePerDay)}</div></div></div>
+        <div class="st"><div><div class="k">Net</div><div class="v"${p.netUsd < 0 ? ' style="color:var(--bad)"' : ''}>${p.netUsd < 0 ? '−' : '+'}${usd2(Math.abs(p.netUsd))}</div><div class="s">${rateFmt(p.rate)}</div></div></div>
         <div class="st"><div><div class="k">Per $1 spent</div><div class="v">${p.backPerDollar !== null ? '$' + p.backPerDollar.toFixed(2) : 'n/a'}</div><div class="s">${p.avgSaleUsd !== null ? `average sale ${usd2(p.avgSaleUsd)}` : 'no sales yet'}</div></div></div>
       </div>
       <div class="sec"><h3>The business model</h3><div class="bmgrid">${cell('offer', 'What it sells')}${cell('customer', 'Who buys')}${cell('channel', 'How they find it')}${cell('pricing', 'What it charges')}${cell('costs', 'What it costs to run')}<div class="bm"><span>The plan</span><p>${p.plan ? esc(p.plan) : '<i class="muted">not logged</i>'}</p></div></div></div>
       <div class="sec"><h3>Spent vs made</h3>${spentMade(p.inUsd, p.outUsd, p.backPerDollar || 0)}</div>
       <div class="sec"><h3>Where its money came from</h3>${moneyBars(p.bySource, '#3ddc97')}</div>
       <div class="sec"><h3>Where its money went</h3>${moneyBars(p.byCategory, '#ff7a8a', (k) => CAT_NAME[k] || k, 'payment')}</div>
-      <div class="sec"><h3>How it went</h3><div class="tl">${p.history.slice().reverse().map((h, i, a) => `<div class="e" style="--tc:${PLAYCOL[h.status]}"><span class="ic">${ic('target')}</span><span>${i === a.length - 1 ? 'Started' : 'Now ' + esc(h.status)}${i === a.length - 1 && h.status !== 'trying' ? ', ' + esc(h.status) : ''}<small>day ${h.day}${h.why ? ' · ' + esc(h.why) : ''}</small></span><span></span></div>`).join('')}</div></div>
-      <div class="sec"><h3>What the agent did · ${p.steps}</h3><div class="tl">${p.stepList.length ? p.stepList.map((s) => { const [icn, c] = STEPIC[s.type] || STEPIC.did; return `<div class="e" style="--tc:${c}"><span class="ic">${ic(icn)}</span><span>${esc(s.text)}<small>${s.type === 'did' ? 'did' : esc(s.type)} · day ${s.day}${s.url ? ` · <a href="${esc(s.url)}" target="_blank" rel="noopener">link</a>` : ''}</small></span><span></span></div>`; }).join('') : '<div class="muted small">No steps logged for this play.</div>'}</div></div>
-      <div class="sec"><h3>Every dollar${p.money.length >= 50 ? ' · latest 50' : ''}</h3><div class="tl">${p.money.length ? p.money.map((x) => `<div class="e" style="--tc:${x.dir === 'in' ? 'var(--good)' : 'var(--bad)'}"><span class="ic">${ic(x.dir === 'in' ? 'coin' : 'flame')}</span><span>${esc(x.text || '')}${x.dir === 'in' && x.source && x.source !== x.text ? ' · ' + esc(x.source) : ''}<small>day ${x.day} · ${esc(x.evidence || '')}</small></span><span class="u ${x.dir}">${x.dir === 'in' ? '+' : '−'}${usd2(x.usd)}</span></div>`).join('') : '<div class="muted small">No money tied to this play yet.</div>'}</div></div>`;
+      <div class="sec"><h3>How it went</h3><div class="tl">${p.history.slice().reverse().map((h, i, a) => `<div class="e" style="--tc:${PLAYCOL[h.status]}"><span class="ic">${ic('target')}</span><span>${i === a.length - 1 ? 'Started' : 'Now ' + esc(h.status)}${i === a.length - 1 && h.status !== 'trying' ? ', ' + esc(h.status) : ''}<small>${raceWhen(h)}${h.why ? ' · ' + esc(h.why) : ''}</small></span><span></span></div>`).join('')}</div></div>
+      <div class="sec"><h3>What the agent did · ${p.steps}</h3><div class="tl">${p.stepList.length ? p.stepList.map((s) => { const [icn, c] = STEPIC[s.type] || STEPIC.did; return `<div class="e" style="--tc:${c}"><span class="ic">${ic(icn)}</span><span>${esc(s.text)}<small>${s.type === 'did' ? 'did' : esc(s.type)} · ${raceWhen(s)}${s.url ? ` · <a href="${esc(s.url)}" target="_blank" rel="noopener">link</a>` : ''}</small></span><span></span></div>`; }).join('') : '<div class="muted small">No steps logged for this play.</div>'}</div></div>
+      <div class="sec"><h3>Every dollar${p.money.length >= 50 ? ' · latest 50' : ''}</h3><div class="tl">${p.money.length ? p.money.map((x) => `<div class="e" style="--tc:${x.dir === 'in' ? 'var(--good)' : 'var(--bad)'}"><span class="ic">${ic(x.dir === 'in' ? 'coin' : 'flame')}</span><span>${esc(x.text || '')}${x.dir === 'in' && x.source && x.source !== x.text ? ' · ' + esc(x.source) : ''}<small>${raceWhen(x)} · ${esc(x.evidence || '')}</small></span><span class="u ${x.dir}">${x.dir === 'in' ? '+' : '−'}${usd2(x.usd)}</span></div>`).join('') : '<div class="muted small">No money tied to this play yet.</div>'}</div></div>`;
     el.querySelector('[data-playback]').addEventListener('click', () => { racePlay = null; panelSig = ''; renderPanel(true); });
   }
   // ---- race setup: every rule of the race, chosen before the gun and written on the ledger with it
   let rsMode = 'new';
-  const RDAYS = [7, 14, 30, 60, 90, 180, 365];
+  // prize times on offer, in minutes, and three ready-made sets
+  const RTIMES = [30, 60, 120, 360, 1440, 10080, 20160, 43200, 86400, 129600, 259200, 525600];
+  const RPRESETS = { quick: { t: 'Quick test', times: [30, 60, 120], every: 10 }, day: { t: 'One day', times: [60, 360, 1440], every: 30 }, long: { t: 'Long race', times: [10080, 43200, 129600, 259200], every: 1440 } };
+  const REVERY = [[0, 'All the time (one session for the whole race)'], [5, 'Every 5 minutes'], [10, 'Every 10 minutes'], [15, 'Every 15 minutes'], [30, 'Every 30 minutes'], [60, 'Every hour'], [120, 'Every 2 hours'], [360, 'Every 6 hours'], [720, 'Every 12 hours'], [1440, 'Every day'], [2880, 'Every 2 days'], [10080, 'Every week']];
   function openRaceSetup(mode = 'new') {
     if (!snap || !snap.raceMenu) return;
     rsMode = mode;
     const M = snap.raceMenu, cur = snap.race, amend = mode === 'amend' && cur;
-    const R = cur && mode !== 'new' ? cur.rules : M.defaults, stake = cur && mode !== 'new' ? cur.stakeUsd : 250, hz = cur && mode !== 'new' ? cur.horizons : M.horizons;
+    const R = cur && mode !== 'new' ? cur.rules : M.defaults, stake = cur && mode !== 'new' ? cur.stakeUsd : 250, hz = cur && mode !== 'new' ? cur.horizonsMin : M.horizons.map((d) => d * 1440);
+    const every = R.everyMinutes ?? (R.everyHours || 24) * 60;
     const racing = new Set(cur && mode !== 'new' ? cur.lanes.map((x) => x.id) : rooms.map((x) => x.id));
     const lock = amend ? ' disabled' : '';
     const ck = (name, value, on, label, sub, extra = '') => `<label class="ck${on ? ' on' : ''}"><input type="checkbox" name="${name}" value="${esc(value)}"${on ? ' checked' : ''}${extra}><span><b>${esc(label)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span></label>`;
@@ -3359,11 +3400,18 @@
     $('#racebox .box').innerHTML = `<button class="cbtn glass x" data-rsclose title="Close (Esc)">${ic('close')}</button>
       <div class="sy-head"><div class="rd-ic">${ic('flag')}</div><div style="min-width:0"><h2>${amend ? 'Change the rules' : mode === 'restart' ? 'Start a new race' : 'Set up the race'}</h2><p class="lead">${amend ? "The stake, prize days and contestants stay; everything else can change. The change goes on the ledger with why, and every agent's brief is written again." : `Every rule of the race, written on the ledger with the starting gun. Each agent's brief is written from these. Nothing here moves money.${mode === 'restart' ? ' A new race starts the count again from its own gun.' : ''}`}</p></div></div>
       <form id="f-rs"><div class="rs-grid">
+        <section class="rs-sec wide"><h3>Your rules, in your own words</h3>
+          <textarea name="notes" maxlength="2000" rows="3" placeholder="Type any rules you want, in plain words. They go into every agent's brief, word for word. e.g. Keep each idea small until it sells. Nothing with our real names on it.">${esc(R.notes || '')}</textarea>
+        </section>
+        <section class="rs-sec wide"><h3>Time limits · the best score at each one wins a prize</h3>
+          ${amend ? '' : `<div class="presets">${Object.entries(RPRESETS).map(([k, p]) => `<button type="button" class="btn sm2" data-rspreset="${k}">${esc(p.t)}<small>${p.times.map(spanLabel).join(' · ')}</small></button>`).join('')}</div>`}
+          <div class="chips">${RTIMES.map((m) => ck('hz', m, hz.includes(m), spanLabel(m), '', lock)).join('')}</div>
+          <div class="row2"><label class="field"><span>Or type your own times</span><input name="hzOther" placeholder="e.g. 45m, 3h, 10d" value="${esc(hz.filter((m) => !RTIMES.includes(m)).map((m) => (m % 1440 === 0 ? m / 1440 + 'd' : m % 60 === 0 ? m / 60 + 'h' : m + 'm')).join(', '))}"${lock}></label>
+          <label class="field"><span>Each agent checks in</span><select name="everyMinutes">${REVERY.map(([m, t]) => `<option value="${m}"${m === every ? ' selected' : ''}>${esc(t)}</option>`).join('')}${REVERY.some(([m]) => m === every) ? '' : `<option value="${every}" selected>Every ${esc(spanLabel(every))}</option>`}</select></label></div>
+        </section>
         <section class="rs-sec"><h3>The basics</h3>
           <div class="row2"><label class="field"><span>Race name</span><input name="name" maxlength="60" value="${esc((cur && mode !== 'new' && cur.name) || '')}" placeholder="The $250 Race"></label>
           <label class="field"><span>Stake per room (USD)</span><input name="stake" type="number" min="1" step="1" value="${stake}" required${lock}></label></div>
-          <div class="field"><span>Prize days · the best score at each one wins it</span><div class="chips">${RDAYS.map((d) => ck('day', d, hz.includes(d), hName(d), '', lock)).join('')}</div>
-            <input name="daysOther" placeholder="Other days, e.g. 45, 120" value="${esc(hz.filter((d) => !RDAYS.includes(d)).join(', '))}"${lock}></div>
           <div class="row2"><label class="field"><span>Scored by</span>${sel('scoring', M.scoring, R.scoring)}</label>
           <label class="field"><span>A tie at the top</span>${sel('tiebreak', { none: 'Nobody wins that prize', earliest: 'Goes to whoever got there first' }, R.tiebreak)}</label></div>
           ${amend ? '' : `<div class="row2"><label class="field"><span>Start</span>${sel('start', { now: 'Now', later: 'Later' }, 'now')}</label><label class="field"><span>Start at (if later)</span><input name="startAt" type="datetime-local"></label></div>`}
@@ -3390,17 +3438,13 @@
         <section class="rs-sec"><h3>People and posting</h3>
           <label class="field"><span>Contacting people</span>${sel('outreach', M.contact, R.outreach)}</label>
           <label class="field"><span>Public posts</span>${sel('posting', { drafts: 'Agents draft; Joshua publishes', none: 'No public posts at all' }, R.posting)}</label>
-          <label class="field"><span>Each agent checks in every (hours)</span><input name="everyHours" type="number" min="1" max="168" step="1" value="${R.everyHours}"></label>
           <div class="muted small">Agents never send, post or message anyone themselves: a draft waits in the dock for you.</div>
-        </section>
-        <section class="rs-sec wide"><h3>Anything else</h3>
-          <textarea name="notes" maxlength="2000" rows="3" placeholder="Rules of your own, in plain words. They go into every agent's brief.">${esc(R.notes || '')}</textarea>
         </section>
       </div>
       <div class="rs-foot">
         <label class="field"><span>${amend ? 'Why the rules changed' : 'Where the stake money sits'}</span><input name="evidence" minlength="3" required placeholder="${amend ? 'e.g. ads were burning money, so ads are off' : 'e.g. eight virtual cards, $250 on each'}" value="${!amend && cur && mode === 'restart' ? esc(cur.evidence || '') : ''}"></label>
         <div class="rs-sum" data-rssum></div>
-        <button class="btn go" type="submit">${ic('flag')}${amend ? 'Save the new rules' : 'Fire the starting gun'}</button><div class="msg"></div>
+        <button class="btn go" type="submit">${ic('flag')}<span data-rsgo>${amend ? 'Save the new rules' : 'Start the race'}</span></button><div class="msg"></div>
       </div></form>`;
     $('#racebox').hidden = false;
     $('#racebox .box').scrollTop = 0;
@@ -3411,29 +3455,42 @@
   function rsRead(f) {
     const fd = new FormData(f), cur = snap.race, amend = rsMode === 'amend' && cur;
     const num = (k) => { const v = String(fd.get(k) ?? '').trim(); return v === '' ? null : Number(v); };
-    const days = amend ? cur.horizons : [...new Set([...fd.getAll('day').map(Number), ...String(fd.get('daysOther') || '').split(',').map((x) => Number(x.trim())).filter((x) => Number.isInteger(x) && x > 0)])].sort((a, b) => a - b);
+    const typed = String(fd.get('hzOther') || '').split(',').map((x) => x.trim()).filter(Boolean);
+    const bad = typed.filter((x) => !durMin(x));
+    const mins = amend ? cur.horizonsMin : [...new Set([...fd.getAll('hz').map(Number), ...typed.map(durMin).filter(Boolean)])].sort((a, b) => a - b);
     const racing = amend ? cur.lanes.map((x) => x.id) : rooms.map((x) => x.id).filter((id) => f.elements['race_' + id] && f.elements['race_' + id].checked);
     const stakes = {}, models = {};
     for (const id of racing) { const sv = amend ? (cur.rules.stakes || {})[id] : num('stake_' + id); if (sv) stakes[id] = sv; const mv = fd.get('model_' + id); if (mv) models[id] = mv; }
     const rules = {
       methods: fd.getAll('method'), connectors: [...new Set([...fd.getAll('conn'), ...String(fd.get('connOther') || '').split(',').map((x) => x.trim()).filter(Boolean)])],
       ads: fd.has('ads'), collab: fd.has('collab'), maxSpendPerDayUsd: num('maxDay'), approveOverUsd: num('approveOver'), knockoutUsd: num('knockout'),
-      outreach: fd.get('outreach'), posting: fd.get('posting'), everyHours: Math.min(168, Math.max(1, Math.round(num('everyHours') || 24))), scoring: fd.get('scoring'), tiebreak: fd.get('tiebreak'),
+      outreach: fd.get('outreach'), posting: fd.get('posting'), everyMinutes: Math.min(10080, Math.max(0, Math.round(num('everyMinutes') ?? 1440))), scoring: fd.get('scoring'), tiebreak: fd.get('tiebreak'),
       stakes, models, notes: String(fd.get('notes') || ''),
     };
     const stake = amend ? cur.stakeUsd : num('stake') || 250;
     const startAt = !amend && fd.get('start') === 'later' && fd.get('startAt') ? new Date(fd.get('startAt')).toISOString() : null;
-    return { name: String(fd.get('name') || '').trim(), stake, days, racing, rules, startAt, evidence: String(fd.get('evidence') || '').trim() };
+    return { name: String(fd.get('name') || '').trim(), stake, mins, bad, racing, rules, startAt, evidence: String(fd.get('evidence') || '').trim() };
   }
   function rsSummary() {
     const f = $('#f-rs'); if (!f) return;
     const d = rsRead(f), staked = d.racing.reduce((s, id) => s + (d.rules.stakes[id] || d.stake), 0);
-    f.querySelector('[data-rssum]').innerHTML = `<b>${d.racing.length}</b> room${d.racing.length === 1 ? '' : 's'} · <b>${usd(staked)}</b> staked · prizes at ${d.days.length ? d.days.map(hName).join(', ') : '<span style="color:var(--bad)">no days picked</span>'} · <b>${d.rules.methods.length}</b> of ${Object.keys(snap.raceMenu.methods).length} ways to make money · <b>${d.rules.connectors.length}</b> tools${d.startAt ? ` · starts ${esc(new Date(d.startAt).toLocaleString())}` : ''}`;
+    const ev = d.rules.everyMinutes, first = d.mins[0];
+    const warn = [d.bad.length ? `can't read "${esc(d.bad.join('", "'))}" (try 45m, 3h, 10d)` : '', !d.mins.length ? 'pick at least one time limit' : '', ev && first && ev > first ? `agents check in every ${spanLabel(ev)}, but the first prize is at ${spanLabel(first)}` : ''].filter(Boolean);
+    f.querySelector('[data-rssum]').innerHTML = `<b>${d.racing.length}</b> room${d.racing.length === 1 ? '' : 's'} · <b>${usd(staked)}</b> staked · prizes at ${d.mins.length ? d.mins.map(spanLabel).join(', ') : '…'} · agents ${ev ? `check in every <b>${spanLabel(ev)}</b>` : '<b>work all the time</b>'} · <b>${d.rules.methods.length}</b> of ${Object.keys(snap.raceMenu.methods).length} ways to make money · <b>${d.rules.connectors.length}</b> tools${d.startAt ? ` · starts ${esc(new Date(d.startAt).toLocaleString())}` : ''}${warn.length ? `<div class="rs-warn">${ic('warn')}${warn.join('; ')}</div>` : ''}`;
+    const go = f.querySelector('[data-rsgo]'); if (go && rsMode !== 'amend') go.textContent = d.startAt ? 'Schedule the race' : 'Start the race';
   }
   {
     const rb = $('#racebox');
     rb.addEventListener('click', (e) => {
       if (e.target.id === 'racebox' || e.target.closest('[data-rsclose]')) { closeRaceSetup(); return; }
+      const pre = e.target.closest('[data-rspreset]');
+      if (pre) {
+        const p = RPRESETS[pre.dataset.rspreset], f = $('#f-rs');
+        f.querySelectorAll('input[name="hz"]').forEach((i) => { i.checked = p.times.includes(Number(i.value)); i.closest('.ck').classList.toggle('on', i.checked); });
+        f.hzOther.value = ''; f.everyMinutes.value = String(p.every);
+        rb.querySelectorAll('[data-rspreset]').forEach((b) => b.classList.toggle('on', b === pre));
+        rsSummary(); return;
+      }
       const all = e.target.closest('[data-rsall], [data-rsnone]');
       if (all) { const name = all.dataset.rsall || all.dataset.rsnone, on = Boolean(all.dataset.rsall); rb.querySelectorAll(`input[name="${name}"]`).forEach((i) => { i.checked = on; i.closest('.ck').classList.toggle('on', on); }); rsSummary(); }
     });
@@ -3447,11 +3504,12 @@
         if (amend) await post('api/events', { kind: 'race', amend: true, rules: d.rules, evidence: d.evidence, ...(d.name ? { name: d.name } : {}) });
         else {
           if (!d.racing.length) throw new Error('Pick at least one room to race.');
-          if (!d.days.length) throw new Error('Pick at least one prize day.');
-          await post('api/events', { kind: 'race', stakeUsd: d.stake, evidence: d.evidence, horizons: d.days, rules: d.rules, rooms: d.racing, ...(d.name ? { name: d.name } : {}), ...(d.startAt ? { startsAt: d.startAt } : {}) });
+          if (d.bad.length) throw new Error(`Can't read the time "${d.bad[0]}". Try 45m, 3h or 10d.`);
+          if (!d.mins.length) throw new Error('Pick at least one time limit.');
+          await post('api/events', { kind: 'race', stakeUsd: d.stake, evidence: d.evidence, horizonsMin: d.mins, rules: d.rules, rooms: d.racing, ...(d.name ? { name: d.name } : {}), ...(d.startAt ? { startsAt: d.startAt } : {}) });
         }
         closeRaceSetup();
-        toast('status', amend ? 'The rules changed' : d.startAt ? 'The race is set' : 'The race is on', amend ? 'every brief is written again' : `${d.racing.length} rooms · prizes at ${d.days.map(hName).join(', ')}`, '#ffcf5a', 'flag');
+        toast('status', amend ? 'The rules changed' : d.startAt ? 'The race is set' : 'The race is on', amend ? 'every brief is written again' : `${d.racing.length} rooms · prizes at ${d.mins.map(spanLabel).join(', ')}`, '#ffcf5a', 'flag');
         panelSig = ''; await poll();
       } catch (err) { msg.className = 'msg err'; msg.textContent = err.message; }
     });
@@ -3790,8 +3848,8 @@
   const draftSig = (dr) => JSON.stringify({ name: dr.name, mode: dr.mode, skin: dr.skin, template: dr.template, kids: dr.kids, rooms: dr.rooms });
   const discardRooms = () => { $('#roomsbox').hidden = true; if (rd.welcome) sset('rs-welcome', '1'); if (skinTry) trySkin(null); };
   function closeRooms() {
-    if (rd.welcome || !rd.draft || !rd.data || !rd.data.templates || draftSig(rd.draft) === rd.orig) { discardRooms(); return; }
-    saveRooms();
+    if (rd.welcome || !rd.draft || !rd.data || !rd.data.templates || draftSig(rd.draft) === rd.orig) { discardRooms(); return null; }
+    return saveRooms();
   }
   // the rooms a mode starts with: its first template, or the built-in paths for the command center
   function roomsForMode(mode) {
@@ -3921,7 +3979,8 @@
       <label class="xall"><span class="tog"><input type="checkbox" data-explain${explainAll() ? ' checked' : ''}><i></i></span>Explain every field</label>
       <div class="sy-head"><div class="rd-ic">${ic('rooms')}</div><div style="flex:1;min-width:0"><h2>Customize the world</h2><p class="lead">What it's for, what world it lives in, who works in it, and every room. Closing saves your changes. ${chores ? 'Each room is one chore with a price; kids earn it when a parent checks it off.' : 'A synced sale lands in the first room whose keyword appears in its item name, so Square\'s "Skin Fade" goes to the room that claims <i>fade</i>.'} Every dollar still totals in the vault.</p></div></div>
       <div class="rd-top">
-        <div><h3>What it's for</h3><div class="modes">${modeTiles(dr.mode, 'data-mode', false)}</div></div>
+        <div><h3>What it's for</h3><div class="modes">${modeTiles(dr.mode, 'data-mode', false)}</div>
+          ${dr.mode === 'race' ? `<div class="callout" style="margin-top:8px"><b>The race itself</b>The stake, the time limits, your rules and the start button are in the race setup.<button class="btn go wide" type="button" data-rsfromrooms style="margin-top:8px">${ic('flag')}${snap && snap.race ? 'Race rules and limits' : 'Set up the race'}</button></div>` : ''}</div>
         <div><h3>World <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· click to try it on</span></h3><div class="skins">${skinTiles(dr.skin, 'data-skin')}</div>
           <label class="muted small" style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;cursor:pointer"><input type="checkbox" data-seasonal ${seasonalOn() ? 'checked' : ''} style="margin-top:3px;width:auto;flex:none"><span>Halloween in October: the pumpkin patch until the 23rd, then the haunted mansion to the end of the month. Your chosen world comes back in November. This browser only.</span></label></div>
       </div>
@@ -3977,6 +4036,8 @@
     }
     nameIn.addEventListener('input', () => { dr.name = nameIn.value; });
     box.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { swapMode(b.dataset.mode); renderRooms(); }));
+    // save what is here (a race needs its rooms saved first), then open the race setup
+    box.querySelectorAll('[data-rsfromrooms]').forEach((b) => b.addEventListener('click', async () => { b.disabled = true; try { await closeRooms(); await poll(); } catch { /* the save reports its own error */ } openRaceSetup(snap && snap.race ? 'amend' : 'new'); }));
     box.querySelectorAll('[data-skin]').forEach((b) => b.addEventListener('click', () => openWorld(b.dataset.skin, dr.skin, (w) => { dr.skin = w; trySkin(w); renderRooms(); })));
     box.querySelectorAll('[data-seasonal]').forEach((b) => b.addEventListener('change', () => { lset('pf-seasonal', b.checked ? 'on' : 'off'); trySkin(skinTry); }));
     // kids
@@ -4386,6 +4447,9 @@
   $('#navMap').innerHTML = lab('map', 'Map');
   $('#navMap').addEventListener('click', () => { closeRoomMenu(); openMap(); });
   $('#navRooms').innerHTML = lab('sliders', 'Customize');
+  $('#navRace').innerHTML = lab('flag', 'Race');
+  // no race yet: the setup; a race under way: the board, with its rules and a new race one click away
+  $('#navRace').addEventListener('click', () => { closeRoomMenu(); if (!snap || !snap.race) openRaceSetup('new'); else { racePlay = null; select('hub'); if (overlayMode() && insMode !== 'full') setIns('full'); } });
   $('#navSync').innerHTML = '<span class="sdot"></span>' + lab('bolt', 'Income');
   $('#navLedger').innerHTML = lab('chart', 'Ledger');
   $('#navTerm').innerHTML = lab('term', 'Terminal');
@@ -4444,6 +4508,7 @@
     world: ['The whole world', 'Fly back out to see every room at once. Click any room or character to go in again.', 'Esc or H'],
     map: ['Map', 'Your station drawn as a map of this world, every room with its number and name. Click one to fly there.', 'B'],
     rooms: ['Rooms', 'A list of every room with who is working and what it earned. Pick one to fly straight in.', '1 – 9'],
+    race: ['Race', 'Set up the sandbox race and start it: the stake, the time limits, your rules, what the agents may use and spend. Once it runs, this opens the race board.', ''],
     customize: ['Customize', 'Change what the world is for and how it looks: its purpose, its world skin, the folk and their roles, each room\'s name, price, keywords and furniture. The guide inside explains every field.', 'C'],
     income: ['Income', 'Link where you get paid (Stripe, Square, PayPal, Gumroad) or import a statement (Upwork, Fiverr, a bank CSV). Every payment becomes a ledger line and walks into its room. The dot shows sync health.', 'I'],
     ledger: ['Ledger', 'The money dashboard: every dollar in and out, with its evidence, in plain tables and charts. Also where kids get paid out in the family tracker.', ''],
@@ -7447,6 +7512,7 @@
       ${it('replay', 'replay', replay ? 'Stop replay' : 'Replay', 'the last 24 hours', '#5fd4ff')}
       ${it('sound', soundOn ? 'sound' : 'mute', soundOn ? 'Sound on' : 'Sound off', 'tap to switch', '#3ddc97')}
       ${it('feed', 'posts', 'Live feed', 'every event', '#a78bfa')}
+      ${MODE() === 'race' ? it('sync', 'bolt', 'Income', 'where you get paid', '#3ddc97') : ''}
       ${it('rooms', 'grid', 'All rooms', 'jump to one', '#ffcf5a')}
       ${it('world', 'globe', 'Whole world', 'fly out', '#5fd4ff')}
     </div>`;
@@ -7460,7 +7526,7 @@
     const b = e.target.closest('[data-more]'); if (!b) return;
     const k = b.dataset.more; closeMore();
     if (k === 'tour') startTour(); else if (k === 'guide') openGuide(); else if (k === 'map') openMap(); else if (k === 'replay') (replay ? stopReplay() : startReplay());
-    else if (k === 'sound') toggleSound(); else if (k === 'feed') $('#comms').classList.add('open'); else if (k === 'rooms') openRoomMenu(); else if (k === 'world') select('hub');
+    else if (k === 'sync') openSync(); else if (k === 'sound') toggleSound(); else if (k === 'feed') $('#comms').classList.add('open'); else if (k === 'rooms') openRoomMenu(); else if (k === 'world') select('hub');
   });
   document.addEventListener('pointerdown', (e) => { if (!$('#moreSheet').hidden && !e.target.closest('#moreSheet, #tabMore')) closeMore(); });
   // the feed as a one-line ticker on phones: tap it to open, tap again to close
