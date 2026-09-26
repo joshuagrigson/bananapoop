@@ -988,7 +988,7 @@
   // ---- navigation: a fine walk grid over floors and halls, furniture blocked, A* plus string-pulling
   const NR = 4, NGW = 44 * NR, NGH = 34 * NR;
   const HUB_SPAWN = [1.9, 1.9];                             // hub-local spot where crew beam in and out
-  const MAST = [28.3, 0.7];                                 // world spot of the comm mast (income sync)
+  const MAST = [29, 0];                                    // world spot of the comm mast (income sync)
   // Income sync health, read from the snapshot: drives the mast beacon, the Sync button and the mast tooltip.
   function syncStatus() {
     const list = (snap && snap.sync && snap.sync.connections) || [];
@@ -1920,7 +1920,7 @@
 
 
   // ======================================================================= DOM overlay: labels, floats, tooltip
-  let labelEls = [], labelsDirty = true;
+  let labelEls = [], labelsDirty = true, plateRects = [];
   const shortName = (spec) => spec.short || spec.name.replace(/,.*$/, '').slice(0, 30);
   // a room's tier (stars, by 30 days of activity) and how many folk work it right now
   const tierHtml = (room) => { const t = roomTier(room); return t ? `<span class="tier" title="Tier ${t}: ${roomActivity(room)} in 30 days">${'★'.repeat(t)}</span>` : ''; };
@@ -1960,6 +1960,9 @@
       L.el.classList.toggle('faded', Boolean(focusId) && focusAmount() > 0.5 && L.id !== focusId);
       if (!offv) L.el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;
     }
+    // where the labels ended up, so the renderer can keep the folk's name tags clear of them
+    const vr = $('#view').getBoundingClientRect();
+    plateRects = labelEls.filter((L) => !L.el.classList.contains('off')).map((L) => { const b = (L.el.querySelector('.plate') || L.el).getBoundingClientRect(); return [b.left - vr.left - 4, b.top - vr.top - 3, b.right - vr.left + 4, b.bottom - vr.top + 3]; });
     for (const f of floats) { const [x, y] = toCss(f.nx, f.ny); f.el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`; }
     labelsDirty = false;
   }
@@ -3556,12 +3559,12 @@
 
     // ---- the six worlds, as materials: walls, floors, the ground the station stands on, the sky behind it
     const MAT = {
-      space: { wall: '#cfd8ea', wall2: '#b6c1d8', trim: '#4a5b80', cap: '#e9eef8', floor: ['#8f9ab0', '#838ea4'], fk: 'plates', slab: '#27304c', slab2: '#1b2238', acc: '#5fd4ff', sky: 'space', lamp: '#bfe8ff', ground: ['#3a4462', '#2a3350', '#1c233b'], hall: '#56617e', rail: '#9aa7c4' },
-      castle: { wall: '#77708a', wall2: '#686178', trim: '#3a3246', cap: '#8d86a0', floor: ['#5e4332', '#523a2b'], fk: 'planks', slab: '#2c2334', slab2: '#1c1622', acc: '#ff9a4a', sky: 'moon', lamp: '#ffb866', brick: true, ground: ['#4d4658', '#3a3444', '#28232f'], hall: '#5b5468', rail: '#2b2530' },
-      farm: { wall: '#f0dcb4', wall2: '#e3cc9f', trim: '#8a5a32', cap: '#f7ead0', floor: ['#cfa168', '#c1925a'], fk: 'planks', slab: '#76502e', slab2: '#5a3b20', acc: '#ffb454', sky: 'day', lamp: '#ffe2a0', ground: ['#6fbf4a', '#8a5a2e', '#6b4322'], hall: '#c9a06a', rail: '#8a5a32' },
-      cyber: { wall: '#2e3144', wall2: '#262a3c', trim: '#ff3fa4', cap: '#3b3f56', floor: ['#20232f', '#1a1d28'], fk: 'tiles', slab: '#0f1019', slab2: '#08080f', acc: '#ff3fa4', sky: 'city', lamp: '#ff7ad9', neon: true, ground: ['#23262f', '#17191f', '#0e0f14'], hall: '#2b2f3c', rail: '#00f0ff' },
-      alien: { wall: '#62407f', wall2: '#553570', trim: '#b86bff', cap: '#7a55a0', floor: ['#40295a', '#38234f'], fk: 'organic', slab: '#1f1030', slab2: '#140a20', acc: '#7dffb0', sky: 'nebula', lamp: '#9dffcf', ground: ['#3a2150', '#291639', '#1a0d26'], hall: '#4b2e66', rail: '#7dffb0' },
-      ocean: { wall: '#86a2b6', wall2: '#7590a4', trim: '#2f4a5e', cap: '#9fb7c8', floor: ['#5c7483', '#526977'], fk: 'grate', slab: '#1b2e3c', slab2: '#11202b', acc: '#39e0ff', sky: 'water', lamp: '#aef3ff', ground: ['#d8c28e', '#b39a64', '#8a7448'], hall: '#6d8797', rail: '#2f4a5e' },
+      space: { wall: '#cfd8ea', wall2: '#b6c1d8', trim: '#4a5b80', cap: '#e9eef8', floor: ['#8f9ab0', '#838ea4'], fk: 'plates', slab: '#27304c', slab2: '#1b2238', acc: '#5fd4ff', sky: 'space', lamp: '#bfe8ff', hall: '#56617e', rail: '#9aa7c4' },
+      castle: { wall: '#77708a', wall2: '#686178', trim: '#3a3246', cap: '#8d86a0', floor: ['#5e4332', '#523a2b'], fk: 'planks', slab: '#2c2334', slab2: '#1c1622', acc: '#ff9a4a', sky: 'moon', lamp: '#ffb866', brick: true, hall: '#5b5468', rail: '#2b2530' },
+      farm: { wall: '#f0dcb4', wall2: '#e3cc9f', trim: '#8a5a32', cap: '#f7ead0', floor: ['#cfa168', '#c1925a'], fk: 'planks', slab: '#76502e', slab2: '#5a3b20', acc: '#ffb454', sky: 'day', lamp: '#ffe2a0', hall: '#c9a06a', rail: '#8a5a32' },
+      cyber: { wall: '#2e3144', wall2: '#262a3c', trim: '#ff3fa4', cap: '#3b3f56', floor: ['#20232f', '#1a1d28'], fk: 'tiles', slab: '#0f1019', slab2: '#08080f', acc: '#ff3fa4', sky: 'city', lamp: '#ff7ad9', neon: true, hall: '#2b2f3c', rail: '#00f0ff' },
+      alien: { wall: '#62407f', wall2: '#553570', trim: '#b86bff', cap: '#7a55a0', floor: ['#40295a', '#38234f'], fk: 'organic', slab: '#1f1030', slab2: '#140a20', acc: '#7dffb0', sky: 'nebula', lamp: '#9dffcf', hall: '#4b2e66', rail: '#7dffb0' },
+      ocean: { wall: '#86a2b6', wall2: '#7590a4', trim: '#2f4a5e', cap: '#9fb7c8', floor: ['#5c7483', '#526977'], fk: 'grate', slab: '#1b2e3c', slab2: '#11202b', acc: '#39e0ff', sky: 'water', lamp: '#aef3ff', hall: '#6d8797', rail: '#2f4a5e' },
     };
     const sk = () => MAT[skinId()] || MAT.space;
 
@@ -4221,9 +4224,10 @@
       }
     }
     // ---- the mast on the north-east corner: its beacon is income sync (green synced, amber syncing, red failed)
-    function drawMast() {
+    function drawMast(S) {
       rx0 = 0; ry0 = 0;
       const [mx, my] = MAST, s = syncStatus(), on = s.blink ? (tt * s.blink) % 1 < 0.5 : true;
+      cyl(mx, my, 0.75, 0.28, -0.28, S.slab, { top: S.hall });
       cyl(mx, my, 0.35, 0.3, 0, '#3a4262');
       const [bx, by] = Pl(mx, my, 0.3), [, topY] = Pl(mx, my, 5.2);
       g.strokeStyle = skinId() === 'farm' ? '#8a5a32' : '#8a93a8'; g.lineWidth = lw(0.08);
@@ -4238,32 +4242,6 @@
       mastHit = [bx - u * 0.6, topY - u * 0.4, bx + u * 0.9, by + u * 0.3];
     }
     let mastHit = null;
-    // ---- the ground the station stands on: a hull in space, a rock in the castle, a grassy island on the farm...
-    function drawGround(cellsIn, S) {
-      let c0 = Infinity, r0 = Infinity, c1 = -Infinity, r1 = -Infinity;
-      for (const [c, r] of cellsIn) { c0 = Math.min(c0, c); r0 = Math.min(r0, r); c1 = Math.max(c1, c); r1 = Math.max(r1, r); }
-      if (!isFinite(c0)) return;
-      rx0 = 0; ry0 = 0;
-      const x0 = c0 * CELL - 0.6, y0 = r0 * CELL - 0.6, x1 = c1 * CELL + 8.6, y1 = r1 * CELL + 8.6, D = 2.2;
-      const [top, side1, side2] = S.ground;
-      const topPoly = [Pl(x0, y0), Pl(x1, y0), Pl(x1, y1), Pl(x0, y1)];
-      poly([Pl(x0, y1, 0), Pl(x1, y1, 0), Pl(x1, y1, -D), Pl(x0, y1, -D)]); g.fillStyle = side1; g.fill();
-      poly([Pl(x1, y0, 0), Pl(x1, y1, 0), Pl(x1, y1, -D), Pl(x1, y0, -D)]); g.fillStyle = side2; g.fill();
-      poly(topPoly); g.fillStyle = top; g.fill();
-      const id = skinId();
-      if (LOD) {
-        g.save(); poly(topPoly); g.clip();
-        if (id === 'space' || id === 'cyber' || id === 'alien') { g.strokeStyle = 'rgba(255,255,255,0.05)'; g.lineWidth = lw(0.03); for (let x = Math.ceil(x0); x < x1; x += 2) { g.beginPath(); g.moveTo(...Pl(x, y0)); g.lineTo(...Pl(x, y1)); g.stroke(); } for (let y = Math.ceil(y0); y < y1; y += 2) { g.beginPath(); g.moveTo(...Pl(x0, y)); g.lineTo(...Pl(x1, y)); g.stroke(); } }
-        if (id === 'farm') { g.fillStyle = 'rgba(40,100,30,0.25)'; for (let i = 0; i < 90; i++) { const x = x0 + (hsh(i * 7) % 1000) / 1000 * (x1 - x0), y = y0 + (hsh(i * 13 + 5) % 1000) / 1000 * (y1 - y0); const [a, b] = Pl(x, y); g.beginPath(); g.ellipse(a, b, u * 0.3, u * 0.12, 0, 0, 7); g.fill(); } }
-        if (id === 'ocean') { g.fillStyle = 'rgba(120,90,50,0.18)'; for (let i = 0; i < 60; i++) { const x = x0 + (hsh(i * 7) % 1000) / 1000 * (x1 - x0), y = y0 + (hsh(i * 13 + 5) % 1000) / 1000 * (y1 - y0); const [a, b] = Pl(x, y); g.beginPath(); g.ellipse(a, b, u * 0.4, u * 0.14, 0, 0, 7); g.fill(); } }
-        if (id === 'castle') { g.strokeStyle = 'rgba(0,0,0,0.18)'; g.lineWidth = lw(0.03); for (let x = Math.ceil(x0); x < x1; x += 1.5) for (let y = Math.ceil(y0); y < y1; y += 1.5) { poly([Pl(x, y), Pl(x + 1.4, y), Pl(x + 1.4, y + 1.4), Pl(x, y + 1.4)]); g.stroke(); } }
-        g.restore();
-        // edge detail on the two visible sides
-        if (id === 'space' || id === 'cyber') { for (let k = 0; k < (x1 - x0) / 1.5; k++) { const [a, b] = Pl(x0 + 0.75 + k * 1.5, y1, -0.7); const on = Math.sin(tt * 3 - k * 0.6) > 0.3; g.fillStyle = on ? (id === 'cyber' ? '#ff3fa4' : '#8fe3ff') : 'rgba(255,255,255,0.15)'; g.beginPath(); g.arc(a, b, u * 0.07, 0, 7); g.fill(); } for (let k = 0; k < (y1 - y0) / 1.5; k++) { const [a, b] = Pl(x1, y0 + 0.75 + k * 1.5, -0.7); const on = Math.sin(tt * 3 - k * 0.6 + 2) > 0.3; g.fillStyle = on ? (id === 'cyber' ? '#00f0ff' : '#8fe3ff') : 'rgba(255,255,255,0.15)'; g.beginPath(); g.arc(a, b, u * 0.07, 0, 7); g.fill(); } }
-        if (id === 'farm') { g.strokeStyle = '#8a5a32'; g.lineWidth = lw(0.06); for (const [ax, ay, bx2, by2] of [[x0, y1, x1, y1], [x1, y0, x1, y1]]) { g.beginPath(); g.moveTo(...Pl(ax, ay, 0.5)); g.lineTo(...Pl(bx2, by2, 0.5)); g.stroke(); const n = Math.round(Math.hypot(bx2 - ax, by2 - ay) / 1.5); for (let k = 0; k <= n; k++) { const px = ax + (bx2 - ax) * k / n, py = ay + (by2 - ay) * k / n; g.beginPath(); g.moveTo(...Pl(px, py, 0)); g.lineTo(...Pl(px, py, 0.7)); g.stroke(); } } }
-        if (id === 'castle') { for (let k = 0; k < (x1 - x0) / 1.2; k += 2) box(x0 + k * 1.2, y1 - 0.4, 0.6, 0.4, 0.5, 0, '#5a5468'); for (let k = 0; k < (y1 - y0) / 1.2; k += 2) box(x1 - 0.4, y0 + k * 1.2, 0.4, 0.6, 0.5, 0, '#5a5468'); }
-      }
-    }
     // ---- the characters, drawn big: a face, hair, clothes for their job, arms that do the work
     const SKIN_TONES = ['#f6d2b5', '#eec39a', '#e0ac7e', '#c68b59', '#a86b43', '#8d5524', '#6b3f22'];
     const HAIR_COLS = ['#2b1d14', '#4a2f1b', '#6b4226', '#161616', '#a0522d', '#d9a441', '#e8d27a', '#8a8a8a', '#b8352b'];
@@ -4640,7 +4618,8 @@
       g.globalAlpha = 1;
       // names: who is who, pushed apart so none overlap. Far away, only the ones that matter right now.
       const tags = over.filter((o) => o.a.kind !== 'res' && (LOD === 2 || (LOD === 1 && (o.id.kind !== 'client' || (selRoom && o.a.path === selRoom.id))) || o.a.id === hoverAgentId || o.a.id === selId || o.a.real > 0 || (selRoom && o.a.path === selRoom.id))).sort((p, q) => p.Yf - q.Yf);
-      const placed = [];
+      // the room labels are already on screen: tags go around them, never under them
+      const placed = plateRects.map(([l, t, r, b]) => [vx0e + l / S, vy0e + t / S, vx0e + r / S, vy0e + b / S]);
       for (const o of tags) {
         const { a, id, X } = o;
         const sub = id.kind === 'agent' ? 'AI AGENT' : id.kind === 'client' ? 'CLIENT' : id.kind === 'lead' ? 'YOU' : id.label.slice(0, 14);
@@ -4758,8 +4737,6 @@
         const mx = W * 0.8 - par.x * 0.02, my = H * 0.16;
         glowAt(mx, my, 150, '#d8c8ff', 0.35); g.fillStyle = '#f4f0d8'; g.beginPath(); g.arc(mx, my, 32, 0, 7); g.fill(); g.fillStyle = 'rgba(180,170,150,0.35)'; for (const [dx, dy, r] of [[-9, -7, 6], [8, 5, 5], [-3, 12, 4]]) { g.beginPath(); g.arc(mx + dx, my + dy, r, 0, 7); g.fill(); }
         hills(W, H, 0.6, 70, '#241a33', 2, par, 0.04);
-        // distant towers
-        g.fillStyle = '#1a1326'; for (const [fx2, fw, fh] of [[0.12, 26, 120], [0.16, 18, 90], [0.9, 30, 140], [0.94, 20, 100]]) { const x = W * fx2 - par.x * 0.05; g.fillRect(x, H * 0.62 - fh, fw, fh); g.beginPath(); g.moveTo(x - 4, H * 0.62 - fh); g.lineTo(x + fw / 2, H * 0.62 - fh - 30); g.lineTo(x + fw + 4, H * 0.62 - fh); g.fill(); g.fillStyle = 'rgba(255,190,90,0.7)'; g.fillRect(x + fw / 2 - 2, H * 0.62 - fh + 20, 4, 7); g.fillStyle = '#1a1326'; }
         hills(W, H, 0.78, 40, '#15101f', 4, par, 0.08);
         return;
       }
@@ -4814,14 +4791,14 @@
       drawFloor(kind === 'path' ? 'room' : kind, rm, th, S, acc, look);
       const doorL = cells.has((c - 1) + ',' + r), doorR = cells.has(c + ',' + (r - 1));
       const lay = rm ? layoutRoom(rm) : kind === 'hub' ? { items: layoutHub(), wall: [] } : { items: layoutDock(), wall: [] };
-      if (kind !== 'hub') {
+      {
         wallFace('L', S, th, H, doorL, look); wallFace('R', S, th, H, doorR, look);
         if (H > 1.9 && LOD) {
           if (rm) {
             if (th !== 'yard') { sky('L', 0.5, 2.0, 0.9, 2.6, S); dataScreen(rm); clock(S); }
             if (isService(rm) && th !== 'yard') openSign(S);
             sign(shortName(rm.spec), acc, S);
-          } else sign(NM().dockSign || NM().dock, acc, S);
+          } else if (kind === 'dock') sign(NM().dockSign || NM().dock, acc, S);
           for (const w of lay.wall) w();
         }
         rx0 = x0; ry0 = y0;
@@ -4844,7 +4821,6 @@
       lights.length = 0; hits = [];
       const Smat = sk();
       const list = [...cells.entries()].map(([k, v]) => { const [c, r] = k.split(',').map(Number); return { c, r, kind: v }; });
-      drawGround(list.map((o) => [o.c, o.r]), Smat);
       // walls rise in the room you are looking at, and stay low everywhere else so you can see in
       const selRoom = selected && roomById(selected);
       for (const o of list) {
@@ -4877,7 +4853,7 @@
       const over = [], selId = follow || (selected && selected.startsWith('a:') ? selected.slice(2) : null);
       const hallsDone = new Set();
       for (const o of order) {
-        if (o.t === 'mast') { drawMast(); continue; }
+        if (o.t === 'mast') { drawMast(Smat); continue; }
         if (o.t === 'hall') {
           drawHall(o.c0, o.r0, o.c1, o.r1, Smat);
           // characters walking this hall (the hall's grid square) go with it, back to front
