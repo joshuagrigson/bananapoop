@@ -1119,7 +1119,7 @@
   const folkList = () => (snap && snap.station && (snap.station.folk || snap.station.kids)) || [];
   const byOf = (e) => e.by || e.kid || null;
   const folkByName = (n) => folkList().find((f) => f.name.toLowerCase() === String(n || '').toLowerCase()) || null;
-  const hourOverride = (() => { try { const q = new URLSearchParams(location.search).get('hour'); return q !== null && q !== '' && Number.isFinite(Number(q)) ? Number(q) % 24 : null; } catch { return null; } })();
+  let hourOverride = (() => { try { const q = new URLSearchParams(location.search).get('hour'); return q !== null && q !== '' && Number.isFinite(Number(q)) ? Number(q) % 24 : null; } catch { return null; } })();
   // the hour the world shows: the viewer's clock, the replay's clock while a replay runs, or ?hour= for a look at night
   const hourNow = () => { if (replay) { const d = new Date(replay.clock); return d.getHours() + d.getMinutes() / 60; } if (hourOverride !== null) return hourOverride; const d = new Date(); return d.getHours() + d.getMinutes() / 60; };
   const nightNow = () => { const h = hourNow(); return h >= 22 || h < 6; };
@@ -3557,7 +3557,7 @@
     const alpha = (c, a) => shade(c, 0, a);
     const hsh = (s) => { let h = 2166136261; for (const ch of String(s)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0; };
 
-    // ---- the six worlds, as materials: walls, floors, the ground the station stands on, the sky behind it
+    // ---- the six worlds, as materials: walls, floors, halls, the sky behind the station
     const MAT = {
       space: { wall: '#cfd8ea', wall2: '#b6c1d8', trim: '#4a5b80', cap: '#e9eef8', floor: ['#8f9ab0', '#838ea4'], fk: 'plates', slab: '#27304c', slab2: '#1b2238', acc: '#5fd4ff', sky: 'space', lamp: '#bfe8ff', hall: '#56617e', rail: '#9aa7c4' },
       castle: { wall: '#77708a', wall2: '#686178', trim: '#3a3246', cap: '#8d86a0', floor: ['#5e4332', '#523a2b'], fk: 'planks', slab: '#2c2334', slab2: '#1c1622', acc: '#ff9a4a', sky: 'moon', lamp: '#ffb866', brick: true, hall: '#5b5468', rail: '#2b2530' },
@@ -3586,7 +3586,8 @@
       return 'office';
     }
     const themes = new Map();
-    const themeOfRoom = (rm) => { const k = rm.id + '|' + rm.spec.name + '|' + (rm.spec.style || '') + '|' + (rm.spec.match || []).join(','); let t = themes.get(k); if (!t) { t = themeFor(rm); themes.set(k, t); } return t; };
+    let themeForce = null, lookForce = null;      // set only while the art export draws one room as a given theme or state
+    const themeOfRoom = (rm) => { if (themeForce) return themeForce; const k = rm.id + '|' + rm.spec.name + '|' + (rm.spec.style || '') + '|' + (rm.spec.match || []).join(','); let t = themes.get(k); if (!t) { t = themeFor(rm); themes.set(k, t); } return t; };
 
     // ---- projection: room-local floor units, heights in floor units; the canvas transform does the zoom
     const Pl = (x, y, z = 0) => P(rx0 + x, ry0 + y, z * u);
@@ -4289,7 +4290,7 @@
       const hipY = sit ? -0.62 : -0.98 - bounce, shY = hipY - (L.small ? 0.58 : 0.74);
       const headR = L.small ? 0.43 : 0.42, headY = shY - headR - 0.06;
       const back = a.view === 'back' && !sit && pose !== 'serve';
-      const seatedBack = sit && a.kind !== 'guest';
+      const guestSeat = a.kind === 'guest' || a.seatFront, seatedBack = sit && !guestSeat;
       const showFace = !back && !seatedBack;
       // ---- legs
       if (L.ghost || L.blob || holo) {
@@ -4336,7 +4337,7 @@
       if (walk) { hl = [-sx - 0.04, sy + 0.55 - ph * 0.08]; hr = [sx + 0.04, sy + 0.55 + ph * 0.08]; }
       else if (pose === 'serve') { const sn = Math.sin(t * 14); hr = [sx + 0.12, sy + 0.05 + sn * 0.03]; hl = [-0.1, sy + 0.32]; tool = curTheme === 'barber' || curTheme === 'salon' ? 'scissors' : curTheme === 'shop' ? 'bag' : 'clip'; }
       else if (pose === 'chore') { const c = t * 7; hl = [-0.18 + Math.cos(c) * 0.08, sy + 0.42 + Math.sin(c) * 0.05]; hr = [0.18 + Math.cos(c + 3) * 0.08, sy + 0.42 + Math.sin(c + 3) * 0.05]; tool = curTheme === 'kitchen' ? 'sponge' : curTheme === 'yard' ? 'rake' : curTheme === 'laundry' ? 'shirt' : curTheme === 'study' ? 'book' : 'duster'; }
-      else if (pose === 'tinker' || (sit && a.kind !== 'guest')) { const k = Math.sin(t * 16) * 0.025; hl = [-0.16, sy + 0.4 + k]; hr = [0.16, sy + 0.4 - k]; tool = holo ? 'tablet' : curTheme === 'office' || curTheme === 'study' ? null : 'tablet'; }
+      else if (pose === 'tinker' || (sit && !guestSeat)) { const k = Math.sin(t * 16) * 0.025; hl = [-0.16, sy + 0.4 + k]; hr = [0.16, sy + 0.4 - k]; tool = holo ? 'tablet' : curTheme === 'office' || curTheme === 'study' ? null : 'tablet'; }
       else if (pose === 'chat') { hr = [sx + 0.2, sy - 0.05 + Math.sin(t * 5) * 0.08]; }
       else if (pose === 'carry') { hl = [-0.2, sy + 0.25]; hr = [0.2, sy + 0.25]; tool = 'box'; }
       else if (sit) { hl = [-sx + 0.05, sy + 0.45]; hr = [sx - 0.05, sy + 0.45]; }
@@ -4557,21 +4558,9 @@
       g.fillText(BUB[icon] || '•', X, Y + r * 0.05);
     }
 
-    // ---- one character, wherever they are
-    const roomThemeOf = (a) => { const rm = a.path && roomById(a.path); return rm ? themeOfRoom(rm) : 'office'; };
-    function drawChar(a, over, selId) {
-      if (a.dying && T - a.dying > 0.95) return;
-      const id = identity(a);
-      curTheme = roomThemeOf(a);
-      const [X, Y] = P(a.x, a.y, a.jz > 0 ? Math.sin(a.jz * Math.PI) * 0.35 * u : 0), [, Yf] = P(a.x, a.y);
-      const fade = (a.dying ? Math.max(0, 1 - (T - a.dying) / 0.95) : 1) * (a.born && T - a.born < 0.8 ? (T - a.born) / 0.8 : 1);
-      if (fade <= 0.01) return;
-      g.save(); g.globalAlpha = fade;
-      g.fillStyle = 'rgba(0,0,0,0.28)'; g.beginPath(); g.ellipse(X, Yf, u * 0.42, u * 0.18, 0, 0, 7); g.fill();
-      if (a.id === hoverAgentId || a.id === selId) { g.strokeStyle = id.col; g.lineWidth = Math.max(cssPx(2), u * 0.05); g.setLineDash([u * 0.18, u * 0.1]); g.lineDashOffset = -T * u * 0.4; g.beginPath(); g.ellipse(X, Yf, u * 0.6, u * 0.28, 0, 0, 7); g.stroke(); g.setLineDash([]); }
-      g.translate(X, Y);
+    // the character itself, feet at the origin: a simple figure far away, an animal, a person or a hologram agent
+    function figure(a, id, L, pose, fade) {
       let top;
-      const L = a.kind === 'res' ? null : lookFor(a, id), pose = a.kind === 'res' ? 'stand' : poseOf(a);
       if (LOD === 0) { g.scale(u * (a.face < 0 ? -1 : 1), u); top = simpleFigure(a, id, L || { small: false }); }
       else if (a.kind === 'res') { g.scale(u * 1.15 * (a.face < 0 ? -1 : 1), u * 1.15); top = drawAnimal(a, a.t) * 1.15; }
       else {
@@ -4590,6 +4579,23 @@
         g.shadowBlur = 0;
         if (pose === 'sleep') top = 1.0;
       }
+      return top;
+    }
+    // ---- one character, wherever they are
+    const roomThemeOf = (a) => { const rm = a.path && roomById(a.path); return rm ? themeOfRoom(rm) : 'office'; };
+    function drawChar(a, over, selId) {
+      if (a.dying && T - a.dying > 0.95) return;
+      const id = identity(a);
+      curTheme = roomThemeOf(a);
+      const [X, Y] = P(a.x, a.y, a.jz > 0 ? Math.sin(a.jz * Math.PI) * 0.35 * u : 0), [, Yf] = P(a.x, a.y);
+      const fade = (a.dying ? Math.max(0, 1 - (T - a.dying) / 0.95) : 1) * (a.born && T - a.born < 0.8 ? (T - a.born) / 0.8 : 1);
+      if (fade <= 0.01) return;
+      g.save(); g.globalAlpha = fade;
+      g.fillStyle = 'rgba(0,0,0,0.28)'; g.beginPath(); g.ellipse(X, Yf, u * 0.42, u * 0.18, 0, 0, 7); g.fill();
+      if (a.id === hoverAgentId || a.id === selId) { g.strokeStyle = id.col; g.lineWidth = Math.max(cssPx(2), u * 0.05); g.setLineDash([u * 0.18, u * 0.1]); g.lineDashOffset = -T * u * 0.4; g.beginPath(); g.ellipse(X, Yf, u * 0.6, u * 0.28, 0, 0, 7); g.stroke(); g.setLineDash([]); }
+      g.translate(X, Y);
+      const L = a.kind === 'res' ? null : lookFor(a, id), pose = a.kind === 'res' ? 'stand' : poseOf(a);
+      const top = figure(a, id, L, pose, fade);
       g.restore();
       const topY = Y - top * u;
       const [c0x, c0y] = toCss(X - u * 0.6, topY), [c1x, c1y] = toCss(X + u * 0.6, Yf + u * 0.2);
@@ -4786,7 +4792,7 @@
       const [x0, y0] = cellOrigin(c, r); rx0 = x0; ry0 = y0;
       const key = c + ',' + r, H = wallH.get(key) || LOWH; curWallH = H;
       const rm = kind === 'path' ? rooms.find((m) => m.c === c && m.r === r) : null;
-      const th = rm ? themeOfRoom(rm) : kind, look = rm ? roomLook(rm) : 'active', acc = rm ? themeOf(rm.id).accent : kind === 'hub' ? '#ffcf5a' : '#cfd6e6';
+      const th = rm ? themeOfRoom(rm) : kind, look = lookForce || (rm ? roomLook(rm) : 'active'), acc = rm ? themeOf(rm.id).accent : kind === 'hub' ? '#ffcf5a' : '#cfd6e6';
       curTheme = th;
       drawFloor(kind === 'path' ? 'room' : kind, rm, th, S, acc, look);
       const doorL = cells.has((c - 1) + ',' + r), doorR = cells.has(c + ',' + (r - 1));
@@ -4811,12 +4817,12 @@
     }
 
     // ---- the frame
-    function draw(dt) {
-      g = dctx; tt = T;
+    function draw(dt, o = {}) {
+      g = o.ctx || dctx; tt = T;
       us = u * S; LOD = us < 11 ? 0 : us < 26 ? 1 : 2; px1 = 1 / (S * dpr); ou = u * Math.max(1, 14 / us);
       const W = vwCss, H = vhCss;
       g.setTransform(dpr, 0, 0, dpr, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
-      background(W, H);
+      if (o.bg !== false) background(W, H); else g.clearRect(0, 0, g.canvas.width, g.canvas.height);
       g.setTransform(S * dpr, 0, 0, S * dpr, -vx0e * S * dpr, -vy0e * S * dpr);
       lights.length = 0; hits = [];
       const Smat = sk();
@@ -4834,6 +4840,7 @@
       // who is where: each character is drawn with the cell or hall they stand in
       const buckets = new Map(), put = (k, a) => { if (!buckets.has(k)) buckets.set(k, []); buckets.get(k).push(a); };
       for (const a of agents.values()) {
+        if (o.folk === false) break;
         const c = Math.floor((a.x - 1 + 0.5) / CELL), r = Math.floor((a.y - 1 + 0.5) / CELL), [ox0, oy0] = cellOrigin(c, r);
         if (cells.has(c + ',' + r) && a.x >= ox0 - 0.4 && a.x <= ox0 + N + 0.4 && a.y >= oy0 - 0.4 && a.y <= oy0 + N + 0.4) { put('c' + c + ',' + r, a); continue; }
         // between cells: which hall are they on?
@@ -4868,17 +4875,17 @@
       // anyone left over (between cells, outside the grid)
       for (const [k, arr] of buckets) if (k[0] !== 'c' && !hallsDone.has(k)) for (const a of arr.sort((p, q) => (p.x + p.y) - (q.x + q.y))) drawChar(a, over, selId);
       rx0 = 0; ry0 = 0;
-      drawCritters();
-      drawEffects();
+      if (o.post !== false) { drawCritters(); drawEffects(); }
       // night: the world darkens and every lamp, screen, sign and beacon lights its surroundings
       const dk = darkness() * (NIGHTK[skinId()] ?? 0.35);
       for (const L of dynLights) lights.push([L.sx, L.sy, L.r, L.color, L.a]);
       if (dk > 0.02) {
-        g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = `rgba(8,12,38,${dk.toFixed(3)})`; g.fillRect(0, 0, cv.width, cv.height); g.restore();
+        g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = `rgba(8,12,38,${dk.toFixed(3)})`; if (o.bg === false) g.globalCompositeOperation = 'source-atop'; g.fillRect(0, 0, g.canvas.width, g.canvas.height); g.restore();
         g.save(); g.globalCompositeOperation = 'lighter';
         for (const [X, Y, R, col, s] of lights) if (X > vx0e - R && X < vx1 + R && Y > vy0e - R && Y < vy1 + R) glowAt(X, Y, R, col, s * dk * 1.3);
         g.restore();
       }
+      if (o.post === false) { g.setTransform(1, 0, 0, 1, 0, 0); return; }
       // one room in focus: the rest of the station steps back
       focusA += ((selRoom ? 1 : 0) - focusA) * Math.min(1, dt * 5);
       if (selRoom) lastFocus = selRoom;
@@ -4912,7 +4919,86 @@
       const items = rm ? layoutRoom(rm).items : kind === 'hub' ? layoutHub() : layoutDock();
       return items.filter((i) => i.fp).map((i) => i.fp);
     }
-    return { draw, pickAt, mastAt, silhouetteOf, footprints, wallHeight: (c, r) => wallH.get(c + ',' + r) || LOWH, FULLH, drawPerson: (gg, a, id, L, pose, t) => { const keep = g; g = gg; const top = drawPerson(a, id, L, pose, t); g = keep; return top; }, lookFor, drawAnimal: (gg, a, t) => { const keep = g; g = gg; const top = drawAnimal(a, t); g = keep; return top; } };
+
+    // ---- the art export: one character, one room, the backdrop or the whole map drawn on a canvas of its own, through
+    // the same code the game draws with (tools/export-art.mjs turns these into the PNG handoff). The game never calls them.
+    function withView(ctx, s, x0, y0, fn) {
+      const keep = { g, S, dpr, vx0e, vy0e, us, LOD, px1, ou, tt };
+      g = ctx; S = s; dpr = 1; vx0e = x0; vy0e = y0; tt = T;
+      us = u * S; LOD = us < 11 ? 0 : us < 26 ? 1 : 2; px1 = 1 / S; ou = u * Math.max(1, 14 / us);
+      g.setTransform(S, 0, 0, S, -x0 * S, -y0 * S);
+      try { return fn(); } finally { ({ g, S, dpr, vx0e, vy0e, us, LOD, px1, ou, tt } = keep); }
+    }
+    function withHour(hour, fn) { const keep = hourOverride; if (hour != null) hourOverride = hour; try { return fn(); } finally { hourOverride = keep; } }
+    // o: { ppu: pixels per floor unit, x, y: where the feet land, pose, t, face (1 right, -1 left), back, theme, lod, moving, shadow }
+    function exportFigure(ctx, a, o) {
+      const s = o.ppu / u;
+      return withView(ctx, s, -o.x / s, -o.y / s, () => {
+        const keep = { t: a.t, face: a.face, view: a.view, busy: a.busy, bubble: a.bubble, real: a.real, queue: a.queue, jz: a.jz, seatFront: a.seatFront }, keepTheme = curTheme;
+        Object.assign(a, { t: o.t || 0, face: o.face || 1, view: o.back ? 'back' : null, busy: null, bubble: null, real: 0, queue: o.moving ? [[a.x || 0, a.y || 0]] : [], jz: 0, seatFront: Boolean(o.seatFront) });
+        if (o.lod != null) LOD = o.lod;
+        tt = o.t || 0; curTheme = o.theme || roomThemeOf(a);
+        try {
+          const id = identity(a);
+          if (o.shadow !== false) { g.fillStyle = 'rgba(0,0,0,0.28)'; g.beginPath(); g.ellipse(0, 0, u * 0.42, u * 0.18, 0, 0, 7); g.fill(); }
+          g.save(); const top = figure(a, id, a.kind === 'res' ? null : lookFor(a, id), o.pose || 'stand', 1); g.restore();
+          return top;
+        } finally { Object.assign(a, keep); curTheme = keepTheme; }
+      });
+    }
+    // one cell on its own, walls at the given height: o: { width, wallH, theme, look, hour }
+    function exportCell(ctx, c, r, o) {
+      const key = c + ',' + r, kind = cells.get(key), had = wallH.has(key), keepH = wallH.get(key);
+      wallH.set(key, o.wallH ?? FULLH); themeForce = o.theme || null; lookForce = o.look || null;
+      try {
+        return withHour(o.hour, () => {
+          const sil = silhouetteOf(c, r), xs = sil.map((p) => p[0]), ys = sil.map((p) => p[1]);
+          const x0 = Math.min(...xs) - u * 0.8, x1 = Math.max(...xs) + u * 0.8, y0 = Math.min(...ys) - u * 2.2, y1 = Math.max(...ys) + u * 0.6;
+          const s = o.width / (x1 - x0);
+          ctx.canvas.width = Math.round(o.width); ctx.canvas.height = Math.round((y1 - y0) * s);
+          withView(ctx, s, x0, y0, () => { lights.length = 0; rx0 = 0; ry0 = 0; drawCell(c, r, kind, [], [], null, sk()); });
+          return { w: ctx.canvas.width, h: ctx.canvas.height };
+        });
+      } finally { if (had) wallH.set(key, keepH); else wallH.delete(key); themeForce = null; lookForce = null; }
+    }
+    // a walkway between two cells, on its own
+    function exportHall(ctx, c0, r0, c1, r1, width) {
+      const horiz = r0 === r1, x0w = horiz ? c0 * CELL + 8 : c0 * CELL + 3.9, y0w = horiz ? r0 * CELL + 3.9 : r0 * CELL + 8;
+      const pts = [[x0w, y0w], [x0w + (horiz ? 3 : 1.2), y0w], [x0w, y0w + (horiz ? 1.2 : 3)], [x0w + (horiz ? 3 : 1.2), y0w + (horiz ? 1.2 : 3)]].flatMap(([x, y]) => [P(x, y, 0), P(x, y, 0.8 * u), P(x, y, -0.3 * u)]);
+      const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]), x0 = Math.min(...xs) - u * 0.4, y0 = Math.min(...ys) - u * 0.4;
+      const s = width / (Math.max(...xs) + u * 0.4 - x0);
+      ctx.canvas.width = Math.round(width); ctx.canvas.height = Math.round((Math.max(...ys) + u * 0.4 - y0) * s);
+      withView(ctx, s, x0, y0, () => { lights.length = 0; drawHall(c0, r0, c1, r1, sk()); });
+    }
+    function exportMast(ctx, width) {
+      const pts = [P(MAST[0] - 1, MAST[1], 0), P(MAST[0] + 1, MAST[1], 0), P(MAST[0], MAST[1] - 1, 0), P(MAST[0], MAST[1] + 1, 0), P(MAST[0], MAST[1], 6 * u)];
+      const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]), x0 = Math.min(...xs) - u * 0.6, y0 = Math.min(...ys) - u * 0.6;
+      const s = width / (Math.max(...xs) + u * 0.6 - x0);
+      ctx.canvas.width = Math.round(width); ctx.canvas.height = Math.round((Math.max(...ys) + u * 0.6 - y0) * s);
+      withView(ctx, s, x0, y0, () => { lights.length = 0; drawMast(sk()); });
+    }
+    // the sky of the current world, screen-sized, camera at home
+    function exportBackground(ctx, W, H, hour) {
+      const keepG = g, keepDpr = dpr, cx = cam.x, cy = cam.y;
+      g = ctx; dpr = 1; cam.x = home.x; cam.y = home.y; tt = T;
+      try { withHour(hour, () => { g.setTransform(1, 0, 0, 1, 0, 0); background(W, H); }); } finally { g = keepG; dpr = keepDpr; cam.x = cx; cam.y = cy; }
+    }
+    // the whole station: o: { width, sky, folk, walls ('low' | 'full'), hour }
+    function exportMap(ctx, o) {
+      const pts = [];
+      for (const key of cells.keys()) { const [c, r] = key.split(',').map(Number); const [x0, y0] = cellOrigin(c, r); for (const [x, y] of [[x0, y0], [x0 + N, y0], [x0, y0 + N], [x0 + N, y0 + N]]) pts.push(P(x, y, FULLH * u + 3 * u), P(x, y, -0.6 * u)); }
+      pts.push(P(MAST[0], MAST[1], 6 * u), P(MAST[0] + 1, MAST[1] + 1, -0.6 * u));
+      const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+      const m = u * 2, x0 = Math.min(...xs) - m, y0 = Math.min(...ys) - m, s = o.width / (Math.max(...xs) + m - x0);
+      ctx.canvas.width = Math.round(o.width); ctx.canvas.height = Math.round((Math.max(...ys) + m - y0) * s);
+      const keep = { S, dpr, vx0e, vy0e, vwCss, vhCss }, keepWalls = new Map(wallH), keepSel = selected, cx = cam.x, cy = cam.y;
+      S = s; dpr = 1; vx0e = x0; vy0e = y0; vwCss = ctx.canvas.width; vhCss = ctx.canvas.height; selected = null; cam.x = home.x; cam.y = home.y;
+      if (o.walls === 'full') for (const key of cells.keys()) wallH.set(key, FULLH);
+      try { withHour(o.hour, () => draw(0, { ctx, bg: o.sky !== false, folk: o.folk !== false, post: false })); }
+      finally { ({ S, dpr, vx0e, vy0e, vwCss, vhCss } = keep); wallH.clear(); for (const [k, v] of keepWalls) wallH.set(k, v); selected = keepSel; cam.x = cx; cam.y = cy; g = dctx; }
+    }
+    const exp = { figure: exportFigure, cell: exportCell, hall: exportHall, mast: exportMast, background: exportBackground, map: exportMap, themeOfRoom, hsh, COSTUME, SKIN_TONES, HAIR_COLS, PANTS };
+    return { exp, draw, pickAt, mastAt, silhouetteOf, footprints, wallHeight: (c, r) => wallH.get(c + ',' + r) || LOWH, FULLH, drawPerson: (gg, a, id, L, pose, t) => { const keep = g; g = gg; const top = drawPerson(a, id, L, pose, t); g = keep; return top; }, lookFor, drawAnimal: (gg, a, t) => { const keep = g; g = gg; const top = drawAnimal(a, t); g = keep; return top; } };
   })();
   // ---- the close-up is a camera framing, not a mode: the same world, the room filling the view with its walls up
   let closeZ = 3;
@@ -5078,6 +5164,61 @@
     const host = b.closest('span, h3'), x = host && host.nextElementSibling;
     if (x && x.classList.contains('hx')) { x.classList.toggle('on'); b.classList.toggle('on', x.classList.contains('on')); }
   }, true);
+
+  // ---- the art export, switched on only by ?export in the address: tools/export-art.mjs drives it to write every
+  // character, room, backdrop and map to PNG through the renderer above. Nothing here runs in normal use.
+  if (new URLSearchParams(location.search).has('export')) {
+    const mkc = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; };
+    const png = (c) => c.toDataURL('image/png');
+    const sample = (o) => ({ id: o.id || 'sample:' + (o.name || o.role || (o.lk && o.lk.id)), kind: o.kind, name: o.name || null, role: o.role || null, tint: o.tint || null, costume: o.costume || null, lk: o.lk || null, look: o.lk ? o.lk.id : null, path: null, small: Boolean(o.small), ev: o.ev || null, x: 0, y: 0, t: 0, face: 1, queue: [], state: 'idle', act: 'idle', lvl: 1 });
+    const pick = (target) => (typeof target === 'string' ? agents.get(target) : sample(target));
+    window.__PF_EXPORT = {
+      ready: () => Boolean(snap && rooms.length && agents.size),
+      world: () => skinId(),
+      mode: () => MODE(),
+      stationName: () => (snap && snap.station && snap.station.name) || 'Proxyfolk',
+      cast() {
+        return [...agents.values()].map((a) => {
+          const id = identity(a), rm = a.path && roomById(a.path), theme = rm ? WR.exp.themeOfRoom(rm) : 'office';
+          const look = a.kind === 'res' ? { animal: a.lk && a.lk.id } : WR.lookFor(a, id);
+          return { id: a.id, kind: a.kind, who: id.kind, name: id.name, label: id.label, col: id.col, role: a.role || null, room: rm ? rm.spec.name : null, theme, costume: a.costume && a.costume.res ? a.costume.id : null, animal: a.kind === 'res' && a.lk ? a.lk.id : null, resident: a.lk ? a.lk.resident : null, sig: JSON.stringify([id.kind, id.col, theme, look]) };
+        });
+      },
+      rooms() {
+        return [...cells.entries()].map(([k, kind]) => {
+          const [c, r] = k.split(',').map(Number), rm = kind === 'path' ? rooms.find((m) => m.c === c && m.r === r) : null;
+          return { c, r, kind, id: rm ? rm.id : kind, name: rm ? rm.spec.name : NM()[kind] || kind, theme: rm ? WR.exp.themeOfRoom(rm) : kind };
+        });
+      },
+      halls() { const out = []; for (const k of cells.keys()) { const [c, r] = k.split(',').map(Number); if (cells.has((c + 1) + ',' + r)) out.push([c, r, c + 1, r]); if (cells.has(c + ',' + (r + 1))) out.push([c, r, c, r + 1]); } return out; },
+      costumes: () => Object.entries(WR.exp.COSTUME).map(([id, v]) => ({ id, ...v })),
+      roles: () => Object.keys(ROLE_COLOR).map((r) => ({ id: r, title: roleTitle(r), col: roleCol(r) })),
+      looks: () => (SK().looks || []).map((l) => ({ id: l.id, title: l.title, resident: l.resident, res: Boolean(l.res) })),
+      // names that give every hair variant a client can have (the game takes a hash mod 8, which can be negative)
+      clientNames() { const want = new Map(); for (let i = 0; i < 2000 && want.size < 15; i++) { const n = 'Client ' + i, st = (WR.exp.hsh(n) >> 5) % 8; if (!want.has(st)) want.set(st, n); } return [...want.entries()].sort((a, b) => a[0] - b[0]).map(([style, name]) => ({ style, name })); },
+      // one sprite sheet: spec.rows = [{ name, pose, frames, period, back, lod, moving, fx, fy }], cells spec.cw x spec.ch
+      sheet(target, spec) {
+        const a = pick(target); if (!a) return null;
+        const cols = Math.max(...spec.rows.map((r) => r.frames)), c = mkc(cols * spec.cw, spec.rows.length * spec.ch), ctx = c.getContext('2d'), frames = {};
+        spec.rows.forEach((row, i) => {
+          for (let k = 0; k < row.frames; k++) {
+            const x = k * spec.cw, y = i * spec.ch, fx = row.fx ?? spec.fx, fy = row.fy ?? spec.fy;
+            ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.beginPath(); ctx.rect(x, y, spec.cw, spec.ch); ctx.clip();
+            WR.exp.figure(ctx, a, { ppu: spec.ppu, x: x + fx, y: y + fy, pose: row.pose, t: (row.t0 || 0) + (k / row.frames) * row.period, face: 1, back: row.back, theme: spec.theme, lod: row.lod, moving: row.moving, seatFront: row.seatFront });
+            ctx.restore();
+            frames[`${row.name}_${k}`] = { frame: { x, y, w: spec.cw, h: spec.ch }, pivot: { x: +(fx / spec.cw).toFixed(4), y: +(fy / spec.ch).toFixed(4) }, duration: Math.round((row.period / row.frames) * 1000) };
+          }
+        });
+        return { png: png(c), w: c.width, h: c.height, frames };
+      },
+      still(target, o) { const a = pick(target); if (!a) return null; const c = mkc(o.w, o.h); WR.exp.figure(c.getContext('2d'), a, { ...o, face: o.face || 1 }); return png(c); },
+      cell(c, r, o) { const cv2 = mkc(1, 1); WR.exp.cell(cv2.getContext('2d'), c, r, o); return png(cv2); },
+      hall(c0, r0, c1, r1, width) { const cv2 = mkc(1, 1); WR.exp.hall(cv2.getContext('2d'), c0, r0, c1, r1, width); return png(cv2); },
+      mast(width) { const cv2 = mkc(1, 1); WR.exp.mast(cv2.getContext('2d'), width); return png(cv2); },
+      background(W, H, hour) { const cv2 = mkc(W, H); WR.exp.background(cv2.getContext('2d'), W, H, hour); return png(cv2); },
+      map(o) { const cv2 = mkc(1, 1); WR.exp.map(cv2.getContext('2d'), o); return png(cv2); },
+    };
+  }
 
   let tour = null;
 
