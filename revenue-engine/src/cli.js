@@ -46,7 +46,7 @@ const HELP = `revenue-engine
   jobs                                                 list jobs
   rooms                                                the rooms this station is built from
   rooms template <barber|salon|freelance|chores|paths|blank> [--name "Kayla's Chair"] [--skin castle]   start the rooms from a template
-  rooms skin <space|castle|farm|cyber|alien|ocean>      how the station looks (decoration only)
+  rooms skin <space|castle|farm|cyber|alien|ocean|haunted|pumpkin>   how the station looks (decoration only)
   rooms mode <agents|service|allowance>                what the screens lead with
   rooms reset                                          back to the built-in money paths
   connections                                          income links and when each last synced

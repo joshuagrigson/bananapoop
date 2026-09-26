@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 1.5l13 7.5v14l-13 7.5-13-7.5V9z' fill='%23ffcf5a'/%3E%3Cpath d='M16 7l8 4.6v8.8L16 25l-8-4.6v-8.8z' fill='%23704a08'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Cinzel:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Audiowide&family=Exo+2:wght@500;600;700&family=Righteous&family=Lilita+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Cinzel:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Audiowide&family=Exo+2:wght@500;600;700&family=Righteous&family=Lilita+One&family=Creepster&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #04060c; --ink: #e9eefb; --ink2: #b8c2da; --muted: #7c88a6; --dim: #4d5775;
@@ -76,6 +76,27 @@
     --field: #041626; --tile: #07203a; --line: #174466; --line2: #22608c; --sunk: #0c2c48;
     --title-grad: linear-gradient(90deg, #ffffff, #bdf3ff 55%, #4ee6ff);
   }
+  :root[data-skin="haunted"] {
+    --bg: #07050c; --ink: #ece6f2; --ink2: #c4b8d2; --muted: #8f829e; --dim: #574c66;
+    --edge: rgba(157, 255, 138, .16); --edge2: rgba(170, 255, 150, .32);
+    --gold: #e9d9a8; --gold2: #b8a068; --cyan: #9dff8a; --violet: #b48cff; --pink: #ff5c7a; --good: #9dff8a;
+    --f-ui: "Alegreya Sans", "Segoe UI", system-ui, sans-serif; --f-display: "Creepster", "Cinzel", Georgia, serif; --radius: 4px;
+    --glass-a: rgba(24, 18, 32, .86); --glass-b: rgba(9, 6, 14, .92); --plate-a: rgba(28, 20, 36, .9); --plate-b: rgba(10, 7, 15, .93);
+    --tip-a: rgba(28, 20, 36, .97); --tip-b: rgba(10, 7, 15, .97); --btn-a: #251c30; --btn-b: #150f1c; --card-a: rgba(30, 22, 40, .76); --card-b: rgba(12, 8, 18, .66);
+    --field: #0e0a14; --tile: #16101e; --line: #2e2440; --line2: #4a3a5e; --sunk: #1c1428;
+    --title-grad: linear-gradient(90deg, #f4f0ff, #c8ffb8 55%, #9dff8a);
+  }
+  :root[data-skin="pumpkin"] {
+    --bg: #120a1e; --ink: #fff1e2; --ink2: #e8cdb4; --muted: #a88a70; --dim: #6a5244;
+    --edge: rgba(255, 138, 26, .22); --edge2: rgba(255, 160, 60, .4);
+    --gold: #ffcf3a; --gold2: #ff8a1a; --cyan: #ffb040; --violet: #b06bff; --pink: #ff6a8a; --good: #9be15d;
+    --f-ui: "Nunito", "Segoe UI", system-ui, sans-serif; --f-display: "Lilita One", "Fredoka", sans-serif; --radius: 16px;
+    --glass-a: rgba(36, 18, 40, .84); --glass-b: rgba(16, 8, 20, .9); --plate-a: rgba(42, 22, 44, .9); --plate-b: rgba(18, 9, 22, .92);
+    --tip-a: rgba(42, 22, 44, .97); --tip-b: rgba(18, 9, 22, .97); --btn-a: #3a1f3a; --btn-b: #221226; --card-a: rgba(46, 24, 48, .74); --card-b: rgba(20, 10, 24, .64);
+    --field: #180c1c; --tile: #221228; --line: #4a2a44; --line2: #7a4a4a; --sunk: #2a1630;
+    --title-grad: linear-gradient(90deg, #fff4e0, #ffcf3a 55%, #ff8a1a);
+  }
+  :root[data-skin="haunted"] .brand h1, :root[data-skin="haunted"] .ih h2 { text-shadow: 0 0 14px rgba(157, 255, 138, .3); letter-spacing: .04em; }
   :root[data-skin="cyber"] .brand h1, :root[data-skin="cyber"] .ih h2 { text-shadow: 0 0 12px rgba(0, 240, 255, .35); }
   :root[data-skin="cyber"] .glass { box-shadow: 0 14px 40px rgba(0, 0, 0, .5), 0 0 22px rgba(255, 43, 214, .12), inset 0 1px 0 rgba(0, 240, 255, .12); }
   :root[data-skin="castle"] .glass { box-shadow: 0 14px 40px rgba(0, 0, 0, .55), inset 0 0 0 1px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 220, 150, .08); }
@@ -947,7 +968,7 @@
   // A skin changes palettes, floors, walls, furniture, characters, the sky and the HUD. It never changes what is
   // bound to the ledger: lit stations, stacks, tubes, the vault, the crew and the coins mean the same thing in every
   // world. Each skin fills in hooks; a hook it leaves out falls back to the space station.
-  const SKIN_IDS = ['space', 'castle', 'farm', 'cyber', 'alien', 'ocean'];
+  const SKIN_IDS = ['space', 'castle', 'farm', 'cyber', 'alien', 'ocean', 'haunted', 'pumpkin'];
   // What each world calls things, and the looks its rooms can take: who lives in them (the farm's cows, the sea's crabs)
   // or what the folk working them turn into (the castle's skeletons, the city's hackers). Pure looks, never data.
   const SKINS = {
@@ -957,10 +978,17 @@
     cyber: { names: { hub: "Data vault", dock: "Drop point", dockLong: "Drop point", dockSign: "DROP", leader: "Boss", mast: "Antenna", crew: "runners", station: "city" }, themeColor: "#07030f", looks: [{ id: "den", title: "Hacker den", resident: "Hackers", res: { speed: 0.9 } }, { id: "bar", title: "Neon bar", resident: "Androids", res: { speed: 0.7 } }, { id: "dojo", title: "Street dojo", resident: "Samurai", res: { speed: 1.1 } }, { id: "garage", title: "Chop shop", resident: "Mechanics", res: { speed: 1 } }, { id: "club", title: "Night club", resident: "DJs", res: { speed: 0.8 } }, { id: "clinic", title: "Ripperdoc clinic", resident: "Cyborgs", res: { speed: 0.8 } }] },
     alien: { names: { hub: "Energy core", dock: "Transmitter", dockLong: "Transmitter", dockSign: "SEND", leader: "Overlord", mast: "Signal stalk", crew: "crew", station: "ship" }, themeColor: "#030a08", looks: [{ id: "lab", title: "Specimen lab", resident: "Greys", res: { speed: 0.8 } }, { id: "hatchery", title: "Hatchery", resident: "Blobs", res: { speed: 0.6 } }, { id: "bridge", title: "Bridge", resident: "Tentacled navigators", res: { speed: 0.7 } }, { id: "garden", title: "Spore garden", resident: "Sporelings", res: { speed: 1.1 } }, { id: "probe", title: "Probe bay", resident: "Insectoids", res: { speed: 1.2 } }, { id: "lounge", title: "Watcher lounge", resident: "Watchers", res: { speed: 0.5, float: 8 } }] },
     ocean: { names: { hub: "Pearl vault", dock: "Mail sub", dockLong: "Mail sub dock", dockSign: "MAIL", leader: "Captain", mast: "Buoy line", crew: "divers", station: "base" }, themeColor: "#02101c", looks: [{ id: "reef", title: "Coral reef", resident: "Clownfish", res: { speed: 1.5, float: 9 } }, { id: "grotto", title: "Octopus grotto", resident: "Octopuses", res: { speed: 0.7, float: 3 } }, { id: "wreck", title: "Shipwreck", resident: "Crabs", res: { speed: 1.2 } }, { id: "kelp", title: "Kelp forest", resident: "Seahorses", res: { speed: 0.6, float: 7 } }, { id: "subbay", title: "Sub bay", resident: "Sea turtles", res: { speed: 0.6, float: 5 } }, { id: "deep", title: "The deep", resident: "Jellyfish", res: { speed: 0.4, float: 11 } }] },
+    haunted: { names: { hub: "Family vault", dock: "Dead letters", dockLong: "Dead letter office", dockSign: "LETTERS", leader: "Master", mast: "Bell tower", crew: "ghosts", station: "mansion" }, themeColor: "#07050c", looks: [{ id: "ballroom", title: "Ghost ballroom", resident: "Ghosts", res: { speed: 0.6, float: 6 } }, { id: "bonecellar", title: "Bone cellar", resident: "Skeletons", res: { speed: 0.9 } }, { id: "gallery", title: "Portrait gallery", resident: "Vampires", res: { speed: 0.8 } }, { id: "attic", title: "The attic", resident: "Werewolves", res: { speed: 1.4 } }, { id: "nursery", title: "Old nursery", resident: "Ghost children", res: { speed: 0.7, float: 5 } }, { id: "seance", title: "Seance room", resident: "Mediums", res: { speed: 0.6 } }] },
+    pumpkin: { names: { hub: "Candy cauldron", dock: "Hay wagon", dockLong: "Hay wagon", dockSign: "TREATS", leader: "Pumpkin king", mast: "Scarecrow", crew: "trick-or-treaters", station: "patch" }, themeColor: "#120a1e", looks: [{ id: "patch", title: "Pumpkin patch", resident: "Scarecrows", res: { speed: 0.7 } }, { id: "maze", title: "Corn maze", resident: "Trick-or-treaters", res: { speed: 1.3 } }, { id: "graveyard", title: "Spooky yard", resident: "Skeletons", res: { speed: 0.9 } }, { id: "witches", title: "Witches' hut", resident: "Witches", res: { speed: 0.8 } }, { id: "carving", title: "Carving shed", resident: "Carvers", res: { speed: 0.9 } }, { id: "cats", title: "Black cat alley", resident: "Black cats", res: { speed: 1.5 } }] },
   };
   let skinTry = null;
   const skinFromUrl = (() => { try { const q = new URLSearchParams(location.search).get('skin'); return SKIN_IDS.includes(q) ? q : null; } catch { return null; } })();
-  const skinId = () => skinTry || skinFromUrl || (snap && snap.station && SKIN_IDS.includes(snap.station.skin) && SKINS[snap.station.skin] ? snap.station.skin : 'space');
+  // Halloween: in October the station dresses up by itself, the pumpkin patch until the 23rd and the haunted mansion
+  // from the 24th to the end of the month, unless this browser turned it off in Customize. A world tried on wins.
+  const seasonalOn = () => lget('pf-seasonal') !== 'off';
+  let seasonToasted = false;
+  const seasonalSkin = (d = new Date()) => (seasonalOn() && d.getMonth() === 9 ? (d.getDate() >= 24 ? 'haunted' : 'pumpkin') : null);
+  const skinId = () => skinTry || skinFromUrl || seasonalSkin() || (snap && snap.station && SKIN_IDS.includes(snap.station.skin) && SKINS[snap.station.skin] ? snap.station.skin : 'space');
   const SK = () => SKINS[skinId()] || SKINS.space;
   const NM = () => ({ ...SKINS.space.names, ...(SK().names || {}) });
   const MODE = () => (snap && snap.station && snap.station.mode) || 'agents';
@@ -1024,8 +1052,8 @@
   // ---- residents: characters who belong to a world, drawn in the Code Lab style. Scenery, labelled so, except
   // Mumblecrow, who stands in a farm room only while that room has had no sales, chores or leads for 7 days.
   const NPC = {
-    mordra: { name: 'Mordra', label: 'VAULT KEEPER', col: '#4ade80', cast: true, say: 'The vault keeper. Scenery: the castle\'s own, not on your roster.' },
-    vex: { name: 'Vex', label: 'SCRIBE', col: '#a78bfa', cast: true, say: 'Keeps the scriptorium, where drafts wait for you. Scenery, not on your roster.' },
+    mordra: { name: 'Mordra', label: 'VAULT KEEPER', col: '#4ade80', cast: true, say: 'The vault keeper. Scenery, not on your roster.' },
+    vex: { name: 'Vex', label: 'SCRIBE', col: '#a78bfa', cast: true, say: 'Keeps the drafts that wait for you at the dock. Scenery, not on your roster.' },
     mott: { name: 'Mott', label: 'FARM CAT', col: '#ff8a4c', cast: true, say: 'Guards the market cart. Scenery, not on your roster.' },
     warg: { name: 'Warg', label: 'SHEEPDOG', col: '#9aa6c0', cast: true, roam: true, say: 'Herds the yard around the grain bank. Scenery, not on your roster.' },
     mumblecrow: { name: 'Mumblecrow', label: 'NO ACTIVITY · 7 DAYS', col: '#ffb454', cast: true, big: 1.3, say: 'Stands in a room with no sales, chores or leads logged in the last 7 days. Leaves as soon as one lands.' },
@@ -1052,7 +1080,8 @@
   function residentsFor(w) {
     const out = [], [hx, hy] = cellCenter(...HUB), [dx, dy] = cellCenter(...DOCK);
     const add = (npc, home, x, y, k = '') => { const [px, py] = nearestWalkable(x, y); out.push({ id: `npc:${npc}${k}`, npc, home, x: px, y: py, roam: Boolean(NPC[npc].roam) }); };
-    if (w === 'castle') { add('mordra', 'hub', hx - 2.1, hy + 1.3); add('vex', 'dock', dx + 1.1, dy + 1.5); }
+    if (w === 'castle' || w === 'haunted') { add('mordra', 'hub', hx - 2.1, hy + 1.3); add('vex', 'dock', dx + 1.1, dy + 1.5); }
+    if (w === 'pumpkin') for (const room of rooms) if (roomLook(room) !== 'killed' && weekActivity(room) === 0) { const [cx, cy] = cellCenter(room.c, room.r); add('mumblecrow', room.id, cx - 1.2, cy + 1.6, ':' + room.id); }
     if (w === 'farm') {
       add('mott', 'dock', dx - 1.3, dy + 1.7); add('warg', 'hub', hx + 1.8, hy + 2);
       for (const room of rooms) if (roomLook(room) !== 'killed' && weekActivity(room) === 0) { const [cx, cy] = cellCenter(room.c, room.r); add('mumblecrow', room.id, cx - 1.2, cy + 1.6, ':' + room.id); }
@@ -1255,7 +1284,7 @@
   // night) is life, not data; a real event lights their marker gold and pops a bubble. Animals and sea life in the farm
   // and ocean worlds are the room's stock, growing with how busy it has been. In the castle, the city and the ship,
   // folk wear the costume of the room they work: a skeleton in the crypt, a hacker in the den.
-  const COSTUME_SKINS = new Set(['castle', 'cyber', 'alien']);
+  const COSTUME_SKINS = new Set(['castle', 'cyber', 'alien', 'haunted', 'pumpkin']);
   const STOCK_SKINS = new Set(['farm', 'ocean']);
   const folkList = () => (snap && snap.station && (snap.station.folk || snap.station.kids)) || [];
   const byOf = (e) => e.by || e.kid || null;
@@ -1490,14 +1519,16 @@
     cyber: [{ kind: 'car', n: 8 }],
     alien: [{ kind: 'saucer', n: 3 }, { kind: 'spore', n: 16 }],
     ocean: [{ kind: 'fish', n: 12 }, { kind: 'bubble', n: 14 }],
+    haunted: [{ kind: 'bat', n: 10 }, { kind: 'ghost', n: 5 }],
+    pumpkin: [{ kind: 'bat', n: 5 }, { kind: 'leaf', n: 18 }, { kind: 'firefly', n: 14 }],
   };
   const MAPX = 4 * CELL + 2, MAPY = 3 * CELL + 2;
   function spawnCritter(kind, anywhere) {
     const c = { kind, t: Math.random() * 10, p: Math.random() * 6.28, col: null };
     const edge = () => { const s = Math.random() < 0.5; return s ? [-4, Math.random() * MAPY] : [Math.random() * MAPX, -4]; };
     const [x, y] = anywhere ? [Math.random() * MAPX, Math.random() * MAPY] : edge();
-    const ang = Math.PI / 4 + (Math.random() - 0.5) * 0.9, v = { bird: 3.2, bat: 2.6, car: 6 + Math.random() * 4, saucer: 1.6, fish: 1.4, drone: 3.5, butterfly: 0.9, firefly: 0.3, spore: 0.25, bubble: 0.2 }[kind] || 1;
-    Object.assign(c, { x, y, z: { bird: 80, bat: 60, car: 90, saucer: 100, fish: 40, drone: 40, butterfly: 18, firefly: 10, spore: 20, bubble: 10 }[kind] + Math.random() * 40, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v, vz: kind === 'bubble' ? 8 + Math.random() * 6 : 0 });
+    const ang = Math.PI / 4 + (Math.random() - 0.5) * 0.9, v = { bird: 3.2, bat: 2.6, car: 6 + Math.random() * 4, saucer: 1.6, fish: 1.4, drone: 3.5, butterfly: 0.9, firefly: 0.3, spore: 0.25, bubble: 0.2, ghost: 0.7, leaf: 1.2 }[kind] || 1;
+    Object.assign(c, { x, y, z: { bird: 80, bat: 60, car: 90, saucer: 100, fish: 40, drone: 40, butterfly: 18, firefly: 10, spore: 20, bubble: 10, ghost: 30, leaf: 100 }[kind] + Math.random() * 40, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v, vz: kind === 'bubble' ? 8 + Math.random() * 6 : kind === 'leaf' ? -8 - Math.random() * 6 : 0 });
     if (kind === 'fish') c.col = ['#ffb454', '#4ee6ff', '#ff8fb8', '#9be15d'][(Math.random() * 4) | 0];
     if (kind === 'car') { c.col = Math.random() < 0.5 ? '#00f0ff' : '#ff2bd6'; if (Math.random() < 0.5) { c.x = MAPX + 4; c.vx *= -1; c.vy *= -1; c.y = Math.random() * MAPY; } }
     if (['firefly', 'spore', 'bubble', 'butterfly'].includes(kind)) { c.x = Math.random() * MAPX; c.y = Math.random() * MAPY; c.vx = (Math.random() - 0.5) * v; c.vy = (Math.random() - 0.5) * v; }
@@ -1515,7 +1546,9 @@
       c.t += dt; c.x += c.vx * dt; c.y += c.vy * dt; c.z += (c.vz || 0) * dt;
       if (c.kind === 'firefly' || c.kind === 'spore' || c.kind === 'butterfly') { c.vx += (Math.random() - 0.5) * dt * 2; c.vy += (Math.random() - 0.5) * dt * 2; c.vx *= 0.99; c.vy *= 0.99; c.z = (c.kind === 'butterfly' ? 16 : 8) + Math.sin(c.t * 1.3 + c.p) * 6; }
       if (c.kind === 'bat') { c.vx += Math.sin(c.t * 1.7 + c.p) * dt * 3; c.vy += Math.cos(c.t * 1.3 + c.p) * dt * 3; }
-      const gone = c.x < -8 || c.y < -8 || c.x > MAPX + 8 || c.y > MAPY + 8 || c.z > 160;
+      if (c.kind === 'leaf') { c.vx += Math.sin(c.t * 2 + c.p) * dt * 1.5; }
+      if (c.kind === 'ghost') { c.vx += Math.sin(c.t * 0.9 + c.p) * dt * 0.8; c.vy += Math.cos(c.t * 0.7 + c.p) * dt * 0.8; c.z = 30 + Math.sin(c.t * 1.3 + c.p) * 8; }
+      const gone = c.x < -8 || c.y < -8 || c.x > MAPX + 8 || c.y > MAPY + 8 || c.z > 160 || (c.kind === 'leaf' && c.z < 1);
       const unwanted = !want.some((w) => w.kind === c.kind && !((w.day && night) || (w.night && !night)));
       if (gone || unwanted) critters.splice(i, 1);
     }
@@ -3234,6 +3267,8 @@
     cyber: 'linear-gradient(90deg, transparent 0 8%, #140a26 8% 18%, transparent 18% 26%, #140a26 26% 34%, transparent 34% 52%, #140a26 52% 66%, transparent 66% 74%, #140a26 74% 88%, transparent 88%) bottom / 100% 62% no-repeat, linear-gradient(180deg, #05020f, #2a0a3a 72%, #ff2bd6)',
     alien: 'radial-gradient(circle at 22% 44%, #c89a5a 0 11px, transparent 12px), radial-gradient(circle at 72% 58%, rgba(90,255,200,.4), transparent 42%), linear-gradient(180deg, #03100e, #0a0c1c)',
     ocean: 'linear-gradient(104deg, transparent 28%, rgba(170,235,255,.2) 31% 37%, transparent 40%), linear-gradient(180deg, #0e6a96, #062a4a 68%, #c9b07a 68%, #a08858)',
+    haunted: 'radial-gradient(circle at 76% 30%, #e8ecd8 0 9px, rgba(200,255,190,.25) 10px 18px, transparent 19px), linear-gradient(180deg, #0c0a1c, #2a1a36 62%, #141018 62%, #0a080e)',
+    pumpkin: 'radial-gradient(circle at 74% 32%, #ffb040 0 11px, rgba(255,150,40,.3) 12px 20px, transparent 21px), radial-gradient(circle at 26% 80%, #ff8a1a 0 7px, transparent 8px), linear-gradient(180deg, #2a1440, #5a2a4a 60%, #2a1a14 60%, #1a100a)',
   };
   const normKw = (v) => String(v || '').toLowerCase().replace(/[\s_]+/g, ' ').trim().slice(0, 40);
   const rd = { data: null, draft: null, orig: '', byMode: {}, sel: 0, armed: null, welcome: false, msg: '', err: false, step: 1, wmode: null, wtpl: null, wskin: null };
@@ -3394,7 +3429,8 @@
       <div class="sy-head"><div class="rd-ic">${ic('rooms')}</div><div style="flex:1;min-width:0"><h2>Customize the world</h2><p class="lead">What it's for, what world it lives in, who works in it, and every room. Closing saves your changes. ${chores ? 'Each room is one chore with a price; kids earn it when a parent checks it off.' : 'A synced sale lands in the first room whose keyword appears in its item name, so Square\'s "Skin Fade" goes to the room that claims <i>fade</i>.'} Every dollar still totals in the vault.</p></div></div>
       <div class="rd-top">
         <div><h3>What it's for</h3><div class="modes">${modeTiles(dr.mode, 'data-mode', false)}</div></div>
-        <div><h3>World <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· click to try it on</span></h3><div class="skins">${skinTiles(dr.skin, 'data-skin')}</div></div>
+        <div><h3>World <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· click to try it on</span></h3><div class="skins">${skinTiles(dr.skin, 'data-skin')}</div>
+          <label class="muted small" style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;cursor:pointer"><input type="checkbox" data-seasonal ${seasonalOn() ? 'checked' : ''} style="margin-top:3px"><span>Halloween in October: the pumpkin patch until the 23rd, then the haunted mansion to the end of the month. Your chosen world comes back in November. This browser only.</span></label></div>
       </div>
       ${rd.msg ? `<div class="msg top ${rd.err ? 'err' : 'ok'}">${esc(rd.msg)}</div>` : ''}
       ${kidsHtml(dr.kids)}
@@ -3449,6 +3485,7 @@
     nameIn.addEventListener('input', () => { dr.name = nameIn.value; });
     box.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { swapMode(b.dataset.mode); renderRooms(); }));
     box.querySelectorAll('[data-skin]').forEach((b) => b.addEventListener('click', () => { dr.skin = b.dataset.skin; trySkin(dr.skin); renderRooms(); }));
+    box.querySelectorAll('[data-seasonal]').forEach((b) => b.addEventListener('change', () => { lset('pf-seasonal', b.checked ? 'on' : 'off'); trySkin(skinTry); }));
     // kids
     box.querySelectorAll('[data-kidname]').forEach((inp) => inp.addEventListener('input', () => { dr.kids[Number(inp.dataset.kidname)].name = inp.value; }));
     box.querySelectorAll('[data-kidrole]').forEach((inp) => inp.addEventListener('input', () => { const k = dr.kids[Number(inp.dataset.kidrole)]; k.role = inp.value.trim() || undefined; }));
@@ -3544,7 +3581,7 @@
 
   // ======================================================================= field guide
   // ---- the map: the station drawn as an illustrated map of its world (art/folk-kit/mapSvg.js), with your own rooms
-  const SKINS_TITLE = { space: 'Space station', castle: 'Dark castle', farm: 'Farm', cyber: 'Cyberpunk city', alien: 'Alien ship', ocean: 'Deep sea base' };
+  const SKINS_TITLE = { space: 'Space station', castle: 'Dark castle', farm: 'Farm', cyber: 'Cyberpunk city', alien: 'Alien ship', ocean: 'Deep sea base', haunted: 'Haunted mansion', pumpkin: 'Pumpkin patch' };
   function openMap() {
     if (typeof window.mapSvg !== 'function' || !snap) return;
     const box = $('#mapbox .box');
@@ -3597,10 +3634,10 @@
           <dt>Comm mast</dt><dd>Your income links. Green: synced. Amber: syncing. Red: a link failed. Grey: nothing linked. Waves leave the dish when a sync brings in money. Click it, or press I.</dd>
           <dt>Gold figure</dt><dd>You, the Commander.</dd>
           <dt>Streams to the vault</dt><dd>Each room sends what it makes along the walkways to the vault, in its world's form: enchanted coins and sealed scrolls in the castle, produce on the farm, cargo pods in space, data cubes in the city, spores on the ship, pearls in bubbles under the sea. Money flows as steadily as the room's last 30 days of it; leads (scrolls, sacks, pings) follow its last 7 days of pipeline steps; a quiet room sends nothing; a sale sends a burst. The swirl at the vault turns faster the more is coming in.</dd>
-          <dt>Mumblecrow</dt><dd>On the farm, a scarecrow stands in any room with no sales, chores or leads logged in the last 7 days, and leaves as soon as one lands.</dd>
+          <dt>Mumblecrow</dt><dd>On the farm and in the pumpkin patch, a scarecrow stands in any room with no sales, chores or leads logged in the last 7 days, and leaves as soon as one lands.</dd>
           <dt>Tiers</dt><dd>Agents and folk dress for their level: Runner (a lanyard), Clerk (a tie), Trader (a vest and a headset), Broker (a jacket, gold buttons, sparkles), Tycoon (gold trim, a cape, a circlet and coins in the air).</dd>
         </dl></div>
-        <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">The world itself: space, dark castle, farm, cyber city, alien ship or ocean base all draw the same ledger, only dressed differently. Change it with <kbd>C</kbd>, or preview one with <code>?skin=castle</code> on the URL. In the castle, the city and the ship, folk wear the costume of the room they work (a skeleton in the crypt, a hacker in the den). Also scenery: each room's floor crowd (three even in a new room, more as its last 7 days get busier, three glowing helpers per agent on a live run; hover one and it says Floor crew or Agent crew), each world's residents (Mordra keeps the castle vault and Vex the scriptorium, Mott and Warg mind the farm, a cargo bot works the launch pad, a courier rides the city on a hoverboard beside a DJ bot, Glorp greets visitors on the ship, Octavia the octopus keeps the pearl vault with crabs for couriers), what folk do between real events (tinkering at a station, chatting, a coffee break, sleeping at night), day and night on your clock, birds, bats, fireflies, flying cars, saucers and fish, each world's backdrop (sky, hills, skyline, reef), wall screens, neon signs, barber poles, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the docking shuttle, where idle crew wander, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
+        <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">The world itself: space, dark castle, farm, cyber city, alien ship or ocean base all draw the same ledger, only dressed differently. In October the station dresses up by itself: a pumpkin patch until the 23rd, then a haunted mansion to the end of the month (turn it off in Customize). Change it with <kbd>C</kbd>, or preview one with <code>?skin=castle</code> on the URL. In the castle, the city and the ship, folk wear the costume of the room they work (a skeleton in the crypt, a hacker in the den). Also scenery: each room's floor crowd (three even in a new room, more as its last 7 days get busier, three glowing helpers per agent on a live run; hover one and it says Floor crew or Agent crew), each world's residents (Mordra keeps the castle vault and Vex the scriptorium, Mott and Warg mind the farm, a cargo bot works the launch pad, a courier rides the city on a hoverboard beside a DJ bot, Glorp greets visitors on the ship, Octavia the octopus keeps the pearl vault with crabs for couriers), what folk do between real events (tinkering at a station, chatting, a coffee break, sleeping at night), day and night on your clock, birds, bats, fireflies, flying cars, saucers and fish, each world's backdrop (sky, hills, skyline, reef), wall screens, neon signs, barber poles, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the docking shuttle, where idle crew wander, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
           <h3>Controls</h3><div class="kb">
             <kbd>click</kbd><span>open a room, the vault (roster) or the outbox dock</span>
             <kbd>double-click</kbd><span>zoom into a room</span>
@@ -3920,6 +3957,7 @@
       }
       renderStationName();
       if (applySkin()) skinChanged();
+      if (!seasonToasted && seasonalSkin() && !skinTry && !skinFromUrl) { seasonToasted = true; toast('status', skinId() === 'haunted' ? 'The mansion wakes' : 'Halloween in the patch', 'the station dresses up for October; turn it off in Customize', skinId() === 'haunted' ? '#9dff8a' : '#ff8a1a', 'eye'); }
       sync(); announce(); first = false;
       renderHud(); renderFeed(); buildLabels();
       renderPanel();
@@ -3991,6 +4029,8 @@
       farm: { wall: '#f0dcb4', wall2: '#e3cc9f', trim: '#8a5a32', cap: '#f7ead0', floor: ['#cfa168', '#c1925a'], fk: 'planks', slab: '#76502e', slab2: '#5a3b20', acc: '#ffb454', sky: 'day', lamp: '#ffe2a0', hall: '#c9a06a', rail: '#8a5a32' },
       cyber: { wall: '#3c4160', wall2: '#333752', trim: '#ff3fa4', cap: '#4c5272', floor: ['#2d3145', '#262a3b'], fk: 'tiles', slab: '#181a2a', slab2: '#10111c', acc: '#ff3fa4', sky: 'city', lamp: '#ff7ad9', neon: true, hall: '#3a3f55', rail: '#00f0ff' },
       alien: { wall: '#62407f', wall2: '#553570', trim: '#b86bff', cap: '#7a55a0', floor: ['#40295a', '#38234f'], fk: 'organic', slab: '#1f1030', slab2: '#140a20', acc: '#7dffb0', sky: 'nebula', lamp: '#9dffcf', hall: '#4b2e66', rail: '#7dffb0' },
+      haunted: { wall: '#4a3a56', wall2: '#3e3048', trim: '#241a2a', cap: '#5c4a68', floor: ['#3a2a24', '#32241e'], fk: 'planks', slab: '#1a1218', slab2: '#100b10', acc: '#9dff8a', sky: 'moon', lamp: '#ffcf7a', hall: '#3a2e38', rail: '#16101a', wallpaper: true },
+      pumpkin: { wall: '#6a4a30', wall2: '#5a3e28', trim: '#2a1a10', cap: '#7c5c3c', floor: ['#6a4a2a', '#5e4224'], fk: 'planks', slab: '#2a1a10', slab2: '#1a1008', acc: '#ff8a1a', sky: 'moon', lamp: '#ffb040', hall: '#5a4634', rail: '#2a1a10' },
       ocean: { wall: '#86a2b6', wall2: '#7590a4', trim: '#2f4a5e', cap: '#9fb7c8', floor: ['#5c7483', '#526977'], fk: 'grate', slab: '#1b2e3c', slab2: '#11202b', acc: '#39e0ff', sky: 'water', lamp: '#aef3ff', hall: '#6d8797', rail: '#2f4a5e' },
     };
     const sk = () => MAT[skinId()] || MAT.space;
@@ -4216,6 +4256,7 @@
           else if (th === 'barber' || th === 'salon') { g.fillStyle = 'rgba(0,0,0,0.05)'; for (let s = 0; s < L; s += 0.6) g.fillRect(s, 0, 0.3, FULLH); g.fillStyle = shade(S.wall, -0.35, 0.9); g.fillRect(0, FULLH - 1.35, L, 1.35); g.fillStyle = 'rgba(255,255,255,0.1)'; for (let s = 0.2; s < L; s += 0.4) g.fillRect(s, FULLH - 1.3, 0.03, 1.25); }
           else if (th === 'kitchen') { g.fillStyle = '#eef3f5'; g.fillRect(0, FULLH - 2.2, L, 1.2); g.strokeStyle = 'rgba(0,0,0,0.1)'; g.lineWidth = 0.02; g.beginPath(); for (let v = FULLH - 2.2; v < FULLH - 1; v += 0.3) { g.moveTo(0, v); g.lineTo(L, v); } for (let s = 0; s < L; s += 0.3) { g.moveTo(s, FULLH - 2.2); g.lineTo(s, FULLH - 1); } g.stroke(); }
           else if (th === 'bedroom' || th === 'playroom') { g.fillStyle = 'rgba(255,255,255,0.18)'; g.beginPath(); for (let s = 0.2; s < L; s += 0.55) for (let v = 0.3; v < FULLH - 0.4; v += 0.55) { const px = s + ((v * 10) % 2 ? 0.27 : 0); g.moveTo(px + 0.06, v); g.arc(px, v, 0.06, 0, 7); } g.fill(); }
+          else if (S.wallpaper) { g.fillStyle = 'rgba(0,0,0,0.13)'; for (let s = 0; s < L; s += 0.9) g.fillRect(s, 0, 0.45, FULLH); g.fillStyle = 'rgba(157,255,138,0.08)'; g.beginPath(); for (let s = 0.45; s < L; s += 0.9) for (let v = 0.5; v < FULLH - 1.4; v += 0.8) { g.moveTo(s, v - 0.18); g.quadraticCurveTo(s + 0.16, v, s, v + 0.18); g.quadraticCurveTo(s - 0.16, v, s, v - 0.18); } g.fill(); g.fillStyle = shade(S.wall, -0.4, 0.92); g.fillRect(0, FULLH - 1.2, L, 1.2); g.fillStyle = 'rgba(255,255,255,0.05)'; for (let s = 0.2; s < L; s += 1.2) g.fillRect(s, FULLH - 1.1, 1.0, 0.9); if (LOD === 2) { g.fillStyle = 'rgba(0,0,0,0.3)'; for (let k = 0; k < 5; k++) { const sx = (hsh(k * 31 + Math.round(L * 7)) % 100) / 100 * L; g.fillRect(sx, 0, 0.05, 0.9 + (k % 3) * 0.5); } } }
           else if (S.neon) { g.fillStyle = 'rgba(255,255,255,0.03)'; for (let s = 0; s < L; s += 1) g.fillRect(s + 0.02, 0, 0.96, FULLH); }
           else if (S.fk === 'plates' || S.fk === 'grate') { g.strokeStyle = 'rgba(0,0,0,0.12)'; g.lineWidth = 0.025; g.beginPath(); for (let s = 1; s < L; s += 1.4) { g.moveTo(s, 0); g.lineTo(s, FULLH); } g.stroke(); }
           else if (S.fk === 'organic') { g.strokeStyle = alpha(S.acc, 0.22); g.lineWidth = 0.05; g.beginPath(); for (let k = 0; k * 1.6 < L; k++) { g.moveTo(k * 1.6, FULLH); g.bezierCurveTo(k * 1.6 + 0.6, FULLH - 1.5, k * 1.6 - 0.4, 1.4, k * 1.6 + 0.5, 0); } g.stroke(); }
@@ -4284,7 +4325,7 @@
         g.save();
         g.beginPath(); g.roundRect(s0, v0, s1 - s0, v1 - v0, 0.12); g.clip();
         const gr = g.createLinearGradient(0, v0, 0, v1);
-        const day = { space: ['#0a1433', '#1d2d63'], castle: ['#1a1633', '#3a2c55'], farm: ['#7cc6ff', '#d8f0ff'], cyber: ['#3a1862', '#7c2c80'], alien: ['#2a0f45', '#5f2a7a'], ocean: ['#0a5a85', '#1a8fb8'] }[skinId()] || ['#7cc6ff', '#d8f0ff'];
+        const day = { space: ['#0a1433', '#1d2d63'], castle: ['#1a1633', '#3a2c55'], farm: ['#7cc6ff', '#d8f0ff'], cyber: ['#3a1862', '#7c2c80'], haunted: ['#0c0a20', '#2a1a40'], pumpkin: ['#2a1440', '#6a2a4a'], alien: ['#2a0f45', '#5f2a7a'], ocean: ['#0a5a85', '#1a8fb8'] }[skinId()] || ['#7cc6ff', '#d8f0ff'];
         const night = { farm: ['#0b1433', '#28305a'], ocean: ['#031a2c', '#073a58'] }[skinId()] || day;
         gr.addColorStop(0, mixc(day[0], night[0], dark)); gr.addColorStop(1, mixc(day[1], night[1], dark));
         g.fillStyle = gr; g.fillRect(s0, v0, s1 - s0, v1 - v0);
@@ -4733,6 +4774,8 @@
       farm: { body: '#b8423a', dark: '#5a3b20', trim: '#8a5a32', glow: '#ffe2a0', warn: '#f2c94a', belt: '#5a4030', crate: '#c9a06a', wood: '#a8743f', producer: 'mill', slots: ['churn', 'rack', 'press', 'tank'], out: 'silo' },
       cyber: { body: '#3c4160', dark: '#1d1f2c', trim: '#4c5272', glow: '#ff3fa4', glow2: '#00f0ff', warn: '#f2e14e', belt: '#1a1c28', crate: '#4c5272', wood: '#373c50', producer: 'server', slots: ['arm', 'rack', 'tank', 'press'], out: 'vent' },
       alien: { body: '#62407f', dark: '#2a1640', trim: '#7a55a0', glow: '#7dffb0', warn: '#d8ff6a', belt: '#3a2352', crate: '#553570', wood: '#40295a', producer: 'vat', slots: ['pod', 'rack', 'vat', 'tank'], out: 'spire' },
+      haunted: { body: '#4a3e4a', dark: '#1a1218', trim: '#6a5a6a', glow: '#9dff8a', warn: '#c9a24a', belt: '#2a1e24', crate: '#4a3222', wood: '#3a2618', producer: 'forge', slots: ['cauldron', 'rack', 'vat', 'grind'], out: 'chimney' },
+      pumpkin: { body: '#c8641a', dark: '#3a2414', trim: '#6b4a2e', glow: '#ffb040', warn: '#ffcf3a', belt: '#4a3020', crate: '#e8741a', wood: '#8a5a32', producer: 'mill', slots: ['cauldron', 'rack', 'churn', 'press'], out: 'silo' },
       ocean: { body: '#86a2b6', dark: '#2f4a5e', trim: '#6d8797', glow: '#39e0ff', warn: '#ffcf5a', belt: '#1b2e3c', crate: '#9fb7c8', wood: '#5c7483', producer: 'aquarium', slots: ['tank', 'rack', 'press', 'arm'], out: 'pipe' },
     };
     const facCache = new Map(), NOOP = () => {};
@@ -4877,12 +4920,12 @@
     // the yard cut out of the front corner: a pad outside, a little lower, with a vehicle waiting on it
     function yardPad(b, F, world, on) {
       const [yw, yd] = b.yard, x0 = b.w - yw, y0 = b.d - yd, z = -0.14;
-      const pad = { space: '#4a5470', castle: '#5b5468', farm: '#8a6a3e', cyber: '#23252f', alien: '#2f1d45', ocean: '#c9b98a' }[world] || '#4a5470';
+      const pad = { space: '#4a5470', castle: '#5b5468', farm: '#8a6a3e', cyber: '#23252f', alien: '#2f1d45', ocean: '#c9b98a', haunted: '#2a2230', pumpkin: '#3a2a1a' }[world] || '#4a5470';
       poly([Pl(x0 + 0.05, y0 + 0.05, z), Pl(b.w, y0 + 0.05, z), Pl(b.w, b.d, z), Pl(x0 + 0.05, b.d, z)]); g.fillStyle = pad; g.fill();
       poly([Pl(x0 + 0.05, b.d, z), Pl(b.w, b.d, z), Pl(b.w, b.d, -0.3), Pl(x0 + 0.05, b.d, -0.3)]); g.fillStyle = shade(pad, -0.35); g.fill();
       poly([Pl(b.w, y0 + 0.05, z), Pl(b.w, b.d, z), Pl(b.w, b.d, -0.3), Pl(b.w, y0 + 0.05, -0.3)]); g.fillStyle = shade(pad, -0.5); g.fill();
       if (LOD) {
-        if (world === 'castle' || world === 'ocean' || world === 'farm') { g.fillStyle = 'rgba(0,0,0,0.12)'; for (let i = 0; i < yw * yd * 3; i++) { const px = x0 + 0.2 + (hsh(i * 13 + b.c) % 100) / 100 * (yw - 0.4), py = y0 + 0.2 + (hsh(i * 7 + b.r * 3) % 100) / 100 * (yd - 0.4), [a, c2] = Pl(px, py, z); g.beginPath(); g.ellipse(a, c2, u * 0.16, u * 0.08, 0, 0, 7); g.fill(); } }
+        if (world === 'castle' || world === 'ocean' || world === 'farm' || world === 'haunted' || world === 'pumpkin') { g.fillStyle = 'rgba(0,0,0,0.12)'; for (let i = 0; i < yw * yd * 3; i++) { const px = x0 + 0.2 + (hsh(i * 13 + b.c) % 100) / 100 * (yw - 0.4), py = y0 + 0.2 + (hsh(i * 7 + b.r * 3) % 100) / 100 * (yd - 0.4), [a, c2] = Pl(px, py, z); g.beginPath(); g.ellipse(a, c2, u * 0.16, u * 0.08, 0, 0, 7); g.fill(); } }
         else { g.strokeStyle = alpha(F.warn, 0.55); g.lineWidth = lw(0.06); poly([Pl(x0 + 0.35, y0 + 0.35, z), Pl(b.w - 0.3, y0 + 0.35, z), Pl(b.w - 0.3, b.d - 0.3, z), Pl(x0 + 0.35, b.d - 0.3, z)]); g.stroke(); }
       }
       const vx = x0 + yw / 2, vy = y0 + yd / 2;
@@ -4890,10 +4933,16 @@
     }
     function vehicle(x, y, F, world, on) {
       const bob = on ? Math.sin(tt * 3) * 0.03 : 0;
-      if (world === 'castle') {
+      if (world === 'haunted') {
+        box(x - 0.85, y - 0.4, 1.7, 0.8, 0.6, 0.4, '#16121a', { gloss: true }); box(x - 0.8, y - 0.36, 0.9, 0.72, 0.42, 0.52, '#2a2230', { lf: 'rgba(157,255,138,0.25)' });
+        box(x - 0.9, y - 0.45, 1.8, 0.9, 0.08, 1.0, '#0e0a12');
+        for (const [dx, dy] of [[-0.55, 0.45], [0.55, 0.45]]) { const [a, c2] = Pl(x + dx, y + dy, 0.3); g.strokeStyle = '#2a2230'; g.lineWidth = lw(0.05); g.beginPath(); g.ellipse(a, c2, u * 0.32, u * 0.34, 0.5, 0, 7); g.stroke(); }
+        for (const dx of [-0.85, 0.85]) { const [a, c2] = Pl(x + dx, y + 0.45, 0.95); glowAt(a, c2, u * 0.5, '#9dff8a', 0.6); g.fillStyle = '#c8ffc0'; g.beginPath(); g.arc(a, c2, u * 0.06, 0, 7); g.fill(); }
+      } else if (world === 'castle' || world === 'pumpkin') {
         box(x - 0.8, y - 0.45, 1.6, 0.9, 0.35, 0.35, '#7a5230'); box(x - 0.8, y - 0.45, 1.6, 0.08, 0.35, 0.7, '#6b4424'); box(x - 0.8, y + 0.37, 1.6, 0.08, 0.35, 0.7, '#6b4424');
         for (const [dx, dy] of [[-0.5, 0.48], [0.5, 0.48]]) { const [a, c2] = Pl(x + dx, y + dy, 0.3); g.fillStyle = '#4a2f1b'; g.beginPath(); g.ellipse(a, c2, u * 0.32, u * 0.34, 0.5, 0, 7); g.fill(); g.strokeStyle = '#2b1d14'; g.lineWidth = lw(0.04); g.stroke(); }
-        cyl(x - 0.3, y, 0.22, 0.45, 0.7, '#8a5a2e'); cyl(x + 0.3, y - 0.05, 0.22, 0.45, 0.7, '#8a5a2e'); box(x - 0.15, y - 0.2, 0.4, 0.4, 0.3, 0.7, '#e8d6a8');
+        if (world === 'pumpkin') { for (const [dx, dy] of [[-0.4, -0.1], [0, 0.05], [0.4, -0.05], [-0.2, 0.2], [0.2, -0.25]]) { const [a, c2] = Pl(x + dx, y + dy, 0.95); g.fillStyle = '#f07a1a'; g.beginPath(); g.ellipse(a, c2, u * 0.26, u * 0.2, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); } g.fillStyle = '#3f6a2a'; g.fillRect(a - u * 0.03, c2 - u * 0.26, u * 0.06, u * 0.1); } }
+        else { cyl(x - 0.3, y, 0.22, 0.45, 0.7, '#8a5a2e'); cyl(x + 0.3, y - 0.05, 0.22, 0.45, 0.7, '#8a5a2e'); box(x - 0.15, y - 0.2, 0.4, 0.4, 0.3, 0.7, '#e8d6a8'); }
       } else if (world === 'farm') {
         box(x - 0.55, y - 0.35, 1.1, 0.7, 0.55, 0.35, '#c8342c', { gloss: true }); box(x - 0.55, y - 0.3, 0.55, 0.6, 0.6, 0.9, '#c8342c'); box(x - 0.5, y - 0.25, 0.45, 0.5, 0.4, 0.95, '#bfe6ff', { lf: 'rgba(190,230,255,0.8)' });
         box(x + 0.35, y - 0.05, 0.08, 0.08, 0.5, 0.9, '#3a3a3a');
@@ -4982,9 +5031,9 @@
       if (LOD) { box(x + w - 0.1, y + 0.35, 0.12, d - 0.7, 0.3, 0.2, shade(F.body, -0.25)); }
     }
     function workbench(bn, F, world, on) {
-      const x = bn.x, y = bn.y, w = bn.w, d = bn.d, top = world === 'castle' || world === 'farm' ? F.wood : mixc(F.body, '#dfe4ec', 0.4);
+      const x = bn.x, y = bn.y, w = bn.w, d = bn.d, top = world === 'castle' || world === 'farm' || world === 'haunted' || world === 'pumpkin' ? F.wood : mixc(F.body, '#dfe4ec', 0.4);
       legs(x + 0.05, y + 0.05, w - 0.1, d - 0.1, 0.82, F.dark);
-      box(x, y, w, d, 0.08, 0.82, top, { gloss: world !== 'castle' && world !== 'farm' });
+      box(x, y, w, d, 0.08, 0.82, top, { gloss: !['castle', 'farm', 'haunted', 'pumpkin'].includes(world) });
       if (!LOD) return;
       const n = Math.floor(Math.max(w, d) / 0.55);
       for (let i = 0; i < n; i++) {
@@ -4999,7 +5048,9 @@
     function crateStack(x, y, F, world, n) {
       for (let i = 0; i < n; i++) {
         const lvl = Math.floor(i / 2), j = i % 2, px = x + 0.05 + j * 0.5, py = y + 0.1 + (j ? 0.4 : 0);
-        if (world === 'castle' || world === 'farm') { if (i % 2) cyl(px + 0.25, py + 0.25, 0.22, 0.45, lvl * 0.45, F.wood); else box(px, py, 0.5, 0.5, 0.45, lvl * 0.45, F.crate); }
+        if (world === 'haunted') { if (i > 1) break; const cx0 = x + 0.08 + i * 0.52; box(cx0, y + 0.05, 0.42, 1.0, 0.28, 0, '#2a1a14', { top: '#3a2618' }); if (LOD) { const [a, b] = Pl(cx0 + 0.21, y + 0.5, 0.29); g.strokeStyle = '#c9a24a'; g.lineWidth = lw(0.04); g.beginPath(); g.moveTo(a, b - u * 0.14); g.lineTo(a, b + u * 0.14); g.moveTo(a - u * 0.1, b - u * 0.04); g.lineTo(a + u * 0.1, b - u * 0.04); g.stroke(); } }
+        else if (world === 'pumpkin') { if (i > 4) break; const [a, b] = Pl(x + [0.3, 0.78, 0.52, 0.28, 0.8][i], y + [0.3, 0.32, 0.72, 0.8, 0.82][i], 0.24 + (i === 2 ? 0.2 : 0)); g.fillStyle = i % 2 ? '#e8741a' : '#f08a2a'; g.beginPath(); g.ellipse(a, b, u * 0.3, u * 0.23, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); g.strokeStyle = 'rgba(120,50,0,0.4)'; g.beginPath(); g.moveTo(a, b - u * 0.22); g.lineTo(a, b + u * 0.22); g.stroke(); } g.fillStyle = '#3f6a2a'; g.fillRect(a - u * 0.03, b - u * 0.3, u * 0.06, u * 0.1); }
+        else if (world === 'castle' || world === 'farm') { if (i % 2) cyl(px + 0.25, py + 0.25, 0.22, 0.45, lvl * 0.45, F.wood); else box(px, py, 0.5, 0.5, 0.45, lvl * 0.45, F.crate); }
         else if (world === 'alien') { if (i > 3) break; const ex = x + [0.3, 0.8, 0.35, 0.8][i], ey = y + [0.3, 0.35, 0.8, 0.8][i], [a, c2] = Pl(ex, ey, 0.32); g.fillStyle = shade(F.crate, 0.2); g.beginPath(); g.ellipse(a, c2, u * 0.26, u * 0.34, 0, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); g.fillStyle = alpha(F.glow, 0.35 + 0.25 * Math.sin(tt * 2 + i)); g.beginPath(); g.ellipse(a - u * 0.05, c2 - u * 0.06, u * 0.1, u * 0.13, 0, 0, 7); g.fill(); }
         else box(px, py, 0.5, 0.5, 0.42, lvl * 0.42, i % 3 ? F.crate : shade(F.crate, -0.15), { gloss: true });
       }
@@ -5010,16 +5061,18 @@
       for (let i = 0; i < n; i++) {
         const lvl = Math.floor(i / 4), j = i % 4, px = x + 0.05 + (j % 2) * 0.52, py = y + 0.05 + Math.floor(j / 2) * 0.52;
         if (world === 'farm' && i % 2) { box(px, py, 0.48, 0.48, 0.34, 0.14 + lvl * 0.34, '#e6c25a'); continue; }
+        if (world === 'pumpkin' && i % 2) { const [a, b] = Pl(px + 0.24, py + 0.24, 0.3 + lvl * 0.34); g.fillStyle = '#f07a1a'; g.beginPath(); g.ellipse(a, b, u * 0.26, u * 0.2, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); } continue; }
         box(px, py, 0.48, 0.48, 0.34, 0.14 + lvl * 0.34, [F.crate, shade(F.crate, -0.12), mixc(F.crate, F.glow, 0.25)][i % 3], { noInk: LOD < 2 });
       }
       if (n && LOD === 2) { const top = 0.14 + Math.ceil(n / 4) * 0.34; const [a, c2] = Pl(x + 0.55, y + 0.55, top + 0.01); g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = lw(0.02); g.beginPath(); g.moveTo(a - u * 0.5, c2); g.lineTo(a + u * 0.5, c2); g.stroke(); }
     }
     function hubLamp(x, y, tall, F, world) {
-      const h = tall ? 2.3 : 0.9, col = world === 'castle' ? '#ffb866' : F.glow;
+      const h = tall ? 2.3 : 0.9, col = world === 'castle' ? '#ffb866' : world === 'haunted' ? '#9dff8a' : F.glow;
       cyl(x, y, 0.18, 0.12, 0, F.dark);
-      box(x - 0.05, y - 0.05, 0.1, 0.1, h, 0.12, world === 'castle' || world === 'farm' ? F.wood : F.trim, { noInk: LOD < 2 });
+      box(x - 0.05, y - 0.05, 0.1, 0.1, h, 0.12, ['castle', 'farm', 'pumpkin'].includes(world) ? F.wood : F.trim, { noInk: LOD < 2 });
       const [a, c2] = Pl(x, y, h + 0.25); glowAt(a, c2, u * 0.6, col, 0.5);
-      if (world === 'castle') { g.fillStyle = '#ffb347'; g.beginPath(); g.moveTo(a, c2 - u * 0.25 - Math.sin(tt * 9 + x) * u * 0.05); g.quadraticCurveTo(a + u * 0.12, c2, a, c2 + u * 0.06); g.quadraticCurveTo(a - u * 0.12, c2, a, c2 - u * 0.25); g.fill(); }
+      if (world === 'pumpkin') { g.fillStyle = '#f07a1a'; g.beginPath(); g.ellipse(a, c2, u * 0.26, u * 0.2, 0, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); g.fillStyle = `rgba(255,${200 + Math.sin(tt * 7 + x) * 40 | 0},80,1)`; g.beginPath(); g.moveTo(a - u * 0.14, c2 - u * 0.06); g.lineTo(a - u * 0.06, c2 - u * 0.12); g.lineTo(a - u * 0.02, c2 - u * 0.04); g.moveTo(a + u * 0.14, c2 - u * 0.06); g.lineTo(a + u * 0.06, c2 - u * 0.12); g.lineTo(a + u * 0.02, c2 - u * 0.04); g.moveTo(a - u * 0.12, c2 + u * 0.05); g.lineTo(a + u * 0.12, c2 + u * 0.05); g.lineTo(a, c2 + u * 0.12); g.fill(); }
+      else if (world === 'castle' || world === 'haunted') { g.fillStyle = world === 'haunted' ? '#b8ffb0' : '#ffb347'; g.beginPath(); g.moveTo(a, c2 - u * 0.25 - Math.sin(tt * 9 + x) * u * 0.05); g.quadraticCurveTo(a + u * 0.12, c2, a, c2 + u * 0.06); g.quadraticCurveTo(a - u * 0.12, c2, a, c2 - u * 0.25); g.fill(); }
       else { g.fillStyle = col; g.beginPath(); g.arc(a, c2, u * 0.12, 0, 7); g.fill(); }
       light(x, y, h + 0.25, tall ? 2.4 : 1.4, col, 0.55);
     }
@@ -5039,6 +5092,8 @@
         if (L > 3.2 && LOD) { const vs2 = s0 + L * 0.55; g.fillStyle = shade(F.dark, 0.1); g.fillRect(vs2 - 0.5, FULLH - 1.3, 1.0, 0.6); g.fillStyle = 'rgba(0,0,0,0.45)'; for (let v = FULLH - 1.22; v < FULLH - 0.75; v += 0.11) g.fillRect(vs2 - 0.44, v, 0.88, 0.05); }
         // the world's own touch
         if (world === 'castle' && L > 2) { const bs = s0 + L * 0.5; wallBanner(bs, 1.1, 0.8, 1.9, '#8a1c2b', hsh(bs * 10) % 7); }
+        else if (world === 'haunted' && L > 2) { const ps = s0 + L * 0.5, lk = Math.sin(tt * 0.6 + ps) * 0.03; g.fillStyle = '#c9a24a'; g.fillRect(ps - 0.45, 1.3, 0.9, 1.1); g.fillStyle = '#20141c'; g.fillRect(ps - 0.36, 1.39, 0.72, 0.92); g.fillStyle = '#3a2a30'; g.beginPath(); g.arc(ps, 1.75, 0.17, 0, 7); g.fill(); g.fillRect(ps - 0.25, 1.92, 0.5, 0.39); g.fillStyle = on ? '#b8ffb0' : '#5a7a58'; g.fillRect(ps - 0.08 + lk, 1.73, 0.05, 0.03); g.fillRect(ps + 0.03 + lk, 1.73, 0.05, 0.03); }
+        else if (world === 'pumpkin') { g.strokeStyle = '#2a1a10'; g.lineWidth = 0.03; g.beginPath(); g.moveTo(s0 + 0.2, 1.0); g.quadraticCurveTo((s0 + s1) / 2, 1.5, s1 - 0.2, 1.0); g.stroke(); for (let k = 1; k < Math.floor(L / 0.7); k++) { const t = k / Math.floor(L / 0.7), sx = s0 + 0.2 + (L - 0.4) * t, v = 1.0 + 0.5 * 2 * t * (1 - t) * 2 * 0.5; g.fillStyle = '#f07a1a'; g.beginPath(); g.ellipse(sx, v + 0.14, 0.14, 0.11, 0, 0, 7); g.fill(); g.fillStyle = on ? '#ffe94a' : '#8a5a1a'; g.fillRect(sx - 0.06, v + 0.11, 0.04, 0.03); g.fillRect(sx + 0.02, v + 0.11, 0.04, 0.03); } }
         else if (world === 'cyber') { g.fillStyle = alpha(F.glow2, 0.7 + (on ? Math.sin(tt * 3) * 0.2 : -0.4)); g.fillRect(s0 + 0.2, 1.05, L - 0.4, 0.05); }
         else if (world === 'alien') { g.strokeStyle = alpha(F.glow, on ? 0.5 + Math.sin(tt * 2) * 0.2 : 0.2); g.lineWidth = 0.05; g.beginPath(); g.moveTo(s0 + 0.3, FULLH); g.bezierCurveTo(s0 + L * 0.3, 1.2, s0 + L * 0.6, 2.6, s1 - 0.3, 0.9); g.stroke(); }
       }, curWallH);
@@ -5089,7 +5144,7 @@
           for (let i = 0; i < n; i++) {
             const k = hsh(i * 13 + z * 10 + x * 3 + y) % 4; if (k === 3) continue;
             const px = side === 'R' ? x + 0.1 + i * 0.55 : x + 0.2, py = side === 'R' ? y + 0.2 : y + 0.1 + i * 0.55;
-            if (world === 'castle' || world === 'farm') { if (k === 0) cyl(px + 0.22, py + 0.25, 0.2, 0.45, z + 0.05, F.wood); else if (k === 1) { const [a, c2] = Pl(px + 0.22, py + 0.25, z + 0.28); g.fillStyle = '#d8c090'; g.beginPath(); g.ellipse(a, c2, u * 0.28, u * 0.24, 0, 0, 7); g.fill(); } else box(px, py, 0.45, 0.45, 0.45, z + 0.05, F.crate); }
+            if (world === 'castle' || world === 'farm' || world === 'haunted' || world === 'pumpkin') { if (k === 0) cyl(px + 0.22, py + 0.25, 0.2, 0.45, z + 0.05, F.wood); else if (k === 1) { const [a, c2] = Pl(px + 0.22, py + 0.25, z + 0.28); g.fillStyle = '#d8c090'; g.beginPath(); g.ellipse(a, c2, u * 0.28, u * 0.24, 0, 0, 7); g.fill(); } else box(px, py, 0.45, 0.45, 0.45, z + 0.05, F.crate); }
             else if (world === 'alien') { const [a, c2] = Pl(px + 0.22, py + 0.25, z + 0.3); g.fillStyle = shade(F.crate, 0.3); g.beginPath(); g.ellipse(a, c2, u * 0.22, u * 0.26, 0, 0, 7); g.fill(); g.fillStyle = alpha(F.glow, 0.35 + (on ? Math.sin(tt * 2 + i) * 0.2 : 0)); g.beginPath(); g.arc(a, c2, u * 0.1, 0, 7); g.fill(); }
             else box(px, py, 0.45, 0.45, 0.45, z + 0.05, [F.crate, shade(F.crate, -0.15), mixc(F.crate, F.glow, 0.3)][k], { noInk: LOD < 2 });
           }
@@ -5137,6 +5192,25 @@
     // the tall thing outside the back corner: a mast, a chimney, a silo, a vent stack, a spire, a pipe stack
     function outside(o, F, world, on) {
       const x = -1.15, y = -1.15, H = o.tall;
+      if (world === 'haunted') {
+        box(x - 0.4, y - 0.4, 0.8, 0.8, H * 0.6, 0, '#3a2e3a'); box(x - 0.3, y - 0.34, 0.6, 0.6, H * 0.4, H * 0.6, '#443644'); box(x - 0.42, y - 0.46, 0.84, 0.84, 0.2, H, '#2a2230');
+        if (on) smoke(x, y - 0.04, H + 0.3, 'rgba(157,255,138,');
+        const [a, b] = Pl(x + 0.95, y - 0.25, 0), [, top] = Pl(x + 0.95, y - 0.25, H * 0.75);
+        g.strokeStyle = '#140e16'; g.lineCap = 'round'; g.lineWidth = lw(0.16); g.beginPath(); g.moveTo(a, b); g.lineTo(a + u * 0.1, top); g.stroke();
+        g.lineWidth = lw(0.06); g.beginPath(); for (let k = 0; k < 5; k++) { const yy = b - (b - top) * (0.5 + k * 0.1), dir = k % 2 ? 1 : -1; g.moveTo(a + u * 0.05, yy); g.quadraticCurveTo(a + dir * u * 0.5, yy - u * 0.3, a + dir * u * 0.8, yy - u * 0.65); } g.stroke();
+        return;
+      }
+      if (world === 'pumpkin') {
+        const [a, b] = Pl(x, y, 0), [, top] = Pl(x, y, 3.6);
+        for (const [dx, dy] of [[0.75, -0.2], [1.05, 0.15], [0.45, 0.35]]) { const [p0, q0] = Pl(x + dx, y + dy, 0), [, q1] = Pl(x + dx, y + dy, 2.4 + dx); g.strokeStyle = '#8a8a3a'; g.lineWidth = lw(0.06); g.beginPath(); g.moveTo(p0, q0); g.lineTo(p0 + u * 0.05, q1); g.stroke(); g.fillStyle = '#b8a84a'; for (let k = 0; k < 3; k++) { g.beginPath(); g.ellipse(p0 + (k % 2 ? 1 : -1) * u * 0.2, q0 - (q0 - q1) * (0.4 + k * 0.2), u * 0.22, u * 0.06, (k % 2 ? -1 : 1) * 0.6, 0, 7); g.fill(); } }
+        g.strokeStyle = '#5a3a20'; g.lineWidth = lw(0.1); g.beginPath(); g.moveTo(a, b); g.lineTo(a, top - u * 0.2); g.moveTo(a - u * 0.9, top + u * 0.6); g.lineTo(a + u * 0.9, top + u * 0.6); g.stroke();
+        g.fillStyle = '#8a3a2a'; g.beginPath(); g.moveTo(a - u * 0.5, top + u * 0.45); g.lineTo(a + u * 0.5, top + u * 0.45); g.lineTo(a + u * 0.38, top + u * 1.7); g.lineTo(a - u * 0.38, top + u * 1.7); g.closePath(); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke(); }
+        g.fillStyle = '#e6c25a'; g.beginPath(); g.arc(a, top + u * 0.05, u * 0.36, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.stroke(); }
+        g.fillStyle = '#2a1d33'; g.beginPath(); g.moveTo(a - u * 0.55, top - u * 0.2); g.lineTo(a + u * 0.55, top - u * 0.2); g.lineTo(a + u * 0.08, top - u * 1.0); g.closePath(); g.fill();
+        if (LOD) { g.strokeStyle = '#2a1d33'; g.lineWidth = lw(0.03); g.beginPath(); for (const ex of [-0.13, 0.13]) { g.moveTo(a + u * (ex - 0.06), top - u * 0.02); g.lineTo(a + u * (ex + 0.06), top + u * 0.1); g.moveTo(a + u * (ex + 0.06), top - u * 0.02); g.lineTo(a + u * (ex - 0.06), top + u * 0.1); } g.moveTo(a - u * 0.14, top + u * 0.22); g.lineTo(a + u * 0.14, top + u * 0.22); g.stroke(); }
+        const cr = Math.sin(tt * 0.9) > 0.9 ? -u * 0.15 : 0; g.fillStyle = '#0e0a12'; g.beginPath(); g.ellipse(a + u * 0.7, top + u * 0.45 + cr, u * 0.16, u * 0.11, 0, 0, 7); g.fill(); g.beginPath(); g.arc(a + u * 0.82, top + u * 0.34 + cr, u * 0.08, 0, 7); g.fill(); g.fillStyle = '#e8a33a'; g.beginPath(); g.moveTo(a + u * 0.88, top + u * 0.33 + cr); g.lineTo(a + u * 1.0, top + u * 0.36 + cr); g.lineTo(a + u * 0.88, top + u * 0.38 + cr); g.fill();
+        return;
+      }
       if (world === 'castle') {
         box(x - 0.45, y - 0.45, 0.9, 0.9, H, 0, '#6e6278'); box(x - 0.55, y - 0.55, 1.1, 1.1, 0.25, H, '#7a7289');
         if (LOD) { g.strokeStyle = 'rgba(20,14,30,0.3)'; g.lineWidth = lw(0.02); g.beginPath(); for (let z = 0.4; z < H; z += 0.4) { g.moveTo(...Pl(x - 0.45, y + 0.45, z)); g.lineTo(...Pl(x + 0.45, y + 0.45, z)); g.lineTo(...Pl(x + 0.45, y - 0.45, z)); } g.stroke(); }
@@ -5287,6 +5361,29 @@
           if (k % 2 === 0) wallBanner(p, 0.92, 0.95, 2.9, ['#8a1c2b', '#1c3a8a', '#6b1c8a', '#1f6b3a'][(k / 2 + (side === 'L' ? 1 : 0)) % 4], k);
           else { const f = wallTorch(p, HB * 0.46, dk); glow(p, HB * 0.46 - 0.35, 2.8, '#ffb866', (0.3 + dk * 0.35) * f); }
         });
+      } else if (id === 'haunted') {
+        g.fillStyle = 'rgba(0,0,0,0.18)'; for (let s = 0; s < len; s += 0.9) g.fillRect(s, 0, 0.45, HB);
+        for (let s = 2, k = 0; s < len - 1; s += 4, k++) {
+          // an arched window with the moon in it, and now and then someone standing in it
+          const w = 1.3, top = 0.7, bot = HB * 0.62, arch = (pad) => { g.beginPath(); g.moveTo(s - w / 2 - pad, bot + pad); g.lineTo(s - w / 2 - pad, top + w / 2); g.arc(s, top + w / 2, w / 2 + pad, Math.PI, 0); g.lineTo(s + w / 2 + pad, bot + pad); g.closePath(); };
+          arch(0.12); g.fillStyle = '#1a1220'; g.fill();
+          const pane = g.createLinearGradient(0, top, 0, bot); pane.addColorStop(0, '#3a4a6a'); pane.addColorStop(1, '#141a2a'); arch(0); g.fillStyle = pane; g.fill();
+          g.strokeStyle = '#1a1220'; g.lineWidth = 0.07; g.beginPath(); g.moveTo(s, top); g.lineTo(s, bot); g.moveTo(s - w / 2, (top + bot) / 2 + 0.3); g.lineTo(s + w / 2, (top + bot) / 2 + 0.3); g.stroke();
+          if ((k + (side === 'L' ? 1 : 0)) % 3 === 1) { g.fillStyle = 'rgba(8,4,12,0.92)'; g.beginPath(); g.arc(s + 0.25, top + 1.2, 0.22, 0, 7); g.fill(); g.fillRect(s + 0.03, top + 1.4, 0.44, bot - top - 1.4); if (Math.sin(tt * 0.7 + k) > 0.2) { g.fillStyle = '#b8ffb0'; g.fillRect(s + 0.15, top + 1.17, 0.06, 0.035); g.fillRect(s + 0.29, top + 1.17, 0.06, 0.035); glow(s + 0.25, top + 1.2, 0.9, '#9dff8a', 0.25); } }
+          glow(s, (top + bot) / 2, 2.2, '#8fa8ff', 0.1 + dk * 0.1);
+          // a portrait between the windows, its eyes following you
+          const ps = s + 2, lk = Math.sin(tt * 0.5 + ps) * 0.03;
+          if (ps < len - 0.8) { g.fillStyle = '#c9a24a'; g.fillRect(ps - 0.5, 1.1, 1.0, 1.3); g.fillStyle = '#2a1a24'; g.fillRect(ps - 0.4, 1.2, 0.8, 1.1); g.fillStyle = '#4a3a3a'; g.beginPath(); g.arc(ps, 1.6, 0.2, 0, 7); g.fill(); g.fillRect(ps - 0.3, 1.8, 0.6, 0.5); g.fillStyle = '#e8ffe0'; g.fillRect(ps - 0.09 + lk, 1.58, 0.05, 0.03); g.fillRect(ps + 0.04 + lk, 1.58, 0.05, 0.03); }
+        }
+        // candles in sconces, burning green
+        for (let s = 4; s < len - 0.5; s += 4) { const v = HB * 0.72, fl = 0.8 + Math.sin(tt * 9 + s) * 0.2; g.fillStyle = '#c9a24a'; g.fillRect(s - 0.04, v, 0.08, 0.4); g.fillStyle = '#f4ecd8'; g.fillRect(s - 0.05, v - 0.25, 0.1, 0.25); g.fillStyle = '#b8ffb0'; g.beginPath(); g.ellipse(s, v - 0.34, 0.05, 0.1 * fl, 0, 0, 7); g.fill(); glow(s, v - 0.34, 1.6, '#9dff8a', 0.25 + dk * 0.2); }
+      } else if (id === 'pumpkin') {
+        g.strokeStyle = 'rgba(0,0,0,0.25)'; g.beginPath(); for (let s = 0.5; s < len; s += 0.5) { g.moveTo(s, 0); g.lineTo(s, HB); } g.stroke();
+        // a string of lanterns, a barn door, hay bales and carved pumpkins along the foot
+        g.strokeStyle = '#1a1008'; g.lineWidth = 0.04; g.beginPath(); for (let s = 0; s < len - 0.1; s += 3) { g.moveTo(s, 0.6); g.quadraticCurveTo(s + 1.5, 1.3, s + 3, 0.6); } g.stroke();
+        for (let s = 0; s < len - 0.1; s += 3) for (const t of [0.25, 0.5, 0.75]) { const sx = s + 3 * t, v = 0.6 + 1.4 * t * (1 - t); g.fillStyle = ['#ff8a1a', '#b06bff', '#9be15d'][Math.round(t * 4) % 3]; g.beginPath(); g.ellipse(sx, v + 0.2, 0.14, 0.18, 0, 0, 7); g.fill(); glow(sx, v + 0.2, 1.1, '#ffb040', 0.2 + dk * 0.2); }
+        const mid = len / 2, dw = 3.0, dh = 3.4; g.fillStyle = '#2e1c10'; g.fillRect(mid - dw / 2, HB - dh, dw, dh); g.strokeStyle = '#8a5a32'; g.lineWidth = 0.1; g.strokeRect(mid - dw / 2, HB - dh, dw, dh); g.beginPath(); g.moveTo(mid - dw / 2, HB - dh); g.lineTo(mid + dw / 2, HB); g.moveTo(mid + dw / 2, HB - dh); g.lineTo(mid - dw / 2, HB); g.stroke();
+        for (let s = 0.8; s < len - 0.6; s += 2.6) { if (Math.abs(s - mid) < dw / 2 + 0.6) continue; g.fillStyle = '#d8b04a'; g.beginPath(); g.roundRect(s - 0.55, HB - 0.75, 1.1, 0.7, 0.12); g.fill(); g.strokeStyle = 'rgba(120,80,20,0.6)'; g.lineWidth = 0.03; g.stroke(); g.fillStyle = '#e8741a'; g.beginPath(); g.ellipse(s, HB - 0.95, 0.3, 0.24, 0, 0, 7); g.fill(); g.fillStyle = '#ffe94a'; g.beginPath(); g.moveTo(s - 0.15, HB - 1.0); g.lineTo(s - 0.07, HB - 1.08); g.lineTo(s - 0.02, HB - 0.98); g.moveTo(s + 0.15, HB - 1.0); g.lineTo(s + 0.07, HB - 1.08); g.lineTo(s + 0.02, HB - 0.98); g.moveTo(s - 0.14, HB - 0.88); g.lineTo(s + 0.14, HB - 0.88); g.lineTo(s, HB - 0.8); g.fill(); glow(s, HB - 0.95, 1.2, '#ffb040', 0.3 + dk * 0.25); }
       } else if (id === 'space') {
         g.strokeStyle = 'rgba(0,0,0,0.14)'; g.beginPath(); for (let s = 1.6; s < len; s += 1.6) { g.moveTo(s, 0); g.lineTo(s, HB); } g.moveTo(0, HB * 0.66); g.lineTo(len, HB * 0.66); g.stroke();
         for (let s = 1.6; s < len - 0.8; s += 3.2) {
@@ -5408,7 +5505,7 @@
       poly([W3(b.x0, b.y0), W3(b.x1, b.y0), W3(b.x1, b.y0 + D), W3(b.x0 + D, b.y0 + D), W3(b.x0 + D, b.y1), W3(b.x0, b.y1)]); g.fillStyle = S.hall; g.fill();
       if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke(); }
       // the walls
-      const barn = id === 'farm' ? '#a8322d' : null;
+      const barn = id === 'farm' ? '#a8322d' : id === 'pumpkin' ? '#4a2e1c' : null;
       for (const side of ['L', 'R']) backWall(side, b, (len) => {
         g.fillStyle = side === 'R' ? barn || S.wall : barn ? shade(barn, -0.14) : S.wall2; g.fillRect(0, 0, len, HB);
         if (id === 'castle' && LOD) { g.drawImage(castleMasonry(len, HB, side === 'R' ? 3 : 7), 0, 0, len, HB); if (side === 'L') { g.fillStyle = 'rgba(12,8,20,0.16)'; g.fillRect(0, 0, len, HB); } }
@@ -5443,6 +5540,14 @@
           for (let s = 0.3; s < b.y1 - b.y0 - 0.4; s += 1.0) { const q = [W3(b.x0, b.y0 + s, HB), W3(b.x0, b.y0 + s + 0.5, HB), W3(b.x0, b.y0 + s + 0.5, HB + 0.5), W3(b.x0, b.y0 + s, HB + 0.5)]; g.moveTo(...q[0]); for (const pt of q.slice(1)) g.lineTo(...pt); g.closePath(); }
           g.fillStyle = S.cap; g.fill();
         }
+        for (const [x, y] of [[b.x0 - t / 2, b.y0 - t / 2], [b.x1, b.y0 - t / 2], [b.x0 - t / 2, b.y1]]) tower(x, y, S, dk);
+      }
+      if (id === 'haunted') {
+        // iron railings along the top, and the mansion's turrets at the corners
+        g.strokeStyle = '#120c16'; g.lineWidth = lw(0.05); g.beginPath();
+        for (let s = 0.2; s < b.x1 - b.x0; s += 0.35) { const [a1, b1] = W3(b.x0 + s, b.y0 - t / 2, HB), [, b2] = W3(b.x0 + s, b.y0 - t / 2, HB + 0.7); g.moveTo(a1, b1); g.lineTo(a1, b2); }
+        for (let s = 0.2; s < b.y1 - b.y0; s += 0.35) { const [a1, b1] = W3(b.x0 - t / 2, b.y0 + s, HB), [, b2] = W3(b.x0 - t / 2, b.y0 + s, HB + 0.7); g.moveTo(a1, b1); g.lineTo(a1, b2); }
+        g.stroke();
         for (const [x, y] of [[b.x0 - t / 2, b.y0 - t / 2], [b.x1, b.y0 - t / 2], [b.x0 - t / 2, b.y1]]) tower(x, y, S, dk);
       }
     }
@@ -5501,6 +5606,8 @@
       crypt: { skin: '#eeeadf', eyes: 'sockets', body: 'ribs', hair: 'none' }, forge: { skin: '#79b85a', ears: 'pointy', body: 'apron', hair: 'none' }, library: { ghost: true, skin: '#e8f0ff', eyes: 'hollow', hair: 'none' },
       den: { body: 'hoodie', hair: 'hood', eyes: 'glasses' }, bar: { skin: '#b9c6d8', eyes: 'glow', body: 'panels', hair: 'none' }, dojo: { body: 'robe', hair: 'topknot' }, garage: { body: 'overalls', hair: 'cap' }, club: { hair: 'headphones', body: 'neon' }, clinic: { eyes: 'cyborg', body: 'panels' },
       lab: { skin: '#b9c0c8', eyes: 'almond', hair: 'none' }, hatchery: { blob: true, skin: '#7dffb0' }, bridge: { skin: '#b07ad8', hair: 'tentacles' }, garden: { skin: '#e8d6b8', hair: 'mushroom' }, probe: { skin: '#9ccf5a', hair: 'antennae', eyes: 'bug' }, lounge: { skin: '#9aa6ff', eyes: 'cyclops', hair: 'none' },
+      ballroom: { ghost: true, skin: '#e8f0ff', eyes: 'hollow', hair: 'none' }, bonecellar: { skin: '#eeeadf', eyes: 'sockets', body: 'ribs', hair: 'none' }, gallery: { skin: '#e6dcea', eyes: 'glow', body: 'robe' }, attic: { skin: '#8a6a4a', ears: 'pointy', hair: 'none' }, nursery: { ghost: true, skin: '#eaf2ff', eyes: 'hollow' }, seance: { body: 'robe', hair: 'hood' },
+      patch: { body: 'overalls', hair: 'cap' }, maze: {}, graveyard: { skin: '#eeeadf', eyes: 'sockets', body: 'ribs', hair: 'none' }, witches: { skin: '#9fd88a', body: 'robe', hair: 'hood' }, carving: { body: 'apron' }, cats: { skin: '#3a3040', ears: 'pointy', hair: 'none' },
     };
     // what people wear in each world (a room's costume, where it has one, wins; work clothes go on top)
     const OUTFIT = {
@@ -5510,6 +5617,8 @@
       cyber: { top: 'jacket', legs: '#1b1d27', feet: '#f2f2f2', head: 'visor' },
       alien: { top: 'uniform', legs: '#20222c', feet: '#b9c0c8', head: 'insignia' },
       ocean: { top: 'wetsuit', legs: '#1d2a36', feet: '#1d2a36', head: 'mask' },
+      haunted: { top: 'tunic', legs: '#1e1a24', feet: '#141018', head: 'crown' },
+      pumpkin: { top: 'overalls', legs: '#3a2a4a', feet: '#4a2e24', head: 'straw' },
     };
     let curWorld = 'space';
     function lookFor(a, id) {
@@ -5906,9 +6015,9 @@
       return null;
     }
     // costumes become species: a skeleton in the crypt, a robot at the bar, a grey in the lab
-    const KIT_SPECIES = { crypt: 'skeleton', library: 'skeleton', bar: 'robot', clinic: 'robot', lab: 'grey', probe: 'grey', lounge: 'grey', hatchery: 'blob', bridge: 'octo' };
+    const KIT_SPECIES = { crypt: 'skeleton', library: 'skeleton', bar: 'robot', clinic: 'robot', lab: 'grey', probe: 'grey', lounge: 'grey', hatchery: 'blob', bridge: 'octo', bonecellar: 'skeleton', attic: 'fox', graveyard: 'skeleton', cats: 'fox' };
     // the floor crowd of each world mixes in its natives
-    const CROWD_SPECIES = { space: [['robot', 3]], castle: [['skeleton', 4]], farm: [['fox', 5]], cyber: [['robot', 4]], alien: [['grey', 8], ['blob', 3]], ocean: [['octo', 5]] };
+    const CROWD_SPECIES = { space: [['robot', 3]], castle: [['skeleton', 4]], farm: [['fox', 5]], cyber: [['robot', 4]], alien: [['grey', 8], ['blob', 3]], ocean: [['octo', 5]], haunted: [['skeleton', 4]], pumpkin: [['fox', 3], ['skeleton', 2]] };
     const clampT = (v) => Math.max(0, Math.min(4, v | 0));
     function kitLook(a, id) {
       const h = hsh(a.name || a.id), w = curWorld;
@@ -5977,8 +6086,11 @@
       const grubb = curWorld === 'castle' && a.kind === 'extra' && !a.holo && hsh(a.id) % 3 === 0 && window.PF_CAST && PF_CAST.grubb;
       // in space the runners float, papers and all
       const zeroG = curWorld === 'space' && a.kind === 'extra' && pose === 'runner';
+      // ghosts are see-through and float
+      const cst = a.costume && a.costume.res ? COSTUME[a.costume.id] : null, ghost = Boolean(cst && cst.ghost);
       g.save();
-      g.translate(0, -u * (bob + (zeroG ? 0.45 + Math.sin(a.t * 3) * 0.08 : 0)));
+      if (ghost) g.globalAlpha *= 0.6;
+      g.translate(0, -u * (bob + (zeroG ? 0.45 + Math.sin(a.t * 3) * 0.08 : 0) + (ghost ? 0.32 + Math.sin(a.t * 2 + (hsh(a.id) % 5)) * 0.08 : 0)));
       if (zeroG) g.rotate(0.12 * (a.face < 0 ? -1 : 1));
       if (a.face < 0) g.scale(-1, 1);
       const ok = grubb ? stamp('cast:grubb', () => PF_CAST.grubb, 84, 42, 72, 0.9)
@@ -6098,6 +6210,8 @@
       cyber: { col: '#ff4fd8', gold: '#f2e14e', z: 1.1, motes: '#4ff0ff' },
       alien: { col: '#7dffb0', gold: '#d8ff6a', z: 1.6, motes: '#9dffcf' },
       ocean: { col: '#7fdcff', gold: '#fff4d8', z: 1.5, motes: '#cff4ff' },
+      haunted: { col: '#9dff8a', gold: '#e9d9a8', z: 1.7, motes: '#b8ffb0' },
+      pumpkin: { col: '#ff8a1a', gold: '#ffcf3a', z: 0.6, motes: '#ffb040' },
     };
     function flowPos(t, w) {
       const th = FLOW_THEME[w] || FLOW_THEME.space, [hx, hy] = cellCenter(...HUB);
@@ -6114,7 +6228,8 @@
       const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
       const x = x0 + dx * f + nx * t.lane, y = y0 + dy * f + ny * t.lane, tt2 = T + t.seed;
       let z = th.z;
-      if (w === 'farm') z = 0.35 + Math.abs(Math.sin(t.d * 2.4 + t.seed)) * 0.95;
+      if (w === 'farm' || w === 'pumpkin') z = 0.35 + Math.abs(Math.sin(t.d * 2.4 + t.seed)) * 0.95;
+      else if (w === 'haunted') z += Math.sin(tt2 * 1.5) * 0.35;
       else if (w === 'ocean') z += Math.sin(tt2 * 2.2) * 0.3 + Math.min(0.6, t.d * 0.05);
       else if (w === 'alien') z += Math.sin(tt2 * 3) * 0.25;
       else if (w === 'castle') z += Math.sin(tt2 * 2) * 0.15;
@@ -6151,6 +6266,20 @@
         glowAt(X, Y, rr * 2.4, c, 0.5);
         g.strokeStyle = alpha(c, 0.8); g.lineWidth = rr * 0.12; g.beginPath(); for (let k = 0; k < 5; k++) { const a = k * 1.256 + tt2 * 1.5; g.moveTo(X + Math.cos(a) * rr * 0.8, Y + Math.sin(a) * rr * 0.8); g.lineTo(X + Math.cos(a + 0.3) * rr * 1.35, Y + Math.sin(a + 0.3) * rr * 1.35); } g.stroke();
         const gr = g.createRadialGradient(X - rr * 0.3, Y - rr * 0.3, 0, X, Y, rr); gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.4, c); gr.addColorStop(1, shade(c, -0.4)); g.fillStyle = gr; g.beginPath(); g.arc(X, Y, rr * 0.85, 0, 7); g.fill();
+      } else if (w === 'haunted') {
+        if (lead) { g.fillStyle = '#f4ecd8'; g.fillRect(X - r * 0.22, Y - r * 0.3, r * 0.44, r * 1.1); ink(0.1); const fl = 0.8 + Math.sin(tt2 * 12) * 0.2; glowAt(X, Y - r * 0.6, r * 1.6, '#9dff8a', 0.5); g.fillStyle = '#b8ffb0'; g.beginPath(); g.ellipse(X, Y - r * 0.6, r * 0.16, r * 0.34 * fl, 0, 0, 7); g.fill(); return; }
+        const rr = r * 1.15, a = 0.85; glowAt(X, Y, rr * 2.2, '#c8ffc0', 0.3);
+        g.fillStyle = `rgba(240,248,255,${a})`; g.beginPath(); g.moveTo(X - rr * 0.8, Y + rr * 0.8); g.lineTo(X - rr * 0.8, Y - rr * 0.1); g.quadraticCurveTo(X - rr * 0.8, Y - rr * 1.1, X, Y - rr * 1.1); g.quadraticCurveTo(X + rr * 0.8, Y - rr * 1.1, X + rr * 0.8, Y - rr * 0.1); g.lineTo(X + rr * 0.8, Y + rr * 0.8); for (let k = 0; k < 3; k++) g.quadraticCurveTo(X + rr * (0.53 - k * 0.53), Y + rr * (0.5 + Math.sin(tt2 * 6 + k) * 0.12), X + rr * (0.27 - k * 0.53), Y + rr * 0.8); g.closePath(); g.fill(); ink(0.1);
+        g.fillStyle = '#1a0f24'; g.beginPath(); g.ellipse(X - rr * 0.28, Y - rr * 0.45, rr * 0.12, rr * 0.2, 0, 0, 7); g.ellipse(X + rr * 0.28, Y - rr * 0.45, rr * 0.12, rr * 0.2, 0, 0, 7); g.fill();
+        g.fillStyle = th.gold; g.beginPath(); g.ellipse(X, Y + rr * 0.25, rr * 0.36, rr * 0.3, 0, 0, 7); g.fill(); ink(0.08);
+      } else if (w === 'pumpkin') {
+        if (lead) { g.fillStyle = '#f07a1a'; g.beginPath(); g.ellipse(X, Y, r * 0.95, r * 0.75, 0, 0, 7); g.fill(); ink(0.14); g.strokeStyle = 'rgba(120,50,0,0.5)'; g.lineWidth = r * 0.1; g.beginPath(); g.moveTo(X, Y - r * 0.7); g.lineTo(X, Y + r * 0.7); g.stroke(); g.fillStyle = '#3f6a2a'; g.fillRect(X - r * 0.1, Y - r * 1.0, r * 0.2, r * 0.32); return; }
+        const col = ['#ff5c8a', '#ffd84d', '#5fe8ff', '#b06bff', '#9be15d'][s % 5], sp = Math.sin(tt2 * 4) * 0.3;
+        g.save(); g.translate(X, Y); g.rotate(sp);
+        g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(-r * 0.7, 0); g.lineTo(-r * 1.3, -r * 0.45); g.lineTo(-r * 1.3, r * 0.45); g.closePath(); g.moveTo(r * 0.7, 0); g.lineTo(r * 1.3, -r * 0.45); g.lineTo(r * 1.3, r * 0.45); g.closePath(); g.fill(); g.strokeStyle = 'rgba(20,12,30,0.85)'; g.lineWidth = r * 0.1; g.stroke();
+        g.fillStyle = col; g.beginPath(); g.ellipse(0, 0, r * 0.8, r * 0.58, 0, 0, 7); g.fill(); g.stroke();
+        g.fillStyle = 'rgba(255,255,255,0.5)'; g.beginPath(); g.ellipse(-r * 0.25, -r * 0.2, r * 0.25, r * 0.12, -0.3, 0, 7); g.fill();
+        g.restore();
       } else {
         const rr = lead ? r * 0.7 : r * 1.1;
         g.fillStyle = 'rgba(200,240,255,0.18)'; g.beginPath(); g.arc(X, Y, rr, 0, 7); g.fill(); g.strokeStyle = 'rgba(220,248,255,0.85)'; g.lineWidth = rr * 0.1; g.stroke();
@@ -6170,8 +6299,8 @@
         // a soft shadow on the walkway, and the trail behind
         if (t.phase === 'go' && LOD) { g.fillStyle = 'rgba(0,0,0,0.18)'; g.beginPath(); g.ellipse(Xf, Yf, rr * 0.9, rr * 0.4, 0, 0, 7); g.fill(); }
         t.trail.push([X, Y]); if (t.trail.length > 7) t.trail.shift();
-        if (LOD && (w === 'cyber' || w === 'space' || w === 'castle')) {
-          const tc = w === 'castle' ? th.col : t.kind === 'lead' ? '#4ff0ff' : th.col;
+        if (LOD && (w === 'cyber' || w === 'space' || w === 'castle' || w === 'haunted')) {
+          const tc = w === 'castle' || w === 'haunted' ? th.col : t.kind === 'lead' ? '#4ff0ff' : th.col;
           for (let k = 0; k < t.trail.length - 1; k++) { const [a1, b1] = t.trail[k], q = k / t.trail.length; g.fillStyle = alpha(tc, 0.5 * q); g.beginPath(); g.arc(a1, b1, rr * (w === 'cyber' ? 0.5 : 0.35) * (0.4 + q), 0, 7); g.fill(); }
         } else if (LOD && w === 'ocean' && (t.seed + Math.floor(T * 4)) % 6 === 0) particles.push({ x: X + (Math.random() - 0.5) * rr, y: Y, vx: (Math.random() - 0.5) * 6, vy: -14, g: -4, life: 0.6, col: '#dff7ff' });
         if (t.kind === 'money' && w !== 'farm') glowAt(X, Y, rr * 2.2, th.gold, 0.25);
@@ -6250,6 +6379,8 @@
         else if (c.kind === 'fish') { const dir = c.vx > 0 ? 1 : -1; g.fillStyle = c.col || '#ffb454'; g.beginPath(); g.ellipse(X, Y, s * 1.1, s * 0.55, 0, 0, 7); g.fill(); g.beginPath(); g.moveTo(X - dir * s * 1.0, Y); g.lineTo(X - dir * s * 1.8, Y - s * 0.55 * (1 + fl * 0.3)); g.lineTo(X - dir * s * 1.8, Y + s * 0.55); g.fill(); g.fillStyle = '#1a1f2c'; g.beginPath(); g.arc(X + dir * s * 0.55, Y - s * 0.1, s * 0.12, 0, 7); g.fill(); }
         else if (c.kind === 'drone') { g.fillStyle = '#8a93a8'; g.beginPath(); g.roundRect(X - s * 0.7, Y - s * 0.25, s * 1.4, s * 0.5, s * 0.2); g.fill(); g.strokeStyle = 'rgba(200,210,230,0.7)'; g.lineWidth = px1 * 1.5; for (const dx of [-1, 1]) { g.beginPath(); g.ellipse(X + dx * s, Y - s * 0.4, s * 0.6 * Math.abs(fl), s * 0.12, 0, 0, 7); g.stroke(); } if (Math.floor(c.t * 3) % 2) { glowAt(X, Y + s * 0.3, s * 1.5, '#ff5c6c', 0.8); } }
         else if (c.kind === 'bubble') { g.strokeStyle = 'rgba(210,245,255,0.6)'; g.lineWidth = px1 * 1.5; g.beginPath(); g.arc(X, Y, s * 0.5, 0, 7); g.stroke(); }
+        else if (c.kind === 'leaf') { const col = ['#ff8a1a', '#c8342c', '#f2c14e', '#a0522d'][(c.p * 10 | 0) % 4]; g.save(); g.translate(X, Y); g.rotate(c.t * 2 + c.p); g.fillStyle = col; g.beginPath(); g.ellipse(0, 0, s * 0.7, s * 0.35, 0, 0, 7); g.fill(); g.restore(); }
+        else if (c.kind === 'ghost') { const a = 0.45 + 0.2 * Math.sin(c.t * 1.7 + c.p), dir = c.vx > 0 ? 1 : -1; glowAt(X, Y, s * 3.5, '#c8ffc0', a * 0.35); g.fillStyle = `rgba(236,246,255,${a.toFixed(3)})`; g.beginPath(); g.moveTo(X - s * 1.1, Y + s * 1.2); g.lineTo(X - s * 1.1, Y - s * 0.2); g.quadraticCurveTo(X - s * 1.1, Y - s * 1.5, X, Y - s * 1.5); g.quadraticCurveTo(X + s * 1.1, Y - s * 1.5, X + s * 1.1, Y - s * 0.2); g.lineTo(X + s * 1.1, Y + s * 1.2); for (let k = 0; k < 4; k++) g.quadraticCurveTo(X + s * (0.83 - k * 0.55), Y + s * (0.8 + Math.sin(c.t * 5 + k) * 0.15), X + s * (0.55 - k * 0.55), Y + s * 1.2); g.closePath(); g.fill(); g.fillStyle = `rgba(20,10,30,${(a * 1.4).toFixed(3)})`; g.beginPath(); g.ellipse(X - s * 0.35 + dir * s * 0.15, Y - s * 0.55, s * 0.18, s * 0.28, 0, 0, 7); g.ellipse(X + s * 0.3 + dir * s * 0.15, Y - s * 0.55, s * 0.18, s * 0.28, 0, 0, 7); g.fill(); g.beginPath(); g.ellipse(X + dir * s * 0.1, Y + s * 0.05, s * 0.2, s * 0.3, 0, 0, 7); g.fill(); }
       }
     }
     // ---- pennants over the busiest rooms
@@ -6300,6 +6431,42 @@
         hills(W, H, 0.78, 40, '#15101f', 4, par, 0.08);
         return;
       }
+      if (id === 'haunted') {
+        skyGrad(W, H, '#05040c', '#20152e');
+        stars(W, H, 0.3, par);
+        const mx = W * 0.78 - par.x * 0.02, my = H * 0.17;
+        glowAt(mx, my, 200, '#e0ffd8', 0.28); g.fillStyle = '#eef2dc'; g.beginPath(); g.arc(mx, my, 44, 0, 7); g.fill(); g.fillStyle = 'rgba(150,160,130,0.35)'; for (const [dx, dy, r] of [[-12, -8, 8], [10, 6, 6], [-2, 16, 5]]) { g.beginPath(); g.arc(mx + dx, my + dy, r, 0, 7); g.fill(); }
+        // clouds creeping across the moon
+        for (let i = 0; i < 4; i++) { const cx = ((tt * 0.008 * (1 + i * 0.3) + i * 0.27) % 1.4 - 0.2) * W, cy = H * (0.12 + i * 0.05); g.fillStyle = 'rgba(18,12,28,0.78)'; for (const [dx, dy, rx, ry] of [[0, 0, 90, 18], [50, -8, 60, 16], [-50, -6, 54, 14]]) { g.beginPath(); g.ellipse(cx + dx, cy + dy, rx, ry, 0, 0, 7); g.fill(); } }
+        // now and then, lightning
+        const lt = tt % 11;
+        if (lt < 0.2) { g.fillStyle = `rgba(220,230,255,${(0.3 * (1 - lt / 0.2)).toFixed(3)})`; g.fillRect(0, 0, W, H); g.strokeStyle = 'rgba(240,245,255,0.9)'; g.lineWidth = 2.5; g.beginPath(); let x = W * (0.25 + (Math.floor(tt / 11) % 3) * 0.2), y = 0; g.moveTo(x, y); for (let k = 0; k < 8; k++) { x += (hsh('l' + k + Math.floor(tt / 11)) % 60) - 30; y += H * 0.07; g.lineTo(x, y); } g.stroke(); }
+        hills(W, H, 0.66, 50, '#110b18', 2, par, 0.04);
+        // a dead tree and a row of gravestones on the hill
+        const tx = W * 0.14 - par.x * 0.04, ty = H * 0.62;
+        g.strokeStyle = '#0a060e'; g.lineCap = 'round'; g.lineWidth = 9; g.beginPath(); g.moveTo(tx, ty + 40); g.lineTo(tx + 6, ty - 70); g.stroke();
+        g.lineWidth = 4; g.beginPath(); for (const [a, l] of [[-2.4, 60], [-0.8, 50], [-2.0, 40], [-1.1, 36]]) { g.moveTo(tx + 4, ty - 30 - l * 0.4); g.lineTo(tx + 4 + Math.cos(a) * l, ty - 30 - l * 0.4 + Math.sin(a) * l); } g.stroke();
+        g.fillStyle = '#0a060e'; for (let i = 0; i < 9; i++) { const gx = W * (0.3 + i * 0.07) - par.x * 0.04, gy = H * 0.665 + Math.sin(i) * 8; g.beginPath(); g.roundRect(gx, gy - 26, 16, 30, [8, 8, 0, 0]); g.fill(); }
+        hills(W, H, 0.8, 30, '#0a0710', 4, par, 0.08);
+        // fog rolling along the bottom
+        for (let i = 0; i < 6; i++) { const fx = ((tt * 0.01 * (1 + i * 0.15) + i / 6) % 1.3 - 0.15) * W, fy = H * (0.78 + (i % 3) * 0.06); g.fillStyle = 'rgba(200,210,230,0.07)'; g.beginPath(); g.ellipse(fx, fy, W * 0.25, 40, 0, 0, 7); g.fill(); }
+        return;
+      }
+      if (id === 'pumpkin') {
+        skyGrad(W, H, '#150a28', '#5a2a4a');
+        stars(W, H, 0.5, par);
+        const mx = W * 0.2 - par.x * 0.02, my = H * 0.3;
+        glowAt(mx, my, 240, '#ffb040', 0.45); g.fillStyle = '#ffa53a'; g.beginPath(); g.arc(mx, my, 76, 0, 7); g.fill(); g.fillStyle = 'rgba(200,100,20,0.35)'; for (const [dx, dy, r] of [[-20, -14, 12], [18, 10, 9], [-6, 26, 7]]) { g.beginPath(); g.arc(mx + dx, my + dy, r, 0, 7); g.fill(); }
+        // a witch crossing the moon, now and then
+        const wt = (tt * 0.03) % 1.6;
+        if (wt < 1) { const wx = mx - 170 + wt * 340, wy = my - 10 + Math.sin(wt * 6) * 10; g.strokeStyle = '#150a18'; g.lineWidth = 4; g.beginPath(); g.moveTo(wx - 34, wy + 6); g.lineTo(wx + 30, wy - 2); g.stroke(); g.fillStyle = '#150a18'; g.beginPath(); g.moveTo(wx - 34, wy + 6); g.lineTo(wx - 50, wy); g.lineTo(wx - 48, wy + 14); g.closePath(); g.fill(); g.beginPath(); g.ellipse(wx, wy - 10, 9, 13, 0.3, 0, 7); g.fill(); g.beginPath(); g.moveTo(wx - 8, wy - 20); g.lineTo(wx + 12, wy - 22); g.lineTo(wx + 4, wy - 44); g.closePath(); g.fill(); }
+        hills(W, H, 0.64, 40, '#2a1a2e', 1, par, 0.04);
+        // pumpkins glowing on the hill
+        for (let i = 0; i < 12; i++) { const px = W * (0.05 + i * 0.085) - par.x * 0.05, py = H * 0.7 + Math.sin(i * 1.7) * 10; glowAt(px, py - 6, 26, '#ffb040', 0.35); g.fillStyle = '#e8741a'; g.beginPath(); g.ellipse(px, py, 11, 8, 0, 0, 7); g.fill(); }
+        hills(W, H, 0.76, 34, '#1e1220', 3, par, 0.07);
+        hills(W, H, 0.88, 26, '#150c16', 5, par, 0.1);
+        return;
+      }
       if (id === 'cyber') {
         skyGrad(W, H, '#170a34', mixc('#6c2480', '#2a1040', dk * 0.5));
         stars(W, H, 0.3, par);
@@ -6329,7 +6496,9 @@
       g.save(); g.translate(px2, py2); g.rotate(-0.35); g.strokeStyle = 'rgba(255,220,180,0.55)'; g.lineWidth = 6; g.beginPath(); g.ellipse(0, 0, 110, 20, 0, Math.PI * 0.05, Math.PI * 0.95, true); g.stroke(); g.restore();
       const sh = (tt % 11) / 11; if (sh < 0.08) { const f = sh / 0.08, x = W * (0.2 + f * 0.4), y = H * (0.1 + f * 0.1); const gr = g.createLinearGradient(x, y, x - 90, y - 30); gr.addColorStop(0, `rgba(230,240,255,${1 - f})`); gr.addColorStop(1, 'rgba(230,240,255,0)'); g.strokeStyle = gr; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y); g.lineTo(x - 90, y - 30); g.stroke(); }
     }
-    const NIGHTK = { space: 0.35, castle: 0.3, farm: 0.55, cyber: 0.22, alien: 0.4, ocean: 0.45 };
+    const NIGHTK = { space: 0.35, castle: 0.3, farm: 0.55, cyber: 0.22, alien: 0.4, ocean: 0.45, haunted: 0.5, pumpkin: 0.42 };
+    // the Halloween worlds never quite see daylight: their gloom holds even at noon, so every lamp and pumpkin glows
+    const GLOOM = { haunted: 0.7, pumpkin: 0.55 };
 
     // ---- the silhouette of a cell (floor plus walls as they stand now), for outlines, focus and clicks
     function silhouetteOf(c, r) {
@@ -6454,7 +6623,7 @@
       rx0 = 0; ry0 = 0;
       if (o.post !== false) { drawCritters(); drawEffects(); }
       // night: the world darkens and every lamp, screen, sign and beacon lights its surroundings
-      const dk = darkness() * (NIGHTK[skinId()] ?? 0.35);
+      const dk = Math.max(darkness(), GLOOM[skinId()] || 0) * (NIGHTK[skinId()] ?? 0.35);
       for (const L of dynLights) lights.push([L.sx, L.sy, L.r, L.color, L.a]);
       if (dk > 0.02) {
         g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = `rgba(8,12,38,${dk.toFixed(3)})`; if (o.bg === false) g.globalCompositeOperation = 'source-atop'; g.fillRect(0, 0, g.canvas.width, g.canvas.height); g.restore();

@@ -400,7 +400,9 @@
 
   const urlSkin = (() => { try { const q = new URLSearchParams(location.search).get('skin'); return WORLD_IDS.includes(q) ? q : null; } catch { return null; } })();
   let skinOverride = urlSkin, painted = '', worldsSig = '';
-  const skinNow = () => skinOverride || (snap && snap.station && WORLD_IDS.includes(snap.station.skin) ? snap.station.skin : 'space');
+  // the Halloween worlds have no dashboard of their own yet: they borrow the castle's dark one
+  const ALIAS = { haunted: 'castle', pumpkin: 'castle' };
+  const skinNow = () => skinOverride || (snap && snap.station && WORLD_IDS.includes(snap.station.skin) ? snap.station.skin : (snap && snap.station && ALIAS[snap.station.skin]) || 'space');
   function applyWorld() {
     const id = skinNow();
     document.documentElement.dataset.skin = id;

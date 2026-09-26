@@ -152,7 +152,8 @@
   const urlSkin = (() => { try { const q = new URLSearchParams(location.search).get('skin'); return WORLD_IDS.includes(q) ? q : null; } catch { return null; } })();
   let painted = '', lastSnap = null;
   function applyWorld(s) {
-    const id = urlSkin || (s && s.station && WORLD_IDS.includes(s.station.skin) ? s.station.skin : 'space');
+    // the Halloween worlds borrow the castle's scrying glass
+    const id = urlSkin || (s && s.station && WORLD_IDS.includes(s.station.skin) ? s.station.skin : (s && s.station && { haunted: 'castle', pumpkin: 'castle' }[s.station.skin]) || 'space');
     document.documentElement.dataset.skin = id;
     const key = id + ':' + innerWidth + 'x' + innerHeight;
     if (key !== painted) { painted = key; paintWorld($('#world'), id); }

@@ -11,7 +11,7 @@
 //   look: { role, world, tier, species, skin, hair, hairC, eyeC, expr, tint, agent }
 //     role     prospector outreach pricing creator lister scout fulfiller auditor manager commander
 //              barber kid crew client            (FOLK.roles has the titles and the tool each one carries)
-//     world    space castle farm cyber alien ocean   (the outfit and headgear)
+//     world    space castle farm cyber alien ocean haunted pumpkin   (the outfit and headgear)
 //     tier     0 Runner, 1 Clerk, 2 Trader, 3 Broker, 4 Tycoon   (gear grows with it)
 //     species  human fox robot grey skeleton octo
 //     skin, hair, hairC, eyeC: index numbers into FOLK.skins, FOLK.hairs, FOLK.hairColors, FOLK.eyeColors
@@ -52,6 +52,8 @@ const WORLDS = {
   cyber: { title: 'Cyberpunk city', suit: '#262636', trim: null, legs: '#2c3348', boots: '#f0f0f5', jacket: '#1b1b28', gear: 'visor' },
   alien: { title: 'Alien ship', suit: '#3c4f93', trim: '#7ef0c8', legs: '#34437d', boots: '#23233a', jacket: '#2a2f5e', gear: 'crest' },
   ocean: { title: 'Deep sea base', suit: '#1f3d60', trim: '#ffd23f', legs: '#1f3d60', boots: '#ffd23f', jacket: '#16304e', gear: 'mask' },
+  haunted: { title: 'Haunted mansion', suit: '#2a2233', trim: '#8a1c2b', legs: '#1e1a24', boots: '#141018', jacket: '#1a1420', gear: 'tophat' },
+  pumpkin: { title: 'Pumpkin patch', suit: '#e8741a', trim: '#2a1d33', legs: '#3a2a4a', boots: '#4a2e24', jacket: '#5a2a6a', gear: 'costume' },
 };
 const SPECIES = ['human', 'fox', 'robot', 'grey', 'skeleton', 'octo', 'blob'];
 const SKINS = ['#fbdcc6', '#f3c5a2', '#dea57c', '#bd7c52', '#8f5b3b', '#5f3b29'];
@@ -264,6 +266,23 @@ function headGear(P, look, front, back) {
   } else if (w.gear === 'crest') {
     if (look.species !== 'grey') return;
     front.push(P.part(ell(32.2, 15.6, 1.8, 1.8), trim, { w: 1.2, detail: `<circle cx="31.6" cy="15" r=".6" fill="#fff" opacity=".8"/>` }));
+  } else if (w.gear === 'tophat') {
+    // the mansion's gentlemen and ladies: a tall black hat with a blood-red band
+    front.push(P.part('M17.4 19.4Q32.2 15.8 47 19.4Q32.2 22.2 17.4 19.4Z', '#16121c', { w: 1.6 }));
+    front.push(P.part(rrect(24.2, 5.2, 16, 14.2, 1.2), '#1e1a26', { w: 1.8, detail: `<path d="M24.2 15.4H40.2V17.6H24.2Z" fill="${w.trim}"/><path d="M26 7V14" stroke="#fff" stroke-width=".6" opacity=".25"/>` }));
+  } else if (w.gear === 'costume') {
+    // trick-or-treat: a witch's hat, cat ears or a pumpkin cap, one per person
+    const k = look.hair % 3;
+    if (k === 0) {
+      front.push(P.part('M14.8 19.8Q32.2 15.4 49.6 19.8Q32.2 23.6 14.8 19.8Z', '#3a1f4a', { w: 1.6 }));
+      front.push(P.part('M22.8 18.6L33.6 1.6Q36.4 0.4 37.8 3.6L41.6 18.6Q32.2 16.4 22.8 18.6Z', '#4a2a5e', { w: 1.8, detail: `<path d="M23.6 16.4Q32.2 14.4 40.9 16.4L41.3 18.2Q32.2 16.2 23.2 18.2Z" fill="#ff8a1a"/>` }));
+    } else if (k === 1) {
+      front.push(P.part('M20.8 17.4L22.6 6.4L29.4 13.4Z', '#1e1a26', { w: 1.6, detail: `<path d="M22.6 9.6L23.2 13.2L26.4 13.6Z" fill="#ff8ab8"/>` }));
+      front.push(P.part('M43.6 17.4L41.8 6.4L35 13.4Z', '#1e1a26', { w: 1.6, detail: `<path d="M41.8 9.6L41.2 13.2L38 13.6Z" fill="#ff8ab8"/>` }));
+    } else {
+      front.push(P.part('M20.4 19.4Q20.4 9.8 32.2 9.6Q44 9.8 44 19.4Q32.2 16.8 20.4 19.4Z', '#f07a1a', { w: 1.8, detail: `<path d="M27.4 10.6Q26.4 15 26.8 18.2M37 10.6Q38 15 37.6 18.2M32.2 9.8V17.2" fill="none" stroke="#c85a0a" stroke-width=".8"/>` }));
+      front.push(P.part('M31.2 10.2Q30.6 6.8 33.4 5.4L34.4 6.6Q32.4 7.6 32.8 10.2Z', '#3f6a2a', { w: 1.2 }));
+    }
   } else if (w.gear === 'hood' && t <= 1) {
     back.push(P.part('M18.6 30Q17.4 13.4 32.2 12.2Q47 13.4 45.8 30L43.4 34.2Q44 21 32.2 20.2Q20.4 21 21 34.2Z', '#4a3040', { detail: `<path d="M22 17.6Q32.2 12.6 42.4 17.6" fill="none" stroke="#6a4a5e" stroke-width=".8" opacity=".8"/>` }));
   }
@@ -273,7 +292,7 @@ function headGear(P, look, front, back) {
     front.push(P.part(capsule(43.4, 28.6, 37.4, 31.6, 0.42), '#3a3f58', { w: 1 }), P.part(ell(36.9, 31.8, 0.95, 0.95), '#2b2f42', { w: 1 }));
   }
   // the tycoon's circlet: gold, with the role's gem
-  if (t === 4 && w.gear !== 'straw' && w.gear !== 'mask') front.push(P.part('M22.6 18.4L25 13.8L28.2 16.8L32.2 11.8L36.2 16.8L39.4 13.8L41.8 18.4Q32.2 16.2 22.6 18.4Z', gold, { w: 1.6, detail: `<circle cx="32.2" cy="16.2" r="1.3" fill="${acc}"/><circle cx="31.8" cy="15.8" r=".45" fill="#fff"/>` }));
+  if (t === 4 && !['straw', 'mask', 'tophat', 'costume'].includes(w.gear)) front.push(P.part('M22.6 18.4L25 13.8L28.2 16.8L32.2 11.8L36.2 16.8L39.4 13.8L41.8 18.4Q32.2 16.2 22.6 18.4Z', gold, { w: 1.6, detail: `<circle cx="32.2" cy="16.2" r="1.3" fill="${acc}"/><circle cx="31.8" cy="15.8" r=".45" fill="#fff"/>` }));
 }
 
 // ---------------------------------------------------------------------------------------------- body, outfit and tier gear

@@ -4,7 +4,7 @@
 // the comm mast top right, each on a floating slab joined by walkways, nothing underneath.
 //
 //   mapSvg(world, options) returns an SVG string, 1600 x 1000.
-//   world    space castle farm cyber alien ocean
+//   world    space castle farm cyber alien ocean haunted pumpkin
 //   options  { id, rooms: [{ name, accent, id }] (up to 10), hub, dock, level, title }
 //            a room with an id (and the vault and dock) gets data-sel="<id>" on its plate and its building, to click
 
@@ -40,6 +40,8 @@ const WORLD = {
   cyber: { title: 'Cyberpunk city', sky: ['#160c32', '#2c1856', '#621f6a'], slab: '#4a4a68', slabTop: '#5e5e84', edge: '#30304a', walk: '#40405e', hub: 'Data vault', dock: 'Courier hub' },
   alien: { title: 'Alien ship', sky: ['#050b14', '#0c1f2e', '#1a3a3f'], slab: '#3f6b64', slabTop: '#5fa396', edge: '#28463f', walk: '#4f8a7f', hub: 'Core', dock: 'Pod bay' },
   ocean: { title: 'Deep sea base', sky: ['#021526', '#063356', '#0b5a7a'], slab: '#c9b27a', slabTop: '#e6d29a', edge: '#8f7a4a', walk: '#9aa3a8', hub: 'Pearl vault', dock: 'Sub dock' },
+  haunted: { title: 'Haunted mansion', sky: ['#05040c', '#1a1228', '#2c1c3a'], slab: '#3a2e3a', slabTop: '#34402e', edge: '#1e161e', walk: '#4a3a3a', hub: 'Family vault', dock: 'Dead letters' },
+  pumpkin: { title: 'Pumpkin patch', sky: ['#150a28', '#3a1a44', '#6a2a4a'], slab: '#4a3020', slabTop: '#3a2a1a', edge: '#2a1a10', walk: '#8a6a4a', hub: 'Candy cauldron', dock: 'Hay wagon' },
 };
 
 // ---------------------------------------------------------------------------------------------- drawing kit
@@ -114,7 +116,7 @@ function slab(k, wd, cx, cy, s = 0.62) {
   let s2 = outlined([{ d: under, fill: dark(wd.slab, 0.35), c: dark(wd.slab, 0.35) }, ...shapes], 7);
   if (k === 'space' || k === 'cyber') s2 += `<ellipse cx="${f(bx)}" cy="${f(by + 30)}" rx="9" ry="5" fill="${k === 'space' ? '#7fd8ff' : '#ff5ce0'}" opacity=".7"/><ellipse cx="${f(bx)}" cy="${f(by + 44)}" rx="5" ry="14" fill="${k === 'space' ? '#7fd8ff' : '#ff5ce0'}" opacity=".25"/>`;
   // a touch of texture on the top
-  const tx = { farm: '#6bbf49', castle: '#7d7483', space: '#b3bccd', cyber: '#56567a', alien: '#6fb8a8', ocean: '#d9c386' }[k];
+  const tx = { farm: '#6bbf49', castle: '#7d7483', space: '#b3bccd', cyber: '#56567a', alien: '#6fb8a8', ocean: '#d9c386', haunted: '#4a5a3a', pumpkin: '#3f8a3a' }[k];
   for (let i = 0; i < 5; i++) { const [px, py] = iso(x + 0.25 + ((i * 0.37) % 1) * (w - 0.5), y + 0.3 + ((i * 0.61) % 1) * (d - 0.6), 0); s2 += `<ellipse cx="${f(px)}" cy="${f(py)}" rx="7" ry="3" fill="${tx}" opacity=".7"/>`; }
   if (k === 'cyber') s2 += `<polygon points="${pts(top)}" fill="none" stroke="#ff5ce0" stroke-width="1.5" opacity=".55"/>`;
   return s2;
@@ -179,6 +181,28 @@ function building(k, cx, cy, acc, rank, K) {
     extra += `<ellipse cx="${f(bx)}" cy="${f(by - 100)}" rx="30" ry="22" fill="${acc}" opacity=".85" stroke="${OUT}" stroke-width="2.4"/><ellipse cx="${f(bx - 8)}" cy="${f(by - 108)}" rx="10" ry="6" fill="#fff" opacity=".5"/>`;
     for (const [dx, dy, r] of [[-40, -120, 5], [38, -126, 4], [44, -86, 5], [-46, -84, 4]]) extra += `<circle cx="${f(bx + dx)}" cy="${f(by + dy)}" r="${r}" fill="${light(acc, 0.4)}" opacity=".9"/>`;
     extra += `<path d="M${f(bx - 20)} ${f(by - 148)}Q${f(bx - 34)} ${f(by - 176)} ${f(bx - 16)} ${f(by - 186)}M${f(bx + 16)} ${f(by - 148)}Q${f(bx + 30)} ${f(by - 170)} ${f(bx + 22)} ${f(by - 184)}" fill="none" stroke="${OUT}" stroke-width="3" stroke-linecap="round"/><circle cx="${f(bx - 16)}" cy="${f(by - 188)}" r="5" fill="${acc}" stroke="${OUT}" stroke-width="2"/><circle cx="${f(bx + 22)}" cy="${f(by - 186)}" r="5" fill="${acc}" stroke="${OUT}" stroke-width="2"/>`;
+  } else if (k === 'haunted') {
+    // a tall, narrow house with a steep roof and a turret; a light on in some windows
+    const x = cx - 0.32, y = cy - 0.26, w = 0.56, d = 0.5, h = 84;
+    s.push(...box(x, y, 0, w, d, h, '#4a3e52'));
+    const r2 = iso(x + w + 0.04, y - 0.04, h), r3 = iso(x + w + 0.04, y + d + 0.04, h), r4 = iso(x - 0.04, y + d + 0.04, h);
+    const ridgeA = iso(x - 0.04, y + d / 2, h + 70), ridgeB = iso(x + w + 0.04, y + d / 2, h + 70);
+    s.push({ p: [r4, r3, ridgeB, ridgeA], fill: '#2a2230', c: '#2a2230', rim: [ridgeA, ridgeB] }, { p: [r3, r2, ridgeB], fill: '#1e1826', c: '#1e1826' });
+    s.push(...cyl(x + w, y + d * 0.25, 0, 0.12, h + 26, '#443850'), ...cone(x + w, y + d * 0.25, h + 26, 0.17, 64, '#2a2230'));
+    for (const [t, z] of [[0.25, 52], [0.75, 52], [0.25, 20]]) extra += win(x, y, w, d, 'L', t, z, 0.1, 22, (rank + t * 4 + z) % 3 < 1 ? '#b8ffb0' : '#1a1422');
+    extra += win(x, y, w, d, 'R', 0.6, 52, 0.1, 22, rank % 2 ? '#ffd66b' : '#1a1422') + win(x, y, w, d, 'L', 0.72, 0, 0.14, 30, acc);
+    const [bx, by] = iso(cx + 0.1, cy - 0.3, h + 96);
+    extra += `<path d="M${f(bx)} ${f(by)}q10 -10 20 0q10 -10 20 0q-10 4 -20 12q-10 -8 -20 -12Z" fill="#0a0612"/>`;
+  } else if (k === 'pumpkin') {
+    // a carved pumpkin with a door in its side and a light inside
+    const [a, b] = iso(cx, cy, 0), R = 62 + (rank % 3) * 6;
+    extra += `<circle cx="${f(a)}" cy="${f(b - R * 0.7)}" r="${f(R * 1.6)}" fill="${K.rad([[0, '#ffb000', 0.35], [1, '#ffb000', 0]])}"/>`;
+    s.push({ d: `M${f(a - R)} ${f(b - R * 0.6)}Q${f(a - R)} ${f(b)} ${f(a)} ${f(b)}Q${f(a + R)} ${f(b)} ${f(a + R)} ${f(b - R * 0.6)}Q${f(a + R)} ${f(b - R * 1.3)} ${f(a)} ${f(b - R * 1.3)}Q${f(a - R)} ${f(b - R * 1.3)} ${f(a - R)} ${f(b - R * 0.6)}Z`, fill: '#f07a1a', c: '#f07a1a' });
+    for (const dx of [-0.5, 0, 0.5]) extra += `<path d="M${f(a + dx * R)} ${f(b - R * 1.25)}Q${f(a + dx * R * 1.5)} ${f(b - R * 0.6)} ${f(a + dx * R)} ${f(b - 4)}" fill="none" stroke="#c85a0a" stroke-width="3"/>`;
+    extra += `<path d="M${f(a - R * 0.5)} ${f(b - R * 0.85)}l${f(R * 0.2)} ${f(-R * 0.22)}l${f(R * 0.2)} ${f(R * 0.22)}zM${f(a + R * 0.1)} ${f(b - R * 0.85)}l${f(R * 0.2)} ${f(-R * 0.22)}l${f(R * 0.2)} ${f(R * 0.22)}z" fill="#ffe94a" stroke="${OUT}" stroke-width="2.4"/>`;
+    extra += `<path d="M${f(a - R * 0.55)} ${f(b - R * 0.45)}l${f(R * 0.18)} ${f(R * 0.14)}l${f(R * 0.18)} ${f(-R * 0.1)}l${f(R * 0.18)} ${f(R * 0.14)}l${f(R * 0.18)} ${f(-R * 0.1)}l${f(R * 0.18)} ${f(R * 0.14)}l${f(R * 0.02)} ${f(-R * 0.18)}q${f(-R * 0.55)} ${f(R * 0.2)} ${f(-R * 1.1)} 0z" fill="#ffe94a" stroke="${OUT}" stroke-width="2.4"/>`;
+    extra += `<path d="M${f(a - 4)} ${f(b - R * 1.25)}q-4 -20 10 -28" fill="none" stroke="${OUT}" stroke-width="13" stroke-linecap="round"/><path d="M${f(a - 4)} ${f(b - R * 1.25)}q-4 -20 10 -28" fill="none" stroke="#3f6a2a" stroke-width="8" stroke-linecap="round"/>`;
+    extra += `<rect x="${f(a + R * 0.5)}" y="${f(b - R * 0.5)}" width="${f(R * 0.28)}" height="${f(R * 0.46)}" rx="${f(R * 0.14)}" fill="${acc}" stroke="${OUT}" stroke-width="3"/>`;
   } else if (k === 'ocean') {
     s.push(...cyl(cx, cy, 0, 0.36, 18, '#8a95a3'));
     const [x0, y0] = iso(cx, cy, 18), rx = 0.36 * U * 1.414;
@@ -191,7 +215,7 @@ function building(k, cx, cy, acc, rank, K) {
 // the vault: a gold dome with a $ door, the same in every world, on a base in that world's stone
 function vault(k, wd, K) {
   const [cx, cy] = [HUB[0] * CELL, HUB[1] * CELL];
-  const base = { space: '#c9d1e0', castle: '#8a8294', farm: '#c9a46a', cyber: '#4a4468', alien: '#4f8a7f', ocean: '#b8a570' }[k];
+  const base = { space: '#c9d1e0', castle: '#8a8294', farm: '#c9a46a', cyber: '#4a4468', alien: '#4f8a7f', ocean: '#b8a570', haunted: '#3a2e3a', pumpkin: '#5a3a20' }[k];
   const s = [...cyl(cx, cy, 0, 0.44, 34, base), ...cyl(cx, cy, 34, 0.36, 40, '#f2c14e', { bands: '' }), ...dome(cx, cy, 74, 0.36, '#f2c14e', { h: 46 })];
   const [dx, dy] = iso(cx + 0.36, cy + 0.36, 34);
   let extra = `<path d="M${f(dx - 18)} ${f(dy)}V${f(dy - 26)}A18 18 0 0 1 ${f(dx + 18)} ${f(dy - 26)}V${f(dy)}Z" fill="#7a5410" stroke="${OUT}" stroke-width="3"/><text x="${f(dx)}" y="${f(dy - 12)}" font-size="26" font-weight="900" text-anchor="middle" fill="#ffe27a" font-family="Arial Black, Arial, sans-serif">$</text>`;
@@ -212,6 +236,8 @@ function dock(k, wd, K) {
     farm: `<rect x="${px - 44}" y="${py - 48}" width="80" height="34" rx="6" fill="#c8453a"/><path d="M${px - 48} ${py - 48}Q${px - 4} ${py - 86} ${px + 40} ${py - 48}Z" fill="#f4ecd8"/><circle cx="${px - 26}" cy="${py - 12}" r="12" fill="#7a4a2a"/><circle cx="${px + 22}" cy="${py - 12}" r="12" fill="#7a4a2a"/>`,
     cyber: `<path d="M${px - 50} ${py - 18}L${px - 34} ${py - 52}H${px + 34}L${px + 50} ${py - 18}Z" fill="#2a2440"/><rect x="${px - 28}" y="${py - 48}" width="56" height="18" rx="4" fill="#ff5ce0" opacity=".85"/><circle cx="${px - 30}" cy="${py - 14}" r="9" fill="#6ff"/><circle cx="${px + 30}" cy="${py - 14}" r="9" fill="#6ff"/>`,
     alien: `<ellipse cx="${px}" cy="${py - 34}" rx="54" ry="20" fill="#6fc7b5"/><ellipse cx="${px}" cy="${py - 48}" rx="24" ry="16" fill="#bff3e6" opacity=".9"/><circle cx="${px - 30}" cy="${py - 30}" r="5" fill="#ffe27a"/><circle cx="${px}" cy="${py - 24}" r="5" fill="#ffe27a"/><circle cx="${px + 30}" cy="${py - 30}" r="5" fill="#ffe27a"/>`,
+    haunted: `<rect x="${px - 44}" y="${py - 64}" width="88" height="48" rx="6" fill="#16121a"/><rect x="${px - 30}" y="${py - 56}" width="34" height="24" rx="3" fill="#b8ffb0" opacity=".5"/><circle cx="${px - 30}" cy="${py - 12}" r="13" fill="none" stroke-width="5"/><circle cx="${px + 30}" cy="${py - 12}" r="13" fill="none" stroke-width="5"/><circle cx="${px + 46}" cy="${py - 60}" r="6" fill="#9dff8a"/>`,
+    pumpkin: `<rect x="${px - 46}" y="${py - 46}" width="92" height="30" rx="6" fill="#8a5a32"/><path d="M${px - 44} ${py - 46}Q${px - 6} ${py - 80} ${px + 40} ${py - 46}Z" fill="#e6c25a"/><ellipse cx="${px + 4}" cy="${py - 56}" rx="18" ry="14" fill="#f07a1a"/><circle cx="${px - 26}" cy="${py - 12}" r="12" fill="#4a2f1b"/><circle cx="${px + 26}" cy="${py - 12}" r="12" fill="#4a2f1b"/>`,
     ocean: `<ellipse cx="${px}" cy="${py - 34}" rx="50" ry="24" fill="#ffd23f"/><circle cx="${px + 14}" cy="${py - 38}" r="11" fill="#8fe3ff" stroke="${OUT}" stroke-width="2.4"/><path d="M${px - 48} ${py - 36}L${px - 70} ${py - 52}V${py - 20}Z" fill="#ffb300"/><rect x="${px - 8}" y="${py - 72}" width="8" height="18" fill="#ffd23f"/>`,
   }[k];
   extra += `<g stroke="${OUT}" stroke-width="3" stroke-linejoin="round">${craft}</g>`;
@@ -230,7 +256,7 @@ function mast(k, K) {
 function sky(k, wd, K) {
   let s = `<rect width="${W}" height="${H}" fill="${K.lin([[0, wd.sky[0]], [0.55, wd.sky[1]], [1, wd.sky[2]]])}"/>`;
   const rnd = (i) => { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
-  if (k === 'space' || k === 'cyber' || k === 'castle' || k === 'alien') for (let i = 0; i < 140; i++) s += `<circle cx="${f(rnd(i) * W)}" cy="${f(rnd(i + 500) * H * (k === 'cyber' ? 0.45 : 0.9))}" r="${f(0.6 + rnd(i + 900) * 1.6)}" fill="#fff" opacity="${f(0.3 + rnd(i + 70) * 0.6)}"/>`;
+  if (k === 'space' || k === 'cyber' || k === 'castle' || k === 'alien' || k === 'haunted' || k === 'pumpkin') for (let i = 0; i < 140; i++) s += `<circle cx="${f(rnd(i) * W)}" cy="${f(rnd(i + 500) * H * (k === 'cyber' ? 0.45 : 0.9))}" r="${f(0.6 + rnd(i + 900) * 1.6)}" fill="#fff" opacity="${f(0.3 + rnd(i + 70) * 0.6)}"/>`;
   if (k === 'space') s += outlined([{ e: [1330, 210, 120, 120], fill: K.lin([[0, '#f6a36b'], [1, '#b0487a']], 0.3, 1), c: '#d06a70' }], 9) + `<ellipse cx="1330" cy="215" rx="210" ry="38" fill="none" stroke="${OUT}" stroke-width="14" transform="rotate(-14 1330 215)"/><ellipse cx="1330" cy="215" rx="210" ry="38" fill="none" stroke="#ffd9a8" stroke-width="7" transform="rotate(-14 1330 215)"/><path d="M1224 180A120 120 0 0 1 1436 186" fill="none" stroke="#fff" stroke-width="6" opacity=".35"/>` + outlined([{ e: [230, 150, 34, 34], fill: '#c9d1e0', c: '#c9d1e0' }], 8);
   if (k === 'castle') {
     s += `<circle cx="1320" cy="170" r="120" fill="${K.rad([[0, '#fff3c4', 0.35], [1, '#fff3c4', 0]])}"/>` + outlined([{ e: [1320, 170, 64, 64], fill: '#fff3c4', c: '#fff3c4', line: '#c9b98a' }], 9);
@@ -249,6 +275,21 @@ function sky(k, wd, K) {
   if (k === 'alien') {
     s += `<ellipse cx="1200" cy="260" rx="420" ry="200" fill="${K.rad([[0, '#5fe0c0', 0.25], [1, '#5fe0c0', 0]])}"/><ellipse cx="300" cy="700" rx="380" ry="220" fill="${K.rad([[0, '#b06bff', 0.2], [1, '#b06bff', 0]])}"/>`;
     for (let i = 0; i < 30; i++) s += `<circle cx="${f(rnd(i + 2) * W)}" cy="${f(rnd(i + 44) * H)}" r="${f(3 + rnd(i) * 7)}" fill="#7ef0c8" opacity=".25"/>`;
+  }
+  if (k === 'haunted') {
+    s += `<circle cx="1320" cy="170" r="140" fill="${K.rad([[0, '#e0ffd8', 0.3], [1, '#e0ffd8', 0]])}"/>` + outlined([{ e: [1320, 170, 64, 64], fill: '#eef2dc', c: '#eef2dc', line: '#b8c0a0' }], 9);
+    for (const [x, y, w] of [[1200, 190, 150], [1400, 140, 120]]) s += `<ellipse cx="${x}" cy="${y}" rx="${w}" ry="20" fill="#120c1c" opacity=".85"/>`;
+    s += `<path d="M0 780Q260 700 540 760T1080 740T1600 770V1000H0Z" fill="#120c18"/>`;
+    s += `<path d="M180 790V640M180 690L130 640M180 670L230 610M180 720L120 690" stroke="#0a060e" stroke-width="10" stroke-linecap="round" fill="none"/>`;
+    for (let i = 0; i < 10; i++) s += `<rect x="${360 + i * 110}" y="${770 - (i % 3) * 6}" width="26" height="40" rx="13" fill="#0a060e"/>`;
+    for (const [x, y] of [[300, 220], [360, 260], [1100, 300], [900, 120]]) s += `<path d="M${x} ${y}q10 -10 20 0q10 -10 20 0q-10 4 -20 12q-10 -8 -20 -12Z" fill="#0a0612"/>`;
+    for (let i = 0; i < 5; i++) s += `<ellipse cx="${200 + i * 320}" cy="${900 + (i % 2) * 30}" rx="320" ry="40" fill="#d8e0f0" opacity=".06"/>`;
+  }
+  if (k === 'pumpkin') {
+    s += `<circle cx="320" cy="300" r="200" fill="${K.rad([[0, '#ffb040', 0.45], [1, '#ffb040', 0]])}"/>` + outlined([{ e: [320, 300, 84, 84], fill: '#ffa53a', c: '#ffa53a', line: '#c8641a' }], 9);
+    s += `<path d="M0 760Q300 690 640 750T1300 720T1600 760V1000H0Z" fill="#2a1a2e"/><path d="M0 860Q400 800 800 850T1600 830V1000H0Z" fill="#1e1220"/>`;
+    for (let i = 0; i < 14; i++) s += `<ellipse cx="${60 + i * 115}" cy="${790 + Math.sin(i * 1.7) * 14}" rx="16" ry="12" fill="#e8741a" stroke="${OUT}" stroke-width="3"/>`;
+    for (const [x, y] of [[1150, 200], [1230, 250], [1320, 170]]) s += `<path d="M${x} ${y}q10 -10 20 0q10 -10 20 0q-10 4 -20 12q-10 -8 -20 -12Z" fill="#0a0612"/>`;
   }
   if (k === 'ocean') {
     for (let i = 0; i < 7; i++) s += `<path d="M${200 + i * 200} 0L${120 + i * 210} ${H}H${260 + i * 210}Z" fill="#bff3ff" opacity=".05"/>`;
