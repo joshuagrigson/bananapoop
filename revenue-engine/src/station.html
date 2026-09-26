@@ -475,6 +475,16 @@
   .toast.big .ti { display: none; } .toast.big .tt { font-size: 20px; letter-spacing: .14em; color: var(--gold); text-shadow: 0 0 18px rgba(255, 207, 90, .6); }
   @keyframes tin { from { opacity: 0; transform: translateY(-14px) scale(.96); } to { opacity: 1; transform: none; } }
   @keyframes tout { to { opacity: 0; transform: translateY(-10px) scale(.97); } }
+  #mapbox { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: rgba(2, 3, 8, .62); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  #mapbox[hidden] { display: none; }
+  #mapbox .box { position: relative; width: min(1180px, 96vw); max-height: 92vh; overflow: auto; padding: 16px 18px 14px; animation: tin .4s cubic-bezier(.2,.9,.3,1.2) both; }
+  #mapbox h2 { margin: 0 0 2px; font: 700 18px/1.2 var(--f-display); letter-spacing: .12em; text-transform: uppercase; }
+  #mapbox .lead { color: var(--ink2); margin: 0 0 10px; font-size: 13px; }
+  #mapbox .x { position: absolute; right: 14px; top: 12px; }
+  #mapbox .mapv svg { display: block; width: 100%; height: auto; border-radius: 12px; }
+  #mapbox .mapv [data-sel] { cursor: pointer; }
+  #mapbox .mapv [data-sel]:hover { filter: brightness(1.15) drop-shadow(0 0 6px rgba(255, 220, 140, .6)); }
+  @media (max-width: 900px) { #mapbox .box { width: 100vw; max-height: 100%; border-radius: 0; padding: 12px 10px; } }
   #guide { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: rgba(2, 3, 8, .62); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
   #guide[hidden] { display: none; }
   #guide .box { width: min(880px, 94vw); max-height: 86vh; overflow: auto; padding: 22px 24px; --c: #8fb0ff; animation: tin .4s cubic-bezier(.2,.9,.3,1.2) both; }
@@ -721,6 +731,7 @@
     <div id="controls" class="glass" aria-label="Camera">
       <div class="dg"><button class="db" id="zout" type="button" data-tip="zout"></button><input id="zslider" type="range" min="0" max="1000" value="0" aria-label="Zoom" data-tip="zslider"><button class="db" id="zin" type="button" data-tip="zin"></button></div>
       <button class="db" id="zhome" type="button" data-tip="zhome"></button>
+      <button class="db" id="walls" type="button" data-tip="walls"></button>
       <button class="db" id="replayBtn" type="button" data-tip="replay"></button>
       <button class="db" id="sound" type="button" data-tip="sound"></button>
     </div>
@@ -729,6 +740,7 @@
   </div>
   <nav id="rail" aria-label="Main menu">
     <button class="rb" id="navWorld" type="button" data-tip="world"></button>
+    <button class="rb" id="navMap" type="button" data-tip="map"></button>
     <button class="rb" id="navRoomList" type="button" data-tip="rooms" aria-haspopup="true"></button>
     <button class="rb" id="navRooms" type="button" data-tip="customize"></button>
     <button class="rb" id="navSync" type="button" data-tip="income"></button>
@@ -759,6 +771,7 @@
   <section id="comms" class="glass"><button class="hd" id="commsHd" title="Fold or open the feed"><span class="live"></span>Comms · ledger feed<span class="ch"><span class="cl">Hide</span></span></button><div id="feed"></div></section>
   <div id="toasts" aria-live="polite"></div>
   <div id="guide" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Field guide"></div></div>
+  <div id="mapbox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Map of the station"></div></div>
   <div id="syncbox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Income sync"></div></div>
   <div id="roomsbox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Customize rooms"></div></div>
   <div id="boot"><div class="in">
@@ -766,6 +779,7 @@
     <h1>PROXYFOLK</h1><div class="ln" id="bootLn">reading the ledger</div><div class="bar"><i id="bootBar"></i></div>
   </div></div>
 </div>
+<!--FOLK-KIT-->
 <script>
 (() => {
   'use strict';
@@ -792,6 +806,10 @@
   const lset = (k, v) => { try { window.localStorage.setItem(k, v); } catch { /* storage blocked: fine */ } };
 
   const ICON = {
+    wallsUp: '<path d="M4 8.5L12 4l8 4.5v9L12 22l-8-4.5z"/><path d="M12 13v9M4 8.5L12 13l8-4.5"/>',
+    wallsCut: '<path d="M4 8.5L12 4l8 4.5v4"/><path d="M4 8.5v4M4 16.5L12 21l8-4.5"/><path d="M12 13l8-4.5M12 13L4 8.5M12 13v2"/>',
+    wallsDown: '<path d="M4 15.5L12 11l8 4.5L12 20z"/><path d="M4 15.5v1.5L12 21.5l8-4.5v-1.5"/>',
+    map: '<path d="M3.5 6.5l5.5-2.5 6 2.5 5.5-2.5v13.5l-5.5 2.5-6-2.5-5.5 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>',
     coin: '<circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.3c-.6-.8-1.5-1.2-2.6-1.2-1.6 0-2.8.9-2.8 2.1 0 2.9 5.8 1.5 5.8 4.2 0 1.2-1.3 2.1-3 2.1-1.1 0-2.1-.5-2.7-1.3M12 6.3v11.4"/>',
     flame: '<path d="M12 3c1 3.6 5 5.6 5 10.2a5 5 0 01-10 0c0-2.4 1.3-3.7 2.3-4.9.3 1.6 1.1 2.5 2 2.9C10.9 8.6 11.4 5.6 12 3z"/>',
     trend: '<path d="M4 17l6-6 4 4 6-7"/><path d="M15 8h5v5"/>',
@@ -950,14 +968,52 @@
   // ---- the floor crowd: every room buzzes from the day it opens, like a trading floor, and gets louder with its
   // real week (sales, chores, pipeline outcomes) and its agents: one more for each one hired (up to two), and a crew of three
   // holograms for each one out on a run. They are not on the roster; their tooltip and the panel say so.
-  function crowdSize(room) {
-    if (roomLook(room) === 'killed') return 1;
+  // a room's real week: sales and chores logged, plus pipeline steps in a command-center room
+  function weekActivity(room) {
     const from = Date.now() - 7 * 86400e3;
     let wk = 0;
     for (const e of snap.state.moneyIn) if (e.path === room.id && Date.parse(e.ts) >= from) wk += e.qty || 1;
     if (!isService(room)) { const p = pathState(room.id); if (p) for (const st of STAGES) for (const r of p.refs[st]) if (Date.parse(r.ts) >= from) wk++; }
+    return wk;
+  }
+  function crowdSize(room) {
+    if (roomLook(room) === 'killed') return 1;
+    const wk = weekActivity(room);
     const hired = jobsOn(room.id).filter((j) => j.enabled).length;
     return clamp(3 + Math.round(Math.log2(1 + wk)) + Math.min(2, hired), 1, 7);
+  }
+  // ---- residents: characters who belong to a world, drawn in the Code Lab style. Scenery, labelled so, except
+  // Mumblecrow, who stands in a farm room only while that room has had no sales, chores or leads for 7 days.
+  const NPC = {
+    mordra: { name: 'Mordra', label: 'VAULT KEEPER', col: '#4ade80', cast: true, say: 'The vault keeper. Scenery: the castle\'s own, not on your roster.' },
+    vex: { name: 'Vex', label: 'SCRIBE', col: '#a78bfa', cast: true, say: 'Keeps the scriptorium, where drafts wait for you. Scenery, not on your roster.' },
+    mott: { name: 'Mott', label: 'FARM CAT', col: '#ff8a4c', cast: true, say: 'Guards the market cart. Scenery, not on your roster.' },
+    warg: { name: 'Warg', label: 'SHEEPDOG', col: '#9aa6c0', cast: true, roam: true, say: 'Herds the yard around the grain bank. Scenery, not on your roster.' },
+    mumblecrow: { name: 'Mumblecrow', label: 'NO ACTIVITY · 7 DAYS', col: '#ffb454', cast: true, big: 1.3, say: 'Stands in a room with no sales, chores or leads logged in the last 7 days. Leaves as soon as one lands.' },
+    cargo: { name: 'Cargo bot', label: 'CARGO BOT', col: '#ffb454', roam: true, say: 'Hauls crates around the launch pad. Scenery, not on your roster.' },
+    courier: { name: 'Courier', label: 'COURIER', col: '#ff5ce0', roam: true, board: true, say: 'Rides the courier hub on a hoverboard. Scenery, not on your roster.' },
+    dj: { name: 'DJ bot', label: 'DJ', col: '#66ffff', say: 'Keeps the vault floor loud. Scenery, not on your roster.' },
+    receptionist: { name: 'Glorp', label: 'RECEPTIONIST', col: '#6fdc9a', say: 'Greets visitors at the core. Scenery, not on your roster.' },
+    accountant: { name: 'Octavia', label: 'ACCOUNTANT', col: '#a466d8', say: 'Eight arms, eight ledgers, all of them yours. Scenery: she reads the vault, she does not change it.' },
+    crab: { name: 'Crab courier', label: 'CRAB COURIER', col: '#e8573f', roam: true, say: 'Scuttles round the sub dock. Scenery, not on your roster.' },
+  };
+  // the residents drawn from the kit rather than from Code Lab
+  const NPC_LOOK = { cargo: { role: 'crew', species: 'robot', world: 'space', tier: 1, tint: '#ffb454' }, courier: { role: 'crew', world: 'cyber', tier: 2, skin: 3, hair: 4, hairC: 5, tint: '#ff5ce0' }, dj: { role: 'creator', species: 'robot', world: 'cyber', tier: 3 }, receptionist: { role: 'client', species: 'blob', world: 'alien', tier: 1, tint: '#b06bff' }, accountant: { role: 'fulfiller', species: 'octo', world: 'ocean', tier: 3 } };
+  const NPC_BARK = { mordra: 'coin', vex: 'dots', mott: 'heart', warg: 'bang', mumblecrow: 'q', cargo: 'dots', courier: 'bang', dj: 'note', receptionist: 'heart', accountant: 'coin', crab: 'heart' };
+  const dockSpot = () => { const [dx, dy] = cellOrigin(...DOCK); for (let k = 0; k < 30; k++) { const x = dx + 0.6 + Math.random() * 5.8, y = dy + 0.6 + Math.random() * 5.8; if (nav && walkable(x, y) && walkable(x + 0.3, y) && walkable(x, y + 0.3)) return [x, y]; } return cellCenter(...DOCK); };
+  function residentsFor(w) {
+    const out = [], [hx, hy] = cellCenter(...HUB), [dx, dy] = cellCenter(...DOCK);
+    const add = (npc, home, x, y, k = '') => { const [px, py] = nearestWalkable(x, y); out.push({ id: `npc:${npc}${k}`, npc, home, x: px, y: py, roam: Boolean(NPC[npc].roam) }); };
+    if (w === 'castle') { add('mordra', 'hub', hx - 2.1, hy + 1.3); add('vex', 'dock', dx + 1.1, dy + 1.5); }
+    if (w === 'farm') {
+      add('mott', 'dock', dx - 1.3, dy + 1.7); add('warg', 'hub', hx + 1.8, hy + 2);
+      for (const room of rooms) if (roomLook(room) !== 'killed' && weekActivity(room) === 0) { const [cx, cy] = cellCenter(room.c, room.r); add('mumblecrow', room.id, cx - 1.2, cy + 1.6, ':' + room.id); }
+    }
+    if (w === 'space') add('cargo', 'dock', dx + 1, dy + 1.3);
+    if (w === 'cyber') { add('courier', 'dock', dx + 1, dy + 1.3); add('dj', 'hub', hx + 2, hy + 1.2); }
+    if (w === 'alien') add('receptionist', 'hub', hx - 2, hy + 1.4);
+    if (w === 'ocean') { add('accountant', 'hub', hx - 2, hy + 1.4); add('crab', 'dock', dx - 0.8, dy + 1.7, ':0'); add('crab', 'dock', dx + 1.6, dy + 1.2, ':1'); }
+    return out;
   }
   const CROWD_COLS = ['#3b4a6b', '#5a6b8a', '#8a6b4a', '#4a7a62', '#7a4a5a', '#e8e4d8', '#9aa6c0', '#6b5a8a', '#b8574a'];
   // @@SKINS@@
@@ -1235,6 +1291,9 @@
       }
     }
     for (const [id, a] of agents) if (a.kind === 'extra' && !wantCrowd.has(id) && !a.dying) a.dying = T;
+    const wantNpc = new Set();
+    if (nav) for (const n of residentsFor(skinId())) { wantNpc.add(n.id); if (!agents.has(n.id)) agents.set(n.id, baseAgent({ ...n, kind: 'npc', path: roomById(n.home) ? n.home : null, born: first ? 0 : T, next: 1 + Math.random() * 4 })); }
+    for (const [id, a] of agents) if (a.kind === 'npc' && !wantNpc.has(id) && !a.dying) a.dying = T;
     // the folk: every person on the roster, living in the room of their latest logged work
     const wantFolk = new Set();
     for (const f of folkList()) {
@@ -1567,6 +1626,7 @@
   const ROLE_ICON = { prospector: 'target', outreach: 'mail', pricing: 'tag', creator: 'camera', lister: 'list', scout: 'binoc', fulfiller: 'wrench', auditor: 'clip', manager: 'case' };
   const DEFAULT_ROLE = { barber: 'Barber', salon: 'Stylist', freelance: 'Freelancer', chores: 'Kid' };
   function identity(a) {
+    if (a.kind === 'npc') { const d = NPC[a.npc] || {}; return { kind: 'npc', name: d.name || 'Resident', label: d.label || 'RESIDENT', icon: 'folk', col: d.col || '#9aa6c0', lvl: 0 }; }
     if (a.kind === 'extra') return a.holo ? { kind: 'agent', name: 'Agent crew', label: 'AGENT CREW', icon: 'bot', col: roleCol(a.role), lvl: 0 } : { kind: 'extra', name: 'Floor crew', label: 'FLOOR CREW', icon: 'folk', col: a.tint || '#9aa6c0', lvl: 0 };
     if (a.kind === 'folk') {
       const f = folkByName(a.name) || {}, tpl = snap.station && snap.station.template, kid = MODE() === 'allowance';
@@ -1614,8 +1674,19 @@
   // the hover card's portrait: the character drawn smooth, on a glow of their color
   function portraitOf(a) {
     const id = identity(a);
-    const key = `${skinId()}|${id.kind}|${a.id}|${a.tint || ''}|${a.costume ? a.costume.id : ''}`;
+    const key = `${skinId()}|${id.kind}|${a.id}|${a.tint || ''}|${a.costume ? a.costume.id : ''}|${id.lvl || 0}`;
     if (portraitCache.has(key)) return portraitCache.get(key);
+    if (WR.kit() && a.kind !== 'res') {
+      const d = a.kind === 'npc' ? NPC[a.npc] || {} : null;
+      const inner = d && d.cast && window.PF_CAST && PF_CAST[a.npc] ? PF_CAST[a.npc]
+        : d && a.npc === 'crab' ? critterSvg('crab', { id: 'pc' })
+        : d ? folkSvg({ ...(NPC_LOOK[a.npc] || { role: 'crew', world: skinId() }), agent: false }, { id: 'pc', crop: 'bust', shadow: false })
+        : folkSvg(WR.kitLook(a, id), { id: 'pc', crop: 'bust', shadow: false });
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><defs><radialGradient id="pglow" cx=".5" cy=".6" r=".5"><stop offset="0" stop-color="${id.col}" stop-opacity=".75"/><stop offset="1" stop-color="${id.col}" stop-opacity="0"/></radialGradient></defs><rect width="96" height="96" fill="url(#pglow)"/>${inner.replace('<svg ', '<svg x="0" y="0" width="96" height="96" ')}</svg>`;
+      const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      portraitCache.set(key, url);
+      return url;
+    }
     const c = document.createElement('canvas'); c.width = c.height = 96;
     const g = c.getContext('2d');
     const gl = g.createRadialGradient(48, 56, 4, 48, 56, 48); gl.addColorStop(0, rgba(id.col, 0.75)); gl.addColorStop(1, rgba(id.col, 0));
@@ -1651,6 +1722,14 @@
         a.queue = findPath([a.x, a.y], spots[(Math.random() * spots.length) | 0]); a.next = 9 + Math.random() * 9;
         if (Math.random() < 0.3) bubble(a, 'dots', 1.6);
       }
+      return;
+    }
+    if (a.kind === 'npc') {
+      a.next -= dt;
+      if (a.next > 0) return;
+      a.next = 3 + Math.random() * 6;
+      if (a.roam) a.queue = findPath([a.x, a.y], a.home === 'hub' ? hubSpot() : a.home === 'dock' ? dockSpot() : idleSpot(roomById(a.home)));
+      else { a.face *= -1; if (Math.random() < 0.3) bubble(a, NPC_BARK[a.npc] || 'dots', 1.3); }
       return;
     }
     if (a.kind === 'extra') {
@@ -1736,7 +1815,7 @@
       if (a.queue.length) {
         const [tx, ty] = a.queue[0];
         const dx = tx - a.x, dy = ty - a.y, dist = Math.hypot(dx, dy);
-        const base = a.kind === 'res' ? a.lk.res.speed || 1.1 : a.kind === 'extra' ? (a.carry ? 3.2 : 2.5) : a.kind === 'guest' ? 2.1 : a.busy ? 3.3 : a.kind === 'folk' ? (a.small ? 2.3 : 1.9) : a.state === 'idle' ? 1.7 : 3.1;
+        const base = a.kind === 'res' ? a.lk.res.speed || 1.1 : a.kind === 'npc' ? (a.npc === 'crab' ? 1.2 : a.npc === 'warg' ? 2.6 : a.npc === 'courier' ? 3.4 : 1.6) : a.kind === 'extra' ? (a.carry ? 3.2 : 2.5) : a.kind === 'guest' ? 2.1 : a.busy ? 3.3 : a.kind === 'folk' ? (a.small ? 2.3 : 1.9) : a.state === 'idle' ? 1.7 : 3.1;
         const sp = base * dt;
         const sdx = dx - dy, sdy = dx + dy;
         if (Math.abs(sdx) > 0.01) a.face = sdx > 0 ? 1 : -1;
@@ -2073,6 +2152,7 @@
       if (a.holo) return { accent: roleCol(a.role), html: `<div class="h"><span class="sw"></span>Agent crew · ${esc(roleTitle(a.role))}</div><div class="s">A live agent run in ${where} brings a crew of three. They leave when the run ends.</div>` };
       return { accent: a.tint, html: `<div class="h"><span class="sw"></span>Floor crew</div><div class="s">The buzz of ${where}. Every room has a crowd from day one; it grows with the room's week of activity and with its agents. Not on your roster.</div>` };
     }
+    if (a.kind === 'npc') { const d = NPC[a.npc] || {}; return { accent: d.col, html: `<div class="h"><span class="sw"></span>${esc(d.name)} · ${esc((d.label || '').toLowerCase())}</div><div class="s">${esc(a.npc === 'mumblecrow' && room ? `${shortName(room.spec)}: ${d.say}` : d.say)}</div>` }; }
     if (a.kind === 'res') {
       const n = room ? residentCount(room) : 1;
       return { accent: a.lk.res.sil || accent, html: `<div class="h"><span class="sw"></span>${esc(a.lk.resident)}</div><div class="s">${n} live in ${where}: the room's stock. One always does; more arrive as the room gets busier (30 days of activity), up to four.</div><div class="hint">click for the room</div>` };
@@ -2104,7 +2184,7 @@
       const a = hit.agent;
       ({ html, accent } = agentTip(a, accent));
       const idn = identity(a);
-      html = `<div class="pcard"><img class="pt" src="${portraitOf(a)}" alt=""><div class="pc"><span class="kc k-${idn.kind}">${esc(idn.kind === 'agent' ? 'AI agent' : idn.kind === 'person' ? idn.label.toLowerCase() : idn.kind === 'kid' ? 'kid' : idn.kind === 'client' ? 'client' : idn.kind === 'lead' ? 'you' : 'stock')}${idn.lvl ? ' · lv ' + idn.lvl : ''}</span>${html}</div></div>`;
+      html = `<div class="pcard"><img class="pt" src="${portraitOf(a)}" alt=""><div class="pc"><span class="kc k-${idn.kind}">${esc(idn.kind === 'agent' ? 'AI agent' : idn.kind === 'person' ? idn.label.toLowerCase() : idn.kind === 'kid' ? 'kid' : idn.kind === 'client' ? 'client' : idn.kind === 'lead' ? 'you' : idn.kind === 'npc' ? 'resident' : 'stock')}${idn.lvl ? ' · lv ' + idn.lvl : ''}</span>${html}</div></div>`;
     } else if (hit.kind === 'mast') {
       const s = syncStatus(); accent = s.color;
       html = `<div class="h"><span class="sw"></span>${esc(NM().mast)} · income sync</div><div class="s">${esc(s.text)}</div><div class="hint">click to link Stripe, Square, PayPal, Gumroad or import a statement</div>`;
@@ -2140,6 +2220,9 @@
   // ======================================================================= selection and camera moves
   let selected = null, follow = null;
   // the side panel's width on a wide screen: full, a stacked list, or a taskbar of room chips
+  // walls, as in the Sims: every room's walls up, a cutaway (the room you look at up, the rest low), or all of them down
+  const WALL_MODES = ['cut', 'up', 'down'];
+  let wallMode = WALL_MODES.includes(lget('pf-walls')) ? lget('pf-walls') : 'cut';
   const INS_MODES = ['full', 'stack', 'bar'];
   let insMode = INS_MODES.includes(lget('pf-ins')) ? lget('pf-ins') : 'full';
   function select(id, { fly = true, close = true } = {}) {
@@ -2398,9 +2481,9 @@
   // who is in a room: the named ones as chips (click to follow), the floor crowd as a count
   function whoHere(room) {
     const here = [...agents.values()].filter((a) => a.path === room.id && a.kind !== 'res' && a.state !== 'leave');
-    const named = here.filter((a) => a.kind !== 'extra'), crowd = here.length - named.length;
+    const named = here.filter((a) => a.kind !== 'extra' && a.kind !== 'npc'), npcs = here.filter((a) => a.kind === 'npc'), crowd = here.length - named.length - npcs.length;
     if (!here.length) return '';
-    return `<div class="who">${named.map((a) => { const id = identity(a); return `<span class="w" data-sel="a:${esc(a.id)}" style="--wc:${id.col}" title="Follow ${esc(id.name)}"><i></i>${esc(id.name)}<small>${esc(id.kind === 'agent' ? 'agent' : id.kind === 'client' ? 'client' : id.kind === 'kid' ? 'kid' : id.kind === 'lead' ? 'you' : 'team')}</small></span>`; }).join('')}${crowd ? `<span class="w crowd" title="The floor crowd grows with this room's activity and its agents; they are not on your roster">+${crowd} on the floor</span>` : ''}</div>`;
+    return `<div class="who">${named.map((a) => { const id = identity(a); return `<span class="w" data-sel="a:${esc(a.id)}" style="--wc:${id.col}" title="Follow ${esc(id.name)}"><i></i>${esc(id.name)}<small>${esc(id.kind === 'agent' ? 'agent' : id.kind === 'client' ? 'client' : id.kind === 'kid' ? 'kid' : id.kind === 'lead' ? 'you' : 'team')}</small></span>`; }).join('')}${npcs.map((a) => { const id = identity(a); return `<span class="w crowd" style="--wc:${id.col}" title="${esc((NPC[a.npc] || {}).say || '')}"><i></i>${esc(id.name)}<small>${esc(id.label.toLowerCase())}</small></span>`; }).join('')}${crowd ? `<span class="w crowd" title="The floor crowd grows with this room's activity and its agents; they are not on your roster">+${crowd} on the floor</span>` : ''}</div>`;
   }
   // the panel folded once: a stacked list of rooms, or a compact hub for the room in view
   function renderStack(el, room) {
@@ -3348,6 +3431,22 @@
   const PALETTE_FALLBACK = ['#f472b6', '#60a5fa', '#4ade80', '#ffb454', '#a78bfa', '#2dd4bf', '#ff5c6c', '#ffd84d'];
 
   // ======================================================================= field guide
+  // ---- the map: the station drawn as an illustrated map of its world (art/folk-kit/mapSvg.js), with your own rooms
+  const SKINS_TITLE = { space: 'Space station', castle: 'Dark castle', farm: 'Farm', cyber: 'Cyberpunk city', alien: 'Alien ship', ocean: 'Deep sea base' };
+  function openMap() {
+    if (typeof window.mapSvg !== 'function' || !snap) return;
+    const box = $('#mapbox .box');
+    const list = rooms.map((m) => ({ id: m.id, name: shortName(m.spec), accent: themeOf(m.id).accent }));
+    box.innerHTML = `<button class="cbtn glass x" data-close title="Close (Esc)">${ic('close')}</button>
+      <h2>Map</h2><p class="lead">${esc((snap.station && snap.station.name) || 'Your station')} · ${esc(SKINS_TITLE[skinId()] || skinId())}. Every room with its number; click one to fly there.</p>
+      <div class="mapv">${mapSvg(skinId(), { id: 'pfmap', rooms: list, hub: NM().hub, dock: NM().dock, level: snap.level.level, title: (snap.station && snap.station.name) || undefined })}</div>`;
+    $('#mapbox').hidden = false;
+  }
+  const closeMap = () => { $('#mapbox').hidden = true; };
+  $('#mapbox').addEventListener('click', (e) => {
+    if (e.target.id === 'mapbox' || e.target.closest('[data-close]')) { closeMap(); return; }
+    const t = e.target.closest('[data-sel]'); if (t) { closeMap(); select(t.dataset.sel); }
+  });
   function openGuide() {
     const g = $('#guide');
     g.querySelector('.box').innerHTML = `
@@ -3385,8 +3484,10 @@
           <dt>Standing crew</dt><dd>One per agent you hired (an enabled job). They live in their room, wander between runs, and sit at a desk while their run is live. Hire or send them off shift in a room's Crew section.</dd>
           <dt>Comm mast</dt><dd>Your income links. Green: synced. Amber: syncing. Red: a link failed. Grey: nothing linked. Waves leave the dish when a sync brings in money. Click it, or press I.</dd>
           <dt>Gold figure</dt><dd>You, the Commander.</dd>
+          <dt>Mumblecrow</dt><dd>On the farm, a scarecrow stands in any room with no sales, chores or leads logged in the last 7 days, and leaves as soon as one lands.</dd>
+          <dt>Tiers</dt><dd>Agents and folk dress for their level: Runner (a lanyard), Clerk (a tie), Trader (a vest and a headset), Broker (a jacket, gold buttons, sparkles), Tycoon (gold trim, a cape, a circlet and coins in the air).</dd>
         </dl></div>
-        <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">The world itself: space, dark castle, farm, cyber city, alien ship or ocean base all draw the same ledger, only dressed differently. Change it with <kbd>C</kbd>, or preview one with <code>?skin=castle</code> on the URL. In the castle, the city and the ship, folk wear the costume of the room they work (a skeleton in the crypt, a hacker in the den). Also scenery: each room's floor crowd (three even in a new room, more as its last 7 days get busier, three glowing helpers per agent on a live run; hover one and it says Floor crew or Agent crew), what folk do between real events (tinkering at a station, chatting, a coffee break, sleeping at night), day and night on your clock, birds, bats, fireflies, flying cars, saucers and fish, each world's backdrop (sky, hills, skyline, reef), wall screens, neon signs, barber poles, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the docking shuttle, where idle crew wander, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
+        <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">The world itself: space, dark castle, farm, cyber city, alien ship or ocean base all draw the same ledger, only dressed differently. Change it with <kbd>C</kbd>, or preview one with <code>?skin=castle</code> on the URL. In the castle, the city and the ship, folk wear the costume of the room they work (a skeleton in the crypt, a hacker in the den). Also scenery: each room's floor crowd (three even in a new room, more as its last 7 days get busier, three glowing helpers per agent on a live run; hover one and it says Floor crew or Agent crew), each world's residents (Mordra keeps the castle vault and Vex the scriptorium, Mott and Warg mind the farm, a cargo bot works the launch pad, a courier rides the city on a hoverboard beside a DJ bot, Glorp greets visitors on the ship, Octavia the octopus keeps the pearl vault with crabs for couriers), what folk do between real events (tinkering at a station, chatting, a coffee break, sleeping at night), day and night on your clock, birds, bats, fireflies, flying cars, saucers and fish, each world's backdrop (sky, hills, skyline, reef), wall screens, neon signs, barber poles, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the docking shuttle, where idle crew wander, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
           <h3>Controls</h3><div class="kb">
             <kbd>click</kbd><span>open a room, the vault (roster) or the outbox dock</span>
             <kbd>double-click</kbd><span>zoom into a room</span>
@@ -3400,6 +3501,8 @@
             <kbd>M</kbd><span>sound on or off</span>
             <kbd>0 / H</kbd><span>station roster</span>
             <kbd>O</kbd><span>outbox dock</span>
+            <kbd>B</kbd><span>the map: the station at a glance</span>
+            <kbd>L</kbd><span>walls: cutaway, up, or down</span>
             <kbd>I</kbd><span>income sync: link accounts, import statements</span>
             <kbd>F</kbd><span>fit the whole station</span>
             <kbd>+ / −</kbd><span>zoom in or out</span>
@@ -3496,9 +3599,16 @@
   setInterval(() => { if (!replay && snap && !document.hidden && !tour && performance.now() - lastInput > 45000 && $('#roomsbox').hidden && $('#syncbox').hidden && $('#guide').hidden) { lastInput = performance.now(); startReplay({ attract: true }); } }, 5000);
   $('#sound').addEventListener('click', toggleSound);
   $('#zin').innerHTML = lab('zin', 'Zoom in'); $('#zout').innerHTML = lab('zout', 'Zoom out'); $('#zhome').innerHTML = lab('fit', 'See all');
+  const WALL_LABEL = { cut: ['wallsCut', 'Cutaway'], up: ['wallsUp', 'Walls up'], down: ['wallsDown', 'Walls down'] };
+  function setWalls(m) { wallMode = m; lset('pf-walls', m); const [icn, t] = WALL_LABEL[m]; $('#walls').innerHTML = lab(icn, t); $('#walls').classList.toggle('on', m !== 'cut'); }
+  const cycleWalls = () => { setWalls(WALL_MODES[(WALL_MODES.indexOf(wallMode) + 1) % WALL_MODES.length]); toast('status', WALL_LABEL[wallMode][1], wallMode === 'up' ? 'every room with its walls up' : wallMode === 'down' ? 'every wall down, the outer walls too' : 'the room you look at has its walls up, the rest stay low', '#cfd6e6', 'grid'); };
+  setWalls(wallMode);
+  $('#walls').addEventListener('click', cycleWalls);
   // ---- the main menu: big labeled buttons, each explained on hover
   $('#navWorld').innerHTML = lab('globe', 'World');
   $('#navRoomList').innerHTML = lab('grid', 'Rooms');
+  $('#navMap').innerHTML = lab('map', 'Map');
+  $('#navMap').addEventListener('click', () => { closeRoomMenu(); openMap(); });
   $('#navRooms').innerHTML = lab('sliders', 'Customize');
   $('#navSync').innerHTML = '<span class="sdot"></span>' + lab('bolt', 'Income');
   $('#navLedger').innerHTML = lab('chart', 'Ledger');
@@ -3556,6 +3666,7 @@
   // ---- explain-on-hover: what each button does, in plain words
   const TIPS = {
     world: ['The whole world', 'Fly back out to see every room at once. Click any room or character to go in again.', 'Esc or H'],
+    map: ['Map', 'Your station drawn as a map of this world, every room with its number and name. Click one to fly there.', 'B'],
     rooms: ['Rooms', 'A list of every room with who is working and what it earned. Pick one to fly straight in.', '1 – 9'],
     customize: ['Customize', 'Change what the world is for and how it looks: its purpose, its world skin, the folk and their roles, each room\'s name, price, keywords and furniture. The guide inside explains every field.', 'C'],
     income: ['Income', 'Link where you get paid (Stripe, Square, PayPal, Gumroad) or import a statement (Upwork, Fiverr, a bank CSV). Every payment becomes a ledger line and walks into its room. The dot shows sync health.', 'I'],
@@ -3567,6 +3678,7 @@
     zout: ['Zoom out', 'Step back to see more of the world.', '−'],
     zslider: ['Zoom', 'Drag to zoom smoothly from the whole world down to the closest look.', 'wheel'],
     zhome: ['See all', 'Fit the whole world in view again.', 'F'],
+    walls: ['Walls', 'Three views, as in the Sims: Cutaway (the room you look at has its walls up, the rest are low), Walls up (every room), and Walls down (no walls at all, the outer ones too). Click to switch.', 'L'],
     replay: ['Replay', 'Watch the last 24 hours again, sped up: every sale, chore and agent run replays in order. It also starts by itself when you leave the screen alone.', 'R'],
     sound: ['Sound', 'Turn the world\'s sounds on or off: coins, doors, footsteps.', 'M'],
   };
@@ -3618,6 +3730,7 @@
       if (tour) { endTour(); return; }
       if (!$('#roomMenu').hidden) { closeRoomMenu(); return; }
       if (!$('#guide').hidden) { closeGuide(); return; }
+      if (!$('#mapbox').hidden) { closeMap(); return; }
       if (!$('#syncbox').hidden) { closeSync(); return; }
       if (!$('#roomsbox').hidden) { closeRooms(); return; }
       if (typing) { tgt.blur(); return; }
@@ -3632,6 +3745,8 @@
     switch (k) {
       case '0': case 'h': case 'H': select('hub'); break;
       case 'o': case 'O': select('dock'); break;
+      case 'b': case 'B': if ($('#mapbox').hidden) openMap(); else closeMap(); break;
+      case 'l': case 'L': cycleWalls(); break;
       case 'i': case 'I': openSync(); break;
       case 'c': case 'C': openRooms({ room: selected && roomById(selected) ? selected : null }); break;
       case 'f': case 'F': camT.x = home.x; camT.y = home.y; camT.z = 1; break;
@@ -3740,7 +3855,7 @@
   let closeUp = false;
   const WR = (() => {
     let g = dctx;
-    const N = ROOM, u = HW, FULLH = 4.3, LOWH = 1.45;
+    const N = ROOM, u = HW, FULLH = 4.3, LOWH = 1.45, DOWNH = 0.14;
     let rx0 = 0, ry0 = 0;                          // origin for room-local drawing
     let us = 12, LOD = 2, px1 = 1, tt = 0, curTheme = 'office';
     const wallH = new Map();                       // per cell: current wall height (animated)
@@ -4593,8 +4708,8 @@
     function lookFor(a, id) {
       const h = hsh(a.name || a.id);
       const small = id.kind === 'kid' || a.small;
-      const o = { skin: SKIN_TONES[h % SKIN_TONES.length], hair: HAIR_COLS[(h >> 3) % HAIR_COLS.length], style: (h >> 6) % 8, pants: PANTS[(h >> 9) % PANTS.length], shirt: id.col, small, eyes: 'normal', body: 'normal', hairStyle: null, ears: 'round' };
-      if (id.kind === 'client') { o.shirt = a.tint || '#9ec5ff'; o.style = (h >> 5) % 8; }
+      const o = { skin: SKIN_TONES[h % SKIN_TONES.length], hair: HAIR_COLS[(h >>> 3) % HAIR_COLS.length], style: (h >>> 6) % 8, pants: PANTS[(h >>> 9) % PANTS.length], shirt: id.col, small, eyes: 'normal', body: 'normal', hairStyle: null, ears: 'round' };
+      if (id.kind === 'client') { o.shirt = a.tint || '#9ec5ff'; o.style = (h >>> 5) % 8; }
       if (id.kind === 'lead') { o.shirt = '#ffcf5a'; o.body = 'jacket'; }
       if (a.costume && a.costume.res && COSTUME[a.costume.id]) Object.assign(o, COSTUME[a.costume.id], { hairStyle: COSTUME[a.costume.id].hair || null });
       else if (OUTFIT[curWorld] && id.kind !== 'agent') {
@@ -4962,9 +5077,112 @@
       g.fillText(BUB[icon] || '•', X, Y + r * 0.05);
     }
 
+    // ---- the folk kit: people as the house-style chibi sprites (art/folk-kit), rasterized once per look, pose and
+    // size, then stamped. ?figures=classic draws the older figures; so does any page that loaded without the kit.
+    const KIT = typeof window.folkSvg === 'function' && new URLSearchParams(location.search).get('figures') !== 'classic';
+    const KIT_U = 0.047;                     // world units per kit unit: a kit figure stands about 2.1 units tall
+    const KIT_TOP = 44.8 * KIT_U;            // feet to the top of the head
+    const spr = new Map();
+    let sprBudget = 0;
+    function kitSprite(key, px, make) {
+      const k = key + '@' + px;
+      let s = spr.get(k);
+      if (s) { spr.delete(k); spr.set(k, s); return s.c; }
+      if (sprBudget <= 0) return null;           // a few new ones a frame, so a crowd arriving never stalls a frame
+      sprBudget--;
+      s = { c: null }; spr.set(k, s);
+      if (spr.size > 900) spr.delete(spr.keys().next().value);
+      const img = new Image();
+      img.onload = () => { const c = document.createElement('canvas'); c.width = c.height = px; c.getContext('2d').drawImage(img, 0, 0, px, px); s.c = c; };
+      img.onerror = () => { if (!window.__pfKitBad) window.__pfKitBad = []; window.__pfKitBad.push(key); };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(make().replace('<svg ', `<svg width="${px}" height="${px}" `));
+      return null;
+    }
+    // costumes become species: a skeleton in the crypt, a robot at the bar, a grey in the lab
+    const KIT_SPECIES = { crypt: 'skeleton', library: 'skeleton', bar: 'robot', clinic: 'robot', lab: 'grey', probe: 'grey', lounge: 'grey', hatchery: 'blob', bridge: 'octo' };
+    // the floor crowd of each world mixes in its natives
+    const CROWD_SPECIES = { space: [['robot', 3]], castle: [['skeleton', 4]], farm: [['fox', 5]], cyber: [['robot', 4]], alien: [['grey', 8], ['blob', 3]], ocean: [['octo', 5]] };
+    const clampT = (v) => Math.max(0, Math.min(4, v | 0));
+    function kitLook(a, id) {
+      const h = hsh(a.name || a.id), w = curWorld;
+      let role = 'crew', tier = 0, tint;
+      if (id.kind === 'agent') { role = FOLK.roles[a.role] ? a.role : 'prospector'; tier = a.kind === 'job' ? clampT((id.lvl || 1) - 1) : a.holo ? 1 : 0; }
+      else if (id.kind === 'kid') { role = 'kid'; tier = clampT((id.lvl || 1) - 1); tint = id.col; }
+      else if (id.kind === 'person') { const tpl = snap && snap.station && snap.station.template; role = tpl === 'barber' || tpl === 'salon' ? 'barber' : 'crew'; tier = clampT((id.lvl || 1) - 1); tint = id.col; }
+      else if (id.kind === 'lead') { role = 'commander'; tier = clampT((id.lvl || 1) - 1); }
+      else if (id.kind === 'client') { role = 'client'; tier = h % 3 === 0 ? 1 : 0; tint = id.col; }
+      else { const r = (h >>> 4) % 20; tier = r < 10 ? 0 : r < 16 ? 1 : r < 19 ? 2 : 3; tint = id.col; }
+      let species = 'human';
+      const cid = a.costume && a.costume.res && COSTUME[a.costume.id] ? a.costume.id : null;
+      if (cid && KIT_SPECIES[cid] && id.kind !== 'lead') species = KIT_SPECIES[cid];
+      else if (id.kind === 'extra') { let roll = (h >>> 11) % 20; for (const [sp, n] of CROWD_SPECIES[w] || []) { if (roll < n) { species = sp; break; } roll -= n; } }
+      // the ship's greys run the busy floors: its best rooms get Brokers and Tycoons
+      if (w === 'alien' && species === 'grey' && id.kind === 'extra' && a.path) { const rm = roomById(a.path); if (rm && roomTier(rm) >= 2 && h % 4 === 0) tier = 3 + (h % 8 === 0 ? 1 : 0); }
+      return { role, world: w, tier, species, skin: h % 6, hair: (h >>> 3) % 7, hairC: (h >>> 6) % 7, eyeC: (h >>> 9) % 6, tint, agent: false };
+    }
+    function kitPose(pose, a) {
+      if (pose === 'walk') return Math.floor(a.t * 5.5) % 2 ? 'walk2' : 'walk';
+      if (pose === 'runner' || pose === 'carry') return 'carry';
+      if (pose === 'phone' || pose === 'cheer') return pose;
+      if (pose === 'sit' || pose === 'tinker') return 'type';
+      return 'idle';
+    }
+    const kitExpr = (pose, a) => (pose === 'sleep' ? 'sleep' : pose === 'chat' ? (Math.floor(a.t * 3) % 2 ? 'talk' : 'smile') : pose === 'serve' || pose === 'chore' ? 'focus' : undefined);
+    // stamp a sprite with its feet at the origin. vb: the art's viewBox size; fx, fy: its feet inside that box
+    function stamp(key, make, vb, fx, fy, k = 1) {
+      const s = u * KIT_U * k, box = vb * s;
+      const devPx = box * S * dpr, px = devPx <= 72 ? 64 : devPx <= 144 ? 128 : devPx <= 288 ? 256 : 512;
+      let c = kitSprite(key, px, make);
+      // mid-zoom, a neighbouring size already made stands in, so nobody flickers back to the old figure
+      if (!c) for (const alt of [px * 2, px / 2, px * 4, px / 4]) { const o = spr.get(key + '@' + alt); if (o && o.c) { c = o.c; break; } }
+      if (!c) return false;
+      g.drawImage(c, -fx * s, -fy * s, box, box);
+      return true;
+    }
+    const CAST_FEET = { mumblecrow: [96, 53.5, 74.5] };
+    // a resident: the Code Lab cast as drawn in Code Lab, the rest from the kit; null until their sprite is ready
+    function npcFigure(a) {
+      const d = NPC[a.npc] || {}, moving = a.queue.length > 0, bob = moving ? Math.abs(Math.sin(a.t * 9)) * 0.08 : Math.sin(a.t * 1.8 + (hsh(a.id) % 7)) * 0.03;
+      g.save(); g.translate(0, -u * bob); if (a.face < 0) g.scale(-1, 1);
+      let ok = false, top = KIT_TOP;
+      if (d.cast && window.PF_CAST && PF_CAST[a.npc]) {
+        const [vb, fx, fy] = CAST_FEET[a.npc] || [84, 42, 72];
+        ok = stamp('cast:' + a.npc, () => PF_CAST[a.npc], vb, fx, fy, d.big || 1);
+        top = (d.big || 1) * KIT_TOP * 1.05;
+      } else if (a.npc === 'crab') {
+        ok = stamp('crab:' + (moving ? 'w' + (Math.floor(a.t * 6) % 2) : 'i'), () => critterSvg('crab', { id: 'k', pose: moving && Math.floor(a.t * 6) % 2 ? 'walk' : 'idle', shadow: false }), 84.4, 42.2, 72.3, 0.8);
+        top = KIT_TOP * 0.45;
+      } else {
+        const look = NPC_LOOK[a.npc] || { role: 'crew', world: curWorld };
+        const pose = a.npc === 'cargo' || a.npc === 'courier' ? 'carry' : a.npc === 'dj' ? (Math.floor(a.t * 2) % 2 ? 'cheer' : 'idle') : a.npc === 'accountant' ? 'type' : moving ? (Math.floor(a.t * 5.5) % 2 ? 'walk2' : 'walk') : 'idle';
+        if (d.board) { g.save(); g.scale(1, 0.4); g.fillStyle = 'rgba(255,92,224,0.35)'; g.beginPath(); g.arc(0, 0, u * 0.9, 0, 7); g.fill(); g.restore(); g.fillStyle = '#1b1b28'; g.strokeStyle = '#ff5ce0'; g.lineWidth = u * 0.06; g.beginPath(); g.ellipse(0, -u * 0.35, u * 0.75, u * 0.2, 0, 0, 7); g.fill(); g.stroke(); g.translate(0, -u * 0.45); }
+        ok = stamp('npc:' + a.npc + ':' + pose, () => folkSvg({ ...look, agent: false }, { id: 'k', pose, shadow: false }), 84.4, 42.2, 72.3);
+      }
+      g.restore();
+      return ok ? top + bob : null;
+    }
+    // a person from the kit: feet at the origin, facing their way; null until their sprite is ready
+    function kitFigure(a, id, pose) {
+      const look = kitLook(a, id), kp = kitPose(pose, a), expr = kitExpr(pose, a);
+      const moving = pose === 'walk' || pose === 'runner';
+      const bob = moving ? Math.abs(Math.sin(a.t * 11)) * 0.07 : pose === 'serve' || pose === 'chore' ? Math.abs(Math.sin(a.t * 6)) * 0.04 : Math.sin(a.t * 1.6 + (hsh(a.id) % 7)) * 0.025;
+      // the Grubbs run the castle's floor
+      const grubb = curWorld === 'castle' && a.kind === 'extra' && !a.holo && hsh(a.id) % 3 === 0 && window.PF_CAST && PF_CAST.grubb;
+      // in space the runners float, papers and all
+      const zeroG = curWorld === 'space' && a.kind === 'extra' && pose === 'runner';
+      g.save();
+      g.translate(0, -u * (bob + (zeroG ? 0.45 + Math.sin(a.t * 3) * 0.08 : 0)));
+      if (zeroG) g.rotate(0.12 * (a.face < 0 ? -1 : 1));
+      if (a.face < 0) g.scale(-1, 1);
+      const ok = grubb ? stamp('cast:grubb', () => PF_CAST.grubb, 84, 42, 72, 0.9)
+        : stamp(JSON.stringify(look) + kp + (expr || ''), () => folkSvg(expr ? { ...look, expr } : look, { id: 'k', pose: kp, shadow: false }), 84.4, 42.2, 72.3);
+      g.restore();
+      return ok ? (look.role === 'kid' ? 0.86 : 1) * KIT_TOP + bob : null;
+    }
     // the character itself, feet at the origin: a simple figure far away, an animal, a person or a hologram agent
     function figure(a, id, L, pose, fade) {
       let top;
+      if (a.kind === 'npc') return LOD === 0 ? (g.scale(u, u), simpleFigure(a, id, { small: false })) : npcFigure(a) ?? 0;
       if (LOD === 0) { g.scale(u * (a.face < 0 ? -1 : 1), u); top = simpleFigure(a, id, L || { small: false }); }
       else if (a.kind === 'res') { g.scale(u * 1.15 * (a.face < 0 ? -1 : 1), u * 1.15); top = drawAnimal(a, a.t) * 1.15; }
       else {
@@ -4978,8 +5196,9 @@
           if (LOD === 2) { g.shadowColor = id.col; g.shadowBlur = us * 0.25 * dpr; }
         }
         if (pose === 'sleep') { g.rotate(-Math.PI / 2 * (a.face < 0 ? -1 : 1)); g.translate(u * 0.3, u * 0.1); }
-        g.scale(u * k * (a.face < 0 ? -1 : 1), u * k);
-        top = drawPerson(a, id, L, pose, a.t) * k;
+        const kt = KIT ? kitFigure(a, id, pose) : null;
+        if (kt !== null) top = kt;
+        else { g.scale(u * k * (a.face < 0 ? -1 : 1), u * k); top = drawPerson(a, id, L, pose, a.t) * k; }
         g.shadowBlur = 0;
         if (pose === 'sleep') top = 1.0;
       }
@@ -5016,7 +5235,7 @@
         g.globalAlpha = o.fade;
         // over heads only what matters: the diamond (not for the floor crowd), and work bars in the room you are in
         const mine = a.id === hoverAgentId || a.id === selId || (selRoom && a.path === selRoom.id);
-        if (a.kind !== 'res' && a.kind !== 'extra' && LOD > 0) plumbob(X, topY - ou * 0.38, MOOD(a, id), a.t + (hsh(a.id) % 10));
+        if (a.kind !== 'res' && a.kind !== 'extra' && a.kind !== 'npc' && LOD > 0) plumbob(X, topY - ou * 0.38, MOOD(a, id), a.t + (hsh(a.id) % 10));
         if (a.busy && LOD > 0 && mine && a.kind !== 'extra') {
           const b = a.busy, dur = b.chore ? 5 : 7.5, item = (b.e && (b.e.item || b.e.source)) || (a.path && roomById(a.path) ? shortName(roomById(a.path).spec) : '');
           progress(X, topY - ou * 0.72, b.t / dur, `${b.chore ? '🧽' : roomThemeOf(a) === 'barber' ? '✂' : '●'} ${String(item).slice(0, 18)}`, b.e ? '+' + usd(b.e.usd) : '', '#2fe07a', a.t, fsBar);
@@ -5224,7 +5443,7 @@
 
     // ---- the frame
     function draw(dt, o = {}) {
-      g = o.ctx || dctx; tt = T; curWorld = skinId();
+      g = o.ctx || dctx; tt = T; curWorld = skinId(); sprBudget = 16;
       us = u * S; LOD = us < 11 ? 0 : us < 26 ? 1 : 2; px1 = 1 / (S * dpr); ou = u * Math.max(1, 14 / us);
       const W = vwCss, H = vhCss;
       g.setTransform(dpr, 0, 0, dpr, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
@@ -5233,11 +5452,12 @@
       lights.length = 0; hits = [];
       const Smat = sk();
       const list = [...cells.entries()].map(([k, v]) => { const [c, r] = k.split(',').map(Number); return { c, r, kind: v }; });
-      drawBackdrop(Smat);
+      if (wallMode !== 'down') drawBackdrop(Smat);
       // walls rise in the room you are looking at, and stay low everywhere else so you can see in
       const selRoom = selected && roomById(selected);
       for (const o of list) {
-        const key = o.c + ',' + o.r, want = selRoom && selRoom.c === o.c && selRoom.r === o.r ? FULLH : (selected === 'dock' && o.kind === 'dock') ? 2.6 : LOWH;
+        const focus = selRoom && selRoom.c === o.c && selRoom.r === o.r;
+        const key = o.c + ',' + o.r, want = wallMode === 'down' ? DOWNH : wallMode === 'up' ? (o.kind === 'dock' ? 2.6 : FULLH) : focus ? FULLH : (selected === 'dock' && o.kind === 'dock') ? 2.6 : LOWH;
         const cur = wallH.has(key) ? wallH.get(key) : LOWH;
         wallH.set(key, cur + (want - cur) * Math.min(1, dt * 4));
       }
@@ -5405,7 +5625,7 @@
       finally { ({ S, dpr, vx0e, vy0e, vwCss, vhCss } = keep); wallH.clear(); for (const [k, v] of keepWalls) wallH.set(k, v); selected = keepSel; cam.x = cx; cam.y = cy; g = dctx; }
     }
     const exp = { figure: exportFigure, cell: exportCell, hall: exportHall, mast: exportMast, background: exportBackground, map: exportMap, themeOfRoom, hsh, COSTUME, SKIN_TONES, HAIR_COLS, PANTS };
-    return { exp, draw, pickAt, mastAt, silhouetteOf, footprints, wallHeight: (c, r) => wallH.get(c + ',' + r) || LOWH, FULLH, drawPerson: (gg, a, id, L, pose, t) => { const keep = g; g = gg; curWorld = skinId(); const top = drawPerson(a, id, L, pose, t); g = keep; return top; }, lookFor, drawAnimal: (gg, a, t) => { const keep = g; g = gg; const top = drawAnimal(a, t); g = keep; return top; } };
+    return { kit: () => KIT, kitLook: (a, id) => { curWorld = skinId(); return kitLook(a, id); }, exp, draw, pickAt, mastAt, silhouetteOf, footprints, wallHeight: (c, r) => wallH.get(c + ',' + r) || LOWH, FULLH, drawPerson: (gg, a, id, L, pose, t) => { const keep = g; g = gg; curWorld = skinId(); const top = drawPerson(a, id, L, pose, t); g = keep; return top; }, lookFor, drawAnimal: (gg, a, t) => { const keep = g; g = gg; const top = drawAnimal(a, t); g = keep; return top; } };
   })();
   // ---- the close-up is a camera framing, not a mode: the same world, the room filling the view with its walls up
   let closeZ = 3;
@@ -5493,7 +5713,7 @@
   $('#moreSheet').addEventListener('click', (e) => {
     const b = e.target.closest('[data-more]'); if (!b) return;
     const k = b.dataset.more; closeMore();
-    if (k === 'tour') startTour(); else if (k === 'guide') openGuide(); else if (k === 'replay') (replay ? stopReplay() : startReplay());
+    if (k === 'tour') startTour(); else if (k === 'guide') openGuide(); else if (k === 'map') openMap(); else if (k === 'replay') (replay ? stopReplay() : startReplay());
     else if (k === 'sound') toggleSound(); else if (k === 'feed') $('#comms').classList.add('open'); else if (k === 'rooms') openRoomMenu(); else if (k === 'world') select('hub');
   });
   document.addEventListener('pointerdown', (e) => { if (!$('#moreSheet').hidden && !e.target.closest('#moreSheet, #tabMore')) closeMore(); });

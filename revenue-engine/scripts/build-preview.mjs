@@ -21,6 +21,7 @@ import { CATALOG } from '../src/paths.js';
 import { listItems } from '../src/inbox.js';
 import { listClients, isDue } from '../src/clients.js';
 import { connectorSpecs, CSV_SOURCES, listConnections } from '../src/sync.js';
+import { withFolkKit } from '../src/folkkit.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
@@ -75,7 +76,7 @@ const BANNER = `<div id="pfMockBar" style="display:flex;align-items:center;gap:1
 <button id="pfAuto" type="button" onclick="if(window.__PF_MOCK.autopilot)this.textContent='Autopilot: '+(window.__PF_MOCK.autopilot()?'on':'off')" title="Scheduled agents, income syncs and chores happen on their own, as on a real station" style="font:inherit;background:#2c3f73;color:#fff;border:1px solid #4a64a8;border-radius:6px;padding:3px 9px;cursor:pointer">Autopilot: on</button>
 <button type="button" onclick="if(window.__PF_MOCK.reset&&confirm('Put the demo back the way it started? Everything you tried here is cleared.'))window.__PF_MOCK.reset()" style="font:inherit;background:#2c3f73;color:#fff;border:1px solid #4a64a8;border-radius:6px;padding:3px 9px;cursor:pointer">Reset demo</button></div>`;
 
-const raw = (file) => fs.readFileSync(path.join(root, 'src', file), 'utf8');
+const raw = (file) => withFolkKit(fs.readFileSync(path.join(root, 'src', file), 'utf8'));
 // the mock goes in last, after any re-pointing, so its own /api/ matcher is never rewritten
 const withMock = (html, station, prefix) => html.replace('<head>', '<head>\n' + shim(station, prefix)).replace(/<body>/, '<body>\n' + BANNER);
 const page = (file) => withMock(raw(file), 'paths', '');

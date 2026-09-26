@@ -53,14 +53,14 @@ const WORLDS = {
   alien: { title: 'Alien ship', suit: '#3c4f93', trim: '#7ef0c8', legs: '#34437d', boots: '#23233a', jacket: '#2a2f5e', gear: 'crest' },
   ocean: { title: 'Deep sea base', suit: '#1f3d60', trim: '#ffd23f', legs: '#1f3d60', boots: '#ffd23f', jacket: '#16304e', gear: 'mask' },
 };
-const SPECIES = ['human', 'fox', 'robot', 'grey', 'skeleton', 'octo'];
+const SPECIES = ['human', 'fox', 'robot', 'grey', 'skeleton', 'octo', 'blob'];
 const SKINS = ['#fbdcc6', '#f3c5a2', '#dea57c', '#bd7c52', '#8f5b3b', '#5f3b29'];
 const HAIRS = ['short', 'bob', 'long', 'bun', 'spiky', 'puff', 'pony'];
 const HAIR_COLORS = ['#5a3726', '#2b2126', '#e3b65c', '#b8502e', '#a3a9b8', '#ee76ae', '#3fb0cf'];
 const EYE_COLORS = ['#c98a2c', '#5b8f3a', '#3b7fc4', '#7a4b2a', '#8d5fd3', '#2a2a2a'];
-const EXPRS = ['smile', 'grin', 'focus', 'talk', 'wink', 'proud'];
-const POSES = ['idle', 'walk', 'phone', 'cheer', 'type', 'carry'];
-const FUR = { fox: ['#e98a3c', '#fff4ea'], octo: ['#a466d8', '#e7c9ff'], grey: ['#a9c2b4', '#d9eadf'], skeleton: ['#efe8da', '#fffaf0'], robot: ['#b9c4d6', '#e8eef7'] };
+const EXPRS = ['smile', 'grin', 'focus', 'talk', 'wink', 'proud', 'sleep'];
+const POSES = ['idle', 'walk', 'walk2', 'phone', 'cheer', 'type', 'carry'];
+const FUR = { fox: ['#e98a3c', '#fff4ea'], octo: ['#a466d8', '#e7c9ff'], grey: ['#a9c2b4', '#d9eadf'], skeleton: ['#efe8da', '#fffaf0'], robot: ['#b9c4d6', '#e8eef7'], blob: ['#6fdc9a', '#c9ffd9'] };
 
 // ---------------------------------------------------------------------------------------------- color helpers
 const hex = (c) => { const n = parseInt(c.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
@@ -71,6 +71,8 @@ const light = (c, t) => mix(c, '#ffffff', t);
 // one color becomes the five a part is painted with
 const tones = (c) => ({ base: dark(c, 0.2), lit: c, hi: light(c, 0.42), cool: mix(light(c, 0.3), '#a8dcff', 0.45), line: dark(c, 0.5) });
 const f = (n) => (Math.round(n * 100) / 100).toString();
+// any whole number picks from a list, negatives and all
+const at = (arr, i) => arr[((((i | 0) % arr.length) + arr.length) % arr.length)];
 
 // ---------------------------------------------------------------------------------------------- geometry helpers
 const ell = (cx, cy, rx, ry) => `M${f(cx - rx)} ${f(cy)}A${f(rx)} ${f(ry)} 0 1 0 ${f(cx + rx)} ${f(cy)}A${f(rx)} ${f(ry)} 0 1 0 ${f(cx - rx)} ${f(cy)}Z`;
@@ -142,8 +144,9 @@ const G = (tf, ...items) => ({ tf, items: items.flat().filter(Boolean).map((it) 
 
 // ---------------------------------------------------------------------------------------------- the face
 function eyes(P, look, ex, ey, mode, species) {
-  const eyeC = EYE_COLORS[look.eyeC % EYE_COLORS.length];
+  const eyeC = at(EYE_COLORS, look.eyeC);
   const one = (x, closed, wink) => {
+    if (mode === 'sleep') return `<path d="M${f(x - 2.2)} ${f(ey + 0.2)}Q${f(x)} ${f(ey + 1.7)} ${f(x + 2.2)} ${f(ey + 0.2)}" fill="none" stroke="${OUT}" stroke-width="1.05" stroke-linecap="round"/>`;
     if (closed || wink) return `<path d="M${f(x - 2.3)} ${f(ey + 0.6)}Q${f(x)} ${f(ey - 2.2)} ${f(x + 2.3)} ${f(ey + 0.6)}" fill="none" stroke="${OUT}" stroke-width="1.05" stroke-linecap="round"/>`;
     if (species === 'grey') {
       const g = P.grad([[0, '#1d1a2a'], [0.6, '#0c0a14'], [1, '#2a2440']]);
@@ -172,6 +175,7 @@ function mouth(look, mode, species, cy = 31.1) {
   if (species === 'skeleton') return `<path d="M29.2 ${f(cy - 0.2)}H35.2" stroke="${OUT}" stroke-width=".7"/><path d="M30.2 ${f(cy - 0.9)}V${f(cy + 0.6)}M31.7 ${f(cy - 0.9)}V${f(cy + 0.6)}M33.2 ${f(cy - 0.9)}V${f(cy + 0.6)}M34.4 ${f(cy - 0.8)}V${f(cy + 0.4)}" stroke="${OUT}" stroke-width=".45"/>`;
   if (species === 'robot') return mode === 'talk' || mode === 'grin' ? `<rect x="29.9" y="${f(cy - 0.7)}" width="4.6" height="1.7" rx=".7" fill="${look._accent}"/>` : `<path d="M30 ${f(cy)}H34.4" stroke="${look._accent}" stroke-width=".9" stroke-linecap="round"/>`;
   if (mode === 'grin') return `<path d="M29.5 ${f(cy - 0.9)}Q32.2 ${f(cy - 0.3)} 34.9 ${f(cy - 0.9)}Q34.6 ${f(cy + 2.6)} 32.2 ${f(cy + 2.7)}Q29.8 ${f(cy + 2.6)} 29.5 ${f(cy - 0.9)}Z" fill="#7a2338" stroke="${OUT}" stroke-width=".6"/><path d="M30.6 ${f(cy + 1.4)}Q32.2 ${f(cy + 0.7)} 33.8 ${f(cy + 1.4)}Q33.3 ${f(cy + 2.4)} 32.2 ${f(cy + 2.4)}Q31.1 ${f(cy + 2.4)} 30.6 ${f(cy + 1.4)}Z" fill="#ff8aa0"/><path d="M30 ${f(cy - 0.6)}H34.4" stroke="#fff" stroke-width=".5" opacity=".9"/>`;
+  if (mode === 'sleep') return `<ellipse cx="32.2" cy="${f(cy + 0.4)}" rx=".7" ry=".55" fill="#8a3040"/>`;
   if (mode === 'talk') return `<ellipse cx="32.2" cy="${f(cy + 0.5)}" rx="1.35" ry="1.15" fill="#7a2338" stroke="${OUT}" stroke-width=".55"/><ellipse cx="32.2" cy="${f(cy + 0.95)}" rx=".75" ry=".45" fill="#ff8aa0"/>`;
   if (mode === 'focus') return `<path d="M30.9 ${f(cy)}Q32.2 ${f(cy + 0.9)} 33.5 ${f(cy)}" fill="none" stroke="#8a3040" stroke-width=".8" stroke-linecap="round"/>`;
   if (mode === 'proud') return `<path d="M30 ${f(cy - 0.3)}Q32.5 ${f(cy + 1.9)} 34.8 ${f(cy - 0.7)}" fill="none" stroke="#8a3040" stroke-width=".9" stroke-linecap="round"/>`;
@@ -180,7 +184,7 @@ function mouth(look, mode, species, cy = 31.1) {
 
 // ---------------------------------------------------------------------------------------------- heads
 function headParts(P, look, pose, mode) {
-  const sp = look.species, skin = SKINS[look.skin % SKINS.length], hairC = HAIR_COLORS[look.hairC % HAIR_COLORS.length];
+  const sp = look.species, skin = at(SKINS, look.skin), hairC = at(HAIR_COLORS, look.hairC);
   const fur = FUR[sp] ? FUR[sp][0] : skin, pale = FUR[sp] ? FUR[sp][1] : light(skin, 0.4);
   const back = [], face = [], front = [];
   let over = '';
@@ -209,6 +213,9 @@ function headParts(P, look, pose, mode) {
   } else if (sp === 'skeleton') {
     face.push(P.part('M32.2 15C39.4 15 43.8 19.4 43.8 25.2C43.8 28.8 42 31.2 39.8 32.2V35.2H24.6V32.2C22.4 31.2 20.6 28.8 20.6 25.2C20.6 19.4 25 15 32.2 15Z', fur, { detail: `<path d="M24.6 32.4H39.8" stroke="#cfc4b2" stroke-width=".6"/><path d="M36.8 18Q39.6 19.4 40.4 22.2" fill="none" stroke="#d6ccb9" stroke-width=".7" stroke-linecap="round"/>` }));
     over += `<path d="M31.4 29.3L32.2 27.8L33 29.3Z" fill="${OUT}"/>`;
+  } else if (sp === 'blob') {
+    face.push(P.part(headD, fur, { grad: P.grad([[0, light(fur, 0.35)], [0.7, fur], [1, dark(fur, 0.08)]], 0.2, 1), detail: `<ellipse cx="27" cy="19.4" rx="2.6" ry="1.4" fill="#fff" opacity=".45" transform="rotate(-20 27 19.4)"/><circle cx="39.4" cy="21.6" r=".8" fill="#fff" opacity=".5"/>` }));
+    over += blush.replaceAll('.45', '.3');
   } else if (sp === 'octo') {
     // tentacles hang where hair would, curling at the tips
     for (const s of [-1, 1]) {
@@ -224,7 +231,7 @@ function headParts(P, look, pose, mode) {
 }
 function brows(c) { const d = dark(c, 0.25); return `<path d="M25.4 21.9Q27.2 21 29 21.7M35.4 21.7Q37.2 21 39 21.9" fill="none" stroke="${d}" stroke-width=".85" stroke-linecap="round"/>`; }
 function hairParts(P, look, c, back, front) {
-  const st = HAIRS[look.hair % HAIRS.length];
+  const st = at(HAIRS, look.hair);
   const sheen = `<path d="M26 18.4Q30.6 15.9 36.6 17.4" fill="none" stroke="${light(c, 0.45)}" stroke-width="1" stroke-linecap="round" opacity=".7"/>`;
   // the cap every style shares: the crown of the head, with a fringe cut across the forehead
   const cap = (fr) => P.part(`M20.4 25.4C20.2 18.6 25 14 32.2 14C39.4 14 44.2 18.6 44 25.4C43.4 22.8 41.8 21.2 39.6 ${fr}Q37.4 ${fr - 0.8} 35.8 ${fr - 2.6}Q33.6 ${fr + 0.4} 30.4 ${fr - 0.6}Q27.6 ${fr + 0.6} 25 ${fr + 0.2}Q22.4 ${fr + 0.8} 20.4 25.4Z`, c, { detail: sheen });
@@ -240,7 +247,7 @@ function hairParts(P, look, c, back, front) {
 function headGear(P, look, front, back) {
   const w = WORLDS[look.world], t = look.tier, acc = look._accent, gold = '#f2c14e';
   const trim = t >= 3 ? gold : acc;
-  if (look.species === 'robot' && w.gear !== 'straw' && w.gear !== 'hood') return;
+  if (look.species === 'blob' || (look.species === 'robot' && w.gear !== 'straw' && w.gear !== 'hood')) return;
   if (w.gear === 'straw') {
     back.push(P.part('M22.6 17.8Q23 9.8 32.2 9.6Q41.4 9.8 41.8 17.8Z', '#e8c96a', { detail: `<path d="M22.6 15.6Q32.2 13.4 41.8 15.6V17.9H22.6Z" fill="${trim}"/><path d="M26 12.6Q29 11 32 11" fill="none" stroke="#fff3c4" stroke-width=".7" opacity=".7"/>` }));
     front.push(P.part('M13.6 19.2Q15 16.2 22 16.4Q32.2 15.2 42.4 16.4Q49.4 16.2 50.8 19.2Q47.8 21.4 42 20.8Q32.2 19.6 22.4 20.8Q16.6 21.4 13.6 19.2Z', '#e8c96a', { detail: `<path d="M17 18.8Q24 17.6 32.2 17.4Q40.4 17.6 47.4 18.8" fill="none" stroke="#c9a449" stroke-width=".5" stroke-dasharray="1 1"/>` }));
@@ -315,8 +322,8 @@ function leg(P, look, side) {
 }
 function arm(P, look, sx, sy, hx, hy) {
   const w = WORLDS[look.world];
-  const sleeve = look.tier >= 3 ? (look.tier === 4 ? '#2b2140' : w.jacket) : look.world === 'farm' ? w.trim : look.world === 'cyber' ? '#2a2a3c' : w.suit;
-  const hand = look.species === 'skeleton' ? '#efe8da' : look.species === 'robot' ? '#9aa6bd' : look.species === 'fox' ? FUR.fox[0] : look.species === 'grey' ? FUR.grey[0] : look.species === 'octo' ? FUR.octo[0] : SKINS[look.skin % SKINS.length];
+  const sleeve = look.species === 'blob' ? FUR.blob[0] : look.tier >= 3 ? (look.tier === 4 ? '#2b2140' : w.jacket) : look.world === 'farm' ? w.trim : look.world === 'cyber' ? '#2a2a3c' : w.suit;
+  const hand = look.species === 'skeleton' ? '#efe8da' : look.species === 'robot' ? '#9aa6bd' : FUR[look.species] ? FUR[look.species][0] : at(SKINS, look.skin);
   const dx = hx - sx, dy = hy - sy, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
   const ex = sx + ux * (L - 1.4), ey = sy + uy * (L - 1.4);
   const cuff = look.tier === 4 ? '#f2c14e' : look.world === 'space' ? w.trim : look.world === 'cyber' ? look._accent : null;
@@ -416,6 +423,7 @@ function tool(P, look, kind) {
 const POSE = {
   idle: { lift: 0, legs: [0, 0], armB: [26.2, 37.6, 23.2, 45.2], armF: [38.2, 37.6, 41.2, 45], toolAt: [41.2, 45, 22], expr: 'smile' },
   walk: { lift: -0.7, legs: [15, -15], armB: [26.2, 37.6, 22.6, 44], armF: [38.2, 37.6, 42.4, 44.2], toolAt: [42.4, 44.2, 36], expr: 'smile' },
+  walk2: { lift: -0.2, legs: [-13, 13], armB: [26.2, 37.6, 24.6, 46.2], armF: [38.2, 37.6, 40.2, 46], toolAt: [40.2, 46, 12], expr: 'smile' },
   phone: { lift: 0, legs: [0, 0], armB: [26.2, 37.6, 24.2, 45.2], armF: [38.4, 37.2, 45.2, 31.2], toolAt: [45.2, 31.2, -8], expr: 'talk', held: 'phone', stow: true },
   cheer: { lift: -3.2, legs: [-9, 9], armB: [26, 37, 20.2, 28.4], armF: [38.4, 37, 44.2, 28.4], toolAt: [44.2, 28.4, 12], expr: 'grin' },
   type: { lift: 0, legs: [0, 0], armB: [26.2, 37.6, 27.4, 44.2], armF: [38.2, 37.6, 37, 44.2], toolAt: [32.2, 43.2, 0], expr: 'focus', held: 'tablet', both: true, stow: true },
@@ -428,8 +436,8 @@ function folkSvg(look, opts = {}) {
   const L = { role: 'prospector', world: 'space', tier: 0, species: 'human', skin: 1, hair: 0, hairC: 0, eyeC: 0, ...look };
   const role = ROLES[L.role] || ROLES.crew;
   L._accent = L.tint || role.col;
-  L._lid = L.species === 'human' ? SKINS[L.skin % SKINS.length] : FUR[L.species] ? FUR[L.species][0] : '#ccc';
-  L._neck = L.species === 'human' ? dark(SKINS[L.skin % SKINS.length], 0.12) : L.species === 'robot' ? '#7d879b' : FUR[L.species] ? dark(FUR[L.species][0], 0.12) : '#ccc';
+  L._lid = L.species === 'human' ? at(SKINS, L.skin) : FUR[L.species] ? FUR[L.species][0] : '#ccc';
+  L._neck = L.species === 'human' ? dark(at(SKINS, L.skin), 0.12) : L.species === 'robot' ? '#7d879b' : FUR[L.species] ? dark(FUR[L.species][0], 0.12) : '#ccc';
   const agent = L.agent ?? role.agent;
   const id = opts.id || 'folk';
   const pose = POSE[opts.pose] || POSE.idle;
@@ -451,12 +459,14 @@ function folkSvg(look, opts = {}) {
   if (L.tier === 4) behind.push(P.part('M25.2 36.2Q20.6 44 21.6 55.6Q32.2 58.4 42.8 55.6Q43.8 44 39.2 36.2Z', '#6a1f3a', { detail: `<path d="M21.8 54.4Q32.2 57.2 42.6 54.4" fill="none" stroke="#f2c14e" stroke-width="1.2"/>` }));
 
   const legTf = (i, hipX) => pose.legs[i] ? `rotate(${pose.legs[i]} ${hipX} 46.8)` : null;
+  const blob = L.species === 'blob';
+  const jelly = () => [P.part('M24.4 38.2C24.4 35 27.8 33.4 32.2 33.4C36.6 33.4 40 35 40 38.2L43.2 55.2Q43.6 58.4 40.4 58.4H24Q20.8 58.4 21.2 55.2Z', FUR.blob[0], { grad: P.grad([[0, light(FUR.blob[0], 0.3)], [0.7, FUR.blob[0]], [1, dark(FUR.blob[0], 0.12)]], 0.2, 1), detail: `<circle cx="28" cy="48" r="1.3" fill="${FUR.blob[1]}" opacity=".7"/><circle cx="36.6" cy="52.4" r="1.8" fill="${FUR.blob[1]}" opacity=".55"/><circle cx="33" cy="44.4" r=".9" fill="${FUR.blob[1]}" opacity=".7"/><path d="M29.4 36.4L32.2 38.2L35 36.4L35 39.8L32.2 38.2L29.4 39.8Z" fill="${L._accent}" stroke="${OUT}" stroke-width=".5"/><path d="M22.4 55.6Q32.2 57.8 42 55.6" fill="none" stroke="${dark(FUR.blob[0], 0.25)}" stroke-width=".6" opacity=".6"/>` })];
   const body = G(pose.lean ? `rotate(${pose.lean} 32.2 50)` : null,
     G(null, behind),
     G(null, [aB.sleeve]),
-    G(legTf(0, 28.4), leg(P, L, -1)),
-    G(legTf(1, 35.9), leg(P, L, 1)),
-    G(null, outfit(P, L), belt(P, L)),
+    blob ? null : G(legTf(0, 28.4), leg(P, L, -1)),
+    blob ? null : G(legTf(1, 35.9), leg(P, L, 1)),
+    blob ? G(null, jelly()) : G(null, outfit(P, L), belt(P, L)),
     G(null, head.back),
     { ...G(null, head.face), over: head.over },
     G(null, head.front),
@@ -477,12 +487,12 @@ function folkSvg(look, opts = {}) {
   if (L.tier === 4) front += [[14.5, 44, 1.5], [50.6, 46.6, 1.3], [47, 20.6, 1.1]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r * 1.35}" fill="#f2c14e" stroke="#a8761e" stroke-width=".5"/><text x="${x}" y="${y + r * 0.62}" font-size="${r * 1.9}" font-weight="900" text-anchor="middle" fill="#7a5410" font-family="Arial, sans-serif">$</text>`).join('');
   if (opts.pose === 'cheer') front += sparkle(15, 22, 1.6) + sparkle(50, 21, 1.4) + sparkle(46, 12, 1) + sparkle(18, 12, 0.9);
   if (agent) {
-    const dy = kid ? 6 : 0, top = (L.species === 'grey' ? 7.2 : L.species === 'robot' ? 4 : L.hair % HAIRS.length === 5 && L.species === 'human' ? 3.6 : 6.6) + lift + dy;
+    const dy = kid ? 6 : 0, top = (L.species === 'grey' ? 7.2 : L.species === 'robot' ? 4 : at(HAIRS, L.hair) === 'puff' && L.species === 'human' ? 3.6 : 6.6) + lift + dy;
     front += `<g transform="translate(32.2 ${f(top - 2)})"><circle r="4.6" fill="${P.radial([[0, L._accent, 0.5], [1, L._accent, 0]])}"/><path d="M0 -3.4L2.1 0L0 3.4L-2.1 0Z" fill="${L._accent}" stroke="${OUT}" stroke-width=".8" stroke-linejoin="round"/><path d="M0 -3.4L2.1 0H0Z" fill="#fff" opacity=".55"/></g>`;
   }
 
   const shadowR = opts.pose === 'cheer' ? 9.6 : 12.8;
-  const shadow = `<ellipse cx="32.2" cy="58.4" rx="${shadowR}" ry="2.5" fill="${P.radial([[0, '#0a0712', 0.55], [0.6, '#0a0712', 0.25], [1, '#0a0712', 0]])}"/>`;
+  const shadow = opts.shadow === false ? '' : `<ellipse cx="32.2" cy="58.4" rx="${shadowR}" ry="2.5" fill="${P.radial([[0, '#0a0712', 0.55], [0.6, '#0a0712', 0.25], [1, '#0a0712', 0]])}"/>`;
   const fig = `<g transform="${figTf}"><g>${paintTree(body, 'out')}</g>${paintTree(body, 'fill')}</g>`;
   const mirror = opts.dir === 'l' ? ' transform="matrix(-1 0 0 1 64.4 0)"' : '';
   const vb = opts.crop === 'head' ? '17 5 30.4 30.4' : opts.crop === 'bust' ? '10 1 44.4 44.4' : '-10 -14 84.4 84.4';
@@ -490,6 +500,30 @@ function folkSvg(look, opts = {}) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" class="${cls}"><defs>${P.defs()}</defs><g${mirror}>${back}${shadow}${fig}${front}</g></svg>`;
 }
 
+// ---------------------------------------------------------------------------------------------- critters
+// small world creatures in the same style: critterSvg('crab', { id, pose: 'idle' | 'walk', tint })
+function critterSvg(kind = 'crab', opts = {}) {
+  const P = Painter(opts.id || 'critter'), walk = opts.pose === 'walk';
+  let parts = [], over = '';
+  if (kind === 'crab') {
+    const c = opts.tint || '#e8573f';
+    for (const s of [-1, 1]) for (let k = 0; k < 3; k++) {
+      const x = 32.2 + s * (6 + k * 2.2), y = 52.4 + k * 0.6, kick = walk ? (k % 2 ? 1.2 : -1.2) * s : 0;
+      parts.push(P.part(capsule(x, y, x + s * 3.4 + kick, y + 4.6, 0.8, 0.6), dark(c, 0.1), { w: 1.2, rim: false }));
+    }
+    for (const s of [-1, 1]) {
+      parts.push(P.part(capsule(32.2 + s * 7, 49, 32.2 + s * 12.6, 43.6, 1.1), c, { w: 1.4 }));
+      parts.push(P.part(`M${f(32.2 + s * 11)} 44.4Q${f(32.2 + s * 13.4)} 36.8 ${f(32.2 + s * 17.2)} 40Q${f(32.2 + s * 15)} 41.4 ${f(32.2 + s * 14.6)} 43.4Q${f(32.2 + s * 17.8)} 43.6 ${f(32.2 + s * 17.4)} 45.8Q${f(32.2 + s * 14)} 48.6 ${f(32.2 + s * 11)} 44.4Z`, c, { w: 1.6 }));
+      parts.push(P.part(capsule(32.2 + s * 2.6, 46, 32.2 + s * 3.4, 40.6, 0.55), dark(c, 0.1), { w: 1, rim: false }), P.part(ell(32.2 + s * 3.4, 40, 1.6, 1.6), '#ffffff', { w: 1.2, rim: false, detail: `<circle cx="${f(32.2 + s * 3.6)}" cy="40.3" r=".85" fill="#1e1422"/><circle cx="${f(32.2 + s * 3.9)}" cy="39.7" r=".3" fill="#fff"/>` }));
+    }
+    parts.push(P.part('M20.6 51.4C20.6 45.4 25.6 43 32.2 43C38.8 43 43.8 45.4 43.8 51.4C43.8 54.6 39 56.4 32.2 56.4C25.4 56.4 20.6 54.6 20.6 51.4Z', c, { detail: `<circle cx="27.4" cy="48" r="1" fill="${light(c, 0.4)}" opacity=".8"/><circle cx="36" cy="47.2" r=".8" fill="${light(c, 0.4)}" opacity=".8"/>` }));
+    over = `<path d="M29.6 51.6Q32.2 53.4 34.8 51.6" fill="none" stroke="${OUT}" stroke-width=".9" stroke-linecap="round"/><ellipse cx="26.6" cy="51.8" rx="1.4" ry=".8" fill="#ff8a9a" opacity=".5"/><ellipse cx="37.8" cy="51.8" rx="1.4" ry=".8" fill="#ff8a9a" opacity=".5"/>`;
+  }
+  const node = { items: parts, over };
+  const shadow = opts.shadow === false ? '' : `<ellipse cx="32.2" cy="58" rx="12" ry="2.2" fill="#0a0712" opacity=".3"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -14 84.4 84.4" class="critter critter-${kind}"><defs>${P.defs()}</defs>${shadow}<g transform="translate(0 ${walk ? -0.6 : 0})"><g>${paintTree(node, 'out')}</g>${paintTree(node, 'fill')}</g></svg>`;
+}
+
 const FOLK = { roles: ROLES, tiers: TIERS, worlds: WORLDS, species: SPECIES, skins: SKINS, hairs: HAIRS, hairColors: HAIR_COLORS, eyeColors: EYE_COLORS, exprs: EXPRS, poses: POSES };
-if (typeof globalThis !== 'undefined') { globalThis.folkSvg = folkSvg; globalThis.FOLK = FOLK; }
-export { folkSvg, FOLK };
+if (typeof globalThis !== 'undefined') { globalThis.folkSvg = folkSvg; globalThis.critterSvg = critterSvg; globalThis.FOLK = FOLK; }
+export { folkSvg, critterSvg, FOLK };

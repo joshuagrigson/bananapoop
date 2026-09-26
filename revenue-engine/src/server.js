@@ -5,12 +5,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createApi } from './api.js';
+import { withFolkKit } from './folkkit.js';
 
 export { snapshot, listOutbox, roomsInfo } from './api.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const LEDGER_HTML = fs.readFileSync(path.join(here, 'dashboard.html'), 'utf8');
-const STATION_HTML = fs.readFileSync(path.join(here, 'station.html'), 'utf8');
+const STATION_HTML = withFolkKit(fs.readFileSync(path.join(here, 'station.html'), 'utf8'));
 const TERMINAL_HTML = fs.readFileSync(path.join(here, 'terminal.html'), 'utf8');
 
 function readJson(req, limit = 1_000_000) {

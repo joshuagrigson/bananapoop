@@ -5,7 +5,8 @@
 //
 //   mapSvg(world, options) returns an SVG string, 1600 x 1000.
 //   world    space castle farm cyber alien ocean
-//   options  { id, rooms: [{ name, accent }] (up to 8), hub, dock, level, title }
+//   options  { id, rooms: [{ name, accent, id }] (up to 10), hub, dock, level, title }
+//            a room with an id (and the vault and dock) gets data-sel="<id>" on its plate and its building, to click
 
 const OUT = '#2a1d33';
 const hex = (c) => { const n = parseInt(c.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
@@ -28,8 +29,9 @@ const DEFAULT_ROOMS = [
   { name: 'GBP management', accent: '#4ade80' }, { name: 'Coparent HQ', accent: '#f87171' }, { name: 'Cohort course', accent: '#60a5fa' },
   { name: 'Content studio', accent: '#f472b6' }, { name: 'Freelance desk', accent: '#22d3ee' },
 ];
-const ROOM_CELLS = [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [1, 2], [2, 2], [3, 1]];
-const HUB = [1, 1], DOCK = [0, 2], MAST = [3, 0];
+const ROOM_CELLS = [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [1, 2], [2, 2], [3, 1], [3, 0], [3, 2]];
+const HUB = [1, 1], DOCK = [0, 2];
+let MAST = [3, 0];
 
 const WORLD = {
   space: { title: 'Space station', sky: ['#070a1c', '#141a3e', '#2a1f4e'], slab: '#8f9ab3', slabTop: '#c9d1e0', edge: '#5d6884', walk: '#aab4c8', hub: 'Treasury', dock: 'Launch pad' },
@@ -258,16 +260,18 @@ function sky(k, wd, K) {
 }
 
 // ---------------------------------------------------------------------------------------------- labels
-function plate(x, y, rank, name, acc, big = false) {
+function plate(x, y, rank, name, acc, big = false, sel = '') {
   const fs = big ? 21 : 19, w = Math.max(110, name.length * fs * 0.6 + 70), h = big ? 44 : 40;
   const r = typeof rank === 'number' ? String(rank).padStart(2, '0') : rank;
-  return `<g transform="translate(${f(x - w / 2)} ${f(y)})"><rect x="-3" y="-3" width="${w + 6}" height="${h + 6}" rx="${h / 2 + 3}" fill="${OUT}"/><rect width="${w}" height="${h}" rx="${h / 2}" fill="#fbf6ea"/><rect x="4" y="4" width="${h + 8}" height="${h - 8}" rx="${(h - 8) / 2}" fill="${acc}" stroke="${OUT}" stroke-width="2"/><text x="${(h + 16) / 2}" y="${h / 2 + 6.5}" font-size="${fs}" font-weight="900" text-anchor="middle" fill="${OUT}" font-family="Arial Black, Arial, sans-serif">${esc(r)}</text><text x="${h + 22}" y="${h / 2 + 6.5}" font-size="${fs}" font-weight="800" fill="${OUT}" font-family="Arial, sans-serif">${esc(name)}</text></g>`;
+  return `<g transform="translate(${f(x - w / 2)} ${f(y)})"${sel ? ` data-sel="${esc(sel)}"` : ''}><rect x="-3" y="-3" width="${w + 6}" height="${h + 6}" rx="${h / 2 + 3}" fill="${OUT}"/><rect width="${w}" height="${h}" rx="${h / 2}" fill="#fbf6ea"/><rect x="4" y="4" width="${h + 8}" height="${h - 8}" rx="${(h - 8) / 2}" fill="${acc}" stroke="${OUT}" stroke-width="2"/><text x="${(h + 16) / 2}" y="${h / 2 + 6.5}" font-size="${fs}" font-weight="900" text-anchor="middle" fill="${OUT}" font-family="Arial Black, Arial, sans-serif">${esc(r)}</text><text x="${h + 22}" y="${h / 2 + 6.5}" font-size="${fs}" font-weight="800" fill="${OUT}" font-family="Arial, sans-serif">${esc(name)}</text></g>`;
 }
 
 // ---------------------------------------------------------------------------------------------- the map
 function mapSvg(world = 'space', opts = {}) {
   const k = WORLD[world] ? world : 'space', wd = WORLD[k], K = Kit(opts.id || 'map');
-  const rooms = (opts.rooms || DEFAULT_ROOMS).slice(0, 8);
+  const rooms = (opts.rooms || DEFAULT_ROOMS).slice(0, 10);
+  // a ninth room takes the mast's corner; the mast steps out one cell
+  MAST = rooms.length > 8 ? [4, 0] : [3, 0];
   const cells = [];
   ROOM_CELLS.forEach(([c, r], i) => { if (rooms[i]) cells.push({ c, r, kind: 'room', i }); });
   cells.push({ c: HUB[0], r: HUB[1], kind: 'hub' }, { c: DOCK[0], r: DOCK[1], kind: 'dock' });
@@ -280,14 +284,17 @@ function mapSvg(world = 'space', opts = {}) {
   let labels = '';
   for (const q of order) {
     const cx = q.c * CELL, cy = q.r * CELL;
+    const sel = q.kind === 'room' ? rooms[q.i].id || '' : opts.rooms && opts.rooms.some((r) => r.id) ? q.kind : '';
+    body += sel ? `<g data-sel="${esc(sel)}">` : '<g>';
     body += slab(k, wd, cx, cy, q.kind === 'hub' ? 0.7 : 0.62);
     if (q.kind === 'room') body += building(k, cx, cy, rooms[q.i].accent, q.i + 1, K);
     if (q.kind === 'hub') body += vault(k, wd, K);
     if (q.kind === 'dock') body += dock(k, wd, K);
+    body += '</g>';
     const [lx, ly] = iso(cx + 0.62, cy + 0.62, -22);
-    if (q.kind === 'room') labels += plate(lx, ly + 8, q.i + 1, rooms[q.i].name, rooms[q.i].accent);
-    if (q.kind === 'hub') labels += plate(lx, ly + 8, 'L' + (opts.level || 2), opts.hub || wd.hub, '#f2c14e', true);
-    if (q.kind === 'dock') labels += plate(lx, ly + 8, '✉', opts.dock || wd.dock, '#cfd6e6');
+    if (q.kind === 'room') labels += plate(lx, ly + 8, q.i + 1, rooms[q.i].name, rooms[q.i].accent, false, sel);
+    if (q.kind === 'hub') labels += plate(lx, ly + 8, 'L' + (opts.level || 2), opts.hub || wd.hub, '#f2c14e', true, sel);
+    if (q.kind === 'dock') labels += plate(lx, ly + 8, '✉', opts.dock || wd.dock, '#cfd6e6', false, sel);
   }
   body += mast(k, K);
   const title = opts.title || wd.title;
