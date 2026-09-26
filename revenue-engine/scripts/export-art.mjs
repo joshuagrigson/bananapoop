@@ -23,6 +23,7 @@ const PERSON_ROWS = [
   row('stand', 'stand', 6, 3.927), row('walk', 'walk', 8, 0.785), row('sit', 'sit', 6, 0.393), row('sit_front', 'sit', 4, 3.927, { seatFront: true }),
   row('sleep', 'sleep', 4, 3.927, { fx: 176 }), row('serve', 'serve', 8, 0.449), row('chore', 'chore', 8, 0.898), row('tinker', 'tinker', 6, 0.393),
   row('chat', 'chat', 8, 1.257), row('carry', 'carry', 6, 3.927),
+  row('phone', 'phone', 8, 1.257), row('cheer', 'cheer', 6, 0.898), row('runner', 'runner', 8, 0.785),
   row('back_stand', 'stand', 6, 3.927, { back: true }), row('back_walk', 'walk', 8, 0.785, { back: true }), row('back_chore', 'chore', 8, 0.898, { back: true }),
   row('back_tinker', 'tinker', 6, 0.393, { back: true }), row('back_chat', 'chat', 8, 1.257, { back: true }), row('back_carry', 'carry', 6, 3.927, { back: true }),
   row('far', 'stand', 1, 1, { lod: 0 }),
@@ -310,7 +311,7 @@ function writeCode(M) {
 const ROW_NOTES = {
   stand: 'standing, breathing', walk: 'walking', sit: 'seated at work, back to the camera, hands busy', sit_front: 'seated facing out (how clients sit)', sleep: 'asleep, lying down',
   serve: 'working on a client (scissors in a barbershop, a bag in a shop, a clipboard elsewhere)', chore: 'doing a chore (sponge, rake, shirt, book or duster by room)', tinker: 'hands busy at a desk',
-  chat: 'talking, one hand up', carry: 'carrying a box', far: 'the simple figure used when zoomed far out', idle: 'animal standing (bobbing, for sea life)', move: 'animal walking or swimming',
+  chat: 'talking, one hand up', carry: 'carrying a box', phone: 'on the phone, the other hand going', cheer: 'both arms up (a sale landed)', runner: 'walking fast with a stack of paper', far: 'the simple figure used when zoomed far out', idle: 'animal standing (bobbing, for sea life)', move: 'animal walking or swimming',
 };
 function writeDocs(M) {
   const legacyFile = path.join(out, 'legacy-pixel', 'manifest.json');

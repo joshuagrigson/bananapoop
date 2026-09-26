@@ -99,15 +99,15 @@
   .lbl { position: absolute; left: 0; top: 0; width: 0; height: 0; will-change: transform; transition: opacity .35s; }
   .lbl.off { display: none; }
   .lbl.faded { opacity: .38; }
-  .lbl .stem { position: absolute; left: -1px; bottom: 0; width: 2px; height: 9px; background: linear-gradient(to top, var(--c), transparent); opacity: .8; }
-  .lbl .stem::after { content: ""; position: absolute; left: -2px; bottom: -3px; width: 6px; height: 6px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
-  .plate { position: absolute; left: 0; bottom: 9px; transform: translateX(-50%); display: flex; align-items: center; gap: 7px; white-space: nowrap; pointer-events: auto; cursor: pointer;
+  .lbl .stem { position: absolute; left: -1px; top: 0; width: 2px; height: 7px; background: linear-gradient(to bottom, var(--c), transparent); opacity: .8; }
+  .lbl .stem::after { content: ""; position: absolute; left: -2px; top: -3px; width: 6px; height: 6px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
+  .plate { position: absolute; left: 0; top: 7px; transform: translateX(-50%); display: flex; align-items: center; gap: 7px; white-space: nowrap; pointer-events: auto; cursor: pointer;
     padding: 4px 9px 4px 4px; border-radius: 7px; background: linear-gradient(180deg, var(--plate-a), var(--plate-b)); border: 1px solid color-mix(in srgb, var(--c) 35%, rgba(255,255,255,.06));
     box-shadow: 0 6px 18px rgba(0, 0, 0, .55), 0 0 14px color-mix(in srgb, var(--c) 18%, transparent), inset 0 1px 0 rgba(255,255,255,.06);
     backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: transform .18s cubic-bezier(.2,.8,.2,1.4), box-shadow .18s, background .18s; }
-  .plate:hover, .lbl.sel .plate { transform: translateX(-50%) translateY(-3px) scale(1.04); background: linear-gradient(180deg, color-mix(in srgb, var(--c) 22%, rgba(14,19,33,.92)), rgba(7,10,18,.92)); box-shadow: 0 10px 24px rgba(0,0,0,.6), 0 0 22px color-mix(in srgb, var(--c) 45%, transparent), inset 0 1px 0 rgba(255,255,255,.1); }
+  .plate:hover, .lbl.sel .plate { transform: translateX(-50%) translateY(2px) scale(1.04); background: linear-gradient(180deg, color-mix(in srgb, var(--c) 22%, rgba(14,19,33,.92)), rgba(7,10,18,.92)); box-shadow: 0 10px 24px rgba(0,0,0,.6), 0 0 22px color-mix(in srgb, var(--c) 45%, transparent), inset 0 1px 0 rgba(255,255,255,.1); }
   .plate .rk { font: 700 10px/1 var(--f-num); color: #06080f; background: var(--c); padding: 4px 5px; border-radius: 4px; box-shadow: 0 0 10px color-mix(in srgb, var(--c) 60%, transparent); }
-  .plate .nm { font: 600 11.5px/1 var(--f-display); letter-spacing: .04em; color: #fff; }
+  .plate .nm { font: 600 11px/1 var(--f-display); letter-spacing: .03em; color: #fff; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
   .plate .tier { font: 9px/1 var(--f-num); color: var(--gold); letter-spacing: -.05em; text-shadow: 0 0 6px rgba(255, 207, 90, .5); }
   .plate .fk { display: inline-flex; align-items: center; gap: 2px; font: 600 10.5px/1 var(--f-num); color: var(--ink2); }
   .plate .fk .i { width: 11px; height: 11px; }
@@ -115,7 +115,9 @@
   .plate .tag { font: 9px/1 var(--f-pix); letter-spacing: .06em; padding: 3px 4px 2px; border-radius: 3px; border: 1px solid currentColor; }
   .plate .tag.live { color: var(--good); } .plate .tag.gated { color: var(--warn); } .plate .tag.killed { color: var(--bad); } .plate .tag.paused { color: var(--muted); }
   .plate .tag.live::before { content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: currentColor; margin-right: 4px; vertical-align: 1px; animation: blink 1.2s infinite; }
-  #labels.compact .plate .nm, #labels.compact .plate .tag { display: none; }
+  .plate .m, .plate .tier, .plate .fk, .plate .tag { display: none; } .plate:hover .m, .plate:hover .tier, .plate:hover .fk, .plate:hover .tag { display: inline-flex; }
+  .plate { padding: 3px 8px 3px 3px; gap: 6px; }
+  #labels.compact .plate .nm { display: none; }
   #labels.compact .plate { padding: 2px 6px 2px 2px; gap: 5px; }
   #labels.compact .plate .rk { font-size: 9px; padding: 3px 4px; }
   #labels.compact .plate .m { font-size: 10.5px; }
@@ -172,7 +174,12 @@
   .ins-bar { position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: 12px 12px 0 0; background: linear-gradient(90deg, transparent, var(--c), transparent); opacity: .9; }
   #panel { flex: 1; overflow: auto; padding: 16px 16px 20px; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
   #panel::-webkit-scrollbar { width: 6px; } #panel::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 3px; }
-  #insToggle { position: absolute; z-index: 5; top: calc(var(--top) + 14px); right: calc(var(--ins-w) + 14px); width: 22px; height: 54px; border-radius: 8px 0 0 8px; border: 1px solid var(--edge); border-right: 0; background: var(--plate-a); color: var(--ink2); cursor: pointer; display: grid; place-items: center; transition: right .45s cubic-bezier(.2,.8,.2,1), color .15s; }
+  #app.ins-stack { --ins-w: 236px; } #app.ins-bar { --ins-w: 74px; }
+  #inspector, #insToggle, #controls { transition: width .4s cubic-bezier(.2,.8,.2,1), right .4s cubic-bezier(.2,.8,.2,1), transform .45s cubic-bezier(.2,.8,.2,1), opacity .35s; }
+  #insToggle button { display: grid; place-items: center; width: 100%; flex: 1; border: 0; background: none; color: inherit; cursor: pointer; padding: 0; }
+  #insToggle button:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.06); } #insToggle button:disabled { opacity: .25; cursor: default; }
+  #insToggle button + button { border-top: 1px solid var(--edge); } #insToggle .i { width: 14px; height: 14px; }
+  #insToggle { position: absolute; z-index: 5; top: calc(var(--top) + 14px); right: calc(var(--ins-w) + 14px); width: 22px; height: 74px; border-radius: 8px 0 0 8px; border: 1px solid var(--edge); border-right: 0; background: var(--plate-a); color: var(--ink2); cursor: pointer; display: flex; flex-direction: column; overflow: hidden; place-items: center; transition: right .45s cubic-bezier(.2,.8,.2,1), color .15s; }
   #insToggle:hover { color: #fff; }
   #app.ins-closed #insToggle { right: 14px; }
   #app.ins-closed #insToggle .i { transform: rotate(180deg); }
@@ -184,6 +191,34 @@
   .back { display: inline-flex; align-items: center; gap: 5px; font: 600 10.5px/1 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); text-decoration: none; margin-bottom: 12px; cursor: pointer; background: none; border: 0; padding: 0; }
   .back:hover { color: #fff; } .back .i { width: 12px; height: 12px; }
   .ih { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+  .hub { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .hub-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; } .hub-nav .back { margin: 0; }
+  .hub-step { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font: 600 11px/1 var(--f-num); color: var(--ink2); }
+  .hub-step button { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--edge); background: rgba(255,255,255,.04); color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+  .hub-step button:hover { border-color: var(--c); color: #fff; } .hub-step .i { width: 14px; height: 14px; }
+  .hub .ih { margin-bottom: 8px; } .hub .ih h2 { font-size: 19px; line-height: 1.15; overflow-wrap: anywhere; } .hub .full { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.3; }
+  .hub-lv { font-size: 12px; color: var(--ink2); line-height: 1.5; } .hub-lv b { color: var(--gold); font-weight: 700; } .hub-lv .stars { color: var(--gold); letter-spacing: -.05em; }
+  .hub-acts { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .hub-acts .ha { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; border-radius: 999px; border: 1px solid var(--edge); background: rgba(255,255,255,.04); color: var(--ink); font: 600 12px/1 var(--f-ui); cursor: pointer; }
+  .hub-acts .ha:hover { border-color: var(--c); color: #fff; } .hub-acts .ha .i { width: 14px; height: 14px; }
+  .who { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+  .who .w { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px 4px 6px; border-radius: 999px; background: rgba(255,255,255,.04); border: 1px solid var(--line); font-size: 11.5px; color: var(--ink); cursor: pointer; }
+  .who .w:hover { border-color: var(--wc); } .who .w i { width: 7px; height: 7px; border-radius: 50%; background: var(--wc); box-shadow: 0 0 6px var(--wc); }
+  .who .w small { color: var(--muted); font-size: 10px; } .who .crowd { cursor: default; color: var(--muted); }
+  .stk { display: flex; flex-direction: column; gap: 6px; }
+  .stk-h b { display: block; font: 700 14px/1.2 var(--f-display); color: #fff; } .stk-h small { color: var(--muted); font-size: 11px; }
+  .srow { position: relative; display: grid; grid-template-columns: auto 1fr auto; gap: 7px; align-items: center; padding: 7px 8px; border-radius: 9px; border: 1px solid var(--line); background: rgba(255,255,255,.03); color: var(--ink); cursor: pointer; text-align: left; overflow: hidden; font: inherit; }
+  .srow:hover, .srow.on { border-color: var(--c); } .srow.on { background: color-mix(in srgb, var(--c) 14%, transparent); }
+  .srow .rk { font: 700 10px/1 var(--f-num); color: #06080f; background: var(--c); padding: 4px 5px; border-radius: 4px; }
+  .srow .nm { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .srow .u { font: 600 11.5px/1 var(--f-num); color: var(--gold); }
+  .srow .bar { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--c); opacity: .8; }
+  .kv { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); padding: 5px 0; border-bottom: 1px solid var(--line); } .kv b { color: var(--ink); font-family: var(--f-num); }
+  .tbar { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .tchip { position: relative; width: 50px; padding: 6px 0 5px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,.03); color: var(--ink); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .tchip b { font: 700 11px/1 var(--f-num); color: #06080f; background: var(--c); padding: 4px 5px; border-radius: 4px; min-width: 22px; text-align: center; } .tchip .i { width: 18px; height: 18px; color: var(--c); }
+  .tchip small { font: 600 9.5px/1 var(--f-num); color: var(--gold); } .tchip:hover, .tchip.on { border-color: var(--c); } .tchip.on { background: color-mix(in srgb, var(--c) 16%, transparent); }
+  .tchip .live { position: absolute; top: 4px; right: 5px; width: 6px; height: 6px; border-radius: 50%; background: var(--good); box-shadow: 0 0 6px var(--good); }
+  #app.ins-bar #panel { padding: 12px 6px; } #app.ins-stack #panel { padding: 14px 12px; }
   .ih .big { flex: none; width: 54px; height: 60px; display: grid; place-items: center; font: 700 22px/1 var(--f-num); color: #06080f; background: var(--c); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); filter: drop-shadow(0 0 12px var(--c)); }
   .ih h2 { margin: 0; font: 700 16px/1.25 var(--f-display); letter-spacing: .02em; color: #fff; }
   .ih .chips { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 5px; }
@@ -215,28 +250,6 @@
   #replay[hidden] { display: none; }
   /* the area view title, the way a village game names the building you tapped */
   .lbl.area { opacity: 0; pointer-events: none; transition: opacity .3s; }
-  #areaTitle { position: absolute; top: calc(var(--top) + 8px + var(--toastH, 0px)); transition: top .25s ease; z-index: 6; transform: translateX(-50%); text-align: center; pointer-events: none; font-family: "Lilita One", "Fredoka", sans-serif; color: #fff; paint-order: stroke fill; -webkit-text-stroke: 5px #12131c; }
-  #areaTitle[hidden] { display: none; }
-  #areaTitle b { display: block; font-weight: 400; font-size: 30px; line-height: 1.05; letter-spacing: .01em; filter: drop-shadow(0 3px 0 rgba(0,0,0,.35)); }
-  #areaTitle .lv { display: inline-block; margin-top: 4px; font-size: 16px; -webkit-text-stroke: 4px #12131c; color: #ffe07a; }
-  #areaTitle small { display: block; margin-top: 2px; font-size: 13px; -webkit-text-stroke: 3.5px #12131c; color: #dfe8ff; }
-  #areaTitle .an { display: flex; align-items: center; justify-content: center; gap: 14px; }
-  #areaTitle .ab { pointer-events: auto; -webkit-text-stroke: 0; flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; border: 3px solid #12131c; background: #ffe07a; color: #12131c; cursor: pointer; box-shadow: 0 3px 0 rgba(0, 0, 0, .4); transition: transform .12s; padding: 0; }
-  #areaTitle .ab:hover, #areaTitle .ab:focus-visible { transform: scale(1.12); outline: none; }
-  #areaTitle .ab .i { width: 22px; height: 22px; stroke-width: 3; }
-  #areaTitle .aa { display: flex; gap: 8px; justify-content: center; margin-top: 9px; flex-wrap: wrap; }
-  #areaTitle .ap { pointer-events: auto; -webkit-text-stroke: 0; display: inline-flex; align-items: center; gap: 6px; padding: 8px 13px; border-radius: 999px; border: 3px solid #12131c; background: #eef2ff; color: #12131c; font: 400 14px/1 "Lilita One", "Fredoka", sans-serif; letter-spacing: .02em; cursor: pointer; box-shadow: 0 3px 0 rgba(0, 0, 0, .4); transition: transform .12s; }
-  #areaTitle .ap:hover, #areaTitle .ap:focus-visible { transform: translateY(-2px); outline: none; }
-  #areaTitle .ap.hot { background: #ffcf5a; }
-  #areaTitle .sm { display: none; }
-  #view.cu #areaTitle { transform: translateX(-50%) scale(.78); transform-origin: 50% 0; }
-  #areaTitle .ap.on { background: #5fd4ff; }
-  #areaTitle .ap .i { width: 17px; height: 17px; stroke-width: 2.6; }
-  #areaTitle.pop { animation: areaPop .5s cubic-bezier(.2, 1.6, .4, 1) both; }
-  @keyframes areaPop { 0% { transform: translateX(-50%) scale(.4); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
-  .lbl.sel .plate { animation: platePop .45s cubic-bezier(.2, 1.8, .4, 1); }
-  @keyframes platePop { 0% { transform: translateX(-50%) translateY(0) scale(.8); } 100% { transform: translateX(-50%) translateY(-3px) scale(1.04); } }
-  @media (max-width: 900px) { #areaTitle { top: 12px; } #areaTitle b { font-size: 22px; } }
   @media (max-width: 900px) { #replay { top: 8px; } #replay .rl, #replay .rb { display: none; } }
   .st { padding: 10px 11px; border-radius: 10px; background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid var(--line); display: flex; align-items: center; gap: 10px; min-width: 0; }
   .st .k { font: 600 9px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
@@ -368,8 +381,10 @@
   #comms { position: absolute; left: 14px; bottom: 14px; width: 372px; max-height: min(30%, 214px); z-index: 3; display: flex; flex-direction: column; --c: #5fd4ff; transition: max-height .35s; }
   #comms .hd { display: flex; align-items: center; gap: 8px; padding: 9px 12px; cursor: pointer; font: 600 10px/1 var(--f-ui); letter-spacing: .2em; text-transform: uppercase; color: var(--ink2); border: 0; background: none; text-align: left; width: 100%; }
   #comms .hd .live { width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 8px var(--good); animation: blink 1.6s infinite; }
-  #comms .hd .ch { margin-left: auto; color: var(--muted); } #comms .hd .ch .i { width: 13px; height: 13px; transition: transform .3s; }
+  #comms .hd .ch { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; padding: 4px 7px 4px 9px; border-radius: 999px; border: 1px solid var(--edge); color: var(--ink2); letter-spacing: .12em; }
+  #comms .hd:hover .ch { color: #fff; border-color: var(--c); } #comms .hd .ch .i { width: 12px; height: 12px; transition: transform .3s; }
   #comms.min .hd .ch .i { transform: rotate(180deg); }
+  #comms.min { width: auto; } #comms.min .hd { gap: 10px; }
   #comms.min #feed { display: none; }
   #feed { overflow: auto; padding: 0 12px 10px; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
   #feed .ln { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: start; padding: 5px 0; border-top: 1px solid rgba(40, 50, 80, .35); font-size: 11.5px; color: var(--ink2); }
@@ -446,9 +461,11 @@
   .rmi small { color: var(--muted); font-size: 11px; }
   .rmi .u { font: 600 13px/1 var(--f-num); color: var(--gold); text-align: right; white-space: nowrap; }
   .rmi .u small { display: block; margin-top: 4px; font-family: var(--f-ui); }
-  #toasts { position: absolute; z-index: 7; left: 50%; top: calc(var(--top) + 4px); transform: translateX(-50%); width: min(430px, 92%); display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  #toasts { position: absolute; z-index: 7; left: 118px; top: calc(var(--top) + 4px); width: min(340px, 40%); display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+  #toasts .toast { padding: 7px 11px 7px 8px; grid-template-columns: 28px 1fr; gap: 9px; } #toasts .toast .ti { width: 28px; height: 28px; } #toasts .toast .tt { font-size: 12.5px; } #toasts .toast .ts { font-size: 11px; }
+  #toasts .toast.big { grid-template-columns: 1fr; padding: 10px 14px; } #toasts .toast.big .tt { font-size: 15px; letter-spacing: .1em; }
   .toast { display: grid; grid-template-columns: 34px 1fr; gap: 11px; align-items: center; padding: 10px 14px 10px 10px; animation: tin .55s cubic-bezier(.2,.9,.3,1.25) both; }
-  .toast:has(.ta) { grid-template-columns: 34px 1fr auto; }
+  .toast:has(.ta) { grid-template-columns: 34px 1fr auto; } #toasts .toast:has(.ta) { grid-template-columns: 28px 1fr auto; }
   .toast .ta { align-self: center; margin-left: 6px; pointer-events: auto; cursor: pointer; font: 700 11px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: #06080f; background: var(--c); border: 0; border-radius: 6px; padding: 7px 10px; }
   .toast .ti { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent), 0 0 18px color-mix(in srgb, var(--c) 30%, transparent); }
   .toast .tt { font: 700 13px/1.2 var(--f-display); color: #fff; letter-spacing: .02em; }
@@ -672,21 +689,15 @@
     #controls .dg { flex-direction: column-reverse; border: 0; padding: 0; margin: 0; gap: 2px; }
     #zslider, #replayBtn, #sound { display: none; }
     .db { min-width: 56px; height: 52px; font-size: 8.5px; gap: 3px; padding: 2px 4px; } .db .i { width: 21px; height: 21px; }
-    #areaTitle { top: calc(var(--hudH, 64px) + 48px + var(--toastH, 0px)); max-width: calc(100% - 20px); }
-    #areaTitle b { font-size: 22px; -webkit-text-stroke-width: 4px; } #areaTitle .lv { font-size: 13px; } #areaTitle small { font-size: 11px; }
-    #areaTitle .an { gap: 10px; } #areaTitle .ab { width: 38px; height: 38px; }
-    #areaTitle .aa { gap: 6px; margin-top: 7px; } #areaTitle .ap { padding: 7px 10px; font-size: 12.5px; }
     #roomMenu { position: absolute; left: 0; right: 0; top: auto; bottom: var(--tabH, 68px); width: auto; max-height: 72%; border-radius: 20px 20px 0 0; z-index: 25; padding: 14px 12px; }
     #moreSheet:not([hidden]) { display: block; position: absolute; left: 0; right: 0; bottom: var(--tabH, 68px); z-index: 25; border-radius: 20px 20px 0 0; padding: 14px 12px 16px; --c: #cfd6e6; animation: tin .22s cubic-bezier(.2,.9,.3,1.2) both; }
-    #toasts { position: absolute; top: calc(var(--hudH, 64px) + 46px); }
+    #toasts { position: absolute; top: calc(var(--hudH, 64px) + 46px); left: 50%; transform: translateX(-50%); }
     #guide, #syncbox, #roomsbox { position: fixed; top: var(--mockH, 0px); z-index: 45; }
     #guide .box, #syncbox .box, #roomsbox .box { width: 100vw !important; max-width: none !important; height: 100% !important; max-height: none !important; border-radius: 0 !important; }
     #guide .cols { grid-template-columns: 1fr; }
     #boot { position: fixed; }
     #replay { top: calc(var(--hudH, 64px) + 48px); }
     #rtip { display: none; }
-    #areaTitle .lg { display: none; } #areaTitle .sm { display: inline; }
-    #areaTitle .aa { flex-wrap: nowrap; }
     #rail { background: #080b16; }
     .toast { padding: 7px 10px 7px 8px; grid-template-columns: 26px 1fr; gap: 8px; } .toast .ti { width: 26px; height: 26px; border-radius: 8px; } .toast .tt { font-size: 12px; } .toast .ts { font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .toast:has(.ta) { grid-template-columns: 26px 1fr auto; }
     #toasts .toast:nth-child(n+2) { display: none; }
@@ -713,7 +724,6 @@
       <button class="db" id="replayBtn" type="button" data-tip="replay"></button>
       <button class="db" id="sound" type="button" data-tip="sound"></button>
     </div>
-    <div id="areaTitle" hidden><div class="an"><button class="ab" id="roomPrev" type="button" title="Previous room ( [ )"></button><b></b><button class="ab" id="roomNext" type="button" title="Next room ( ] )"></button></div><span class="lv"></span><small></small><div class="aa"><button class="ap" id="roomBack" type="button"></button><button class="ap hot" id="roomClose" type="button"></button><button class="ap" id="roomEdit" type="button"></button></div></div>
     <div id="replay" class="glass" hidden><span class="rl">Replay · last 24 hours</span><b class="rt"></b><span class="rn"></span><span class="rb"><i></i></span><button class="btn sm2" type="button" id="replayStop">Stop</button></div>
     <div class="tip" id="tip"></div>
   </div>
@@ -737,7 +747,7 @@
       <svg class="logo" viewBox="0 0 40 44" aria-hidden="true"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".45" stop-color="#ffcf5a"/><stop offset="1" stop-color="#b8740a"/></linearGradient></defs><path d="M20 1.5l17.5 10v21L20 42.5 2.5 32.5v-21z" fill="url(#lg1)"/><path d="M20 7.5l12.3 7v14.6L20 36.3 7.7 29.1V14.5z" fill="#1c1204" opacity=".9"/><path d="M23.6 16.4c-.8-1-2-1.5-3.3-1.5-2 0-3.5 1.1-3.5 2.6 0 3.6 7 1.8 7 5.3 0 1.5-1.6 2.6-3.7 2.6-1.4 0-2.7-.6-3.5-1.7M20.3 13v18" stroke="#ffcf5a" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
       <div style="min-width:0">
         <h1>PROXYFOLK</h1>
-        <div class="sub">Every lit screen, crate, crew member and gold bar is a ledger line.</div>
+        <div class="sub">Every lit screen, crate and gold bar is a ledger line; each room's crowd grows with its real activity.</div>
         
       </div>
     </div>
@@ -745,8 +755,8 @@
     <div class="cmdr glass" id="cmdr" title="Commander level: your evidenced revenue, rung by rung"></div>
   </header>
   <aside id="inspector" class="glass"><div class="ins-bar"></div><button id="sheetHandle" type="button" aria-label="Pull the panel up or down"><i></i><span id="sheetTitle">Station roster</span><small id="sheetSub">tap for details</small></button><div id="panel"></div></aside>
-  <button id="insToggle" title="Hide or show the panel (P)"></button>
-  <section id="comms" class="glass"><button class="hd" id="commsHd"><span class="live"></span>Comms · ledger feed<span class="ch"></span></button><div id="feed"></div></section>
+  <div id="insToggle"><button type="button" id="insLess" title="Fold the panel one step (P)"></button><button type="button" id="insMore" title="Open the panel one step"></button></div>
+  <section id="comms" class="glass"><button class="hd" id="commsHd" title="Fold or open the feed"><span class="live"></span>Comms · ledger feed<span class="ch"><span class="cl">Hide</span></span></button><div id="feed"></div></section>
   <div id="toasts" aria-live="polite"></div>
   <div id="guide" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Field guide"></div></div>
   <div id="syncbox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Income sync"></div></div>
@@ -937,6 +947,19 @@
     if (!isService(room)) { const p = pathState(room.id); if (p) n += STAGES.reduce((a, st) => a + p.refs[st].length, 0); }
     return 1 + Math.min(3, Math.floor(Math.log2(1 + n)));
   }
+  // ---- the floor crowd: every room buzzes from the day it opens, like a trading floor, and gets louder with its
+  // real week (sales, chores, pipeline outcomes) and its agents: one more for each one hired (up to two), and a crew of three
+  // holograms for each one out on a run. They are not on the roster; their tooltip and the panel say so.
+  function crowdSize(room) {
+    if (roomLook(room) === 'killed') return 1;
+    const from = Date.now() - 7 * 86400e3;
+    let wk = 0;
+    for (const e of snap.state.moneyIn) if (e.path === room.id && Date.parse(e.ts) >= from) wk += e.qty || 1;
+    if (!isService(room)) { const p = pathState(room.id); if (p) for (const st of STAGES) for (const r of p.refs[st]) if (Date.parse(r.ts) >= from) wk++; }
+    const hired = jobsOn(room.id).filter((j) => j.enabled).length;
+    return clamp(3 + Math.round(Math.log2(1 + wk)) + Math.min(2, hired), 1, 7);
+  }
+  const CROWD_COLS = ['#3b4a6b', '#5a6b8a', '#8a6b4a', '#4a7a62', '#7a4a5a', '#e8e4d8', '#9aa6c0', '#6b5a8a', '#b8574a'];
   // @@SKINS@@
 
 
@@ -1120,7 +1143,7 @@
   };
 
   // ======================================================================= the folk: who works each room
-  // Every character is someone real. Folk from the roster (a kid, a barber, you) live in the room of their latest logged
+  // Every named character is someone real (the floor crowd, further up, is the room's buzz and is labelled so). Folk from the roster (a kid, a barber, you) live in the room of their latest logged
   // work. AI agents on a job live in their job's room. A visitor is a real sale walking in. So the number of characters
   // in a room is the number working it. What they do between real events (tinkering, chatting, a coffee, sleep at
   // night) is life, not data; a real event lights their marker gold and pops a bubble. Animals and sea life in the farm
@@ -1190,6 +1213,28 @@
       }
     }
     for (const id of [...agents.keys()]) if (id.startsWith('res:') && !wantStock.has(id)) agents.delete(id);
+    const wantCrowd = new Set();
+    for (const room of rooms) {
+      const n = crowdSize(room);
+      for (let k = 0; k < n; k++) {
+        const id = `x:${room.id}:${k}`; wantCrowd.add(id);
+        if (agents.has(id)) { agents.get(id).costume = costumeFor(room); continue; }
+        const [x, y] = idleSpot(room);
+        agents.set(id, baseAgent({ id, kind: 'extra', path: room.id, x, y, tint: CROWD_COLS[(k * 5 + room.spec.rank) % CROWD_COLS.length], costume: costumeFor(room), born: first ? 0 : T, actT: Math.random() * 3 }));
+      }
+    }
+    // each agent out on a run brings a crew of three to its room
+    for (const r of running.values()) {
+      const room = roomById(r.path); if (!room) continue;
+      for (let k = 0; k < 3; k++) {
+        const id = `xh:${r.runId}:${k}`; wantCrowd.add(id);
+        if (agents.has(id)) continue;
+        const [x, y] = idleSpot(room);
+        agents.set(id, baseAgent({ id, kind: 'extra', holo: true, role: r.role, path: room.id, x, y, born: first ? 0 : T, actT: Math.random() * 2 }));
+        if (!first) beam(x, y, roleCol(r.role));
+      }
+    }
+    for (const [id, a] of agents) if (a.kind === 'extra' && !wantCrowd.has(id) && !a.dying) a.dying = T;
     // the folk: every person on the roster, living in the room of their latest logged work
     const wantFolk = new Set();
     for (const f of folkList()) {
@@ -1522,6 +1567,7 @@
   const ROLE_ICON = { prospector: 'target', outreach: 'mail', pricing: 'tag', creator: 'camera', lister: 'list', scout: 'binoc', fulfiller: 'wrench', auditor: 'clip', manager: 'case' };
   const DEFAULT_ROLE = { barber: 'Barber', salon: 'Stylist', freelance: 'Freelancer', chores: 'Kid' };
   function identity(a) {
+    if (a.kind === 'extra') return a.holo ? { kind: 'agent', name: 'Agent crew', label: 'AGENT CREW', icon: 'bot', col: roleCol(a.role), lvl: 0 } : { kind: 'extra', name: 'Floor crew', label: 'FLOOR CREW', icon: 'folk', col: a.tint || '#9aa6c0', lvl: 0 };
     if (a.kind === 'folk') {
       const f = folkByName(a.name) || {}, tpl = snap.station && snap.station.template, kid = MODE() === 'allowance';
       return { kind: kid ? 'kid' : 'person', name: a.name, label: (f.role || DEFAULT_ROLE[tpl] || (kid ? 'Kid' : MODE() === 'service' ? 'Team' : 'Crew')).toUpperCase(), icon: kid ? 'kid' : 'person', col: a.tint || '#8fb0ff', lvl: charLevel(a) };
@@ -1607,6 +1653,26 @@
       }
       return;
     }
+    if (a.kind === 'extra') {
+      a.actT -= dt;
+      if (a.act === 'phone' && Math.random() < dt * 0.35) bubble(a, CROWD_BARK[(Math.random() * CROWD_BARK.length) | 0], 1.1);
+      if (a.act === 'chat' && a.partner) { const p = agents.get(a.partner); if (p) a.face = p.x - p.y > a.x - a.y ? 1 : -1; }
+      if (a.actT > 0) return;
+      const room = roomById(a.path); if (!room) return;
+      const r = Math.random();
+      a.carry = 0; a.partner = null;
+      const desk = () => { const [cx, cy] = deskCenter(room, (Math.random() * 6) | 0); return nearestWalkable(cx + 0.5 + (Math.random() - 0.5) * 0.6, cy + 0.9); };
+      if (a.holo) { if (r < 0.6) { a.act = 'tinker'; a.queue = findPath([a.x, a.y], desk()); a.actT = 3 + Math.random() * 5; } else { a.act = 'idle'; a.carry = 1; a.queue = findPath([a.x, a.y], idleSpot(room)); a.actT = 0.8 + Math.random(); } return; }
+      if (r < 0.3) { a.act = 'phone'; a.queue = findPath([a.x, a.y], idleSpot(room)); a.actT = 3 + Math.random() * 4; }
+      else if (r < 0.52) { a.act = 'tinker'; a.queue = findPath([a.x, a.y], desk()); a.actT = 2.5 + Math.random() * 4; }
+      else if (r < 0.72) { a.act = 'idle'; a.carry = 1; a.queue = findPath([a.x, a.y], idleSpot(room)); a.actT = 0.6 + Math.random() * 1.2; }
+      else if (r < 0.9) {
+        const mate = [...agents.values()].find((b) => b !== a && b.kind === 'extra' && !b.holo && b.path === a.path && b.act !== 'chat' && !b.queue.length && Math.hypot(b.x - a.x, b.y - a.y) < 3.5);
+        if (mate) { a.act = 'chat'; a.partner = mate.id; mate.act = 'chat'; mate.partner = a.id; mate.actT = a.actT = 2.5 + Math.random() * 3; a.queue = findPath([a.x, a.y], nearestWalkable(mate.x + 0.55, mate.y + 0.2)); }
+        else { a.act = 'phone'; a.actT = 2 + Math.random() * 3; }
+      } else { a.act = 'cheer'; a.actT = 1.2 + Math.random(); if (Math.random() < 0.5) bubble(a, 'coin', 1.1); }
+      return;
+    }
     if (a.kind === 'guest') {
       // seated and being served; once the host finishes (or after a while with no host) pay and go
       a.actT -= dt;
@@ -1657,6 +1723,7 @@
     a.act = 'tinker'; a.station = freeStation(room, a); a.queue = findPath([a.x, a.y], stationSpot(room, a.station)); a.actT = 6 + Math.random() * 9;
   }
   const CHAT = ['note', 'dots', 'heart', 'q', 'bang', 'coin'];
+  const CROWD_BARK = ['coin', 'bang', 'bang', 'coin', 'star', 'dots'];
 
   function simStep(dt) {
     deskBusy.clear();
@@ -1669,7 +1736,7 @@
       if (a.queue.length) {
         const [tx, ty] = a.queue[0];
         const dx = tx - a.x, dy = ty - a.y, dist = Math.hypot(dx, dy);
-        const base = a.kind === 'res' ? a.lk.res.speed || 1.1 : a.kind === 'guest' ? 2.1 : a.busy ? 3.3 : a.kind === 'folk' ? (a.small ? 2.3 : 1.9) : a.state === 'idle' ? 1.7 : 3.1;
+        const base = a.kind === 'res' ? a.lk.res.speed || 1.1 : a.kind === 'extra' ? (a.carry ? 3.2 : 2.5) : a.kind === 'guest' ? 2.1 : a.busy ? 3.3 : a.kind === 'folk' ? (a.small ? 2.3 : 1.9) : a.state === 'idle' ? 1.7 : 3.1;
         const sp = base * dt;
         const sdx = dx - dy, sdy = dx + dy;
         if (Math.abs(sdx) > 0.01) a.face = sdx > 0 ? 1 : -1;
@@ -1754,6 +1821,12 @@
     for (const room of rooms) for (let k = 0; k < 7; k++) motes.push({ room, x: room.x0 + 0.5 + Math.random() * 6, y: room.y0 + 0.5 + Math.random() * 6, z: 4 + Math.random() * 22, vx: (Math.random() - 0.5) * 0.12, vy: (Math.random() - 0.5) * 0.12, vz: (Math.random() - 0.5) * 1.5, p: Math.random() * 6.28 });
   }
   function spawnCoins(room, n) {
+    if (!room) return;
+    for (const a of agents.values()) if (a.kind === 'extra' && !a.holo && a.path === room.id && !a.queue.length && Math.random() < 0.85) {
+      a.act = 'cheer'; a.actT = 1.4 + Math.random() * 0.8; a.carry = 0; if (Math.random() < 0.6) bubble(a, Math.random() < 0.5 ? 'coin' : 'star', 1.2);
+      const [sx, sy] = P(a.x, a.y, 30);
+      for (let k = 0; k < 5; k++) particles.push({ x: sx + (Math.random() - 0.5) * 6, y: sy, vx: (Math.random() - 0.5) * 34, vy: -24 - Math.random() * 26, g: 26, life: 1.1 + Math.random() * 0.6, col: k % 3 ? '#f5f2e8' : '#e8f0ff' });
+    }
     const [cx, cy] = cellCenter(room.c, room.r);
     const hub = cellCenter(...HUB);
     const from = P(cx, cy, 12), to = P(hub[0], hub[1], 30);
@@ -1948,15 +2021,15 @@
       const tag = look !== 'active' ? `<span class="tag ${look}">${look.toUpperCase()}</span>` : live ? '<span class="tag live">LIVE</span>' : '';
       const crown = room.id === topId ? `<span class="crown" title="Most profit per hour, last 30 days">${ic('crown')}</span>` : '';
       html.push(`<div class="lbl${selected === room.id ? ' sel area' : ''}" style="--c:${themeOf(room.id).accent}"><i class="stem"></i><div class="plate" data-sel="${esc(room.id)}"><b class="rk">${String(room.spec.rank).padStart(2, '0')}</b>${crown}<span class="nm">${esc(shortName(room.spec))}</span>${tierHtml(room)}<span class="m">${usd(p.earnedUsd)}</span>${folkHtml(room)}${tag}</div></div>`);
-      anchors.push({ id: room.id, pt: P(room.x0 + 3.5, room.y0, WH + 4) });
+      anchors.push({ id: room.id, pt: P(room.x0 + ROOM, room.y0 + ROOM, -6) });
     }
     const hubO = cellOrigin(...HUB), dockO = cellOrigin(...DOCK);
     html.push(`<div class="lbl${selected === 'hub' || !selected ? ' sel' : ''}" style="--c:#ffcf5a"><i class="stem"></i><div class="plate" data-sel="hub"><b class="rk">L${snap.level.level}</b><span class="nm">${esc(NM().hub)}</span><span class="m">${usd(snap.state.earnedUsd)}</span></div></div>`);
-    anchors.push({ id: 'hub', pt: P(hubO[0] + 3.5, hubO[1], WH + 4) });
+    anchors.push({ id: 'hub', pt: P(hubO[0] + ROOM, hubO[1] + ROOM, -6) });
     const drafts = Object.values(snap.outbox || {}).reduce((s, n) => s + n, 0), fam = MODE() === 'allowance';
     const dockM = fam ? `${usd(owedAll())} owed` : `${drafts} draft${drafts === 1 ? '' : 's'}`;
     html.push(`<div class="lbl${selected === 'dock' ? ' sel' : ''}" style="--c:#cfd6e6"><i class="stem"></i><div class="plate" data-sel="dock"><b class="rk">${ic(fam ? 'coin' : 'mail').replace('class="i"', 'class="i" style="width:11px;height:11px;display:block"')}</b><span class="nm">${esc(NM().dock)}</span><span class="m" style="color:#e8eefc">${dockM}</span></div></div>`);
-    anchors.push({ id: 'dock', pt: P(dockO[0] + 3.5, dockO[1], WH + 4) });
+    anchors.push({ id: 'dock', pt: P(dockO[0] + ROOM, dockO[1] + ROOM, -6) });
     const joined = html.join('');
     if (joined === lastLabels && labelEls.length) return;
     lastLabels = joined;
@@ -1996,6 +2069,10 @@
   // who a character is and what they are doing: the tooltip over any folk, agent, visitor or animal
   function agentTip(a, accent) {
     const room = a.path && roomById(a.path), where = room ? esc(shortName(room.spec)) : esc(NM().hub);
+    if (a.kind === 'extra') {
+      if (a.holo) return { accent: roleCol(a.role), html: `<div class="h"><span class="sw"></span>Agent crew · ${esc(roleTitle(a.role))}</div><div class="s">A live agent run in ${where} brings a crew of three. They leave when the run ends.</div>` };
+      return { accent: a.tint, html: `<div class="h"><span class="sw"></span>Floor crew</div><div class="s">The buzz of ${where}. Every room has a crowd from day one; it grows with the room's week of activity and with its agents. Not on your roster.</div>` };
+    }
     if (a.kind === 'res') {
       const n = room ? residentCount(room) : 1;
       return { accent: a.lk.res.sil || accent, html: `<div class="h"><span class="sw"></span>${esc(a.lk.resident)}</div><div class="s">${n} live in ${where}: the room's stock. One always does; more arrive as the room gets busier (30 days of activity), up to four.</div><div class="hint">click for the room</div>` };
@@ -2062,28 +2139,22 @@
 
   // ======================================================================= selection and camera moves
   let selected = null, follow = null;
-  // the area view title: the room's name, its level (tier) and what is going on in it
-  function showAreaTitle(t) {
-    const el = $('#areaTitle'), room = t.room;
-    const tier = roomTier(room), n = workersIn(room).length, today = svcStatsToday(room);
-    el.querySelector('b').textContent = shortName(room.spec);
-    el.querySelector('.lv').textContent = `Level ${tier + 1}${tier ? '  ' + '★'.repeat(tier) : ''}`;
-    el.querySelector('small').textContent = `${n} working${today.n ? ` · ${MODE() === 'allowance' ? today.n + ' done' : usd(today.usd)} today` : ''} · ${roomActivity(room)} in 30 days`;
-    el.style.left = avail.cx + 'px';
-    el.hidden = false; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
-  }
-  function hideAreaTitle() { $('#areaTitle').hidden = true; }
-  function select(id, { fly = true } = {}) {
+  // the side panel's width on a wide screen: full, a stacked list, or a taskbar of room chips
+  const INS_MODES = ['full', 'stack', 'bar'];
+  let insMode = INS_MODES.includes(lget('pf-ins')) ? lget('pf-ins') : 'full';
+  function select(id, { fly = true, close = true } = {}) {
     selected = id === 'hub' ? null : id;
     if (!selected && closeUp) closeUpOff();
-    if (!(id && roomById(id)) && !closeUp) hideAreaTitle();
     follow = id && id.startsWith('a:') && !closeUp ? id.slice(2) : null;
     renderPanel(true);
     buildLabels();
     if (follow) { camT.z = Math.max(camT.z, 2.2); clampCam(); return; }
     const t = id ? targetById(id) : null;
-    if (fly && t && t.room) {
-      // the area view: fly in until the room fills the view, with a little bounce at the end
+    if (fly && t && t.room && close) {
+      // a room: fly right in, walls up, so the sector can be watched working; its numbers are in the panel
+      closeUpOn();
+    } else if (fly && t && t.room) {
+      // stepping back out of the close-up: the room still fills the view, walls down, neighbours in sight
       const wh = WR.FULLH * HW, pts = [P(t.x0, t.y0, wh + 10), P(t.x0 + ROOM, t.y0, wh), P(t.x0, t.y0 + ROOM, wh * 0.7), P(t.x0 + ROOM, t.y0 + ROOM, -SLAB - 2), P(t.x0, t.y0 + ROOM, -SLAB)];
       const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
       const bw = Math.max(...xs) - Math.min(...xs), bh = Math.max(...ys) - Math.min(...ys);
@@ -2091,7 +2162,6 @@
       camT.x = (Math.max(...xs) + Math.min(...xs)) / 2; camT.y = (Math.max(...ys) + Math.min(...ys)) / 2;
       camT.z = clamp(sFit / fitS, 1.75, Z_MAX); camBounce = true;
       clampCam();
-      showAreaTitle(t);
     } else if (fly && (!id || id === 'hub')) {
       camT.x = home.x; camT.y = home.y; camT.z = 1;
     } else if (fly && t) {
@@ -2141,7 +2211,7 @@
         const owed = ks.reduce((a, x) => a + Math.max(0, x.s.owed), 0), paid = (st.moneyOut || []).filter((e) => e.payee).reduce((a, e) => a + e.usd, 0);
         const top = ks.slice().sort((a, b) => b.s.period - a.s.period)[0];
         items = [
-          ['earned', 'Earned', st.earnedUsd, (v) => usd2(v), '#ffcf5a', 'coin', 'Every chore checked off, all time', 'gold'],
+          ['earned', 'Earned', st.earnedUsd, (v) => usd2(v), '#ffcf5a', 'coin', 'Everything on the ledger, all time: chores checked off, plus any money logged before the station switched to chores', 'gold'],
           ['owed', 'Owed to kids', owed, (v) => usd2(v), '#ff9a4a', 'flag', 'Earned minus paid out: what the kids are waiting for', ''],
           ['paid', 'Paid out', paid, (v) => usd2(v), '#3ddc97', 'check', 'Allowance already handed over', ''],
           ['week', 'Chores · 7 days', n7, int, '#5fd4ff', 'target', 'Chores checked off this week', ''],
@@ -2294,14 +2364,16 @@
   function renderPanel(force = false) {
     if (!snap) return;
     const room = selected && roomById(selected);
-    const sig = JSON.stringify([selected, snap.state.eventCount, snap.state.running.map((r) => r.runId), snap.outbox, snap.questSummary]);
+    const sig = JSON.stringify([selected, insMode, snap.state.eventCount, snap.state.running.map((r) => r.runId), snap.outbox, snap.questSummary, room ? [...agents.values()].filter((a) => a.path === room.id && a.kind !== 'extra').map((a) => a.id) : 0]);
     if (!force && sig === panelSig) return;
     const active = document.activeElement;
     if (!force && active && $('#panel').contains(active) && /INPUT|SELECT|TEXTAREA/.test(active.tagName)) return;
     panelSig = sig;
     const el = $('#panel');
     el.classList.remove('panel-in'); void el.offsetWidth; if (force) el.classList.add('panel-in');
-    if (selected && selected.startsWith('a:')) renderAgent(el, agents.get(selected.slice(2)));
+    if (overlayMode() && insMode === 'bar') renderTaskbar(el);
+    else if (overlayMode() && insMode === 'stack') renderStack(el, room);
+    else if (selected && selected.startsWith('a:')) renderAgent(el, agents.get(selected.slice(2)));
     else if (selected === 'dock') (MODE() === 'allowance' ? renderFamily : renderDock)(el);
     else if (room && isService(room)) (MODE() === 'allowance' ? renderChore : renderService)(el, room);
     else if (room) renderRoom(el, room);
@@ -2309,6 +2381,60 @@
     decorateHelp(el);
     if (force) el.scrollTop = 0;
     sheetTitleUpdate();
+  }
+  // ---- the room hub: the top of a room's panel. Where you are, how it is doing, who is in it, the ways out.
+  function hubHead(room, chips) {
+    const spec = room.spec, accent = themeOf(room.id).accent, list = rooms.slice().sort((a, b) => a.spec.rank - b.spec.rank), i = list.findIndex((r) => r.id === room.id);
+    const tier = roomTier(room), n = workersIn(room).length, today = svcStatsToday(room), fam = MODE() === 'allowance';
+    const long = spec.name !== shortName(spec) ? `<small class="full">${esc(spec.name)}</small>` : '';
+    return `<div class="hub" style="--c:${accent}">
+      <div class="hub-nav"><button class="back" data-sel="hub">${ic('chevL')}${fam ? 'family' : 'all rooms'}</button><span class="hub-step"><button type="button" data-step="-1" title="Previous room ( [ )">${ic('chevL')}</button><span>${i + 1} / ${list.length}</span><button type="button" data-step="1" title="Next room ( ] )">${ic('chevR')}</button></span></div>
+      <div class="ih"><div class="big" style="--c:${accent}">${String(spec.rank).padStart(2, '0')}</div><div style="min-width:0"><h2>${esc(shortName(spec))}</h2>${long}<div class="chips">${chips}</div></div></div>
+      <div class="hub-lv"><b>Level ${tier + 1}</b>${tier ? ` <span class="stars">${'★'.repeat(tier)}</span>` : ''} · ${n} working${today.n ? ` · ${fam ? today.n + ' done' : usd(today.usd)} today` : ''} · ${roomActivity(room)} in 30 days</div>
+      <div class="hub-acts"><button type="button" class="ha" data-world>${ic('globe')}Whole world</button><button type="button" class="ha" data-edit>${ic('pencil')}Edit room</button></div>
+      ${whoHere(room)}
+    </div>`;
+  }
+  // who is in a room: the named ones as chips (click to follow), the floor crowd as a count
+  function whoHere(room) {
+    const here = [...agents.values()].filter((a) => a.path === room.id && a.kind !== 'res' && a.state !== 'leave');
+    const named = here.filter((a) => a.kind !== 'extra'), crowd = here.length - named.length;
+    if (!here.length) return '';
+    return `<div class="who">${named.map((a) => { const id = identity(a); return `<span class="w" data-sel="a:${esc(a.id)}" style="--wc:${id.col}" title="Follow ${esc(id.name)}"><i></i>${esc(id.name)}<small>${esc(id.kind === 'agent' ? 'agent' : id.kind === 'client' ? 'client' : id.kind === 'kid' ? 'kid' : id.kind === 'lead' ? 'you' : 'team')}</small></span>`; }).join('')}${crowd ? `<span class="w crowd" title="The floor crowd grows with this room's activity and its agents; they are not on your roster">+${crowd} on the floor</span>` : ''}</div>`;
+  }
+  // the panel folded once: a stacked list of rooms, or a compact hub for the room in view
+  function renderStack(el, room) {
+    const st = snap.state, fam = MODE() === 'allowance';
+    if (room) {
+      const spec = room.spec, accent = themeOf(room.id).accent, today = svcStatsToday(room), p = pathState(room.id), tier = roomTier(room);
+      $('#inspector').style.setProperty('--room', accent);
+      el.innerHTML = `<div class="stk" style="--c:${accent}">
+        <button class="back" data-sel="hub">${ic('chevL')}all rooms</button>
+        <div class="srow on" style="--c:${accent};cursor:default"><span class="rk">${String(spec.rank).padStart(2, '0')}</span><span class="nm"><b>${esc(shortName(spec))}</b></span><span class="u">${usd(p.earnedUsd)}</span></div>
+        <div class="hub-step" style="margin:0 auto"><button type="button" data-step="-1" title="Previous room">${ic('chevL')}</button><span>${rooms.slice().sort((a, b) => a.spec.rank - b.spec.rank).findIndex((r) => r.id === room.id) + 1} / ${rooms.length}</span><button type="button" data-step="1" title="Next room">${ic('chevR')}</button></div>
+        <div class="kv"><span>Level</span><b>${tier + 1} ${'★'.repeat(tier)}</b></div>
+        <div class="kv"><span>Working</span><b>${workersIn(room).length}</b></div>
+        <div class="kv"><span>Today</span><b>${fam ? today.n + ' done' : usd(today.usd)}</b></div>
+        <div class="kv"><span>30 days</span><b>${roomActivity(room)}</b></div>
+        <div class="hub-acts"><button type="button" class="ha" data-world>${ic('globe')}World</button><button type="button" class="ha" data-edit>${ic('pencil')}Edit</button></div>
+        ${whoHere(room)}</div>`;
+      return;
+    }
+    $('#inspector').style.setProperty('--room', '#ffcf5a');
+    const list = rooms.map((m) => ({ m, p: pathState(m.id) })).sort((a, b) => b.p.earnedUsd - a.p.earnedUsd || a.m.spec.rank - b.m.spec.rank), top = Math.max(1e-9, ...list.map((x) => x.p.earnedUsd));
+    el.innerHTML = `<div class="stk"><div class="stk-h"><b>${esc(stationName())}</b><small>${usd(st.earnedUsd)} earned · ${st.running.length} working</small></div>
+      ${list.map(({ m, p }) => { const acc = themeOf(m.id).accent, live = st.running.some((r) => r.path === m.id); return `<button type="button" class="srow" data-sel="${esc(m.id)}" style="--c:${acc}" title="${esc(m.spec.name)}"><span class="rk">${String(m.spec.rank).padStart(2, '0')}</span><span class="nm">${esc(shortName(m.spec))}${live ? ' <span style="color:var(--good)">●</span>' : ''}</span><span class="u">${usd(p.earnedUsd)}</span><i class="bar" style="width:${(100 * p.earnedUsd / top).toFixed(1)}%"></i></button>`; }).join('')}
+      <button type="button" class="srow" data-sel="dock" style="--c:#cfd6e6"><span class="rk">${ic(fam ? 'coin' : 'mail').replace('class="i"', 'class="i" style="width:10px;height:10px;display:block"')}</span><span class="nm">${esc(NM().dock)}</span><span class="u">${fam ? usd(owedAll()) : Object.values(snap.outbox || {}).reduce((a, n) => a + n, 0)}</span></button></div>`;
+  }
+  // folded twice: a taskbar of room chips
+  function renderTaskbar(el) {
+    const st = snap.state, fam = MODE() === 'allowance';
+    $('#inspector').style.setProperty('--room', selected && roomById(selected) ? themeOf(selected).accent : '#ffcf5a');
+    const short = (v) => (v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(v >= 1e4 ? 0 : 1) + 'K' : '$' + Math.round(v));
+    el.innerHTML = `<div class="tbar">
+      <button type="button" class="tchip${!selected ? ' on' : ''}" data-sel="hub" style="--c:#ffcf5a" title="${esc(stationName())} · ${usd(st.earnedUsd)} earned">${ic('vault')}<small>${short(st.earnedUsd)}</small></button>
+      ${rooms.slice().sort((a, b) => a.spec.rank - b.spec.rank).map((m) => { const p = pathState(m.id), live = st.running.some((r) => r.path === m.id); return `<button type="button" class="tchip${selected === m.id ? ' on' : ''}" data-sel="${esc(m.id)}" style="--c:${themeOf(m.id).accent}" title="${esc(shortName(m.spec))} · ${usd(p.earnedUsd)}">${live ? '<i class="live"></i>' : ''}<b>${String(m.spec.rank).padStart(2, '0')}</b><small>${short(p.earnedUsd)}</small></button>`; }).join('')}
+      <button type="button" class="tchip${selected === 'dock' ? ' on' : ''}" data-sel="dock" style="--c:#cfd6e6" title="${esc(NM().dock)}">${ic(fam ? 'coin' : 'mail')}</button></div>`;
   }
   // A character's card: who they are, what they stand for, what they are doing right now (real or just life).
   function renderAgent(el, a) {
@@ -2333,6 +2459,9 @@
       const e = a.ev || {};
       who = 'A visitor (a real sale)';
       stats = `<div class="muted small">${esc(e.source || 'A customer')} paid ${usd2(e.usd || 0)} for ${esc(e.item || shortOf(e.path))}, logged ${e.ts ? ago(e.ts) : ''}${e.evidence ? ' · ' + esc(e.evidence) : ''}.</div>`;
+    } else if (a.kind === 'extra') {
+      who = a.holo ? 'Agent crew' : 'Floor crew';
+      stats = `<div class="muted small">${a.holo ? `Part of the crew a live ${esc(roleTitle(a.role))} run brings to ${esc(room ? shortName(room.spec) : 'its room')}. Three come with every run and leave when it ends.` : `The crowd that keeps ${esc(room ? shortName(room.spec) : 'this room')} busy. Every room has one from day one; it grows with the room's week of real activity and with its agents (one for each hired, three for each on a run). Not on your roster.`}</div>`;
     } else { who = 'A one-off run'; }
     el.innerHTML = `<button class="back" data-sel="hub">${ic('chevL')}station roster</button>
       <div class="ih"><div class="big" style="--c:${col}">${ic(a.kind === 'job' ? 'crew' : 'folk').replace('class="i"', 'class="i" style="width:24px;height:24px"')}</div><div><h2>${esc(a.name || roleTitle(a.role))}</h2><div class="chips"><span class="pill">${who}</span></div></div></div>
@@ -2359,7 +2488,7 @@
     // money on the ledger that no room shows: items no room claims whose room was removed. It still counts in the vault.
     const orphan = st.moneyIn.filter((e) => !roomById(e.path)), orphanUsd = orphan.reduce((a, e) => a + e.usd, 0);
     const lead = allSvc ? 'Each room is one service. Every sale lands in its room and totals in the vault at the centre. Click a card, a room or its label.'
-      : 'Every lit screen, crate, crew member and gold bar is a ledger line. Each room is one money path, ranked here by what it has earned. Click a card, a room or its label.';
+      : 'Every lit screen, crate and gold bar is a ledger line, and every named character is real. Each room is one money path, ranked here by what it has earned; its floor crowd grows with its activity and its agents. Click a card, a room or its label.';
     el.innerHTML = `
       <div class="ih"><div class="big" style="--c:#ffcf5a">${ic('vault').replace('class="i"', 'class="i" style="width:24px;height:24px"')}</div><div><h2>${esc(stationName())}</h2><div class="chips"><span class="pill cyan${st.running.length ? ' live' : ''}"><span class="d"></span>${st.running.length} working · ${crewTotal()} crew</span><span class="pill">${usd(st.earnedUsd)} earned</span></div></div></div>
       <div class="muted small">${lead}</div>
@@ -2469,8 +2598,7 @@
     const yieldP = p.spentUsd > 0 ? (p.earnedUsd / p.spentUsd).toFixed(1) + '×' : 'n/a';
     const offers = Array.isArray(spec.offers) ? spec.offers : [];
     el.innerHTML = `
-      <button class="back" data-sel="hub">${ic('chevL')}station roster</button>
-      <div class="ih"><div class="big" style="--c:${accent}">${String(spec.rank).padStart(2, '0')}</div><div style="min-width:0"><h2>${esc(spec.name)}</h2><div class="chips">${lookPill}${spec.bucket ? `<span class="pill">${esc(spec.bucket)}</span>` : ''}${live.length ? `<span class="pill cyan live"><span class="d"></span>${live.length} working</span>` : ''}</div></div></div>
+      ${hubHead(room, `${lookPill}${spec.bucket ? `<span class="pill">${esc(spec.bucket)}</span>` : ''}${live.length ? `<span class="pill cyan live"><span class="d"></span>${live.length} working</span>` : ''}`)}
       <div class="stats">
         <div class="st"><div><div class="k">Earned</div><div class="v gold">${usd(p.earnedUsd)}</div><div class="s">${p.moneyIn.length} payment${p.moneyIn.length === 1 ? '' : 's'} · yield ${yieldP}</div></div></div>
         <div class="st"><svg class="gauge" viewBox="0 0 54 54" style="color:${gcol}"><circle class="tr" cx="27" cy="27" r="22"/><circle class="fg" cx="27" cy="27" r="22" style="stroke:${gcol};stroke-dasharray:${(ratio * C2).toFixed(1)} ${C2.toFixed(1)}"/></svg><div style="min-width:0"><div class="k">Budget</div><div class="v">${Math.round(ratio * 100)}%</div><div class="s">${usd2(p.spentUsd)} of ${usd(spec.budgetUsd)}</div></div></div>
@@ -2570,8 +2698,7 @@
     const roles = Object.entries(snap.roles);
     const pname = PERIODS.find((x) => x[0] === svcDays)[1].toLowerCase();
     el.innerHTML = `
-      <button class="back" data-sel="hub">${ic('chevL')}station roster</button>
-      <div class="ih"><div class="big" style="--c:${accent}">${String(spec.rank).padStart(2, '0')}</div><div style="min-width:0"><h2>${esc(spec.name)}</h2><div class="chips">${lookPill}<span class="pill">${ic('scissors')}service</span>${top ? `<span class="pill gold">${ic('crown')}most profitable</span>` : ''}${live.length ? `<span class="pill cyan live"><span class="d"></span>${live.length} working</span>` : ''}</div></div></div>
+      ${hubHead(room, `${lookPill}<span class="pill">${ic('scissors')}service</span>${top ? `<span class="pill gold">${ic('crown')}most profitable</span>` : ''}${live.length ? `<span class="pill cyan live"><span class="d"></span>${live.length} working</span>` : ''}`)}
       <div class="segs">${segHtml('data-days', PERIODS, svcDays)}</div>
       <div class="stats">
         <div class="st"><div><div class="k">Revenue</div><div class="v gold">${usd(s.revenue)}</div><div class="s">${s.count} sold · avg ${usd2(s.avg)}</div></div></div>
@@ -2624,8 +2751,7 @@
     const pname = PERIODS.find((x) => x[0] === svcDays)[1].toLowerCase();
     const colorOf = (name) => (kids.find((k) => k.name.toLowerCase() === String(name || '').toLowerCase()) || {}).color || accent;
     el.innerHTML = `
-      <button class="back" data-sel="hub">${ic('chevL')}family</button>
-      <div class="ih"><div class="big" style="--c:${accent}">${String(spec.rank).padStart(2, '0')}</div><div style="min-width:0"><h2>${esc(spec.name)}</h2><div class="chips"><span class="pill">${ic('check')}chore</span><span class="pill gold">${usd2(price)} each</span>${top ? `<span class="pill gold">${ic('crown')}best pay</span>` : ''}</div></div></div>
+      ${hubHead(room, `<span class="pill">${ic('check')}chore</span><span class="pill gold">${usd2(price)} each</span>${top ? `<span class="pill gold">${ic('crown')}best pay</span>` : ''}`)}
       <div class="sec"><h3>Check it off</h3>
         ${kids.length ? `<form id="f-chore" class="pane on">
           <div class="kidpick">${kids.map((k) => `<label class="kp${k.name === choreKid ? ' on' : ''}" style="--kc:${k.color}"><input type="radio" name="kid" value="${esc(k.name)}"${k.name === choreKid ? ' checked' : ''}><span class="sw"></span>${esc(k.name)}</label>`).join('')}</div>
@@ -3260,7 +3386,7 @@
           <dt>Comm mast</dt><dd>Your income links. Green: synced. Amber: syncing. Red: a link failed. Grey: nothing linked. Waves leave the dish when a sync brings in money. Click it, or press I.</dd>
           <dt>Gold figure</dt><dd>You, the Commander.</dd>
         </dl></div>
-        <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">The world itself: space, dark castle, farm, cyber city, alien ship or ocean base all draw the same ledger, only dressed differently. Change it with <kbd>C</kbd>, or preview one with <code>?skin=castle</code> on the URL. In the castle, the city and the ship, folk wear the costume of the room they work (a skeleton in the crypt, a hacker in the den). Also scenery: what folk do between real events (tinkering at a station, chatting, a coffee break, sleeping at night), day and night on your clock, birds, bats, fireflies, flying cars, saucers and fish, each world's backdrop (sky, hills, skyline, reef), wall screens, neon signs, barber poles, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the docking shuttle, where idle crew wander, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
+        <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">The world itself: space, dark castle, farm, cyber city, alien ship or ocean base all draw the same ledger, only dressed differently. Change it with <kbd>C</kbd>, or preview one with <code>?skin=castle</code> on the URL. In the castle, the city and the ship, folk wear the costume of the room they work (a skeleton in the crypt, a hacker in the den). Also scenery: each room's floor crowd (three even in a new room, more as its last 7 days get busier, three glowing helpers per agent on a live run; hover one and it says Floor crew or Agent crew), what folk do between real events (tinkering at a station, chatting, a coffee break, sleeping at night), day and night on your clock, birds, bats, fireflies, flying cars, saucers and fish, each world's backdrop (sky, hills, skyline, reef), wall screens, neon signs, barber poles, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the docking shuttle, where idle crew wander, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
           <h3>Controls</h3><div class="kb">
             <kbd>click</kbd><span>open a room, the vault (roster) or the outbox dock</span>
             <kbd>double-click</kbd><span>zoom into a room</span>
@@ -3268,7 +3394,7 @@
             <kbd>scroll · pinch</kbd><span>zoom</span>
             <kbd>1 – 9</kbd><span>jump to room by rank</span>
             <kbd>C</kbd><span>customize: purpose, world, folk, rooms, colours, keywords</span>
-            <kbd>click a room</kbd><span>the area view: the camera flies in until the room fills the screen</span>
+            <kbd>click a room</kbd><span>fly into its close-up, walls up; the panel becomes that room's hub</span>
             <kbd>click a character</kbd><span>follow them: the camera tracks them and the panel says what they are doing</span>
             <kbd>R</kbd><span>replay the last 24 hours</span>
             <kbd>M</kbd><span>sound on or off</span>
@@ -3278,8 +3404,8 @@
             <kbd>F</kbd><span>fit the whole station</span>
             <kbd>+ / −</kbd><span>zoom in or out</span>
             <kbd>arrows · WASD</kbd><span>pan</span>
-            <kbd>P</kbd><span>hide or show the side panel</span>
-            <kbd>Esc</kbd><span>close, then back to the overview</span>
+            <kbd>P</kbd><span>fold the side panel: full, a stacked list, a taskbar, then full again</span>
+            <kbd>Esc</kbd><span>step back: close a window, leave the close-up, then the whole world</span>
           </div></div>
       </div>`;
     g.hidden = false;
@@ -3352,9 +3478,12 @@
   $('#panel').addEventListener('click', (ev) => {
     const rb = ev.target.closest('[data-rooms]');
     if (rb) { ev.preventDefault(); openRooms({ room: rb.dataset.rooms || null }); return; }
+    const st = ev.target.closest('[data-step]'); if (st) { stepRoom(Number(st.dataset.step)); return; }
+    if (ev.target.closest('[data-world]')) { select('hub'); return; }
+    if (ev.target.closest('[data-edit]')) { openRooms({ room: selected && roomById(selected) ? selected : null }); return; }
     const el = ev.target.closest('[data-sel]'); if (el) { ev.preventDefault(); select(el.dataset.sel); }
   });
-  // the area title steps down out of the way while a toast is showing
+  // toasts push things below them down
   new MutationObserver(() => { const h = $('#toasts').offsetHeight; document.documentElement.style.setProperty('--toastH', (h ? h + 6 : 0) + 'px'); }).observe($('#toasts'), { childList: true, subtree: true });
   const lab = (icon, text) => ic(icon) + `<span>${text}</span>`;
   function paintReplay(on) { const b = $('#replayBtn'); b.innerHTML = lab(on ? 'close' : 'replay', on ? 'Stop replay' : 'Replay'); b.classList.toggle('on', on); }
@@ -3367,7 +3496,6 @@
   setInterval(() => { if (!replay && snap && !document.hidden && !tour && performance.now() - lastInput > 45000 && $('#roomsbox').hidden && $('#syncbox').hidden && $('#guide').hidden) { lastInput = performance.now(); startReplay({ attract: true }); } }, 5000);
   $('#sound').addEventListener('click', toggleSound);
   $('#zin').innerHTML = lab('zin', 'Zoom in'); $('#zout').innerHTML = lab('zout', 'Zoom out'); $('#zhome').innerHTML = lab('fit', 'See all');
-  $('#insToggle').innerHTML = ic('chevR');
   // ---- the main menu: big labeled buttons, each explained on hover
   $('#navWorld').innerHTML = lab('globe', 'World');
   $('#navRoomList').innerHTML = lab('grid', 'Rooms');
@@ -3377,18 +3505,11 @@
   $('#navTerm').innerHTML = lab('term', 'Terminal');
   $('#navTour').innerHTML = lab('compass', 'Tour');
   $('#help').innerHTML = lab('book', 'Guide');
-  $('#roomPrev').innerHTML = ic('chevL'); $('#roomNext').innerHTML = ic('chevR');
-  $('#roomBack').innerHTML = ic('globe') + '<span class="lg">Whole world</span><span class="sm">World</span>'; $('#roomClose').innerHTML = ic('eye') + 'Close-up'; $('#roomEdit').innerHTML = ic('pencil') + 'Edit<span class="lg"> room</span>';
   $('#navWorld').addEventListener('click', () => { closeRoomMenu(); select('hub'); });
   $('#navRoomList').addEventListener('click', () => ($('#roomMenu').hidden ? openRoomMenu() : closeRoomMenu()));
   $('#navSync').addEventListener('click', () => { closeRoomMenu(); openSync(); });
   $('#navRooms').addEventListener('click', () => { closeRoomMenu(); openRooms({ room: selected && roomById(selected) ? selected : null }); });
   $('#navTour').addEventListener('click', () => { closeRoomMenu(); startTour(); });
-  $('#roomPrev').addEventListener('click', () => stepRoom(-1));
-  $('#roomNext').addEventListener('click', () => stepRoom(1));
-  $('#roomBack').addEventListener('click', () => select('hub'));
-  $('#roomClose').addEventListener('click', () => toggleCloseUp());
-  $('#roomEdit').addEventListener('click', () => openRooms({ room: selected && roomById(selected) ? selected : null }));
   $('#roomsbox').addEventListener('click', (e) => { if (e.target.id === 'roomsbox') closeRooms(); });
   $('#syncbox').addEventListener('click', (e) => { if (e.target.id === 'syncbox') closeSync(); });
   // a world picked on the URL (?skin=castle) follows you to the terminal and the dashboard
@@ -3473,9 +3594,23 @@
   }
   $('#cmdr').addEventListener('click', () => select('hub'));
   $('#guide').addEventListener('click', (e) => { if (e.target.id === 'guide' || e.target.closest('[data-close]')) closeGuide(); });
-  const toggleIns = () => { $('#app').classList.toggle('ins-closed'); setTimeout(layout, 460); layout(); };
-  $('#insToggle').addEventListener('click', toggleIns);
-  $('#commsHd').addEventListener('click', () => { if (overlayMode()) $('#comms').classList.toggle('min'); });
+  // the side panel folds in two steps: full, then a stacked list, then a taskbar of room chips
+  function setIns(m) {
+    insMode = m; lset('pf-ins', m);
+    const app = $('#app'); app.classList.toggle('ins-stack', m === 'stack'); app.classList.toggle('ins-bar', m === 'bar');
+    $('#insLess').disabled = m === 'bar'; $('#insMore').disabled = m === 'full';
+    panelSig = ''; renderPanel(true);
+    layout(); setTimeout(layout, 450);
+  }
+  const insStep = (d) => setIns(INS_MODES[clamp(INS_MODES.indexOf(insMode) + d, 0, INS_MODES.length - 1)]);
+  const toggleIns = () => (insMode === 'bar' ? setIns('full') : insStep(1));
+  $('#insLess').innerHTML = ic('chevR'); $('#insMore').innerHTML = ic('chevL');
+  $('#insLess').addEventListener('click', () => insStep(1)); $('#insMore').addEventListener('click', () => insStep(-1));
+  // the feed folds to its header
+  function setComms(min) { $('#comms').classList.toggle('min', min); lset('pf-comms-min', min ? '1' : '0'); $('#comms .cl').textContent = min ? 'Show' : 'Hide'; layout(); }
+  $('#comms .ch').insertAdjacentHTML('beforeend', ic('chevD'));
+  $('#commsHd').addEventListener('click', () => { if (overlayMode()) setComms(!$('#comms').classList.contains('min')); });
+  if (overlayMode()) { setIns(insMode); if (lget('pf-comms-min') === '1') setComms(true); }
   window.addEventListener('keydown', (ev) => {
     const tgt = ev.target;
     const typing = tgt && (/INPUT|SELECT|TEXTAREA/.test(tgt.tagName) || tgt.isContentEditable);
@@ -4526,7 +4661,9 @@
     function poseOf(a) {
       const moving = a.queue.length > 0;
       if (a.act === 'sleep' && !moving) return 'sleep';
-      if (moving) return 'walk';
+      if (moving) return a.kind === 'extra' && a.carry ? 'runner' : 'walk';
+      if (a.act === 'phone') return 'phone';
+      if (a.act === 'cheer') return 'cheer';
       if ((a.state === 'work') || (a.kind === 'guest' && a.act === 'seated')) return 'sit';
       if (a.act === 'serve') return 'serve';
       if (a.act === 'chore') return 'chore';
@@ -4544,7 +4681,7 @@
     // draws one person in unit space: feet at (0,0), 1 = one floor unit on screen; returns the head-top height
     function drawPerson(a, id, L, pose, t) {
       const holo = id.kind === 'agent';
-      const walk = pose === 'walk', sit = pose === 'sit';
+      const walk = pose === 'walk' || pose === 'runner', sit = pose === 'sit';
       const ph = Math.sin(t * (a.busy ? 11 : 8));
       const bounce = walk ? Math.abs(ph) * 0.05 : pose === 'serve' || pose === 'chore' ? Math.abs(Math.sin(t * 6)) * 0.03 : Math.sin(t * 1.6 + hsh(a.id) % 7) * 0.012;
       const hipY = sit ? -0.62 : -0.98 - bounce, shY = hipY - (L.small ? 0.58 : 0.74);
@@ -4595,7 +4732,10 @@
       const arm = holo ? alpha(id.col, 0.6) : shirt, hand = holo ? alpha(id.col, 0.8) : L.skin, aw = 0.15;
       const sx = tw + 0.02, sy = shY + 0.1;
       let hl = [-sx - 0.05, sy + 0.58], hr = [sx + 0.05, sy + 0.58], tool = null;
-      if (walk) { hl = [-sx - 0.04, sy + 0.55 - ph * 0.08]; hr = [sx + 0.04, sy + 0.55 + ph * 0.08]; }
+      if (pose === 'runner') { hl = [-0.2, sy + 0.22 + ph * 0.02]; hr = [0.2, sy + 0.22 - ph * 0.02]; tool = 'papers'; }
+      else if (walk) { hl = [-sx - 0.04, sy + 0.55 - ph * 0.08]; hr = [sx + 0.04, sy + 0.55 + ph * 0.08]; }
+      else if (pose === 'phone') { hr = [0.44, headY + 0.14]; hl = [-sx - 0.1 + Math.sin(t * 5) * 0.07, sy + 0.18 + Math.cos(t * 5) * 0.1]; tool = 'phone'; }
+      else if (pose === 'cheer') { const k = Math.abs(Math.sin(t * 7)) * 0.12; hl = [-sx - 0.16, shY - 0.34 - k]; hr = [sx + 0.16, shY - 0.34 - k]; }
       else if (pose === 'serve') { const sn = Math.sin(t * 14); hr = [sx + 0.12, sy + 0.05 + sn * 0.03]; hl = [-0.1, sy + 0.32]; tool = curTheme === 'barber' || curTheme === 'salon' ? 'scissors' : curTheme === 'shop' ? 'bag' : 'clip'; }
       else if (pose === 'chore') { const c = t * 7; hl = [-0.18 + Math.cos(c) * 0.08, sy + 0.42 + Math.sin(c) * 0.05]; hr = [0.18 + Math.cos(c + 3) * 0.08, sy + 0.42 + Math.sin(c + 3) * 0.05]; tool = curTheme === 'kitchen' ? 'sponge' : curTheme === 'yard' ? 'rake' : curTheme === 'laundry' ? 'shirt' : curTheme === 'study' ? 'book' : 'duster'; }
       else if (pose === 'tinker' || (sit && !guestSeat)) { const k = Math.sin(t * 16) * 0.025; hl = [-0.16, sy + 0.4 + k]; hr = [0.16, sy + 0.4 - k]; tool = holo ? 'tablet' : curTheme === 'office' || curTheme === 'study' ? null : 'tablet'; }
@@ -4665,8 +4805,8 @@
       }
       // cheeks and mouth
       g.fillStyle = 'rgba(255,110,120,0.22)'; for (const ex of [-0.26, 0.26]) { g.beginPath(); g.ellipse(ex, 0.17, 0.07, 0.04, 0, 0, 7); g.fill(); }
-      const talking = pose === 'chat' && Math.sin(t * 12) > 0;
-      const happy = a.real > 0 || pose === 'serve' || (a.bubble && (a.bubble.icon === 'heart' || a.bubble.icon === 'coin' || a.bubble.icon === 'star'));
+      const talking = (pose === 'chat' || pose === 'phone') && Math.sin(t * 12) > 0;
+      const happy = a.real > 0 || pose === 'serve' || pose === 'cheer' || (a.bubble && (a.bubble.icon === 'heart' || a.bubble.icon === 'coin' || a.bubble.icon === 'star'));
       if (pose === 'sleep') { g.strokeStyle = '#6b3a32'; g.lineWidth = 0.025; g.beginPath(); g.arc(0, 0.25, 0.03, 0, 7); g.stroke(); }
       else if (talking || (happy && Math.sin(t * 3) > 0.3)) { g.fillStyle = '#6b1f24'; g.beginPath(); g.ellipse(0, 0.23, 0.08, talking ? 0.06 : 0.05, 0, 0, Math.PI * 2); g.fill(); g.fillStyle = '#ff8a8a'; g.beginPath(); g.ellipse(0, 0.26, 0.045, 0.02, 0, 0, 7); g.fill(); }
       else { g.strokeStyle = '#6b3a32'; g.lineWidth = 0.03; g.lineCap = 'round'; g.beginPath(); g.arc(0, 0.16, 0.08, 0.35, Math.PI - 0.35); g.stroke(); }
@@ -4716,6 +4856,8 @@
       else if (k === 'tablet') { g.fillStyle = '#1b1f2b'; g.beginPath(); g.roundRect(-0.16, -0.1, 0.32, 0.22, 0.03); g.fill(); g.fillStyle = id.kind === 'agent' ? alpha(id.col, 0.9) : '#5fb4ff'; g.fillRect(-0.13, -0.07, 0.26, 0.16); }
       else if (k === 'clip') { g.fillStyle = '#c9a27a'; g.fillRect(-0.12, -0.14, 0.24, 0.3); g.fillStyle = '#fff'; g.fillRect(-0.09, -0.1, 0.18, 0.22); }
       else if (k === 'bag') { g.fillStyle = '#e8d6b8'; g.fillRect(-0.12, -0.05, 0.24, 0.26); }
+      else if (k === 'phone') { g.fillStyle = '#1b1f2b'; g.beginPath(); g.roundRect(-0.05, -0.16, 0.1, 0.26, 0.03); g.fill(); g.fillStyle = '#5fd4ff'; g.fillRect(-0.035, -0.13, 0.07, 0.08); }
+      else if (k === 'papers') { g.restore(); g.save(); const x0 = hl[0] - 0.04, w = x - hl[0] + 0.08; for (let n = 0; n < 3; n++) { g.fillStyle = n % 2 ? '#e8e4d8' : '#f7f5ee'; g.save(); g.translate(x0 + w / 2, y - 0.14 - n * 0.05); g.rotate((n - 1) * 0.08); g.fillRect(-w / 2, -0.06, w, 0.14); g.restore(); } g.strokeStyle = 'rgba(0,0,0,0.25)'; g.lineWidth = 0.02; for (let n = 0; n < 3; n++) { g.beginPath(); g.moveTo(x0 + 0.05, y - 0.2 + n * 0.035); g.lineTo(x0 + w - 0.06, y - 0.2 + n * 0.035); g.stroke(); } }
       else if (k === 'box') { g.restore(); g.save(); g.fillStyle = '#c9a27a'; g.fillRect(hl[0] - 0.02, y - 0.3, x - hl[0] + 0.04, 0.3); g.strokeStyle = 'rgba(0,0,0,0.4)'; g.lineWidth = 0.03; g.strokeRect(hl[0] - 0.02, y - 0.3, x - hl[0] + 0.04, 0.3); }
       g.restore();
     }
@@ -4872,11 +5014,13 @@
         const near = LOD > 0 || a.id === hoverAgentId || a.id === selId || a.real > 0;
         if (!near) continue;
         g.globalAlpha = o.fade;
-        if (a.kind !== 'res' && LOD > 0) plumbob(X, topY - ou * 0.38, MOOD(a, id), a.t + (hsh(a.id) % 10));
-        if (a.busy && LOD > 0) {
+        // over heads only what matters: the diamond (not for the floor crowd), and work bars in the room you are in
+        const mine = a.id === hoverAgentId || a.id === selId || (selRoom && a.path === selRoom.id);
+        if (a.kind !== 'res' && a.kind !== 'extra' && LOD > 0) plumbob(X, topY - ou * 0.38, MOOD(a, id), a.t + (hsh(a.id) % 10));
+        if (a.busy && LOD > 0 && mine && a.kind !== 'extra') {
           const b = a.busy, dur = b.chore ? 5 : 7.5, item = (b.e && (b.e.item || b.e.source)) || (a.path && roomById(a.path) ? shortName(roomById(a.path).spec) : '');
           progress(X, topY - ou * 0.72, b.t / dur, `${b.chore ? '🧽' : roomThemeOf(a) === 'barber' ? '✂' : '●'} ${String(item).slice(0, 18)}`, b.e ? '+' + usd(b.e.usd) : '', '#2fe07a', a.t, fsBar);
-        } else if (id.kind === 'agent' && (a.runId || a.kind === 'visit') && LOD > 0) {
+        } else if (id.kind === 'agent' && (a.runId || a.kind === 'visit') && LOD > 0 && mine) {
           const r = a.run || {}, secs = r.startedAt ? Math.max(0, (Date.now() - Date.parse(r.startedAt)) / 1000) : a.t;
           progress(X, topY - ou * 0.72, null, `${roleTitle(a.role)} · working`, `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}`, id.col, a.t, fsBar);
         }
@@ -4884,8 +5028,8 @@
         if (a.act === 'sleep' && LOD === 2) { g.fillStyle = '#cfe0ff'; g.font = `800 ${ou * 0.3}px system-ui,sans-serif`; for (let k = 0; k < 3; k++) { const p = (a.t * 0.5 + k / 3) % 1; g.globalAlpha = o.fade * (1 - p); g.fillText('z', X + ou * (0.3 + p * 0.5), topY - p * ou * 0.9); } }
       }
       g.globalAlpha = 1;
-      // names: who is who, pushed apart so none overlap. Far away, only the ones that matter right now.
-      const tags = over.filter((o) => o.a.kind !== 'res' && (LOD === 2 || (LOD === 1 && (o.id.kind !== 'client' || (selRoom && o.a.path === selRoom.id))) || o.a.id === hoverAgentId || o.a.id === selId || o.a.real > 0 || (selRoom && o.a.path === selRoom.id))).sort((p, q) => p.Yf - q.Yf);
+      // names only for the one you point at or follow: the rooms stay clear (the panel lists who is where)
+      const tags = over.filter((o) => o.a.kind !== 'res' && o.a.kind !== 'extra' && (o.a.id === hoverAgentId || o.a.id === selId)).sort((p, q) => p.Yf - q.Yf);
       // the room labels are already on screen: tags go around them, never under them
       const placed = plateRects.map(([l, t, r, b]) => [vx0e + l / S, vy0e + t / S, vx0e + r / S, vy0e + b / S]);
       for (const o of tags) {
@@ -5275,23 +5419,20 @@
     const pts = [P(rm.x0, rm.y0, H * 0.72), P(rm.x0 + ROOM, rm.y0, H * 0.6), P(rm.x0, rm.y0 + ROOM, H * 0.6), P(rm.x0 + ROOM, rm.y0 + ROOM, -4), P(rm.x0, rm.y0 + ROOM, -4), P(rm.x0 + ROOM, rm.y0, 0)];
     const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
     const bw = Math.max(...xs) - Math.min(...xs), bh = Math.max(...ys) - Math.min(...ys);
-    const title = $('#areaTitle'), th = title && !title.hidden ? title.offsetHeight * (overlayMode() ? 0.35 : 0.55) : 0;
-    const aw = overlayMode() ? avail.x1 - avail.x0 : vwCss - 8, ah = avail.y1 - avail.y0 - th;
+    const th = 0, aw = overlayMode() ? avail.x1 - avail.x0 : vwCss - 8, ah = avail.y1 - avail.y0;
     // a phone is narrow: the room may run off both sides a little (drag to see them) so it can be big
     const sFit = Math.min(aw * (overlayMode() ? 0.98 : 1.3) / bw, ah * 0.98 / bh);
     camT.x = (Math.max(...xs) + Math.min(...xs)) / 2 + (overlayMode() ? 0 : (avail.cx - vwCss / 2) / (sFit));
     camT.y = (Math.max(...ys) + Math.min(...ys)) / 2 - th / 2 / sFit;
     camT.z = clamp(sFit / fitS, 1, Z_MAX); closeZ = camT.z; camBounce = true; clampCam();
     $('#view').classList.add('cu');
-    const b = $('#roomClose'); if (b) { b.classList.add('on'); b.innerHTML = ic('close') + 'Exit<span class="lg"> close-up</span>'; }
     sfx('hire');
   }
   function closeUpOff(toWorld) {
     if (!closeUp) return;
     closeUp = false;
     $('#view').classList.remove('cu');
-    const b = $('#roomClose'); if (b) { b.classList.remove('on'); b.innerHTML = ic('eye') + 'Close-up'; }
-    if (toWorld && selected && roomById(selected)) select(selected);
+    if (toWorld && selected && roomById(selected)) select(selected, { close: false });
   }
   function toggleCloseUp() { if (closeUp) closeUpOff(true); else closeUpOn(); }
 
@@ -5501,8 +5642,8 @@
       { title: 'Every room in one list', text: 'Who is working where and what each room earned. Pick one to fly in.', at: ['#navRoomList'] },
     ];
     if (busiest) {
-      steps.push({ title: shortName(busiest.spec) + ', up close', text: 'This is one room. The arrows step to the next room. Whole world flies back out. Close-up shows the room in full detail. Edit room changes this room\'s name, price, keywords and look.', at: ['#areaTitle'], go: () => { closeUpOff(); select(busiest.id); } });
-      steps.push({ title: 'The close-up', text: 'The same room, drawn big: every character here is a real person, kid, client or agent from the world outside. The diamond over a head is what they are up to: green working, yellow free, blue asleep, cyan an AI agent. A bar over a head is a job in progress, with what it will earn. The screen on the wall is this room\'s real numbers.', at: ['#cv'], pad: -40, go: () => { if (!closeUp) { select(busiest.id); closeUpOn(); } } });
+      steps.push({ title: shortName(busiest.spec) + ', up close', text: 'This is one room, up close. Its name, level and numbers are at the top of the panel: the arrows there step to the next room, Whole world flies back out, Edit room changes its name, price, keywords and look.', at: ['#inspector'], go: () => { closeUpOff(); select(busiest.id); } });
+      steps.push({ title: 'The close-up', text: 'The same room, drawn big. Everyone with a diamond over their head is real: a person, kid, client or agent from the world outside (green working, yellow free, blue asleep, cyan an AI agent); the panel lists them. The crowd without diamonds is the room\'s floor: it is there from day one and grows with the room\'s activity and its agents. A bar over a head is a job in progress, with what it will earn. The screen on the wall is this room\'s real numbers.', at: ['#cv'], pad: -40, go: () => { if (!closeUp) { select(busiest.id); closeUpOn(); } } });
       steps.push({ title: 'The panel', text: mode === 'allowance' ? 'Everything about the selected room: what it earned and who did it. Check off a chore here and the kid walks over and does it.' : mode === 'service' ? 'Everything about the selected room: sales, profit per hour, rankings. Log a sale by hand here and a client walks in for it.' : 'Everything about the selected room: its pipeline, budget and crew. Log an outcome or revenue, dispatch an agent, or hire one to work here on a schedule.', at: ['#inspector'], go: () => {} });
     }
     steps.push(
