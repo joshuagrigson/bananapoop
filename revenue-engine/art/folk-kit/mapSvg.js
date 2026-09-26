@@ -291,10 +291,12 @@ function mapSvg(world = 'space', opts = {}) {
     if (q.kind === 'hub') body += vault(k, wd, K);
     if (q.kind === 'dock') body += dock(k, wd, K);
     body += '</g>';
-    const [lx, ly] = iso(cx + 0.62, cy + 0.62, -22);
-    if (q.kind === 'room') labels += plate(lx, ly + 8, q.i + 1, rooms[q.i].name, rooms[q.i].accent, false, sel);
-    if (q.kind === 'hub') labels += plate(lx, ly + 8, 'L' + (opts.level || 2), opts.hub || wd.hub, '#f2c14e', true, sel);
-    if (q.kind === 'dock') labels += plate(lx, ly + 8, '✉', opts.dock || wd.dock, '#cfd6e6', false, sel);
+    // each name sits on its own island, just in front of its building: below the tip it would land on the island in
+    // front, which is packed in right under it
+    const s = q.kind === 'hub' ? 0.7 : 0.62, [lx, ly] = iso(cx + s * 0.72, cy + s * 0.72, 0), top = ly - (q.kind === 'hub' ? 20 : 18);
+    if (q.kind === 'room') labels += plate(lx, top, q.i + 1, rooms[q.i].name, rooms[q.i].accent, false, sel);
+    if (q.kind === 'hub') labels += plate(lx, top, 'L' + (opts.level || 2), opts.hub || wd.hub, '#f2c14e', true, sel);
+    if (q.kind === 'dock') labels += plate(lx, top, '✉', opts.dock || wd.dock, '#cfd6e6', false, sel);
   }
   body += mast(k, K);
   const title = opts.title || wd.title;
