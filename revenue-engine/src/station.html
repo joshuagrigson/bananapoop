@@ -3989,7 +3989,7 @@
       space: { wall: '#cfd8ea', wall2: '#b6c1d8', trim: '#4a5b80', cap: '#e9eef8', floor: ['#8f9ab0', '#838ea4'], fk: 'plates', slab: '#27304c', slab2: '#1b2238', acc: '#5fd4ff', sky: 'space', lamp: '#bfe8ff', hall: '#56617e', rail: '#9aa7c4' },
       castle: { wall: '#77708a', wall2: '#686178', trim: '#3a3246', cap: '#8d86a0', floor: ['#5e4332', '#523a2b'], fk: 'planks', slab: '#2c2334', slab2: '#1c1622', acc: '#ff9a4a', sky: 'moon', lamp: '#ffb866', brick: true, hall: '#5b5468', rail: '#2b2530' },
       farm: { wall: '#f0dcb4', wall2: '#e3cc9f', trim: '#8a5a32', cap: '#f7ead0', floor: ['#cfa168', '#c1925a'], fk: 'planks', slab: '#76502e', slab2: '#5a3b20', acc: '#ffb454', sky: 'day', lamp: '#ffe2a0', hall: '#c9a06a', rail: '#8a5a32' },
-      cyber: { wall: '#2e3144', wall2: '#262a3c', trim: '#ff3fa4', cap: '#3b3f56', floor: ['#20232f', '#1a1d28'], fk: 'tiles', slab: '#0f1019', slab2: '#08080f', acc: '#ff3fa4', sky: 'city', lamp: '#ff7ad9', neon: true, hall: '#2b2f3c', rail: '#00f0ff' },
+      cyber: { wall: '#3c4160', wall2: '#333752', trim: '#ff3fa4', cap: '#4c5272', floor: ['#2d3145', '#262a3b'], fk: 'tiles', slab: '#181a2a', slab2: '#10111c', acc: '#ff3fa4', sky: 'city', lamp: '#ff7ad9', neon: true, hall: '#3a3f55', rail: '#00f0ff' },
       alien: { wall: '#62407f', wall2: '#553570', trim: '#b86bff', cap: '#7a55a0', floor: ['#40295a', '#38234f'], fk: 'organic', slab: '#1f1030', slab2: '#140a20', acc: '#7dffb0', sky: 'nebula', lamp: '#9dffcf', hall: '#4b2e66', rail: '#7dffb0' },
       ocean: { wall: '#86a2b6', wall2: '#7590a4', trim: '#2f4a5e', cap: '#9fb7c8', floor: ['#5c7483', '#526977'], fk: 'grate', slab: '#1b2e3c', slab2: '#11202b', acc: '#39e0ff', sky: 'water', lamp: '#aef3ff', hall: '#6d8797', rail: '#2f4a5e' },
     };
@@ -4284,7 +4284,7 @@
         g.save();
         g.beginPath(); g.roundRect(s0, v0, s1 - s0, v1 - v0, 0.12); g.clip();
         const gr = g.createLinearGradient(0, v0, 0, v1);
-        const day = { space: ['#0a1433', '#1d2d63'], castle: ['#1a1633', '#3a2c55'], farm: ['#7cc6ff', '#d8f0ff'], cyber: ['#261043', '#5a1f5e'], alien: ['#2a0f45', '#5f2a7a'], ocean: ['#0a5a85', '#1a8fb8'] }[skinId()] || ['#7cc6ff', '#d8f0ff'];
+        const day = { space: ['#0a1433', '#1d2d63'], castle: ['#1a1633', '#3a2c55'], farm: ['#7cc6ff', '#d8f0ff'], cyber: ['#3a1862', '#7c2c80'], alien: ['#2a0f45', '#5f2a7a'], ocean: ['#0a5a85', '#1a8fb8'] }[skinId()] || ['#7cc6ff', '#d8f0ff'];
         const night = { farm: ['#0b1433', '#28305a'], ocean: ['#031a2c', '#073a58'] }[skinId()] || day;
         gr.addColorStop(0, mixc(day[0], night[0], dark)); gr.addColorStop(1, mixc(day[1], night[1], dark));
         g.fillStyle = gr; g.fillRect(s0, v0, s1 - s0, v1 - v0);
@@ -4731,7 +4731,7 @@
       space: { body: '#c9d3e6', dark: '#3a4262', trim: '#56617e', glow: '#5fd4ff', warn: '#ffcf3a', belt: '#262b3d', crate: '#d0d8e8', wood: '#8a95a8', producer: 'printer', slots: ['tank', 'rack', 'arm', 'press'], out: 'antenna' },
       castle: { body: '#6e6258', dark: '#2b2230', trim: '#8a7a6a', glow: '#ff9a4a', warn: '#c9a24a', belt: '#4a3a2c', crate: '#8a5a2e', wood: '#6b4a2e', producer: 'forge', slots: ['cauldron', 'rack', 'grind', 'press'], out: 'chimney' },
       farm: { body: '#b8423a', dark: '#5a3b20', trim: '#8a5a32', glow: '#ffe2a0', warn: '#f2c94a', belt: '#5a4030', crate: '#c9a06a', wood: '#a8743f', producer: 'mill', slots: ['churn', 'rack', 'press', 'tank'], out: 'silo' },
-      cyber: { body: '#2e3144', dark: '#15161f', trim: '#3b3f56', glow: '#ff3fa4', glow2: '#00f0ff', warn: '#f2e14e', belt: '#101118', crate: '#3b3f56', wood: '#2b2f3c', producer: 'server', slots: ['arm', 'rack', 'tank', 'press'], out: 'vent' },
+      cyber: { body: '#3c4160', dark: '#1d1f2c', trim: '#4c5272', glow: '#ff3fa4', glow2: '#00f0ff', warn: '#f2e14e', belt: '#1a1c28', crate: '#4c5272', wood: '#373c50', producer: 'server', slots: ['arm', 'rack', 'tank', 'press'], out: 'vent' },
       alien: { body: '#62407f', dark: '#2a1640', trim: '#7a55a0', glow: '#7dffb0', warn: '#d8ff6a', belt: '#3a2352', crate: '#553570', wood: '#40295a', producer: 'vat', slots: ['pod', 'rack', 'vat', 'tank'], out: 'spire' },
       ocean: { body: '#86a2b6', dark: '#2f4a5e', trim: '#6d8797', glow: '#39e0ff', warn: '#ffcf5a', belt: '#1b2e3c', crate: '#9fb7c8', wood: '#5c7483', producer: 'aquarium', slots: ['tank', 'rack', 'press', 'arm'], out: 'pipe' },
     };
@@ -6301,10 +6301,10 @@
         return;
       }
       if (id === 'cyber') {
-        skyGrad(W, H, '#0a0418', mixc('#4a1a5e', '#1a0a2a', dk * 0.6));
-        stars(W, H, 0.25, par);
-        const glow = g.createRadialGradient(W * 0.5, H * 0.9, 0, W * 0.5, H * 0.9, W * 0.7); glow.addColorStop(0, 'rgba(255,60,180,0.25)'); glow.addColorStop(1, 'rgba(255,60,180,0)'); g.fillStyle = glow; g.fillRect(0, 0, W, H);
-        for (const [k, base, col, lit] of [[0.04, 0.55, '#1a1030', 0.35], [0.08, 0.7, '#120a22', 0.55]]) {
+        skyGrad(W, H, '#170a34', mixc('#6c2480', '#2a1040', dk * 0.5));
+        stars(W, H, 0.3, par);
+        const glow = g.createRadialGradient(W * 0.5, H * 0.9, 0, W * 0.5, H * 0.9, W * 0.7); glow.addColorStop(0, 'rgba(255,70,190,0.38)'); glow.addColorStop(1, 'rgba(255,60,180,0)'); g.fillStyle = glow; g.fillRect(0, 0, W, H);
+        for (const [k, base, col, lit] of [[0.04, 0.55, '#2a1a48', 0.5], [0.08, 0.7, '#1e1238', 0.75]]) {
           for (let i = 0; i < 16; i++) { const bw = W / 14, x = i * bw - (par.x * k) % bw, bh = H * (0.18 + (hsh(k * 100 + i) % 40) / 100); const y = H * base + (1 - base) * 0 - bh + H * 0.3; g.fillStyle = col; g.fillRect(x, y, bw - 4, H - y); for (let j = 0; j < 10; j++) { const wx = x + 6 + (j % 3) * (bw / 3.4), wy = y + 10 + Math.floor(j / 3) * 16; if ((hsh(i * 31 + j + k * 7) + Math.floor(tt * 0.3 + j)) % 5 < 2) { g.fillStyle = j % 2 ? `rgba(0,240,255,${lit})` : `rgba(255,60,200,${lit})`; g.fillRect(wx, wy, 4, 6); } } }
         }
         g.strokeStyle = 'rgba(170,190,255,0.22)'; g.lineWidth = 1;
@@ -6329,7 +6329,7 @@
       g.save(); g.translate(px2, py2); g.rotate(-0.35); g.strokeStyle = 'rgba(255,220,180,0.55)'; g.lineWidth = 6; g.beginPath(); g.ellipse(0, 0, 110, 20, 0, Math.PI * 0.05, Math.PI * 0.95, true); g.stroke(); g.restore();
       const sh = (tt % 11) / 11; if (sh < 0.08) { const f = sh / 0.08, x = W * (0.2 + f * 0.4), y = H * (0.1 + f * 0.1); const gr = g.createLinearGradient(x, y, x - 90, y - 30); gr.addColorStop(0, `rgba(230,240,255,${1 - f})`); gr.addColorStop(1, 'rgba(230,240,255,0)'); g.strokeStyle = gr; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y); g.lineTo(x - 90, y - 30); g.stroke(); }
     }
-    const NIGHTK = { space: 0.35, castle: 0.3, farm: 0.55, cyber: 0.35, alien: 0.4, ocean: 0.45 };
+    const NIGHTK = { space: 0.35, castle: 0.3, farm: 0.55, cyber: 0.22, alien: 0.4, ocean: 0.45 };
 
     // ---- the silhouette of a cell (floor plus walls as they stand now), for outlines, focus and clicks
     function silhouetteOf(c, r) {

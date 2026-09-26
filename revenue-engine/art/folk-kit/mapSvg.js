@@ -37,7 +37,7 @@ const WORLD = {
   space: { title: 'Space station', sky: ['#070a1c', '#141a3e', '#2a1f4e'], slab: '#8f9ab3', slabTop: '#c9d1e0', edge: '#5d6884', walk: '#aab4c8', hub: 'Treasury', dock: 'Launch pad' },
   castle: { title: 'Dark castle', sky: ['#0d0b1d', '#221a3a', '#3a2346'], slab: '#6d6272', slabTop: '#8e8594', edge: '#4a3f52', walk: '#7a5b3f', hub: 'Treasure vault', dock: 'Scriptorium' },
   farm: { title: 'Farm', sky: ['#7cc8f2', '#a8dcf5', '#d9f1f7'], slab: '#8a6038', slabTop: '#7fcf5a', edge: '#5c3f24', walk: '#b88a52', hub: 'Grain bank', dock: 'Market cart' },
-  cyber: { title: 'Cyberpunk city', sky: ['#0a0716', '#1a0f33', '#3a1242'], slab: '#3a3a52', slabTop: '#4a4a66', edge: '#24243a', walk: '#2e2e46', hub: 'Data vault', dock: 'Courier hub' },
+  cyber: { title: 'Cyberpunk city', sky: ['#160c32', '#2c1856', '#621f6a'], slab: '#4a4a68', slabTop: '#5e5e84', edge: '#30304a', walk: '#40405e', hub: 'Data vault', dock: 'Courier hub' },
   alien: { title: 'Alien ship', sky: ['#050b14', '#0c1f2e', '#1a3a3f'], slab: '#3f6b64', slabTop: '#5fa396', edge: '#28463f', walk: '#4f8a7f', hub: 'Core', dock: 'Pod bay' },
   ocean: { title: 'Deep sea base', sky: ['#021526', '#063356', '#0b5a7a'], slab: '#c9b27a', slabTop: '#e6d29a', edge: '#8f7a4a', walk: '#9aa3a8', hub: 'Pearl vault', dock: 'Sub dock' },
 };
@@ -163,7 +163,7 @@ function building(k, cx, cy, acc, rank, K) {
     extra += `<g stroke="${OUT}" stroke-width="2.4" stroke-linejoin="round"><path d="M${f(wx)} ${f(wy)}L${f(wx + 60)} ${f(wy - 28)}" /><polygon points="${f(wx + 34)},${f(wy - 30)} ${f(wx + 86)},${f(wy - 56)} ${f(wx + 90)},${f(wy - 40)} ${f(wx + 38)},${f(wy - 14)}" fill="#2f4f9e"/></g><path d="M${f(wx + 50)} ${f(wy - 35)}L${f(wx + 60)} ${f(wy - 22)}M${f(wx + 66)} ${f(wy - 43)}L${f(wx + 76)} ${f(wy - 30)}" stroke="#7fb0ff" stroke-width="1.5"/>`;
   } else if (k === 'cyber') {
     const x = cx - 0.3, y = cy - 0.3, w = 0.6, h = 110 + (rank % 3) * 26;
-    s.push(...box(x, y, 0, w, w, h, '#3a3552'));
+    s.push(...box(x, y, 0, w, w, h, '#4a4468'));
     for (let r = 0; r < 4; r++) for (const t of [0.25, 0.5, 0.75]) extra += win(x, y, w, w, 'L', t, 18 + r * ((h - 30) / 4), 0.09, 12, (r + t * 4) % 3 < 1 ? acc : '#ffe38a', '#1a1428') + win(x, y, w, w, 'R', t, 18 + r * ((h - 30) / 4), 0.09, 12, (r * 2 + t * 3) % 3 < 1 ? '#6ff' : '#2a2438', '#1a1428');
     const A = iso(x, y + w, h), B = iso(x + w, y + w, h), C = iso(x + w, y, h);
     extra += `<polyline points="${pts([A, B, C])}" fill="none" stroke="${acc}" stroke-width="3"/>`;
@@ -191,7 +191,7 @@ function building(k, cx, cy, acc, rank, K) {
 // the vault: a gold dome with a $ door, the same in every world, on a base in that world's stone
 function vault(k, wd, K) {
   const [cx, cy] = [HUB[0] * CELL, HUB[1] * CELL];
-  const base = { space: '#c9d1e0', castle: '#8a8294', farm: '#c9a46a', cyber: '#3a3552', alien: '#4f8a7f', ocean: '#b8a570' }[k];
+  const base = { space: '#c9d1e0', castle: '#8a8294', farm: '#c9a46a', cyber: '#4a4468', alien: '#4f8a7f', ocean: '#b8a570' }[k];
   const s = [...cyl(cx, cy, 0, 0.44, 34, base), ...cyl(cx, cy, 34, 0.36, 40, '#f2c14e', { bands: '' }), ...dome(cx, cy, 74, 0.36, '#f2c14e', { h: 46 })];
   const [dx, dy] = iso(cx + 0.36, cy + 0.36, 34);
   let extra = `<path d="M${f(dx - 18)} ${f(dy)}V${f(dy - 26)}A18 18 0 0 1 ${f(dx + 18)} ${f(dy - 26)}V${f(dy)}Z" fill="#7a5410" stroke="${OUT}" stroke-width="3"/><text x="${f(dx)}" y="${f(dy - 12)}" font-size="26" font-weight="900" text-anchor="middle" fill="#ffe27a" font-family="Arial Black, Arial, sans-serif">$</text>`;
@@ -243,7 +243,7 @@ function sky(k, wd, K) {
     s += `<path d="M0 820Q300 700 620 790T1200 760T1600 800V1000H0Z" fill="#8fd16a"/><path d="M0 880Q400 800 800 870T1600 850V1000H0Z" fill="#6bbf49"/>`;
   }
   if (k === 'cyber') {
-    for (let i = 0; i < 26; i++) { const x = i * 64 - 10, h = 180 + rnd(i + 3) * 340; s += `<rect x="${x}" y="${H - h}" width="${50 + rnd(i) * 20}" height="${h}" fill="${i % 3 ? '#150f26' : '#1c1432'}"/>`; for (let j = 0; j < 8; j++) if (rnd(i * 10 + j) > 0.55) s += `<rect x="${x + 8 + (j % 3) * 14}" y="${H - h + 20 + j * 26}" width="8" height="10" fill="${rnd(j + i) > 0.5 ? '#ff5ce0' : '#6ff'}" opacity=".6"/>`; }
+    for (let i = 0; i < 26; i++) { const x = i * 64 - 10, h = 180 + rnd(i + 3) * 340; s += `<rect x="${x}" y="${H - h}" width="${50 + rnd(i) * 20}" height="${h}" fill="${i % 3 ? '#22183c' : '#2c204a'}"/>`; for (let j = 0; j < 8; j++) if (rnd(i * 10 + j) > 0.55) s += `<rect x="${x + 8 + (j % 3) * 14}" y="${H - h + 20 + j * 26}" width="8" height="10" fill="${rnd(j + i) > 0.5 ? '#ff5ce0' : '#6ff'}" opacity=".85"/>`; }
     for (let i = 0; i < 90; i++) s += `<path d="M${f(rnd(i + 11) * W)} ${f(rnd(i + 33) * H)}l-6 18" stroke="#8fb0ff" stroke-width="1.4" opacity=".35"/>`;
   }
   if (k === 'alien') {
