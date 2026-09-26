@@ -5,7 +5,7 @@
 //
 //   mapSvg(world, options) returns an SVG string, 1600 x 1000.
 //   world    space castle farm cyber alien ocean haunted pumpkin
-//   options  { id, rooms: [{ name, accent, id }] (up to 10), hub, dock, level, title }
+//   options  { id, rooms: [{ name, accent, id }] (up to 10), hub, dock, level, title, plates }
 //            a room with an id (and the vault and dock) gets data-sel="<id>" on its plate and its building, to click
 
 const OUT = '#2a1d33';
@@ -351,7 +351,9 @@ function mapSvg(world = 'space', opts = {}) {
   const bx0 = Math.min(...xs), bx1 = Math.max(...xs), by0 = Math.min(...ys) - 205, by1 = Math.max(...ys) + 70;
   const sc = Math.min((W - 80) / (bx1 - bx0), (H - 150) / (by1 - by0));
   const tx = (W - (bx1 - bx0) * sc) / 2 - bx0 * sc, ty = 130 - by0 * sc;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="pf-map pf-map-${k}"><defs>${K.defs()}</defs>${bg}<g transform="translate(${f(tx)} ${f(ty)}) scale(${sc.toFixed(3)})">${body}${labels}</g>${head}</svg>`;
+  // plates: false leaves off the name plates and the title (a thumbnail, a picture of the world on its own)
+  const bare = opts.plates === false;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="pf-map pf-map-${k}"><defs>${K.defs()}</defs>${bg}<g transform="translate(${f(tx)} ${f(ty)}) scale(${sc.toFixed(3)})">${body}${bare ? '' : labels}</g>${bare ? '' : head}</svg>`;
 }
 
 const MAPS = { worlds: Object.keys(WORLD), rooms: DEFAULT_ROOMS };

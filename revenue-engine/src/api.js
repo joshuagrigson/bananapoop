@@ -4,11 +4,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { reduce } from './reduce.js';
-import { raceBoard } from './race.js';
+import { raceBoard, raceBrief } from './race.js';
 import { quests, summary } from './quests.js';
 import { commanderLevel } from './level.js';
 import { CATALOG, GATES, stagesFor } from './paths.js';
-import { LedgerError } from './ledger.js';
+import { LedgerError, RACE_METHODS, RACE_CONNECTORS, RACE_WORK_CONNECTORS, RACE_MODELS, RACE_SCORING, RACE_CONTACT, DEFAULT_HORIZONS, defaultRaceRules } from './ledger.js';
 import { ROLES, DEFAULT_MODEL } from './agent.js';
 import { addItem, listItems } from './inbox.js';
 import { addClient, listClients, updateClient, isDue } from './clients.js';
@@ -49,16 +49,22 @@ export function snapshot(ledger, catalog = CATALOG, dataDir = null, now = Date.n
   const q = quests(state, catalog);
   // a race's steps can run to thousands over six months: the board carries each room's recent ones instead
   const { steps, ...lean } = state;
+  const station = dataDir ? stationInfo(dataDir) : null;
+  const race = raceBoard(state, catalog, now);
+  // each contestant's brief, written from the race's rules, ready to paste into its agent's session
+  if (race) race.briefs = Object.fromEntries(race.lanes.map((l) => { const room = catalog.find((p) => p.id === l.id); const lead = station && station.folk.find((f) => (f.rooms || []).includes(l.id)); return [l.id, raceBrief(race, l.id, { roomName: room ? room.name : l.id, lead: lead ? lead.name : null })]; }));
   return {
     generatedAt: new Date(now).toISOString(),
     outbox: dataDir ? outboxCounts(dataDir, catalog) : {},
     state: { ...lean, stepCount: steps.length },
-    race: raceBoard(state, catalog, now),
+    race,
+    // the race setup's menu: every rule a race can set, and its default
+    raceMenu: { methods: RACE_METHODS, connectors: RACE_CONNECTORS, work: RACE_WORK_CONNECTORS, models: RACE_MODELS, scoring: RACE_SCORING, contact: RACE_CONTACT, horizons: DEFAULT_HORIZONS, defaults: defaultRaceRules() },
     level: commanderLevel(state),
     quests: q,
     questSummary: summary(q),
     catalog: catalog.map((p) => ({ ...p, stageList: stagesFor(p) })),
-    station: dataDir ? stationInfo(dataDir) : { name: 'Proxyfolk', template: 'paths', custom: false, configured: false, mode: 'agents', skin: 'space', folk: [], kids: [] },
+    station: station || { name: 'Proxyfolk', template: 'paths', custom: false, configured: false, mode: 'agents', skin: 'space', folk: [], kids: [] },
     // income links, without any secret: the station's comm mast and sync panel read this
     sync: { syncing: syncing(), connections: dataDir ? listConnections(dataDir).map(({ secret, ...c }) => c) : [] },
     gates: GATES,

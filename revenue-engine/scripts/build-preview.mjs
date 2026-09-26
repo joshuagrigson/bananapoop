@@ -150,6 +150,9 @@ write('race/api/rooms', JSON.stringify(roomsInfo(rledger, rcat, rdata)));
 // the same demo inside real phone, tablet and PC frames, side by side
 write('devices/index.html', raw('devices.html'));
 
+// the world picker's pictures (scripts/world-shots.mjs)
+const shots = path.join(root, 'art', 'worlds');
+if (fs.existsSync(shots)) for (const f of fs.readdirSync(shots)) if (f.endsWith('.webp')) write('worlds/' + f, fs.readFileSync(path.join(shots, f)));
 for (const f of ENGINE) write('engine/' + f, raw(f));
 for (const f of MOCK) write('engine/mock/' + f, raw('mock/' + f));
 

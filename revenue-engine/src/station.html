@@ -648,7 +648,14 @@
   .tile.mode.big .t-ic { width: 44px; height: 44px; } .tile.mode.big:hover { transform: translateY(-2px); }
   .skins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
   .skn { display: flex; flex-direction: column; gap: 3px; text-align: left; padding: 6px; border-radius: 11px; border: 1px solid var(--line); background: var(--tile); cursor: pointer; color: var(--ink); font: inherit; transition: .15s; }
-  .skn .sw { display: block; height: 46px; border-radius: 7px; margin-bottom: 3px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+  .skn .shot { position: relative; display: block; aspect-ratio: 16 / 10; border-radius: 8px; overflow: hidden; margin-bottom: 4px; background: #05070d; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+  .skn .shot img, .skn .shot .mapthumb, .skn .shot .mapthumb svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
+  .skn .shot img { transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+  .skn:hover .shot img { transform: scale(1.07); }
+  .skn .shot .pv { position: absolute; right: 6px; bottom: 6px; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 12px; background: rgba(5, 7, 13, .78); color: #fff; font: 600 9px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; opacity: 0; transition: opacity .2s; }
+  .skn .shot .pv .i { width: 10px; height: 10px; }
+  .skn:hover .pv, .skn:focus-visible .pv { opacity: 1; }
+  .skn .shot .now { position: absolute; left: 6px; top: 6px; padding: 3px 7px; border-radius: 10px; background: var(--gold); color: #1a1206; font: 700 8.5px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; }
   .skn b { font-size: 12px; padding: 0 3px; } .skn small { font-size: 10px; color: var(--muted); line-height: 1.3; padding: 0 3px 3px; }
   .skn:hover { border-color: var(--line2); transform: translateY(-1px); }
   .skn.on { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 18px color-mix(in srgb, var(--gold) 30%, transparent); }
@@ -663,7 +670,114 @@
   .kr.wk .kc { width: 14px; height: 14px; border-radius: 50%; background: var(--kc); display: inline-block; }
   .kr.wk.on { opacity: 1; color: var(--ink); box-shadow: 0 0 0 1px var(--kc); }
   .kr .kx { border: 0; background: none; color: var(--muted); cursor: pointer; padding: 4px; } .kr .kx:hover { color: var(--bad); } .kr .kx .i { width: 13px; height: 13px; }
+  /* the world preview: real shots, the map to explore, everyone who lives there */
+  #worldbox { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; background: rgba(2, 3, 8, .72); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+  #worldbox[hidden] { display: none; }
+  #worldbox .box { position: relative; width: min(1180px, 96vw); max-height: 92vh; overflow: auto; padding: 18px 20px 22px; animation: tin .4s cubic-bezier(.2,.9,.3,1.2) both; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+  #worldbox .x { position: absolute; right: 14px; top: 12px; z-index: 2; }
+  #worldbox .wh { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-right: 44px; }
+  #worldbox .wh .k { font: 600 9.5px/1 var(--f-ui); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  #worldbox h2 { margin: 4px 0 0; font: 700 24px/1.1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; }
+  #worldbox .lead { margin: 5px 0 0; max-width: 620px; color: var(--ink2); font-size: 13px; line-height: 1.45; }
+  #worldbox .acts { display: flex; gap: 7px; margin-left: auto; }
+  #worldbox .acts .btn { width: auto; }
+  .wshots { display: grid; grid-template-columns: 1.3fr 1fr; gap: 10px; margin-top: 14px; }
+  .wshots figure { position: relative; margin: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: #05070d; cursor: zoom-in; }
+  .wshots img, .wshots .mapthumb svg { display: block; width: 100%; height: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+  .wshots figcaption { position: absolute; left: 10px; bottom: 9px; padding: 4px 8px; border-radius: 10px; background: rgba(5, 7, 13, .7); color: #fff; font: 600 9.5px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; }
+  .wshots.solo { grid-template-columns: 1fr; } .wshots.solo figure { cursor: zoom-out; } .wshots.solo figure:not(.on) { display: none; }
+  .wsec { margin-top: 20px; }
+  .wsec > h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font: 600 10px/1 var(--f-display); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  .wsec > h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
+  .wmapw { position: relative; }
+  .wmap { height: min(58vh, 540px); overflow: auto; border-radius: 12px; border: 1px solid var(--line); background: #05070d; cursor: grab; scrollbar-width: none; touch-action: none; }
+  .wmap::-webkit-scrollbar { display: none; }
+  .wmap.drag { cursor: grabbing; }
+  .wmap svg { display: block; height: auto; max-width: none; }
+  .wmap-ctl { position: absolute; right: 10px; top: 10px; display: flex; gap: 6px; }
+  .wmap-ctl button { padding: 6px 10px; border-radius: 9px; border: 1px solid var(--line2); background: rgba(8, 11, 20, .82); color: var(--ink); font: 600 10px/1 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
+  .wmap-ctl button.on { border-color: var(--gold); color: var(--gold); }
+  .wg { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 8px; font: 600 13px/1.2 var(--f-ui); color: #fff; }
+  .wg:first-of-type { margin-top: 0; } .wg small { font: 400 11px/1.3 var(--f-ui); color: var(--muted); }
+  .cast { display: grid; grid-template-columns: repeat(auto-fill, minmax(122px, 1fr)); gap: 8px; }
+  .cast .cc { min-width: 0; padding: 6px 8px 9px; border-radius: 12px; border: 1px solid var(--line); background: radial-gradient(ellipse at 50% 80%, color-mix(in srgb, var(--c, #8fb0ff) 16%, transparent), transparent 70%), linear-gradient(180deg, var(--card-a), var(--card-b)); text-align: center; }
+  .cast .fig { display: grid; place-items: end center; height: 124px; }
+  .cast .fig svg, .cast .fig img { display: block; width: 124px; height: 124px; }
+  .cast .fig svg { transform: scale(1.5); transform-origin: 50% 90%; }
+  .cast .cc b { display: block; margin-top: 2px; font: 600 12px/1.2 var(--f-ui); color: #fff; }
+  .cast .cc small { display: block; margin-top: 3px; font-size: 10.5px; line-height: 1.3; color: var(--muted); }
+  .cast .cc .tg { display: block; margin-top: 4px; font: 600 8.5px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--c, var(--muted)); }
+  @media (max-width: 900px) {
+    #worldbox { position: fixed; top: var(--mockH, 0px); z-index: 60; }
+    #worldbox .box { width: 100vw; max-width: none; height: 100%; max-height: none; border-radius: 0; padding: 14px 12px 18px; }
+    #worldbox .acts { width: 100%; margin-left: 0; } #worldbox .acts .btn.go { flex: 1; }
+    .wshots { grid-template-columns: 1fr; }
+    .wmap { height: 52vh; }
+    .cast { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); } .cast .fig { height: 100px; } .cast .fig svg, .cast .fig img { width: 100px; height: 100px; }
+  }
   /* sandbox race: the board, prize cards, plays and the day-by-day breakdown */
+  button.play { all: unset; box-sizing: border-box; display: block; width: 100%; cursor: pointer; padding: 9px 10px 9px 11px; margin-bottom: 6px; border-radius: 10px; border: 1px solid var(--line); border-left: 3px solid var(--pc); background: linear-gradient(180deg, var(--card-a), var(--card-b)); transition: border-color .15s, transform .15s; }
+  button.play:hover { border-color: var(--pc); transform: translateY(-1px); }
+  .play .pgo { display: inline-flex; align-items: center; gap: 3px; margin-top: 7px; font: 600 9.5px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); }
+  .play .pgo .i { width: 11px; height: 11px; }
+  .sub-h { margin: 12px 0 6px; font: 600 9.5px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .mbars { display: grid; gap: 5px; }
+  .mb { position: relative; display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 6px 8px 8px; border-radius: 8px; background: var(--card-b); border: 1px solid var(--line); font-size: 12px; overflow: hidden; }
+  .mb .k { color: var(--ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .mb .n { font: 10.5px/1 var(--f-num); color: var(--muted); } .mb .u { font: 600 12px/1 var(--f-num); color: var(--c); }
+  .mb i { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--c); opacity: .8; box-shadow: 0 0 8px var(--c); }
+  .sm-bars { display: grid; gap: 6px; }
+  .smb { display: grid; grid-template-columns: 48px 1fr auto; gap: 8px; align-items: center; font-size: 11px; color: var(--muted); }
+  .smb i { display: block; height: 10px; border-radius: 5px; min-width: 2px; } .smb.in i { background: linear-gradient(90deg, #1f8f5f, var(--good)); } .smb.out i { background: linear-gradient(90deg, #a33, var(--bad)); }
+  .smb b { font: 600 12px/1 var(--f-num); color: var(--ink); }
+  .sm-verdict { margin-top: 8px; font-size: 12px; color: var(--ink2); } .sm-verdict b { font-family: var(--f-num); } .sm-verdict b.good { color: var(--good); } .sm-verdict b.bad { color: var(--bad); }
+  button.cf { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 1fr auto 14px; gap: 10px; align-items: center; width: 100%; cursor: pointer; padding: 9px 10px; margin-bottom: 5px; border-radius: 10px; border: 1px solid var(--line); border-left: 3px solid var(--c); background: linear-gradient(90deg, color-mix(in srgb, var(--c) 8%, var(--card-a)), var(--card-b)); transition: border-color .15s; }
+  button.cf:hover { border-color: var(--c); }
+  .cf .t { min-width: 0; } .cf b { display: block; font: 600 12.5px/1.2 var(--f-ui); color: #fff; } .cf small { display: block; margin-top: 3px; font: 10.5px/1.3 var(--f-num); color: var(--muted); }
+  .cf .u { font: 600 13px/1 var(--f-num); color: var(--good); text-align: right; } .cf .u small { font-size: 10px; } .cf > .i { width: 13px; height: 13px; color: var(--muted); }
+  .smrow { display: grid; grid-template-columns: 70px 1fr auto; gap: 8px; align-items: center; padding: 6px 2px; border-top: 1px solid var(--sunk); cursor: pointer; font-size: 12px; }
+  .smrow:first-of-type { border-top: 0; } .smrow:hover .nm { color: var(--c); }
+  .smrow .nm { font-weight: 600; color: #fff; } .smrow .bars { display: grid; gap: 3px; } .smrow .bars i { display: block; height: 6px; border-radius: 3px; min-width: 2px; } .smrow .bars .in { background: var(--good); } .smrow .bars .out { background: var(--bad); opacity: .85; }
+  .smrow .v { font: 600 12px/1.1 var(--f-num); color: var(--good); text-align: right; } .smrow .v small { display: block; font-size: 10px; color: var(--muted); font-weight: 500; }
+  .rank.out { opacity: .55; }
+  dl.rules { display: grid; grid-template-columns: 96px 1fr; gap: 6px 10px; margin: 0 0 8px; font-size: 11.5px; line-height: 1.4; }
+  dl.rules dt { color: var(--muted); font: 600 9px/1.5 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; } dl.rules dd { margin: 0; color: var(--ink2); }
+  .briefs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  pre.brief { margin: 8px 0 0; padding: 10px 11px; max-height: 320px; overflow: auto; white-space: pre-wrap; border-radius: 9px; background: var(--field); border: 1px solid var(--line); font: 11px/1.45 var(--f-num); color: var(--ink2); }
+  .bmgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .bm { padding: 8px 10px; border-radius: 9px; background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid var(--line); }
+  .bm span { font: 600 9px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); } .bm p { margin: 5px 0 0; font-size: 12px; line-height: 1.4; color: var(--ink); }
+  .bm:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  #racebox { position: absolute; inset: 0; z-index: 25; display: grid; place-items: center; background: rgba(2, 3, 8, .66); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  #racebox[hidden] { display: none; }
+  #racebox .box { position: relative; width: min(1060px, 96vw); max-height: 92vh; overflow: auto; padding: 20px 22px 0; --c: #ffcf5a; animation: tin .4s cubic-bezier(.2,.9,.3,1.2) both; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+  #racebox .x { position: absolute; right: 14px; top: 12px; z-index: 2; }
+  #racebox textarea { font: 12.5px/1.4 var(--f-ui); background: var(--field); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; width: 100%; outline: none; resize: vertical; }
+  #racebox input[type=checkbox] { width: auto; }
+  .rs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; margin-top: 14px; }
+  .rs-sec { display: grid; gap: 9px; align-content: start; min-width: 0; } .rs-sec.wide { grid-column: 1 / -1; }
+  .rs-sec > h3 { display: flex; align-items: center; gap: 8px; margin: 0; font: 600 10px/1 var(--f-display); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  .rs-sec > h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); order: 1; }
+  .rs-quick { order: 2; display: inline-flex; gap: 4px; } .rs-quick button { all: unset; cursor: pointer; padding: 3px 7px; border-radius: 7px; border: 1px solid var(--line2); font: 600 9px/1 var(--f-ui); letter-spacing: .12em; color: var(--ink2); } .rs-quick button:hover { color: var(--gold); border-color: var(--gold); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ck { display: inline-flex; align-items: flex-start; gap: 7px; padding: 7px 10px; border-radius: 9px; border: 1px solid var(--line); background: var(--tile); cursor: pointer; transition: border-color .15s, background .15s; user-select: none; }
+  .ck input { margin: 1px 0 0; accent-color: var(--gold); flex: none; } .ck b { display: block; font: 600 11.5px/1.25 var(--f-ui); color: var(--ink); } .ck small { display: block; margin-top: 2px; font-size: 10px; line-height: 1.3; color: var(--muted); }
+  .ck.on { border-color: color-mix(in srgb, var(--gold) 70%, transparent); background: color-mix(in srgb, var(--gold) 9%, var(--tile)); }
+  .ck:has(input:disabled) { opacity: .55; cursor: not-allowed; }
+  .meths { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; } .meths .ck { width: 100%; box-sizing: border-box; }
+  .rs-rooms { display: grid; gap: 5px; }
+  .rr { display: grid; grid-template-columns: 1fr 78px 118px; gap: 6px; align-items: center; }
+  .rr input[type=number], .rr select { padding: 6px 8px; font-size: 11.5px; }
+  .rrn { display: flex; align-items: center; gap: 7px; min-width: 0; cursor: pointer; } .rrn i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); box-shadow: 0 0 6px var(--c); flex: none; }
+  .rrn b { font: 600 12px/1.2 var(--f-ui); color: #fff; } .rrn small { font-size: 10.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rs-foot { position: sticky; bottom: 0; display: grid; grid-template-columns: minmax(220px, 1fr) 2fr auto; gap: 10px 14px; align-items: end; margin: 18px -22px 0; padding: 12px 22px 14px; background: linear-gradient(180deg, color-mix(in srgb, var(--tip-b) 70%, transparent), var(--tip-b) 30%); border-top: 1px solid var(--line); }
+  .rs-foot .msg { grid-column: 1 / -1; }
+  .rs-sum { font-size: 11.5px; line-height: 1.45; color: var(--ink2); } .rs-sum b { color: var(--gold); font-family: var(--f-num); }
+  @media (max-width: 900px) {
+    #racebox { position: fixed; top: var(--mockH, 0px); z-index: 60; }
+    #racebox .box { width: 100vw; max-width: none; height: 100%; max-height: none; border-radius: 0; padding: 14px 12px 0; }
+    .rs-grid { grid-template-columns: 1fr; } .rs-foot { grid-template-columns: 1fr; margin: 14px -12px 0; padding: 10px 12px 12px; }
+    .rr { grid-template-columns: 1fr 64px 96px; } .bmgrid { grid-template-columns: 1fr; }
+  }
   #labels.race .plate .m, #labels.race .plate .tag.need { display: inline-flex; align-items: baseline; gap: 4px; }
   .plate .m small { font: 600 9.5px/1 var(--f-num); color: var(--ink2); opacity: .85; }
   .plate .m.dn { color: var(--bad); text-shadow: none; }
@@ -839,6 +953,8 @@
   <div id="guide" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Field guide"></div></div>
   <div id="mapbox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Map of the station"></div></div>
   <div id="syncbox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Income sync"></div></div>
+  <div id="racebox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Race setup"></div></div>
+  <div id="worldbox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="World preview"></div></div>
   <div id="roomsbox" hidden><div class="box glass" role="dialog" aria-modal="true" aria-label="Customize rooms"></div></div>
   <div id="boot"><div class="in">
     <svg class="logo" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 1.5l17.5 10v21L20 42.5 2.5 32.5v-21z" fill="#ffcf5a"/><path d="M20 7.5l12.3 7v14.6L20 36.3 7.7 29.1V14.5z" fill="#1c1204"/><path d="M23.6 16.4c-.8-1-2-1.5-3.3-1.5-2 0-3.5 1.1-3.5 2.6 0 3.6 7 1.8 7 5.3 0 1.5-1.6 2.6-3.7 2.6-1.4 0-2.7-.6-3.5-1.7M20.3 13v18" stroke="#ffcf5a" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
@@ -1120,6 +1236,10 @@
   };
   // the residents drawn from the kit rather than from Code Lab
   const NPC_LOOK = { cargo: { role: 'crew', species: 'robot', world: 'space', tier: 1, tint: '#ffb454' }, courier: { role: 'crew', world: 'cyber', tier: 2, skin: 3, hair: 4, hairC: 5, tint: '#ff5ce0' }, dj: { role: 'creator', species: 'robot', world: 'cyber', tier: 3 }, receptionist: { role: 'client', species: 'blob', world: 'alien', tier: 1, tint: '#b06bff' }, accountant: { role: 'fulfiller', species: 'octo', world: 'ocean', tier: 3 } };
+  // costumes become species in the kit (a skeleton in the crypt, a robot at the bar, a grey in the lab), and each
+  // world's floor crowd mixes in its natives
+  const KIT_SPECIES = { crypt: 'skeleton', library: 'skeleton', bar: 'robot', clinic: 'robot', lab: 'grey', probe: 'grey', lounge: 'grey', hatchery: 'blob', bridge: 'octo', bonecellar: 'skeleton', attic: 'fox', graveyard: 'skeleton', cats: 'fox' };
+  const CROWD_SPECIES = { space: [['robot', 3]], castle: [['skeleton', 4]], farm: [['fox', 5]], cyber: [['robot', 4]], alien: [['grey', 8], ['blob', 3]], ocean: [['octo', 5]], haunted: [['skeleton', 4]], pumpkin: [['fox', 3], ['skeleton', 2]] };
   const NPC_BARK = { mordra: 'coin', vex: 'dots', mott: 'heart', warg: 'bang', mumblecrow: 'q', cargo: 'dots', courier: 'bang', dj: 'note', receptionist: 'heart', accountant: 'coin', crab: 'heart' };
   // somewhere free to stand anywhere on a cell's floor, clear of the furniture by a little
   function spotIn(c, r, fallback) {
@@ -2496,7 +2616,7 @@
         const live = r.standings.find((s) => s.state === 'live'), lead = r.leaderId && roomById(r.leaderId);
         const plays = r.lanes.reduce((a, l) => a + l.plays.filter((p) => p.status === 'trying' || p.status === 'working').length, 0);
         items = [
-          ['day', 'Race day', r.over ? 'finished' : `Day ${r.day} of ${r.totalDays}`, null, '#5fd4ff', 'clock', `Days since the starting gun, ${new Date(r.startedAt).toLocaleDateString()}`, ''],
+          ['day', 'Race day', !r.started ? `starts in ${r.startsInDays}d` : r.over ? 'finished' : `Day ${r.day} of ${r.totalDays}`, null, '#5fd4ff', 'clock', `Days since the starting gun, ${new Date(r.startedAt).toLocaleDateString()}`, ''],
           ['pot', 'All bankrolls', r.potUsd, (v) => usd2(v), '#ffcf5a', 'coin', `Every room's stake plus what it made minus what it spent. ${usd(r.stakedUsd)} was staked.`, 'gold'],
           ['leader', 'Leading', lead ? `${shortName(lead.spec)} ${multFmt(laneOf(lead.id).multiple)}` : 'tied', null, lead ? themeOf(lead.id).accent : '#a78bfa', 'crown', 'The biggest bankroll right now', ''],
           ['next', 'Next prize', live ? `${hName(live.days)} · ${live.daysLeft}d` : 'all awarded', null, '#a78bfa', 'target', 'The next horizon; its winner locks the moment it passes', ''],
@@ -2669,7 +2789,7 @@
   function renderPanel(force = false) {
     if (!snap) return;
     const room = selected && roomById(selected);
-    const sig = JSON.stringify([selected, insMode, snap.state.eventCount, snap.state.running.map((r) => r.runId), snap.outbox, snap.questSummary, room ? [...agents.values()].filter((a) => a.path === room.id && a.kind !== 'extra').map((a) => a.id) : 0]);
+    const sig = JSON.stringify([selected, insMode, racePlay, snap.state.eventCount, snap.state.running.map((r) => r.runId), snap.outbox, snap.questSummary, room ? [...agents.values()].filter((a) => a.path === room.id && a.kind !== 'extra').map((a) => a.id) : 0]);
     if (!force && sig === panelSig) return;
     const active = document.activeElement;
     if (!force && active && $('#panel').contains(active) && /INPUT|SELECT|TEXTAREA/.test(active.tagName)) return;
@@ -2680,7 +2800,7 @@
     else if (overlayMode() && insMode === 'stack') renderStack(el, room);
     else if (selected && selected.startsWith('a:')) renderAgent(el, agents.get(selected.slice(2)));
     else if (selected === 'dock') (MODE() === 'allowance' ? renderFamily : renderDock)(el);
-    else if (room && MODE() === 'race') renderRace(el, room);
+    else if (room && MODE() === 'race') (racePlay && racePlay.room === room.id ? renderPlayModel : renderRace)(el, room);
     else if (room && isService(room)) (MODE() === 'allowance' ? renderChore : renderService)(el, room);
     else if (room) renderRoom(el, room);
     else (MODE() === 'allowance' ? renderFamily : MODE() === 'race' ? renderRaceBoard : renderRoster)(el);
@@ -2712,16 +2832,21 @@
   function renderStack(el, room) {
     const st = snap.state, fam = MODE() === 'allowance';
     if (room) {
-      const spec = room.spec, accent = themeOf(room.id).accent, today = svcStatsToday(room), p = pathState(room.id), tier = roomTier(room);
+      const spec = room.spec, accent = themeOf(room.id).accent, today = svcStatsToday(room), tier = roomTier(room), lane = laneOf(room.id);
       $('#inspector').style.setProperty('--room', accent);
       el.innerHTML = `<div class="stk" style="--c:${accent}">
         <button class="back" data-sel="hub">${ic('chevL')}all rooms</button>
         <div class="srow on" style="--c:${accent};cursor:default"><span class="rk">${String(spec.rank).padStart(2, '0')}</span><span class="nm"><b>${esc(shortName(spec))}</b></span><span class="u">${usd(Math.round(roomMoney(room.id)))}</span></div>
         <div class="hub-step" style="margin:0 auto"><button type="button" data-step="-1" title="Previous room">${ic('chevL')}</button><span>${rooms.slice().sort((a, b) => a.spec.rank - b.spec.rank).findIndex((r) => r.id === room.id) + 1} / ${rooms.length}</span><button type="button" data-step="1" title="Next room">${ic('chevR')}</button></div>
-        <div class="kv"><span>Level</span><b>${tier + 1} ${'★'.repeat(tier)}</b></div>
+        ${lane ? `<div class="kv"><span>Place</span><b>${nth(lane.place)} of ${snap.race.lanes.length}${snap.race.leaderId === room.id ? ' ♛' : ''}</b></div>
+        <div class="kv"><span>Multiple</span><b style="color:${lane.multiple < 1 ? 'var(--bad)' : 'var(--good)'}">${multFmt(lane.multiple)}</b></div>
+        <div class="kv"><span>Rate · 7 days</span><b>${rateFmt(lane.rate7)}</b></div>
+        <div class="kv"><span>Made · spent</span><b>${usd(Math.round(lane.inUsd))} · ${usd(Math.round(lane.outUsd))}</b></div>
+        <div class="kv"><span>Plays</span><b>${lane.plays.filter((x) => x.status === 'working').length} working · ${lane.plays.length} tried</b></div>
+        ${lane.blocked ? `<div class="need" style="margin-top:4px"><b>${ic('warn')}Needs you</b>${esc(lane.blocked.text)}</div>` : ''}` : `<div class="kv"><span>Level</span><b>${tier + 1} ${'★'.repeat(tier)}</b></div>
         <div class="kv"><span>Working</span><b>${workersIn(room).length}</b></div>
         <div class="kv"><span>Today</span><b>${fam ? today.n + ' done' : usd(today.usd)}</b></div>
-        <div class="kv"><span>30 days</span><b>${roomActivity(room)}</b></div>
+        <div class="kv"><span>30 days</span><b>${roomActivity(room)}</b></div>`}
         <div class="hub-acts"><button type="button" class="ha" data-world>${ic('globe')}World</button><button type="button" class="ha" data-edit>${ic('pencil')}Edit</button></div>
         ${whoHere(room)}</div>`;
       return;
@@ -3062,73 +3187,114 @@
     return `<div class="e" style="--tc:${x.kind === 'in' ? 'var(--good)' : 'var(--bad)'}"><span class="ic">${ic(x.kind === 'in' ? 'coin' : 'flame')}</span><span>${esc(x.text || '')}${x.kind === 'in' && x.source && x.source !== x.text ? ' · ' + esc(x.source) : ''}<small>${esc(x.evidence || '')}${pl}</small></span><span class="u ${x.kind}">${x.kind === 'in' ? '+' : '−'}${usd2(x.usd)}</span></div>`;
   }
   function playCard(p) {
-    return `<div class="play ${p.status}" style="--pc:${PLAYCOL[p.status]}">
+    return `<button type="button" class="play ${p.status}" data-play="${esc(p.id)}" style="--pc:${PLAYCOL[p.status]}" title="See the business model">
       <div class="ph"><b>${esc(p.name)}</b><span class="pill st-${p.status}">${esc(p.status)}</span><span class="pn${p.netUsd < 0 ? ' dn' : ''}">${p.netUsd < 0 ? '−' : '+'}${usd(Math.abs(p.netUsd))}</span></div>
       <div class="pm"><span>${rateFmt(p.ratePerDay)}</span><span>${usd(p.inUsd)} in · ${usd(p.outUsd)} out</span><span>${p.sales} sale${p.sales === 1 ? '' : 's'}</span><span>since day ${p.startedDay}</span><span>${p.steps} step${p.steps === 1 ? '' : 's'}</span></div>
-      ${p.plan ? `<div class="pp">${esc(p.plan)}</div>` : ''}${p.why ? `<div class="pw">${esc(p.why)}</div>` : ''}</div>`;
+      ${p.model && p.model.offer ? `<div class="pp">${esc(p.model.offer)}${p.model.customer ? ` <span class="muted">for ${esc(p.model.customer.charAt(0).toLowerCase() + p.model.customer.slice(1))}</span>` : ''}</div>` : p.plan ? `<div class="pp">${esc(p.plan)}</div>` : ''}${p.why ? `<div class="pw">${esc(p.why)}</div>` : ''}
+      <span class="pgo">Business model ${ic('chevR')}</span></button>`;
   }
-  function raceStartHtml() {
-    return `<div class="sec"><h3>Start the race</h3><form id="f-race" class="pane on">
-      <div class="row2"><label class="field"><span>Stake per room (USD)</span><input name="stake" type="number" min="1" step="1" value="250" required></label><label class="field"><span>Race name</span><input name="name" maxlength="60" placeholder="The $250 Race"></label></div>
-      <label class="field"><span>Where the stake money sits</span><input name="evidence" minlength="3" required placeholder="e.g. eight virtual cards, $250 on each"></label>
-      <div class="muted small">Prizes at 1 week, 30 days, 90 days and 6 months. Only money logged after the gun counts. Starting records the race on the ledger; it moves no money.</div>
-      <button class="btn go">${ic('flag')}Fire the starting gun</button><div class="msg"></div></form></div>`;
+  // bars for money grouped by source or category: [{ key, usd, n }]
+  const CAT_NAME = { api: 'API use', tool: 'Tools and software', ads: 'Ads', capital: 'Stock and inventory', other: 'Fees and other' };
+  function moneyBars(list, col, name = (k) => k, unit = 'sale') {
+    if (!list || !list.length) return '<div class="muted small">Nothing yet.</div>';
+    const max = Math.max(1e-9, ...list.map((x) => x.usd));
+    return `<div class="mbars">${list.map((x) => `<div class="mb" style="--c:${col}"><span class="k">${esc(name(x.key))}</span><span class="n">${x.n} ${unit}${x.n === 1 ? '' : 's'}</span><span class="u">${usd(x.usd)}</span><i style="width:${(100 * x.usd / max).toFixed(1)}%"></i></div>`).join('')}</div>`;
+  }
+  // made against spent, and what each dollar spent brought back
+  function spentMade(inUsd, outUsd, back) {
+    const max = Math.max(1e-9, inUsd, outUsd);
+    return `<div class="sm-bars"><div class="smb in"><span>Made</span><i style="width:${(100 * inUsd / max).toFixed(1)}%"></i><b>${usd(inUsd)}</b></div><div class="smb out"><span>Spent</span><i style="width:${(100 * outUsd / max).toFixed(1)}%"></i><b>${usd(outUsd)}</b></div></div>
+      <div class="sm-verdict">${outUsd > 0 ? `<b class="${back >= 1 ? 'good' : 'bad'}">$${back.toFixed(2)}</b> back for every $1 spent` : inUsd > 0 ? '<b class="good">Nothing spent</b>: every dollar made is profit' : 'Nothing spent, nothing made yet'}</div>`;
+  }
+  const raceNm = (id) => { const m = roomById(id); return m ? shortName(m.spec) : id; };
+  function copyText(text, btn) {
+    const done = () => { if (btn) { const t = btn.innerHTML; btn.innerHTML = `${ic('check')}Copied`; setTimeout(() => { btn.innerHTML = t; }, 1600); } };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => { prompt('Copy the brief:', text); });
+    else prompt('Copy the brief:', text);
+  }
+  function rulesHtml(r, M) {
+    const lim = [r.maxSpendPerDayUsd !== null ? `at most ${usd(r.maxSpendPerDayUsd)} a day` : null, r.approveOverUsd !== null ? `purchases over ${usd(r.approveOverUsd)} need you` : null, r.knockoutUsd !== null ? `out at ${usd(r.knockoutUsd)}` : null, r.ads ? 'ads allowed' : 'no paid ads', r.collab ? 'rooms may trade' : 'no trading between rooms'].filter(Boolean);
+    return `<dl class="rules">
+      <dt>Scored by</dt><dd>${esc(M.scoring[r.scoring] || r.scoring)}${r.tiebreak === 'earliest' ? '; a tie goes to whoever got there first' : ''}</dd>
+      <dt>May make money by</dt><dd>${r.methods.length ? r.methods.map((m) => esc((M.methods[m] || m).split(':')[0])).join(' · ') : 'nothing yet'}</dd>
+      <dt>Not allowed</dt><dd>${Object.keys(M.methods).filter((m) => !r.methods.includes(m)).map((m) => esc(M.methods[m].split(':')[0])).join(' · ') || 'nothing ruled out'}</dd>
+      <dt>Connectors</dt><dd>${esc(r.connectors.join(', ') || 'none')}</dd>
+      <dt>Money</dt><dd>${esc(lim.join(' · '))}</dd>
+      <dt>People</dt><dd>${esc(M.contact[r.outreach] || r.outreach)}; posts ${r.posting === 'none' ? 'not allowed' : 'drafted for you'}; check in every ${r.everyHours === 24 ? 'day' : r.everyHours + ' hours'}</dd>
+      ${Object.keys(r.models || {}).length ? `<dt>Models</dt><dd>${Object.entries(r.models).map(([id, m]) => `${esc(raceNm(id))}: ${esc((M.models[m] || m).replace(/^Claude /, ''))}`).join(' · ')}</dd>` : ''}
+      ${r.notes ? `<dt>Also</dt><dd>${esc(r.notes)}</dd>` : ''}</dl>`;
   }
   function renderRaceBoard(el) {
-    const r = snap.race;
+    const r = snap.race, M = snap.raceMenu;
     $('#inspector').style.setProperty('--room', '#ffcf5a');
     const head = (chips) => `<div class="ih"><div class="big" style="--c:#ffcf5a">${ic('flag').replace('class="i"', 'class="i" style="width:24px;height:24px"')}</div><div><h2>${esc((r && r.name) || stationName())}</h2><div class="chips">${chips}</div></div></div>`;
     if (!r) {
       el.innerHTML = `${head(`<span class="pill">${rooms.length} rooms</span><span class="pill warn">not started</span>`)}
-        <div class="muted small">Every room gets the same stake and one agent who tries to multiply it, any legal way it can. The ledger keeps score: the biggest bankroll at 1 week, 30 days, 90 days and 6 months each wins.</div>${raceStartHtml()}`;
-      wire('#f-race', (d) => post('api/events', { kind: 'race', stakeUsd: Number(d.stake), evidence: d.evidence.trim(), ...(d.name.trim() ? { name: d.name.trim() } : {}) }).then(() => 'The race is on.'));
+        <div class="muted small">Every room gets a stake and one agent who tries to multiply it. You choose every rule: the stake, the prize days, which rooms race, the ways they may make money, the tools they may use, what they may spend and who they may contact. The ledger keeps score.</div>
+        <div class="sec"><button class="btn go wide" type="button" data-rsopen="new">${ic('flag')}Set up the race</button></div>`;
       return;
     }
     const hs = r.standings, cur = hs.find((s) => s.days === raceH) || hs.find((s) => s.state === 'live') || hs[hs.length - 1];
-    const nameOf = (id) => { const m = roomById(id); return m ? shortName(m.spec) : id; };
     const leadName = (id) => { const f = leadOf(id); return f ? f.name : ''; };
+    const metric = (x) => (r.rules.scoring === 'multiple' ? multFmt(x.multiple) : r.rules.scoring === 'profit' ? (x.profitUsd < 0 ? '−' : '+') + usd(Math.abs(Math.round(x.profitUsd))) : usd(Math.round(x.bankrollUsd)));
     const max = Math.max(1e-9, ...cur.ranking.map((x) => x.bankrollUsd));
     const needs = r.lanes.filter((l) => l.blocked);
-    el.innerHTML = `${head(`<span class="pill cyan">${r.over ? 'finished' : `day ${r.day} of ${r.totalDays}`}</span><span class="pill gold">${usd(r.stakeUsd)} a room</span><span class="pill">${r.lanes.length} rooms</span>`)}
-      <div class="muted small">Each room started with ${usd(r.stakeUsd)} and one agent. A bankroll is the stake plus evidenced money in minus money out since the gun; anything bought but not yet sold counts as zero. The biggest bankroll at each horizon wins it.</div>
-      <div class="sec"><h3>Prizes</h3><div class="hz">${hs.map((s) => `<button type="button" class="${s.state}${s === cur ? ' on' : ''}" data-hz="${s.days}"><span class="k">${hName(s.days)}</span><span class="w">${s.state === 'done' ? (s.winner ? ic('crown') + esc(nameOf(s.winner)) : 'tie, no winner') : s.state === 'live' ? (s.leader ? esc(nameOf(s.leader)) + ' leads' : 'tied') : 'not yet'}</span><span class="s">${s.state === 'done' ? (s.winner ? `won with ${usd(Math.round(s.ranking[0].bankrollUsd))} · ${multFmt(s.ranking[0].multiple)}` : 'nobody ahead') : s.state === 'live' ? `${s.daysLeft} day${s.daysLeft === 1 ? '' : 's'} left` : `in ${s.daysLeft} days`}</span></button>`).join('')}</div></div>
-      ${needs.length ? `<div class="sec"><h3>Waiting on you · ${needs.length}</h3>${needs.map((l) => `<div class="need" data-sel="${esc(l.id)}"><b>${ic('warn')}${esc(nameOf(l.id))}${leadName(l.id) ? ' · ' + esc(leadName(l.id)) : ''} · day ${l.blocked.day}</b>${esc(l.blocked.text)}</div>`).join('')}</div>` : ''}
+    const sm = r.lanes.slice().sort((a, b) => b.inUsd - a.inUsd), smMax = Math.max(1e-9, ...sm.map((l) => Math.max(l.inUsd, l.outUsd)));
+    el.innerHTML = `${head(`<span class="pill cyan">${!r.started ? `starts in ${r.startsInDays} day${r.startsInDays === 1 ? '' : 's'}` : r.over ? 'finished' : `day ${r.day} of ${r.totalDays}`}</span><span class="pill gold">${usd(r.stakeUsd)} a room</span><span class="pill">${r.lanes.length} rooms</span>`)}
+      <div class="muted small">A bankroll is the stake plus evidenced money in minus money out since the gun; anything bought but not yet sold counts as zero. ${esc(M.scoring[r.rules.scoring] || '')} at each horizon wins it.</div>
+      <div class="sec"><h3>Prizes</h3><div class="hz">${hs.map((s) => `<button type="button" class="${s.state}${s === cur ? ' on' : ''}" data-hz="${s.days}"><span class="k">${hName(s.days)}</span><span class="w">${s.state === 'done' ? (s.winner ? ic('crown') + esc(raceNm(s.winner)) : 'tie, no winner') : s.state === 'live' ? (s.leader ? esc(raceNm(s.leader)) + ' leads' : 'tied') : 'not yet'}</span><span class="s">${s.state === 'done' ? (s.winner ? `won with ${metric(s.ranking.find((x) => x.id === s.winner))}${s.tieBroken ? ' · got there first' : ''}` : 'nobody ahead') : s.state === 'live' ? `${s.daysLeft} day${s.daysLeft === 1 ? '' : 's'} left` : `in ${s.daysLeft} days`}</span></button>`).join('')}</div></div>
+      ${needs.length ? `<div class="sec"><h3>Waiting on you · ${needs.length}</h3>${needs.map((l) => `<div class="need" data-sel="${esc(l.id)}"><b>${ic('warn')}${esc(raceNm(l.id))}${leadName(l.id) ? ' · ' + esc(leadName(l.id)) : ''} · day ${l.blocked.day}</b>${esc(l.blocked.text)}</div>`).join('')}</div>` : ''}
       <div class="sec"><h3>${cur.state === 'done' ? `Final at ${hName(cur.days)}` : `Standings · day ${r.day}`}</h3>
         ${cur.ranking.map((x, i) => { const l = laneOf(x.id), acc = themeOf(x.id).accent, first = i === 0 && (cur.winner === x.id || (cur.state !== 'done' && cur.leader === x.id));
-          return `<div class="rank${first ? ' top' : ''}" data-sel="${esc(x.id)}" style="--c:${acc}"><span class="no">${first ? ic('crown') : i + 1}</span><span class="nm">${esc(nameOf(x.id))}${leadName(x.id) ? ` <span style="color:var(--muted);font-weight:500">· ${esc(leadName(x.id))}</span>` : ''}<small>${cur.state === 'done' ? `at ${hName(cur.days)}` : `${rateFmt(l.rate7)} · ${l.plays.filter((p) => p.status !== 'dropped').length} plays${l.blocked ? ' · needs you' : ''}`}</small></span><span class="v${x.bankrollUsd < r.stakeUsd ? ' dn' : ''}">${usd(Math.round(x.bankrollUsd))}<small>${multFmt(x.multiple)}</small></span><i class="bg" style="width:${(100 * x.bankrollUsd / max).toFixed(1)}%"></i></div>`; }).join('')}
-        <div class="muted small" style="margin-top:6px">Rate is net dollars a day over the last 7 days. Click a room for every play it is running and everything it did, day by day.</div></div>
-      <div class="sec"><h3>How the agents report</h3><div class="muted small">Each agent logs its plays, steps and money to this ledger (node src/cli.js race play / race step / log-in --play, or POST /api/events). Money without evidence is refused at the door, so a claim can never win.</div></div>`;
+          return `<div class="rank${first ? ' top' : ''}${x.out ? ' out' : ''}" data-sel="${esc(x.id)}" style="--c:${acc}"><span class="no">${first ? ic('crown') : i + 1}</span><span class="nm">${esc(raceNm(x.id))}${leadName(x.id) ? ` <span style="color:var(--muted);font-weight:500">· ${esc(leadName(x.id))}</span>` : ''}<small>${x.out ? 'knocked out' : cur.state === 'done' ? `at ${hName(cur.days)}` : `${rateFmt(l.rate7)} · ${l.plays.filter((p) => p.status !== 'dropped').length} plays${l.blocked ? ' · needs you' : ''}`}</small></span><span class="v${x.bankrollUsd < l.stakeUsd ? ' dn' : ''}">${metric(x)}<small>${r.rules.scoring === 'multiple' ? usd(Math.round(x.bankrollUsd)) : multFmt(x.multiple)}</small></span><i class="bg" style="width:${(100 * x.bankrollUsd / max).toFixed(1)}%"></i></div>`; }).join('')}
+        <div class="muted small" style="margin-top:6px">Rate is net dollars a day over the last 7 days. Click a room for every play it ran, and the business model behind each.</div></div>
+      <div class="sec"><h3>Spent vs made</h3>${sm.map((l) => `<div class="smrow" data-sel="${esc(l.id)}" style="--c:${themeOf(l.id).accent}"><span class="nm">${esc(raceNm(l.id))}</span><span class="bars"><i class="in" style="width:${(100 * l.inUsd / smMax).toFixed(1)}%"></i><i class="out" style="width:${(100 * l.outUsd / smMax).toFixed(1)}%"></i></span><span class="v">${usd(Math.round(l.inUsd))}<small>spent ${usd(Math.round(l.outUsd))}${l.backPerDollar !== null ? ` · $${l.backPerDollar.toFixed(2)} per $1` : ''}</small></span></div>`).join('')}
+        <div class="muted small" style="margin-top:6px">Green is money made, red is money spent. Per $1 is what each dollar spent brought back.</div></div>
+      <div class="sec"><h3>Where the money comes from</h3>${moneyBars(r.bySource, '#3ddc97')}</div>
+      <div class="sec"><h3>The rules</h3>${rulesHtml(r.rules, M)}${r.amendments.length ? `<div class="muted small">Changed ${r.amendments.length} time${r.amendments.length === 1 ? '' : 's'} since the gun; the latest: ${esc(r.amendments[r.amendments.length - 1].evidence)}.</div>` : ''}
+        <div class="row2" style="margin-top:8px"><button class="btn" type="button" data-rsopen="amend">${ic('pencil')}Change the rules</button><button class="btn" type="button" data-rsopen="restart">${ic('flag')}New race</button></div></div>
+      <div class="sec"><h3>Agent briefs</h3><div class="muted small">What each agent is told, written from the rules above. Paste it into that room's agent session.</div>
+        <div class="briefs">${r.lanes.map((l) => `<button class="btn sm2" type="button" data-brief="${esc(l.id)}" style="--c:${themeOf(l.id).accent}">${ic('note')}${esc(raceNm(l.id))}</button>`).join('')}</div></div>`;
     el.querySelectorAll('[data-hz]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); raceH = Number(b.dataset.hz); panelSig = ''; renderPanel(); }));
+    el.querySelectorAll('[data-brief]').forEach((b) => b.addEventListener('click', () => copyText((r.briefs || {})[b.dataset.brief] || '', b)));
   }
+  let racePlay = null;
   function renderRace(el, room) {
     const spec = room.spec, accent = themeOf(room.id).accent, r = snap.race, l = laneOf(room.id);
     $('#inspector').style.setProperty('--room', accent);
     if (!r || !l) {
-      el.innerHTML = `${hubHead(room, `<span class="pill">${r ? 'not racing' : 'no race yet'}</span>`)}<div class="muted small" style="margin-top:10px">${r ? 'This room is not one of the contestants.' : 'The race has not started. Fire the starting gun from the station panel (all rooms).'}</div>`;
+      el.innerHTML = `${hubHead(room, `<span class="pill">${r ? 'not racing' : 'no race yet'}</span>`)}<div class="muted small" style="margin-top:10px">${r ? 'This room is not one of the contestants.' : 'The race has not started.'}</div>${r ? '' : `<div class="sec"><button class="btn go wide" type="button" data-rsopen="new">${ic('flag')}Set up the race</button></div>`}`;
       return;
     }
-    const f = leadOf(room.id);
-    const chips = `<span class="pill gold">${nth(l.place)} of ${r.lanes.length}</span><span class="pill ${l.multiple >= 1 ? 'good' : 'bad'}">${multFmt(l.multiple)}</span>${r.leaderId === room.id ? `<span class="pill gold">${ic('crown')}leading</span>` : ''}${l.blocked ? '<span class="pill warn">needs you</span>' : ''}`;
+    const f = leadOf(room.id), M = snap.raceMenu;
+    const chips = `<span class="pill gold">${nth(l.place)} of ${r.lanes.length}</span><span class="pill ${l.multiple >= 1 ? 'good' : 'bad'}">${multFmt(l.multiple)}</span>${r.leaderId === room.id ? `<span class="pill gold">${ic('crown')}leading</span>` : ''}${l.out ? `<span class="pill bad">out · day ${l.out.day}</span>` : ''}${l.blocked ? '<span class="pill warn">needs you</span>' : ''}`;
     const tl = raceAll ? l.timeline : l.timeline.slice(0, 40);
     let lastDay = null;
     const tlHtml = tl.map((x) => { const h = x.day !== lastDay ? `<div class="dh">Day ${x.day}</div>` : ''; lastDay = x.day; return h + tlItem(x); }).join('');
+    const earning = l.plays.filter((p) => p.inUsd > 0), tried = l.plays.filter((p) => p.inUsd <= 0);
     el.innerHTML = `
       ${hubHead(room, chips)}
-      ${f ? `<div class="muted small" style="margin-top:8px">Room lead: <b style="color:${f.color}">${esc(f.name)}</b>${f.role && !/^room lead/i.test(f.role) ? ' · ' + esc(f.role) : /agent/i.test(f.role || '') ? ', an AI agent' : ''}</div>` : ''}
+      ${f ? `<div class="muted small" style="margin-top:8px">Room lead: <b style="color:${f.color}">${esc(f.name)}</b>${f.role && !/^room lead/i.test(f.role) ? ' · ' + esc(f.role) : /agent/i.test(f.role || '') ? ', an AI agent' : ''}${l.model ? ` · runs on ${esc(M.models[l.model] || l.model)}` : ''}</div>` : ''}
       <div class="stats" style="margin-top:12px">
         <div class="st"><div><div class="k">Bankroll</div><div class="v gold">${usd2(l.bankrollUsd)}</div><div class="s">started with ${usd(l.stakeUsd)}</div></div></div>
         <div class="st"><div><div class="k">Multiple</div><div class="v"${l.multiple < 1 ? ' style="color:var(--bad)"' : ''}>${multFmt(l.multiple)}</div><div class="s">${nth(l.place)} of ${r.lanes.length} · day ${r.day}</div></div></div>
         <div class="st"><div><div class="k">Rate · 7 days</div><div class="v"${l.rate7 < 0 ? ' style="color:var(--bad)"' : ''}>${rateFmt(l.rate7)}</div><div class="s">${rateFmt(l.rateAll)} since the gun</div></div></div>
-        <div class="st"><div><div class="k">In · out</div><div class="v">${usd(Math.round(l.inUsd))}</div><div class="s">${usd(Math.round(l.outUsd))} spent · ${l.sales} sale${l.sales === 1 ? '' : 's'}</div></div></div>
+        <div class="st"><div><div class="k">Per $1 spent</div><div class="v"${l.backPerDollar !== null && l.backPerDollar < 1 ? ' style="color:var(--bad)"' : ''}>${l.backPerDollar !== null ? '$' + l.backPerDollar.toFixed(2) : 'n/a'}</div><div class="s">${l.sales} sale${l.sales === 1 ? '' : 's'} · ${usd(Math.round(l.outUsd))} spent</div></div></div>
       </div>
       <div class="sec"><h3>Bankroll by day</h3>${sparkSvg(l.series, l.stakeUsd, accent)}<div class="spk"><span>gun · ${usd(l.stakeUsd)}</span><span>day ${r.day} · ${usd(Math.round(l.bankrollUsd))}</span></div></div>
-      <div class="sec"><h3>Prizes</h3><div class="hzrow">${r.standings.map((s) => { const mine = (s.ranking.find((x) => x.id === room.id) || {}).bankrollUsd, pos = 1 + s.ranking.filter((x) => x.bankrollUsd > mine).length, won = s.winner === room.id; return `<span class="${won ? 'won' : ''}">${won ? ic('crown') : ''}${hName(s.days)}: ${s.state === 'done' ? (won ? 'won' : nth(pos)) : s.state === 'live' ? nth(pos) + ' so far' : 'not yet'}</span>`; }).join('')}</div></div>
+      <div class="sec"><h3>Prizes</h3><div class="hzrow">${r.standings.map((s) => { const x = s.ranking.find((y) => y.id === room.id) || {}, pos = 1 + s.ranking.filter((y) => !y.out && y.score > x.score).length, won = s.winner === room.id; return `<span class="${won ? 'won' : ''}">${won ? ic('crown') : ''}${hName(s.days)}: ${x.out ? 'out' : s.state === 'done' ? (won ? 'won' : nth(pos)) : s.state === 'live' ? nth(pos) + ' so far' : 'not yet'}</span>`; }).join('')}</div></div>
       ${l.blocked ? `<div class="sec"><div class="need"><b>${ic('warn')}Waiting on you · day ${l.blocked.day}</b>${esc(l.blocked.text)}</div></div>` : ''}
+      <div class="sec"><h3>Spent vs made</h3>${spentMade(l.inUsd, l.outUsd, l.backPerDollar || 0)}
+        ${l.byCategory.length ? `<div class="sub-h">Where the money went</div>${moneyBars(l.byCategory, '#ff7a8a', (k) => CAT_NAME[k] || k, 'payment')}` : ''}</div>
+      <div class="sec"><h3>Where the money comes from</h3>
+        ${earning.length ? earning.map((p) => `<button type="button" class="cf" data-play="${esc(p.id)}" style="--c:${PLAYCOL[p.status]}"><span class="t"><b>${esc(p.name)}</b><small>${p.bySource.map((s) => `${esc(s.key)} ${usd(Math.round(s.usd))}`).join(' · ')}</small></span><span class="u">${usd(Math.round(p.inUsd))}<small>${Math.round(100 * p.inUsd / Math.max(1e-9, l.inUsd))}% of income</small></span>${ic('chevR')}</button>`).join('') : '<div class="muted small">No money in yet.</div>'}
+        ${l.bySource.length ? `<div class="sub-h">By where it was paid</div>${moneyBars(l.bySource, '#3ddc97')}` : ''}</div>
       <div class="sec"><h3>The plan</h3>${l.plan ? `<div class="plan">${esc(l.plan.text)}<small>set on day ${l.plan.day}</small></div>` : '<div class="muted small">No plan logged yet.</div>'}</div>
-      <div class="sec"><h3>Ways it is trying · ${l.plays.length}</h3>${l.plays.length ? l.plays.map(playCard).join('') : '<div class="muted small">No plays logged yet.</div>'}${l.loose ? `<div class="muted small">Not tied to a play: ${usd(l.loose.inUsd)} in, ${usd(l.loose.outUsd)} out.</div>` : ''}</div>
+      <div class="sec"><h3>Every play it tried · ${l.plays.length}</h3>${l.plays.length ? l.plays.map(playCard).join('') : '<div class="muted small">No plays logged yet.</div>'}${tried.length && earning.length ? `<div class="muted small">${tried.length} of them ${tried.length === 1 ? 'has' : 'have'} not made money yet.</div>` : ''}${l.loose ? `<div class="muted small">Not tied to a play: ${usd(l.loose.inUsd)} in, ${usd(l.loose.outUsd)} out.</div>` : ''}</div>
       <div class="sec"><h3>Full breakdown · ${l.timelineTotal} line${l.timelineTotal === 1 ? '' : 's'}</h3><div class="tl">${tlHtml || '<div class="muted small">Nothing logged since the gun.</div>'}</div>
         ${l.timeline.length > 40 ? `<button class="btn wide" type="button" data-tlall style="margin-top:8px">${raceAll ? 'Show the latest 40' : `Show all ${l.timeline.length}`}</button>` : ''}
         ${l.timelineTotal > l.timeline.length ? `<div class="muted small" style="margin-top:6px">The ${l.timelineTotal - l.timeline.length} oldest lines are on the ledger (node src/cli.js race, or the money dashboard).</div>` : ''}</div>
+      <div class="sec"><h3>Its brief</h3><div class="muted small">What this room's agent is told, written from the race's rules.</div><div class="row2" style="margin-top:7px"><button class="btn" type="button" data-brief="${esc(room.id)}">${ic('note')}Copy the brief</button><button class="btn" type="button" data-briefshow>${ic('eye')}Read it</button></div><pre class="brief" hidden>${esc((r.briefs || {})[room.id] || '')}</pre></div>
       <div class="sec"><h3>Log for this room</h3><form id="f-rlog" class="pane on">
         <div class="row2"><label class="field"><span>What</span><select name="what"><option value="did">A step it did</option><option value="plan">A new plan</option><option value="learned">Something learned</option><option value="blocked">Stuck, needs you</option><option value="in">Money in</option><option value="out">Money out</option></select></label>
         <label class="field"><span>Play</span><select name="play"><option value="">none</option>${l.plays.map((p) => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</select></label></div>
@@ -3138,6 +3304,9 @@
         <button class="btn go">${ic('plus')}Log it</button><div class="msg"></div></form></div>`;
     const all = el.querySelector('[data-tlall]');
     if (all) all.addEventListener('click', () => { raceAll = !raceAll; panelSig = ''; renderPanel(); });
+    el.querySelectorAll('[data-play]').forEach((b) => b.addEventListener('click', () => { racePlay = { room: room.id, play: b.dataset.play }; panelSig = ''; renderPanel(true); }));
+    el.querySelectorAll('[data-brief]').forEach((b) => b.addEventListener('click', () => copyText((r.briefs || {})[room.id] || '', b)));
+    const show = el.querySelector('[data-briefshow]'); if (show) show.addEventListener('click', () => { const pre = el.querySelector('pre.brief'); pre.hidden = !pre.hidden; });
     wire('#f-rlog', (d) => {
       const text = d.text.trim(), play = d.play || undefined;
       if (d.what === 'in' || d.what === 'out') {
@@ -3148,6 +3317,143 @@
         return post('api/events', ev).then(() => `logged ${d.what === 'in' ? '+' : '−'}${usd2(v)}`);
       }
       return post('api/events', { kind: 'step', path: spec.id, type: d.what, text, by: 'user', ...(play ? { play } : {}) }).then(() => 'logged');
+    });
+  }
+  // one play's business model: what it sells, to whom, how, for what, what it cost, and every number behind it
+  function renderPlayModel(el, room) {
+    const l = laneOf(room.id), p = l && l.plays.find((x) => x.id === racePlay.play), accent = themeOf(room.id).accent;
+    $('#inspector').style.setProperty('--room', accent);
+    if (!p) { racePlay = null; renderRace(el, room); return; }
+    const m = p.model || {}, cell = (k, t) => `<div class="bm"><span>${t}</span><p>${m[k] ? esc(m[k]) : '<i class="muted">not logged</i>'}</p></div>`;
+    el.innerHTML = `<button class="back" type="button" data-playback>${ic('chevL')}${esc(shortName(room.spec))}</button>
+      <div class="ih"><div class="big" style="--c:${accent}">${ic('target').replace('class="i"', 'class="i" style="width:24px;height:24px"')}</div><div style="min-width:0"><h2>${esc(p.name)}</h2><div class="chips"><span class="pill st-${p.status}">${esc(p.status)}</span><span class="pill">since day ${p.startedDay}</span><span class="pill">${Math.max(1, Math.round(p.daysActive))} day${Math.max(1, Math.round(p.daysActive)) === 1 ? '' : 's'} ${p.status === 'dropped' ? 'before it was dropped' : 'running'}</span></div></div></div>
+      ${p.why ? `<div class="pw" style="margin-top:6px">${esc(p.why)}</div>` : ''}
+      <div class="stats" style="margin-top:12px">
+        <div class="st"><div><div class="k">Made</div><div class="v gold">${usd2(p.inUsd)}</div><div class="s">${p.sales} sale${p.sales === 1 ? '' : 's'}${p.firstSaleDay ? ` · first on day ${p.firstSaleDay}` : ''}</div></div></div>
+        <div class="st"><div><div class="k">Spent</div><div class="v"${p.outUsd ? ' style="color:var(--bad)"' : ''}>${usd2(p.outUsd)}</div><div class="s">${p.costPerSaleUsd !== null ? `${usd2(p.costPerSaleUsd)} a sale` : 'no cost per sale yet'}</div></div></div>
+        <div class="st"><div><div class="k">Net</div><div class="v"${p.netUsd < 0 ? ' style="color:var(--bad)"' : ''}>${p.netUsd < 0 ? '−' : '+'}${usd2(Math.abs(p.netUsd))}</div><div class="s">${rateFmt(p.ratePerDay)}</div></div></div>
+        <div class="st"><div><div class="k">Per $1 spent</div><div class="v">${p.backPerDollar !== null ? '$' + p.backPerDollar.toFixed(2) : 'n/a'}</div><div class="s">${p.avgSaleUsd !== null ? `average sale ${usd2(p.avgSaleUsd)}` : 'no sales yet'}</div></div></div>
+      </div>
+      <div class="sec"><h3>The business model</h3><div class="bmgrid">${cell('offer', 'What it sells')}${cell('customer', 'Who buys')}${cell('channel', 'How they find it')}${cell('pricing', 'What it charges')}${cell('costs', 'What it costs to run')}<div class="bm"><span>The plan</span><p>${p.plan ? esc(p.plan) : '<i class="muted">not logged</i>'}</p></div></div></div>
+      <div class="sec"><h3>Spent vs made</h3>${spentMade(p.inUsd, p.outUsd, p.backPerDollar || 0)}</div>
+      <div class="sec"><h3>Where its money came from</h3>${moneyBars(p.bySource, '#3ddc97')}</div>
+      <div class="sec"><h3>Where its money went</h3>${moneyBars(p.byCategory, '#ff7a8a', (k) => CAT_NAME[k] || k, 'payment')}</div>
+      <div class="sec"><h3>How it went</h3><div class="tl">${p.history.slice().reverse().map((h, i, a) => `<div class="e" style="--tc:${PLAYCOL[h.status]}"><span class="ic">${ic('target')}</span><span>${i === a.length - 1 ? 'Started' : 'Now ' + esc(h.status)}${i === a.length - 1 && h.status !== 'trying' ? ', ' + esc(h.status) : ''}<small>day ${h.day}${h.why ? ' · ' + esc(h.why) : ''}</small></span><span></span></div>`).join('')}</div></div>
+      <div class="sec"><h3>What the agent did · ${p.steps}</h3><div class="tl">${p.stepList.length ? p.stepList.map((s) => { const [icn, c] = STEPIC[s.type] || STEPIC.did; return `<div class="e" style="--tc:${c}"><span class="ic">${ic(icn)}</span><span>${esc(s.text)}<small>${s.type === 'did' ? 'did' : esc(s.type)} · day ${s.day}${s.url ? ` · <a href="${esc(s.url)}" target="_blank" rel="noopener">link</a>` : ''}</small></span><span></span></div>`; }).join('') : '<div class="muted small">No steps logged for this play.</div>'}</div></div>
+      <div class="sec"><h3>Every dollar${p.money.length >= 50 ? ' · latest 50' : ''}</h3><div class="tl">${p.money.length ? p.money.map((x) => `<div class="e" style="--tc:${x.dir === 'in' ? 'var(--good)' : 'var(--bad)'}"><span class="ic">${ic(x.dir === 'in' ? 'coin' : 'flame')}</span><span>${esc(x.text || '')}${x.dir === 'in' && x.source && x.source !== x.text ? ' · ' + esc(x.source) : ''}<small>day ${x.day} · ${esc(x.evidence || '')}</small></span><span class="u ${x.dir}">${x.dir === 'in' ? '+' : '−'}${usd2(x.usd)}</span></div>`).join('') : '<div class="muted small">No money tied to this play yet.</div>'}</div></div>`;
+    el.querySelector('[data-playback]').addEventListener('click', () => { racePlay = null; panelSig = ''; renderPanel(true); });
+  }
+  // ---- race setup: every rule of the race, chosen before the gun and written on the ledger with it
+  let rsMode = 'new';
+  const RDAYS = [7, 14, 30, 60, 90, 180, 365];
+  function openRaceSetup(mode = 'new') {
+    if (!snap || !snap.raceMenu) return;
+    rsMode = mode;
+    const M = snap.raceMenu, cur = snap.race, amend = mode === 'amend' && cur;
+    const R = cur && mode !== 'new' ? cur.rules : M.defaults, stake = cur && mode !== 'new' ? cur.stakeUsd : 250, hz = cur && mode !== 'new' ? cur.horizons : M.horizons;
+    const racing = new Set(cur && mode !== 'new' ? cur.lanes.map((x) => x.id) : rooms.map((x) => x.id));
+    const lock = amend ? ' disabled' : '';
+    const ck = (name, value, on, label, sub, extra = '') => `<label class="ck${on ? ' on' : ''}"><input type="checkbox" name="${name}" value="${esc(value)}"${on ? ' checked' : ''}${extra}><span><b>${esc(label)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span></label>`;
+    const sel = (name, opts, v) => `<select name="${name}">${Object.entries(opts).map(([k, t]) => `<option value="${k}"${v === k ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
+    const list = rooms.slice().sort((a, b) => a.spec.rank - b.spec.rank);
+    $('#racebox .box').innerHTML = `<button class="cbtn glass x" data-rsclose title="Close (Esc)">${ic('close')}</button>
+      <div class="sy-head"><div class="rd-ic">${ic('flag')}</div><div style="min-width:0"><h2>${amend ? 'Change the rules' : mode === 'restart' ? 'Start a new race' : 'Set up the race'}</h2><p class="lead">${amend ? "The stake, prize days and contestants stay; everything else can change. The change goes on the ledger with why, and every agent's brief is written again." : `Every rule of the race, written on the ledger with the starting gun. Each agent's brief is written from these. Nothing here moves money.${mode === 'restart' ? ' A new race starts the count again from its own gun.' : ''}`}</p></div></div>
+      <form id="f-rs"><div class="rs-grid">
+        <section class="rs-sec"><h3>The basics</h3>
+          <div class="row2"><label class="field"><span>Race name</span><input name="name" maxlength="60" value="${esc((cur && mode !== 'new' && cur.name) || '')}" placeholder="The $250 Race"></label>
+          <label class="field"><span>Stake per room (USD)</span><input name="stake" type="number" min="1" step="1" value="${stake}" required${lock}></label></div>
+          <div class="field"><span>Prize days · the best score at each one wins it</span><div class="chips">${RDAYS.map((d) => ck('day', d, hz.includes(d), hName(d), '', lock)).join('')}</div>
+            <input name="daysOther" placeholder="Other days, e.g. 45, 120" value="${esc(hz.filter((d) => !RDAYS.includes(d)).join(', '))}"${lock}></div>
+          <div class="row2"><label class="field"><span>Scored by</span>${sel('scoring', M.scoring, R.scoring)}</label>
+          <label class="field"><span>A tie at the top</span>${sel('tiebreak', { none: 'Nobody wins that prize', earliest: 'Goes to whoever got there first' }, R.tiebreak)}</label></div>
+          ${amend ? '' : `<div class="row2"><label class="field"><span>Start</span>${sel('start', { now: 'Now', later: 'Later' }, 'now')}</label><label class="field"><span>Start at (if later)</span><input name="startAt" type="datetime-local"></label></div>`}
+        </section>
+        <section class="rs-sec"><h3>Contestants</h3>
+          <div class="rs-rooms">${list.map((mm) => { const fl = leadOf(mm.id); return `<div class="rr" style="--c:${themeOf(mm.id).accent}"><label class="rrn"><input type="checkbox" name="race_${esc(mm.id)}"${racing.has(mm.id) ? ' checked' : ''}${lock}><i></i><b>${esc(shortName(mm.spec))}</b><small>${fl ? esc(fl.name) : 'no lead yet'}</small></label>
+            <input name="stake_${esc(mm.id)}" type="number" min="1" step="1" placeholder="${stake}" value="${R.stakes && R.stakes[mm.id] ? R.stakes[mm.id] : ''}" title="This room's own stake (blank: the race stake)"${lock}>
+            <select name="model_${esc(mm.id)}" title="The Claude model this room's agent runs on"><option value="">Any model</option>${Object.entries(M.models).map(([k, t]) => `<option value="${k}"${R.models && R.models[mm.id] === k ? ' selected' : ''}>${esc(t.replace(/^Claude /, ''))}</option>`).join('')}</select></div>`; }).join('')}</div>
+          <div class="muted small">A blank stake uses the race stake. Give one room more to handicap it, or put a different model in each room to see which does best.</div>
+        </section>
+        <section class="rs-sec wide"><h3>Ways they may make money <span class="rs-quick"><button type="button" data-rsall="method">all</button><button type="button" data-rsnone="method">none</button></span></h3>
+          <div class="meths">${Object.entries(M.methods).map(([k, t]) => ck('method', k, R.methods.includes(k), t.split(':')[0], t.includes(':') ? t.split(':').slice(1).join(':').trim() : '')).join('')}</div>
+        </section>
+        <section class="rs-sec wide"><h3>Tools and connectors they may use <span class="rs-quick"><button type="button" data-rsall="conn">all</button><button type="button" data-rsnone="conn">none</button></span></h3>
+          <div class="chips">${M.connectors.map((c) => ck('conn', c, R.connectors.includes(c), c, M.work.includes(c) ? 'work account' : '')).join('')}</div>
+          <input name="connOther" placeholder="Other tools, comma separated" value="${esc(R.connectors.filter((c) => !M.connectors.includes(c)).join(', '))}">
+        </section>
+        <section class="rs-sec"><h3>Money</h3>
+          <div class="chips">${ck('ads', '1', R.ads, 'Paid ads allowed', 'from their own stake')}${ck('collab', '1', R.collab, 'Rooms may trade', 'with each other, at fair prices')}</div>
+          <div class="row2"><label class="field"><span>Most a room spends a day</span><input name="maxDay" type="number" min="0" step="1" placeholder="no limit" value="${R.maxSpendPerDayUsd ?? ''}"></label>
+          <label class="field"><span>Purchases over this need you</span><input name="approveOver" type="number" min="0" step="1" placeholder="none" value="${R.approveOverUsd ?? ''}"></label></div>
+          <label class="field"><span>Knocked out at a bankroll of</span><input name="knockout" type="number" min="0" step="1" placeholder="never" value="${R.knockoutUsd ?? ''}"></label>
+        </section>
+        <section class="rs-sec"><h3>People and posting</h3>
+          <label class="field"><span>Contacting people</span>${sel('outreach', M.contact, R.outreach)}</label>
+          <label class="field"><span>Public posts</span>${sel('posting', { drafts: 'Agents draft; Joshua publishes', none: 'No public posts at all' }, R.posting)}</label>
+          <label class="field"><span>Each agent checks in every (hours)</span><input name="everyHours" type="number" min="1" max="168" step="1" value="${R.everyHours}"></label>
+          <div class="muted small">Agents never send, post or message anyone themselves: a draft waits in the dock for you.</div>
+        </section>
+        <section class="rs-sec wide"><h3>Anything else</h3>
+          <textarea name="notes" maxlength="2000" rows="3" placeholder="Rules of your own, in plain words. They go into every agent's brief.">${esc(R.notes || '')}</textarea>
+        </section>
+      </div>
+      <div class="rs-foot">
+        <label class="field"><span>${amend ? 'Why the rules changed' : 'Where the stake money sits'}</span><input name="evidence" minlength="3" required placeholder="${amend ? 'e.g. ads were burning money, so ads are off' : 'e.g. eight virtual cards, $250 on each'}" value="${!amend && cur && mode === 'restart' ? esc(cur.evidence || '') : ''}"></label>
+        <div class="rs-sum" data-rssum></div>
+        <button class="btn go" type="submit">${ic('flag')}${amend ? 'Save the new rules' : 'Fire the starting gun'}</button><div class="msg"></div>
+      </div></form>`;
+    $('#racebox').hidden = false;
+    $('#racebox .box').scrollTop = 0;
+    rsSummary();
+  }
+  const closeRaceSetup = () => { $('#racebox').hidden = true; };
+  document.addEventListener('click', (e) => { const b = e.target.closest('[data-rsopen]'); if (b && !b.closest('#racebox')) { e.preventDefault(); openRaceSetup(b.dataset.rsopen); } });
+  function rsRead(f) {
+    const fd = new FormData(f), cur = snap.race, amend = rsMode === 'amend' && cur;
+    const num = (k) => { const v = String(fd.get(k) ?? '').trim(); return v === '' ? null : Number(v); };
+    const days = amend ? cur.horizons : [...new Set([...fd.getAll('day').map(Number), ...String(fd.get('daysOther') || '').split(',').map((x) => Number(x.trim())).filter((x) => Number.isInteger(x) && x > 0)])].sort((a, b) => a - b);
+    const racing = amend ? cur.lanes.map((x) => x.id) : rooms.map((x) => x.id).filter((id) => f.elements['race_' + id] && f.elements['race_' + id].checked);
+    const stakes = {}, models = {};
+    for (const id of racing) { const sv = amend ? (cur.rules.stakes || {})[id] : num('stake_' + id); if (sv) stakes[id] = sv; const mv = fd.get('model_' + id); if (mv) models[id] = mv; }
+    const rules = {
+      methods: fd.getAll('method'), connectors: [...new Set([...fd.getAll('conn'), ...String(fd.get('connOther') || '').split(',').map((x) => x.trim()).filter(Boolean)])],
+      ads: fd.has('ads'), collab: fd.has('collab'), maxSpendPerDayUsd: num('maxDay'), approveOverUsd: num('approveOver'), knockoutUsd: num('knockout'),
+      outreach: fd.get('outreach'), posting: fd.get('posting'), everyHours: Math.min(168, Math.max(1, Math.round(num('everyHours') || 24))), scoring: fd.get('scoring'), tiebreak: fd.get('tiebreak'),
+      stakes, models, notes: String(fd.get('notes') || ''),
+    };
+    const stake = amend ? cur.stakeUsd : num('stake') || 250;
+    const startAt = !amend && fd.get('start') === 'later' && fd.get('startAt') ? new Date(fd.get('startAt')).toISOString() : null;
+    return { name: String(fd.get('name') || '').trim(), stake, days, racing, rules, startAt, evidence: String(fd.get('evidence') || '').trim() };
+  }
+  function rsSummary() {
+    const f = $('#f-rs'); if (!f) return;
+    const d = rsRead(f), staked = d.racing.reduce((s, id) => s + (d.rules.stakes[id] || d.stake), 0);
+    f.querySelector('[data-rssum]').innerHTML = `<b>${d.racing.length}</b> room${d.racing.length === 1 ? '' : 's'} · <b>${usd(staked)}</b> staked · prizes at ${d.days.length ? d.days.map(hName).join(', ') : '<span style="color:var(--bad)">no days picked</span>'} · <b>${d.rules.methods.length}</b> of ${Object.keys(snap.raceMenu.methods).length} ways to make money · <b>${d.rules.connectors.length}</b> tools${d.startAt ? ` · starts ${esc(new Date(d.startAt).toLocaleString())}` : ''}`;
+  }
+  {
+    const rb = $('#racebox');
+    rb.addEventListener('click', (e) => {
+      if (e.target.id === 'racebox' || e.target.closest('[data-rsclose]')) { closeRaceSetup(); return; }
+      const all = e.target.closest('[data-rsall], [data-rsnone]');
+      if (all) { const name = all.dataset.rsall || all.dataset.rsnone, on = Boolean(all.dataset.rsall); rb.querySelectorAll(`input[name="${name}"]`).forEach((i) => { i.checked = on; i.closest('.ck').classList.toggle('on', on); }); rsSummary(); }
+    });
+    rb.addEventListener('change', (e) => { const c = e.target.closest('.ck'); if (c) c.classList.toggle('on', e.target.checked); rsSummary(); });
+    rb.addEventListener('input', rsSummary);
+    rb.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target, msg = f.querySelector('.msg'), d = rsRead(f), amend = rsMode === 'amend' && snap.race;
+      msg.className = 'msg'; msg.textContent = 'working…';
+      try {
+        if (amend) await post('api/events', { kind: 'race', amend: true, rules: d.rules, evidence: d.evidence, ...(d.name ? { name: d.name } : {}) });
+        else {
+          if (!d.racing.length) throw new Error('Pick at least one room to race.');
+          if (!d.days.length) throw new Error('Pick at least one prize day.');
+          await post('api/events', { kind: 'race', stakeUsd: d.stake, evidence: d.evidence, horizons: d.days, rules: d.rules, rooms: d.racing, ...(d.name ? { name: d.name } : {}), ...(d.startAt ? { startsAt: d.startAt } : {}) });
+        }
+        closeRaceSetup();
+        toast('status', amend ? 'The rules changed' : d.startAt ? 'The race is set' : 'The race is on', amend ? 'every brief is written again' : `${d.racing.length} rooms · prizes at ${d.days.map(hName).join(', ')}`, '#ffcf5a', 'flag');
+        panelSig = ''; await poll();
+      } catch (err) { msg.className = 'msg err'; msg.textContent = err.message; }
     });
   }
   // ---- allowance: a chore room, and the family roster with balances and payouts
@@ -3544,7 +3850,7 @@
     for (const list of by.values()) list.sort((a, b) => b.usd - a.usd);
     return { by, free: free.sort((a, b) => b.usd - a.usd) };
   }
-  const skinTiles = (cur, attr) => SKIN_IDS.filter((k) => SKINS[k]).map((k) => { const t = (rd.data.skins || {})[k] || { title: k, blurb: '' }; return `<button type="button" class="skn${cur === k ? ' on' : ''}" ${attr}="${k}"><span class="sw" style="background:${SKIN_SWATCH[k]}"></span><b>${esc(t.title)}</b><small>${esc(t.blurb)}</small></button>`; }).join('');
+  const skinTiles = (cur, attr) => SKIN_IDS.filter((k) => SKINS[k]).map((k) => { const t = (rd.data.skins || {})[k] || { title: k, blurb: '' }; return `<button type="button" class="skn${cur === k ? ' on' : ''}" ${attr}="${k}" title="Preview ${esc(t.title)}"><span class="shot" style="background:${SKIN_SWATCH[k]}"><img src="${shotSrc(k)}" data-w="${k}" alt="" loading="lazy" onerror="pfShotMiss(this)">${cur === k ? '<span class="now">current</span>' : ''}<span class="pv">${ic('eye')}Preview</span></span><b>${esc(t.title)}</b><small>${esc(t.blurb)}</small></button>`; }).join('');
   const modeTiles = (cur, attr, big) => Object.entries(rd.data.modes).map(([k, m]) => `<button type="button" class="tile mode${big ? ' big' : ''}${cur === k ? ' on' : ''}" ${attr}="${k}"><span class="t-ic" style="--c:#ffcf5a">${ic(MODE_ICON[k] || 'rooms')}</span><span><b>${esc(m.title)}</b><small>${esc(m.blurb)}</small></span></button>`).join('');
   // what the folk are called in each mode
   const FOLK_WORD = { allowance: ['Kids', 'kid'], service: ['Team', 'person'], agents: ['Folk', 'person'], race: ['Room leads', 'agent'] };
@@ -3554,7 +3860,7 @@
       : rd.draft.mode === 'service' ? 'Everyone who works here is a character on the map. Log a sale with who did it and they walk to that room and do it. Pick the rooms each person works in the room settings below.'
       : 'People who work the rooms alongside your AI agents. Agents you hire appear on their own, one character per agent.';
     return `<h3>${title} <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· each one is a character</span></h3><div class="kids-ed">${kids.map((k, i) => `<div class="kr" style="--kc:${k.color}"><button type="button" class="kc" data-kidcol="${i}" title="Change color"></button><input data-kidname="${i}" value="${esc(k.name)}" maxlength="24" placeholder="Name"><input class="kro" data-kidrole="${i}" value="${esc(k.role || '')}" maxlength="24" placeholder="${rd.draft.mode === 'allowance' ? 'Kid' : rd.draft.template === 'barber' ? 'Barber' : 'Role'}" title="What they are, shown under their name"><button type="button" class="kx" data-kiddel="${i}" title="Remove">${ic('trash')}</button></div>`).join('')}
-      ${kids.length < (rd.data.maxFolk || rd.data.maxKids || 12) ? `<button type="button" class="btn sm2" data-kidadd>${ic('plus')}Add a ${one}</button>` : ''}</div>
+      ${kids.length < (rd.data.maxFolk || rd.data.maxKids || 12) ? `<button type="button" class="btn sm2" data-kidadd>${ic('plus')}Add ${/^[aeiou]/i.test(one) ? 'an' : 'a'} ${one}</button>` : ''}</div>
       <div class="muted small" style="margin-top:6px">${blurb}</div>`;
   }
   // the id a room will have once saved (the server derives it the same way)
@@ -3617,7 +3923,7 @@
       <div class="rd-top">
         <div><h3>What it's for</h3><div class="modes">${modeTiles(dr.mode, 'data-mode', false)}</div></div>
         <div><h3>World <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· click to try it on</span></h3><div class="skins">${skinTiles(dr.skin, 'data-skin')}</div>
-          <label class="muted small" style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;cursor:pointer"><input type="checkbox" data-seasonal ${seasonalOn() ? 'checked' : ''} style="margin-top:3px"><span>Halloween in October: the pumpkin patch until the 23rd, then the haunted mansion to the end of the month. Your chosen world comes back in November. This browser only.</span></label></div>
+          <label class="muted small" style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;cursor:pointer"><input type="checkbox" data-seasonal ${seasonalOn() ? 'checked' : ''} style="margin-top:3px;width:auto;flex:none"><span>Halloween in October: the pumpkin patch until the 23rd, then the haunted mansion to the end of the month. Your chosen world comes back in November. This browser only.</span></label></div>
       </div>
       ${rd.msg ? `<div class="msg top ${rd.err ? 'err' : 'ok'}">${esc(rd.msg)}</div>` : ''}
       ${kidsHtml(dr.kids)}
@@ -3655,7 +3961,7 @@
       box.querySelectorAll('[data-wmode]').forEach((b) => b.addEventListener('click', () => { rd.wmode = b.dataset.wmode; rd.step = 2; rd.wskin = rd.wmode === 'allowance' ? 'farm' : skinId(); if (rd.wskin !== skinId()) trySkin(rd.wskin); renderRooms(); }));
       const back = box.querySelector('[data-wback]'); if (back) back.addEventListener('click', () => { rd.step = 1; renderRooms(); });
       box.querySelectorAll('[data-wtpl]').forEach((b) => b.addEventListener('click', () => { rd.wtpl = b.dataset.wtpl; box.querySelectorAll('[data-wtpl]').forEach((x) => x.classList.toggle('on', x === b)); }));
-      box.querySelectorAll('[data-wskin]').forEach((b) => b.addEventListener('click', () => { rd.wskin = b.dataset.wskin; box.querySelectorAll('[data-wskin]').forEach((x) => x.classList.toggle('on', x === b)); trySkin(rd.wskin); }));
+      box.querySelectorAll('[data-wskin]').forEach((b) => b.addEventListener('click', () => openWorld(b.dataset.wskin, rd.wskin, (w) => { rd.wskin = w; box.querySelectorAll('[data-wskin]').forEach((x) => x.classList.toggle('on', x.dataset.wskin === w)); trySkin(w); })));
       const go = box.querySelector('[data-wgo]');
       if (go) go.addEventListener('click', async () => {
         const name = nameIn.value.trim(), kidsIn = box.querySelector('#rd-kids');
@@ -3671,7 +3977,7 @@
     }
     nameIn.addEventListener('input', () => { dr.name = nameIn.value; });
     box.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { swapMode(b.dataset.mode); renderRooms(); }));
-    box.querySelectorAll('[data-skin]').forEach((b) => b.addEventListener('click', () => { dr.skin = b.dataset.skin; trySkin(dr.skin); renderRooms(); }));
+    box.querySelectorAll('[data-skin]').forEach((b) => b.addEventListener('click', () => openWorld(b.dataset.skin, dr.skin, (w) => { dr.skin = w; trySkin(w); renderRooms(); })));
     box.querySelectorAll('[data-seasonal]').forEach((b) => b.addEventListener('change', () => { lset('pf-seasonal', b.checked ? 'on' : 'off'); trySkin(skinTry); }));
     // kids
     box.querySelectorAll('[data-kidname]').forEach((inp) => inp.addEventListener('input', () => { dr.kids[Number(inp.dataset.kidname)].name = inp.value; }));
@@ -3779,6 +4085,139 @@
     $('#mapbox').hidden = false;
   }
   const closeMap = () => { $('#mapbox').hidden = true; };
+  // ---- the world picker (Customize and the welcome screen). Each tile is a real shot of its world, taken through this
+  // renderer by scripts/world-shots.mjs (art/worlds, served at /worlds/). A tile opens the world's preview: the whole
+  // station and one room up close, the map to explore, and everyone who lives there. Use this world picks it.
+  const shotSrc = (w, room) => `/worlds/${w}${room ? '-room' : ''}.webp`;
+  // no shot (an older server, a missing file): the world's own map stands in, drawn here
+  window.pfShotMiss = (img) => {
+    const s = document.createElement('span'); s.className = 'mapthumb';
+    if (typeof window.mapSvg === 'function') s.innerHTML = mapSvg(img.dataset.w, { id: 'mt-' + img.dataset.w + (img.dataset.room ? 'r' : '') + Math.random().toString(36).slice(2, 6), plates: false }).replace('viewBox="0 0 1600 1000"', img.dataset.room ? 'viewBox="520 330 560 350"' : 'viewBox="280 150 1040 650"');
+    img.replaceWith(s);
+  };
+  // who stands where in each world (residentsFor places them)
+  const WORLD_NPCS = { castle: ['mordra', 'vex'], haunted: ['mordra', 'vex'], farm: ['mott', 'warg', 'mumblecrow'], pumpkin: ['mumblecrow'], space: ['cargo'], cyber: ['courier', 'dj'], alien: ['receptionist'], ocean: ['accountant', 'crab'] };
+  const SPECIES_NAME = { robot: 'Robots', skeleton: 'Skeletons', fox: 'Foxes', grey: 'Greys', blob: 'Blobs', octo: 'Octopuses', human: 'People' };
+  let worldPick = null;
+  // a room's residents are drawn by the renderer itself, onto a small canvas
+  function residentImg(lk) {
+    try {
+      const c = document.createElement('canvas'); c.width = c.height = 248;
+      const a = { id: 'wres:' + lk.id, kind: 'res', name: lk.resident, role: null, tint: null, costume: null, lk, look: lk.id, path: null, small: false, ev: null, x: 0, y: 0, t: 0, face: 1, queue: [], state: 'idle', act: 'idle', lvl: 1 };
+      WR.exp.figure(c.getContext('2d'), a, { ppu: 96, x: 124, y: 214, pose: 'stand', t: 0.6 });
+      return c.toDataURL('image/png');
+    } catch { return null; }
+  }
+  function worldCast(w) {
+    const sk = SKINS[w] || SKINS.space, F = window.FOLK, kit = typeof window.folkSvg === 'function' && F;
+    let n = 0;
+    const fig = (look, pose = 'idle') => (kit ? folkSvg({ world: w, ...look }, { id: 'wc' + (n++), pose }) : '');
+    const card = (svg, name, sub, tag, col) => `<div class="cc" style="--c:${col || '#8fb0ff'}"><div class="fig">${svg}</div><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}${tag ? `<span class="tg">${esc(tag)}</span>` : ''}</div>`;
+    const group = (title, sub, cards) => (cards.length ? `<h4 class="wg">${esc(title)}<small>${esc(sub)}</small></h4><div class="cast">${cards.join('')}</div>` : '');
+    const out = [];
+    if (kit) {
+      const agents = Object.entries(F.roles).filter(([, r]) => r.agent);
+      out.push(group('AI agents', 'every role an agent can have, with the diamond it carries', agents.map(([k, r]) => card(fig({ role: k, tier: 2, agent: true }, 'phone'), r.title, r.does, 'agent', r.col))));
+      out.push(group('Levels', 'what an agent or a person wears as they climb, Runner to Tycoon', F.tiers.map((t, i) => card(fig({ role: 'prospector', tier: i, agent: true }, i === 4 ? 'cheer' : 'idle'), t, i ? `level ${i + 1}` : 'where everyone starts', 'tier ' + (i + 1), '#ffcf5a'))));
+      const folk = [['commander', 'You', `the ${String(sk.names.leader || 'Commander').toLowerCase()}`, 3, 'cheer'], ['barber', 'Barber', 'a person on the team', 1, 'idle'], ['kid', 'Kid', 'on the chore chart', 1, 'idle'], ['crew', 'Floor crew', 'the crowd that keeps a room busy', 0, 'type'], ['client', 'Client', 'walks in for a real sale', 0, 'walk']];
+      out.push(group('Folk', 'the people on your roster, the crowd and your customers', folk.map(([role, name, sub, tier, pose]) => card(fig({ role, tier, agent: false }, pose), name, sub, '', (F.roles[role] || {}).col))));
+      const natives = (CROWD_SPECIES[w] || []).map(([sp]) => sp);
+      const costumed = [...new Set((sk.looks || []).map((l) => KIT_SPECIES[l.id]).filter(Boolean))].filter((sp) => !natives.includes(sp));
+      out.push(group('Natives', 'mixed into the floor crowd, and who works a room in costume', [...natives, ...costumed].map((sp) => card(fig({ role: 'crew', tier: 1, species: sp, agent: false }, 'idle'), SPECIES_NAME[sp] || sp, natives.includes(sp) ? 'in the floor crowd' : 'working a costumed room', '', '#9aa6c0'))));
+    }
+    const looks = (sk.looks || []).map((l) => { const src = residentImg(l); return src ? card(`<img src="${src}" alt="">`, l.resident, l.title, 'room resident', '#3ddc97') : ''; }).filter(Boolean);
+    out.push(group('Room residents', 'each room can take one of these looks; its residents live there', looks));
+    const npcs = (WORLD_NPCS[w] || []).map((id) => {
+      const d = NPC[id] || {};
+      const svg = d.cast && window.PF_CAST && PF_CAST[id] ? PF_CAST[id] : id === 'crab' && typeof window.critterSvg === 'function' ? critterSvg('crab', { id: 'wcc' }) : kit ? folkSvg({ ...(NPC_LOOK[id] || { role: 'crew', world: w }), agent: false }, { id: 'wn' + id }) : '';
+      return card(svg, d.name || id, d.say ? d.say.replace(/ Scenery, not on your roster\.$/, '') : '', d.label === 'NO ACTIVITY · 7 DAYS' ? 'data' : 'scenery', d.col);
+    });
+    out.push(group('Neighbours', 'named characters who belong to this world', npcs));
+    return out.join('');
+  }
+  function openWorld(w, cur, onUse) {
+    worldPick = { w, cur, onUse };
+    const ids = SKIN_IDS.filter((k) => SKINS[k]), i = ids.indexOf(w), sk = SKINS[w] || SKINS.space;
+    const info = ((rd.data && rd.data.skins) || {})[w] || { title: SKINS_TITLE[w] || w, blurb: '' };
+    const list = rooms.map((m) => ({ id: m.id, name: shortName(m.spec), accent: themeOf(m.id).accent }));
+    const box = $('#worldbox .box');
+    box.innerHTML = `<button class="cbtn glass x" data-wclose title="Back (Esc)">${ic('close')}</button>
+      <div class="wh"><div><div class="k">World ${i + 1} of ${ids.length}${cur === w ? ' · your world now' : ''}</div><h2>${esc(info.title)}</h2><p class="lead">${esc(info.blurb)}</p></div>
+        <div class="acts"><button class="btn" type="button" data-wstep="-1" title="Previous world (←)">${ic('chevL')}</button><button class="btn" type="button" data-wstep="1" title="Next world (→)">${ic('chevR')}</button><button class="btn go" type="button" data-wuse>${ic('check')}${cur === w ? 'Keep this world' : 'Use this world'}</button></div></div>
+      <div class="wshots"><figure data-wbig><img src="${shotSrc(w)}" data-w="${w}" alt="The whole station in the ${esc(info.title)}" onerror="pfShotMiss(this)"><figcaption>The whole station</figcaption></figure><figure data-wbig><img src="${shotSrc(w, 1)}" data-w="${w}" data-room="1" alt="One room up close" onerror="pfShotMiss(this)"><figcaption>One room, up close</figcaption></figure></div>
+      ${typeof window.mapSvg === 'function' ? `<div class="wsec"><h3>The map · drag to look around, scroll or pinch to zoom</h3><div class="wmapw"><div class="wmap">${mapSvg(w, { id: 'pfwm', rooms: list, hub: sk.names.hub, dock: sk.names.dock, level: snap ? snap.level.level : 1, title: (snap && snap.station && snap.station.name) || undefined })}</div>
+        <div class="wmap-ctl"><button type="button" data-wz="close" class="on">Up close</button><button type="button" data-wz="all">Whole map</button><button type="button" data-wz="in" title="Zoom in">+</button><button type="button" data-wz="out" title="Zoom out">−</button></div></div></div>` : ''}
+      <div class="wsec"><h3>Who lives here</h3>${worldCast(w)}</div>`;
+    $('#worldbox').hidden = false;
+    box.scrollTop = 0;
+    const m = box.querySelector('.wmap');
+    if (m) requestAnimationFrame(() => mapClose(m));
+  }
+  const closeWorld = () => { $('#worldbox').hidden = true; worldPick = null; };
+  const stepWorld = (d) => { if (!worldPick) return; const ids = SKIN_IDS.filter((k) => SKINS[k]), i = ids.indexOf(worldPick.w); openWorld(ids[(i + d + ids.length) % ids.length], worldPick.cur, worldPick.onUse); };
+  // the map: zoom keeps the point under the pointer still; the svg is laid out again at each size, so it stays sharp
+  function mapZoom(m, z, px, py) {
+    const svg = m.querySelector('svg'); if (!svg) return;
+    z = clamp(z, 1, 5);
+    const r = m.getBoundingClientRect(), ox = px ?? r.width / 2, oy = py ?? r.height / 2;
+    const w0 = svg.getBoundingClientRect().width || r.width, fx = (m.scrollLeft + ox) / w0, fy = (m.scrollTop + oy) / (w0 * 0.625);
+    const w1 = r.width * z;
+    svg.style.width = w1 + 'px';
+    m.scrollLeft = fx * w1 - ox; m.scrollTop = fy * w1 * 0.625 - oy;
+    m.dataset.z = z;
+    m.parentElement.querySelectorAll('[data-wz]').forEach((b) => b.classList.toggle('on', (b.dataset.wz === 'all' && z <= 1.01) || (b.dataset.wz === 'close' && Math.abs(z - 1.8) < 0.01)));
+  }
+  // up close: the vault in the middle of the frame, the rooms around it big enough to read
+  function mapClose(m) {
+    const svg = m.querySelector('svg'); if (!svg) return;
+    mapZoom(m, 1.8, 0, 0);
+    const hub = svg.querySelector('[data-sel="hub"]'), r = m.getBoundingClientRect(), s = svg.getBoundingClientRect();
+    const hb = hub ? hub.getBoundingClientRect() : { left: s.left + s.width * 0.45, top: s.top + s.height * 0.55, width: 0, height: 0 };
+    m.scrollLeft += (hb.left - r.left + hb.width / 2) - r.width / 2; m.scrollTop += (hb.top - r.top + hb.height / 2) - r.height / 2;
+  }
+  {
+    const wb = $('#worldbox'), pts = new Map();
+    let drag = null;
+    wb.addEventListener('click', (e) => {
+      if (e.target.id === 'worldbox' || e.target.closest('[data-wclose]')) { closeWorld(); return; }
+      if (e.target.closest('[data-wuse]')) { const p = worldPick; closeWorld(); if (p) p.onUse(p.w); return; }
+      const st = e.target.closest('[data-wstep]'); if (st) { stepWorld(Number(st.dataset.wstep)); return; }
+      const big = e.target.closest('[data-wbig]');
+      if (big) { const row = big.parentElement, solo = !row.classList.contains('solo'); row.classList.toggle('solo', solo); row.querySelectorAll('figure').forEach((f) => f.classList.toggle('on', solo && f === big)); return; }
+      const z = e.target.closest('[data-wz]');
+      if (z) { const m = wb.querySelector('.wmap'), cz = Number(m.dataset.z) || 1; if (z.dataset.wz === 'close') mapClose(m); else if (z.dataset.wz === 'all') { mapZoom(m, 1); m.scrollLeft = 0; m.scrollTop = 0; } else mapZoom(m, cz * (z.dataset.wz === 'in' ? 1.4 : 1 / 1.4)); }
+    });
+    wb.addEventListener('wheel', (e) => {
+      const m = e.target.closest('.wmap'); if (!m) return;
+      e.preventDefault();
+      const r = m.getBoundingClientRect();
+      mapZoom(m, (Number(m.dataset.z) || 1) * Math.pow(1.0015, -e.deltaY), e.clientX - r.left, e.clientY - r.top);
+    }, { passive: false });
+    // drag to pan; two fingers pinch
+    wb.addEventListener('pointerdown', (e) => {
+      const m = e.target.closest('.wmap'); if (!m || e.target.closest('.wmap-ctl')) return;
+      pts.set(e.pointerId, [e.clientX, e.clientY]); m.setPointerCapture(e.pointerId); m.classList.add('drag');
+      drag = { m, x: e.clientX, y: e.clientY, sl: m.scrollLeft, st: m.scrollTop, d: 0, z: Number(m.dataset.z) || 1 };
+    });
+    wb.addEventListener('pointermove', (e) => {
+      if (!drag || !pts.has(e.pointerId)) return;
+      pts.set(e.pointerId, [e.clientX, e.clientY]);
+      if (pts.size === 2) {
+        const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]), r = drag.m.getBoundingClientRect();
+        if (!drag.d) { drag.d = d; drag.z = Number(drag.m.dataset.z) || 1; return; }
+        mapZoom(drag.m, drag.z * d / drag.d, (a[0] + b[0]) / 2 - r.left, (a[1] + b[1]) / 2 - r.top);
+        return;
+      }
+      drag.m.scrollLeft = drag.sl - (e.clientX - drag.x); drag.m.scrollTop = drag.st - (e.clientY - drag.y);
+    });
+    const up = (e) => {
+      pts.delete(e.pointerId);
+      if (!drag) return;
+      if (!pts.size) { drag.m.classList.remove('drag'); drag = null; return; }
+      const [p] = [...pts.values()]; Object.assign(drag, { x: p[0], y: p[1], sl: drag.m.scrollLeft, st: drag.m.scrollTop, d: 0 });
+    };
+    wb.addEventListener('pointerup', up); wb.addEventListener('pointercancel', up);
+  }
   $('#mapbox').addEventListener('click', (e) => {
     if (e.target.id === 'mapbox' || e.target.closest('[data-close]')) { closeMap(); return; }
     const t = e.target.closest('[data-sel]'); if (t) { closeMap(); select(t.dataset.sel); }
@@ -4065,6 +4504,9 @@
     const typing = tgt && (/INPUT|SELECT|TEXTAREA/.test(tgt.tagName) || tgt.isContentEditable);
     if (ev.key === 'Escape') {
       if (tour) { endTour(); return; }
+      if (!$('#worldbox').hidden) { closeWorld(); return; }
+      if (!$('#racebox').hidden) { closeRaceSetup(); return; }
+      if (racePlay) { racePlay = null; panelSig = ''; renderPanel(true); return; }
       if (!$('#roomMenu').hidden) { closeRoomMenu(); return; }
       if (!$('#guide').hidden) { closeGuide(); return; }
       if (!$('#mapbox').hidden) { closeMap(); return; }
@@ -4075,7 +4517,8 @@
       select('hub'); return;
     }
     if (typing || ev.metaKey || ev.ctrlKey || ev.altKey) return;
-    if (!$('#guide').hidden || !$('#syncbox').hidden || !$('#roomsbox').hidden) return;
+    if (!$('#worldbox').hidden) { if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') { stepWorld(ev.key === 'ArrowLeft' ? -1 : 1); ev.preventDefault(); } return; }
+    if (!$('#guide').hidden || !$('#syncbox').hidden || !$('#roomsbox').hidden || !$('#racebox').hidden) return;
     const k = ev.key;
     if (/^[1-9]$/.test(k)) { const room = rooms.find((m) => m.spec.rank === Number(k)); if (room) select(room.id); ev.preventDefault(); return; }
     const panStep = 60 / (fitS * camT.z);
@@ -6201,10 +6644,6 @@
       img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(make().replace('<svg ', `<svg width="${px}" height="${px}" `));
       return null;
     }
-    // costumes become species: a skeleton in the crypt, a robot at the bar, a grey in the lab
-    const KIT_SPECIES = { crypt: 'skeleton', library: 'skeleton', bar: 'robot', clinic: 'robot', lab: 'grey', probe: 'grey', lounge: 'grey', hatchery: 'blob', bridge: 'octo', bonecellar: 'skeleton', attic: 'fox', graveyard: 'skeleton', cats: 'fox' };
-    // the floor crowd of each world mixes in its natives
-    const CROWD_SPECIES = { space: [['robot', 3]], castle: [['skeleton', 4]], farm: [['fox', 5]], cyber: [['robot', 4]], alien: [['grey', 8], ['blob', 3]], ocean: [['octo', 5]], haunted: [['skeleton', 4]], pumpkin: [['fox', 3], ['skeleton', 2]] };
     const clampT = (v) => Math.max(0, Math.min(4, v | 0));
     function kitLook(a, id) {
       const h = hsh(a.name || a.id), w = curWorld;

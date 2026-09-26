@@ -6,7 +6,7 @@ import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { Ledger, LedgerError } from './ledger.js';
 import { reduce } from './reduce.js';
-import { raceBoard } from './race.js';
+import { raceBoard, raceBrief } from './race.js';
 import { quests, summary } from './quests.js';
 import { commanderLevel } from './level.js';
 import { CATALOG, GATES } from './paths.js';
@@ -50,9 +50,15 @@ const HELP = `revenue-engine
   rooms skin <space|castle|farm|cyber|alien|ocean|haunted|pumpkin>   how the station looks (decoration only)
   rooms mode <agents|service|allowance|race>           what the screens lead with
   race                                                 standings: day, bankrolls, rates, each horizon's winner
-  race start --stake 250 --evidence "where the money sits" [--days 7,30,90,180] [--name N]   fire the starting gun
+  race start --stake 250 --evidence "where the money sits" [--days 7,30,90,180] [--name N] [--rules rules.json]
+                                                       fire the starting gun; rules.json holds any of: methods, connectors,
+                                                       ads, maxSpendPerDayUsd, approveOverUsd, knockoutUsd, outreach, posting,
+                                                       collab, everyHours, scoring, tiebreak, stakes, models, notes
+  race amend --rules rules.json --evidence "why"       change the rules of the race under way
+  race brief <room>                                    the brief to paste into that room's agent session
   race play <room> <play-id> --name N --status trying|working|paused|dropped [--plan P] [--why W] [--by user]
-                                                       a way a room is trying to make money (repeat to change its status)
+            [--offer O] [--customer C] [--channel H] [--pricing P] [--costs X]
+                                                       a way a room is trying to make money, and its business model
   race step <room> --text T [--type did|plan|learned|blocked] [--play ID] [--url U] [--by user]
                                                        one thing a room's agent did, planned, learned or is stuck on
   (tie money to a play with log-in/log-out --play ID)
@@ -127,7 +133,7 @@ async function main(argv) {
       name: { type: 'string' }, city: { type: 'string' }, category: { type: 'string' }, website: { type: 'string' },
       monthly: { type: 'string' }, notes: { type: 'string' }, services: { type: 'string' }, 'harvest-daily': { type: 'boolean' }, open: { type: 'boolean' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
       key: { type: 'string' }, secret: { type: 'string' }, item: { type: 'string' }, label: { type: 'string' }, since: { type: 'string' }, 'dry-run': { type: 'boolean' }, 'sync-every': { type: 'string' }, barber: { type: 'boolean' }, family: { type: 'boolean' }, skin: { type: 'string' }, mode: { type: 'string' },
-      race: { type: 'boolean' }, stake: { type: 'string' }, play: { type: 'string' }, status: { type: 'string' }, plan: { type: 'string' }, why: { type: 'string' }, text: { type: 'string' }, by: { type: 'string' },
+      race: { type: 'boolean' }, stake: { type: 'string' }, rules: { type: 'string' }, offer: { type: 'string' }, customer: { type: 'string' }, channel: { type: 'string' }, pricing: { type: 'string' }, costs: { type: 'string' }, play: { type: 'string' }, status: { type: 'string' }, plan: { type: 'string' }, why: { type: 'string' }, text: { type: 'string' }, by: { type: 'string' },
     },
   });
   const [cmd, ...rest] = pos;
@@ -246,18 +252,31 @@ async function main(argv) {
       const by = v.by === 'user' ? 'user' : 'agent';
       const room = (id) => { if (!CAT.some((p) => p.id === id)) throw new LedgerError(`unknown room "${id}" (${CAT.map((p) => p.id).join(', ')})`); return id; };
       if (sub === 'start') {
-        const ev = ledger.append({ kind: 'race', stakeUsd: Number(v.stake || 250), evidence: v.evidence, ...(v.days ? { horizons: v.days.split(',').map((d) => Number(d.trim())) } : {}), ...(v.name ? { name: v.name } : {}) });
+        const rules = v.rules ? JSON.parse(fs.readFileSync(path.resolve(v.rules), 'utf8')) : undefined;
+        const ev = ledger.append({ kind: 'race', stakeUsd: Number(v.stake || 250), evidence: v.evidence, ...(v.days ? { horizons: v.days.split(',').map((d) => Number(d.trim())) } : {}), ...(v.name ? { name: v.name } : {}), ...(rules ? { rules } : {}) });
         console.log(`starting gun ${ev.id}: ${CAT.length} rooms at ${usd(ev.stakeUsd)} each, prizes at day ${ev.horizons.join(', ')}. Only money logged from now on counts.`); return;
       }
+      if (sub === 'amend') {
+        if (!v.rules) throw new LedgerError('race amend needs --rules rules.json');
+        const ev = ledger.append({ kind: 'race', amend: true, rules: JSON.parse(fs.readFileSync(path.resolve(v.rules), 'utf8')), evidence: v.evidence, ...(v.name ? { name: v.name } : {}) });
+        console.log(`rules amended ${ev.id}`); return;
+      }
+      if (sub === 'brief') {
+        const b = raceBoard(reduce(ledger.readAll(), CAT), CAT);
+        if (!b) throw new LedgerError('no race yet');
+        const cfg = loadConfig(DATA_DIR), lead = cfg && cfg.folk.find((f) => (f.rooms || []).includes(rest[1]));
+        console.log(raceBrief(b, room(rest[1]), { roomName: (CAT.find((p) => p.id === rest[1]) || {}).name, lead: lead ? lead.name : null })); return;
+      }
       if (sub === 'play') {
-        const ev = ledger.append({ kind: 'play', path: room(rest[1]), play: rest[2], name: v.name, status: v.status || 'trying', by, ...(v.plan ? { plan: v.plan } : {}), ...(v.why ? { why: v.why } : {}) });
+        const model = Object.fromEntries(['offer', 'customer', 'channel', 'pricing', 'costs'].filter((k) => v[k]).map((k) => [k, v[k]]));
+        const ev = ledger.append({ kind: 'play', path: room(rest[1]), play: rest[2], name: v.name, status: v.status || 'trying', by, ...(v.plan ? { plan: v.plan } : {}), ...(v.why ? { why: v.why } : {}), ...model });
         console.log(`play ${ev.play} in ${ev.path}: ${ev.status}`); return;
       }
       if (sub === 'step') {
         const ev = ledger.append({ kind: 'step', path: room(rest[1]), text: v.text, by, ...(v.type ? { type: v.type } : {}), ...(v.play ? { play: v.play } : {}), ...(v.url ? { url: v.url } : {}) });
         console.log(`step ${ev.id} in ${ev.path} (${ev.type})`); return;
       }
-      if (sub !== 'status') throw new LedgerError('race needs start, play, step or nothing (standings)');
+      if (sub !== 'status') throw new LedgerError('race needs start, amend, brief, play, step or nothing (standings)');
       const b = raceBoard(reduce(ledger.readAll(), CAT), CAT);
       if (!b) { console.log('no race yet. Start one: node src/cli.js race start --stake 250 --evidence "8 virtual cards, $250 each"'); return; }
       console.log(`${b.name || 'Sandbox race'} · day ${b.day} of ${b.totalDays} · ${usd(b.stakeUsd)} a room · ${usd(b.potUsd)} across ${b.lanes.length} rooms (staked ${usd(b.stakedUsd)})`);

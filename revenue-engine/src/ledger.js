@@ -18,6 +18,36 @@ export const PATH_STATUSES = Object.freeze(['active', 'paused', 'killed']);
 export const PLAY_STATUSES = Object.freeze(['trying', 'working', 'paused', 'dropped']);
 export const STEP_TYPES = Object.freeze(['did', 'plan', 'learned', 'blocked']);
 export const DEFAULT_HORIZONS = Object.freeze([7, 30, 90, 180]);
+// The race's rules, chosen at setup and written on the ledger with the starting gun. What each agent may use to make
+// money, what it may spend, who it may contact, how it is scored. The brief each agent gets is written from these.
+export const RACE_METHODS = Object.freeze({
+  digital: 'Digital products: templates, printables, presets, courses',
+  services: 'Freelance services and gigs',
+  saas: 'Software and subscriptions',
+  content: 'Content: ad revenue, sponsorships, memberships',
+  affiliate: 'Affiliate links and referrals',
+  ecommerce: 'Physical products and print on demand',
+  local: 'Work for local businesses: sites, profiles, marketing',
+  data: 'Data and lead lists',
+  resale: 'Buying and reselling',
+  trading: 'Trading and investing: stocks, crypto',
+  betting: 'Betting and prediction markets',
+});
+export const RACE_CONNECTORS = Object.freeze(['Shopify', 'Wix', 'Canva', 'Figma', 'Adobe', 'Netlify', 'Cloudflare', 'Render', 'Zapier', 'Google Drive', 'GitHub', 'Hugging Face', 'Supermetrics', 'Web search', 'HubSpot', 'Microsoft 365', 'Slack']);
+// Joshua's day-job accounts: off unless a race turns them on
+export const RACE_WORK_CONNECTORS = Object.freeze(['HubSpot', 'Microsoft 365', 'Slack']);
+export const RACE_MODELS = Object.freeze({ 'claude-opus-5-5': 'Claude Opus 5.5', 'claude-sonnet-5': 'Claude Sonnet 5', 'claude-haiku-4-5': 'Claude Haiku 4.5', 'claude-fable-5-1': 'Claude Fable 5.1' });
+export const RACE_SCORING = Object.freeze({ bankroll: 'Biggest bankroll', profit: 'Most profit (bankroll minus stake)', multiple: 'Biggest multiple (bankroll divided by stake)' });
+export const RACE_CONTACT = Object.freeze({ drafts: 'Agents draft; Joshua sends or publishes', none: 'No contact with people and no public posts at all' });
+export function defaultRaceRules() {
+  return {
+    methods: Object.keys(RACE_METHODS).filter((k) => k !== 'trading' && k !== 'betting'),
+    connectors: RACE_CONNECTORS.filter((c) => !RACE_WORK_CONNECTORS.includes(c)),
+    ads: true, maxSpendPerDayUsd: null, approveOverUsd: null, knockoutUsd: null,
+    outreach: 'drafts', posting: 'drafts', collab: false, everyHours: 24,
+    scoring: 'bankroll', tiebreak: 'none', stakes: {}, models: {}, notes: '',
+  };
+}
 
 const isText = (v, min = 1) => typeof v === 'string' && v.trim().length >= min;
 const isUsd = (v) => typeof v === 'number' && Number.isFinite(v);
@@ -25,6 +55,40 @@ const isUrl = (v) => typeof v === 'string' && /^https?:\/\/\S+$/i.test(v.trim())
 const isRoomId = (v) => typeof v === 'string' && /^[a-z0-9][a-z0-9-]{0,31}$/.test(v);
 const isPlayId = (v) => typeof v === 'string' && /^[a-z0-9][a-z0-9-]{0,39}$/.test(v);
 const isBy = (v) => ['user', 'agent'].includes(v);
+const optUsd = (v, what) => { if (v === undefined || v === null || v === '') return null; if (!isUsd(v) || v < 0 || v > 1e7) fail(`race rules: ${what} must be a dollar amount, or left out`); return Math.round(v * 100) / 100; };
+// fills every rule a setup left out with its default, and refuses a rule it cannot read
+function raceRules(input) {
+  const d = defaultRaceRules();
+  if (input === undefined || input === null) return d;
+  if (typeof input !== 'object' || Array.isArray(input)) fail('race rules must be an object');
+  const r = { ...d };
+  if (input.methods !== undefined) {
+    if (!Array.isArray(input.methods) || !input.methods.every((m) => RACE_METHODS[m])) fail(`race rules: methods must be from ${Object.keys(RACE_METHODS).join(', ')}`);
+    r.methods = [...new Set(input.methods)];
+  }
+  if (input.connectors !== undefined) {
+    if (!Array.isArray(input.connectors) || input.connectors.length > 60 || !input.connectors.every((c) => isText(c) && c.length <= 40)) fail('race rules: connectors must be a list of connector names');
+    r.connectors = [...new Set(input.connectors.map((c) => c.trim()))];
+  }
+  for (const k of ['ads', 'collab']) if (input[k] !== undefined) { if (typeof input[k] !== 'boolean') fail(`race rules: ${k} must be true or false`); r[k] = input[k]; }
+  r.maxSpendPerDayUsd = input.maxSpendPerDayUsd === undefined ? d.maxSpendPerDayUsd : optUsd(input.maxSpendPerDayUsd, 'maxSpendPerDayUsd');
+  r.approveOverUsd = input.approveOverUsd === undefined ? d.approveOverUsd : optUsd(input.approveOverUsd, 'approveOverUsd');
+  r.knockoutUsd = input.knockoutUsd === undefined ? d.knockoutUsd : optUsd(input.knockoutUsd, 'knockoutUsd');
+  for (const [k, set] of [['outreach', RACE_CONTACT], ['posting', RACE_CONTACT], ['scoring', RACE_SCORING], ['tiebreak', { none: 1, earliest: 1 }]]) {
+    if (input[k] !== undefined) { if (!set[input[k]]) fail(`race rules: ${k} must be one of ${Object.keys(set).join(', ')}`); r[k] = input[k]; }
+  }
+  if (input.everyHours !== undefined) { if (!Number.isInteger(input.everyHours) || input.everyHours < 1 || input.everyHours > 168) fail('race rules: everyHours must be a whole number of hours, 1 to 168'); r.everyHours = input.everyHours; }
+  if (input.stakes !== undefined) {
+    if (!input.stakes || typeof input.stakes !== 'object' || !Object.entries(input.stakes).every(([k, v]) => isRoomId(k) && isUsd(v) && v > 0 && v <= 1e6)) fail('race rules: stakes must map room ids to dollar amounts above zero');
+    r.stakes = { ...input.stakes };
+  }
+  if (input.models !== undefined) {
+    if (!input.models || typeof input.models !== 'object' || !Object.entries(input.models).every(([k, v]) => isRoomId(k) && typeof v === 'string' && /^claude-[a-z0-9.-]{2,40}$/.test(v))) fail('race rules: models must map room ids to Claude model ids');
+    r.models = { ...input.models };
+  }
+  if (input.notes !== undefined) { if (typeof input.notes !== 'string' || input.notes.length > 2000) fail('race rules: notes must be text, up to 2000 characters'); r.notes = input.notes.trim(); }
+  return r;
+}
 
 export class LedgerError extends Error {}
 const fail = (msg) => { throw new LedgerError(msg); };
@@ -114,6 +178,12 @@ export function validate(input) {
       break;
     case 'race':
       // the starting gun. The rules go on the ledger with it, so changing a default later never rewrites a finished race.
+      if (ev.amend === true) {
+        if (!isText(ev.evidence, 3)) fail('a race amendment needs evidence: who changed the rules and why');
+        ev.rules = raceRules(ev.rules);
+        if (ev.name !== undefined && !(isText(ev.name) && ev.name.length <= 60)) fail('race name must be 1-60 characters');
+        break;
+      }
       if (!isUsd(ev.stakeUsd) || ev.stakeUsd <= 0 || ev.stakeUsd > 1e6) fail('race needs stakeUsd > 0: what each contestant room starts with');
       if (!isText(ev.evidence, 3)) fail('race needs evidence: where the stake money actually sits (a card, an account)');
       if (ev.horizons === undefined) ev.horizons = [...DEFAULT_HORIZONS];
@@ -121,6 +191,11 @@ export function validate(input) {
       ev.horizons = [...new Set(ev.horizons)].sort((a, b) => a - b);
       if (ev.rooms !== undefined && !(Array.isArray(ev.rooms) && ev.rooms.length >= 1 && ev.rooms.length <= 12 && ev.rooms.every(isRoomId))) fail('race rooms must be a list of 1-12 room ids');
       if (ev.name !== undefined && !(isText(ev.name) && ev.name.length <= 60)) fail('race name must be 1-60 characters');
+      // the gun can be set for later: the race counts from startsAt
+      if (ev.startsAt !== undefined && (!isText(ev.startsAt) || Number.isNaN(Date.parse(ev.startsAt)))) fail('race startsAt must be an ISO-8601 date');
+      // an amendment changes the rules (and name) of the race under way; the stake, horizons, rooms and start stay
+      if (ev.amend !== undefined && typeof ev.amend !== 'boolean') fail('race amend must be true or false');
+      ev.rules = raceRules(ev.rules);
       break;
     case 'play':
       if (!isRoomId(ev.path)) fail('play needs the room id (path) it belongs to');
@@ -129,6 +204,8 @@ export function validate(input) {
       if (!PLAY_STATUSES.includes(ev.status)) fail(`play status must be one of ${PLAY_STATUSES.join(', ')}`);
       if (ev.plan !== undefined && !(isText(ev.plan) && ev.plan.length <= 2000)) fail('play plan must be 1-2000 characters');
       if (ev.why !== undefined && !(isText(ev.why) && ev.why.length <= 500)) fail('play why must be 1-500 characters');
+      // the business model: what it sells, to whom, how they find it, what it charges, what it costs to run
+      for (const k of ['offer', 'customer', 'channel', 'pricing', 'costs']) if (ev[k] !== undefined && !(isText(ev[k]) && ev[k].length <= 400)) fail(`play ${k} must be 1-400 characters`);
       if (!isBy(ev.by)) fail('play.by must be "user" or "agent"');
       break;
     case 'step':

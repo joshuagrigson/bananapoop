@@ -1,7 +1,7 @@
 // The pure reducer: ledger events in, state out. Nothing here invents a number.
 // Outcomes are deduplicated by (path, stage, ref) so logging the same prospect twice counts once.
 // Spend is counted from money.out only; agent.run.end.usd is descriptive and never double-counted.
-import { STAGES } from './ledger.js';
+import { STAGES, defaultRaceRules } from './ledger.js';
 import { CATALOG } from './paths.js';
 import { routeEvents } from './rooms.js';
 
@@ -141,14 +141,22 @@ export function reduce(events, catalog = CATALOG) {
         if (ev.demo === true) st.demo = true;
         break;
       case 'race':
-        // a later starting gun restarts the race; race.js only counts what happens after it
-        st.race = { id: ev.id, startedAt: ev.ts, stakeUsd: ev.stakeUsd, horizons: ev.horizons, name: ev.name || null, evidence: ev.evidence, rooms: ev.rooms || null };
+        // an amendment changes the rules of the race under way; a later starting gun restarts the race
+        if (ev.amend) {
+          if (!st.race) break;
+          st.race.rules = ev.rules;
+          if (ev.name) st.race.name = ev.name;
+          st.race.amendments.push({ id: ev.id, ts: ev.ts, evidence: ev.evidence });
+          break;
+        }
+        st.race = { id: ev.id, startedAt: ev.startsAt || ev.ts, setAt: ev.ts, stakeUsd: ev.stakeUsd, horizons: ev.horizons, name: ev.name || null, evidence: ev.evidence, rooms: ev.rooms || null, rules: ev.rules || defaultRaceRules(), amendments: [] };
         break;
       case 'play': {
         const key = `${ev.path}|${ev.play}`;
-        const pl = st.plays[key] || (st.plays[key] = { path: ev.path, id: ev.play, name: ev.name, status: ev.status, plan: null, why: null, startedAt: ev.ts, updatedAt: ev.ts, history: [] });
+        const pl = st.plays[key] || (st.plays[key] = { path: ev.path, id: ev.play, name: ev.name, status: ev.status, plan: null, why: null, model: {}, startedAt: ev.ts, updatedAt: ev.ts, history: [] });
         Object.assign(pl, { name: ev.name, status: ev.status, updatedAt: ev.ts, why: ev.why || null });
         if (ev.plan) pl.plan = ev.plan;
+        for (const k of ['offer', 'customer', 'channel', 'pricing', 'costs']) if (ev[k]) pl.model[k] = ev[k];
         pl.history.push({ id: ev.id, ts: ev.ts, status: ev.status, why: ev.why || null, by: ev.by });
         break;
       }

@@ -229,14 +229,40 @@ export function seedRaceDemo(ledger, dataDir, now = Date.now()) {
   const rand = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
   const lines = [
     { kind: 'note', demo: true, text: 'DEMO LEDGER: a fictional sandbox race. Every agent, plan, sale and dollar here is made up.', ts: new Date(t0 - 3600e3).toISOString() },
-    { kind: 'race', stakeUsd: 250, name: 'The $250 Race', evidence: 'eight virtual cards, $250 on each (demo)', horizons: [7, 30, 90, 180], ts: at(0) },
+    { kind: 'race', stakeUsd: 250, name: 'The $250 Race', evidence: 'eight virtual cards, $250 on each (demo)', horizons: [7, 30, 90, 180], ts: at(0),
+      rules: { approveOverUsd: 50, maxSpendPerDayUsd: 40, knockoutUsd: 0, tiebreak: 'earliest', everyHours: 24,
+        models: { red: 'claude-opus-5-5', orange: 'claude-sonnet-5', gold: 'claude-opus-5-5', green: 'claude-haiku-4-5', teal: 'claude-sonnet-5', blue: 'claude-opus-5-5', violet: 'claude-haiku-4-5', pink: 'claude-sonnet-5' },
+        notes: 'Keep each play small until it sells. Drop anything that has not made a sale in 10 days.' } },
   ];
+  // the business model behind each play, as its agent logged it when the play started
+  const MODELS = {
+    'planner-shop': { offer: 'Ten printable planners as instant PDF downloads', customer: 'People trying to get organized: students, parents, ADHD adults', channel: 'Pinterest pins and search on the store', pricing: '$9-$19 each', costs: 'Shopify $39 a month, Canva Pro $15 a month; nothing per sale' },
+    'etsy-mirror': { offer: 'The same ten planners, listed on Etsy', customer: 'Etsy shoppers searching for planners', channel: 'Etsy search', pricing: '$8.20-$10.90 after Etsy fees', costs: '$0.20 a listing, 6.5% of each sale, Etsy Ads at $1 a day' },
+    bundle: { offer: 'All ten planners in one download', customer: 'Shoppers already on a planner page', channel: 'An upsell on every product page', pricing: '$29', costs: 'Nothing extra' },
+    'fiverr-gigs': { offer: 'Done-for-you automations: lead capture, invoice parsing, review alerts', customer: 'Small businesses drowning in admin', channel: 'Fiverr search', pricing: '$75, $150 and $300 packages', costs: 'Fiverr keeps 20%; nothing up front' },
+    'upwork-proposals': { offer: 'Fixed-price automation builds', customer: 'Clients posting automation jobs on Upwork', channel: 'Proposals with a working sample attached', pricing: '$180 fixed-price milestones', costs: 'Upwork Connects, about $0.19 a proposal' },
+    retainer: { offer: 'Monthly watch-and-fix for finished automations', customer: 'Every client with a finished build', channel: 'Offered after delivery (drafted; Joshua sends)', pricing: '$150 a month', costs: 'Claude time only' },
+    'lead-lists': { offer: 'Verified lists of newly opened local businesses', customer: 'Marketing agencies that sell to local businesses', channel: 'Intro emails (Joshua sends), then referrals', pricing: '$120 for 50, $240 for 100', costs: 'Email verification, $29 for 2,000 checks' },
+    'weekly-feed': { offer: 'A fresh list every Monday', customer: 'Agencies that already bought a list', channel: 'An upsell after a purchase', pricing: '$99 a month', costs: 'Verification credits' },
+    'site-rebuilds': { offer: 'A one-page website, built before the pitch', customer: 'Local businesses with no site or a broken one', channel: 'A preview link in an intro email (Joshua sends)', pricing: '$300: half up front, half at launch', costs: 'Nothing: the client pays for hosting' },
+    'care-plan': { offer: 'Hours, photos and updates kept current', customer: 'Every business that bought a site', channel: 'Offered at handover', pricing: '$49 a month', costs: 'Claude time only' },
+    sheets: { offer: 'Google Sheets templates with a how-to tab', customer: 'People managing money: budgets, debt, rentals', channel: 'Gumroad search', pricing: '$7-$19', costs: 'Gumroad keeps 10%' },
+    'forum-posts': { offer: 'Helpful answers that mention a template', customer: 'People asking money questions in forums', channel: 'Personal-finance forums', pricing: 'Free; leads to the templates', costs: 'None' },
+    'ui-kits': { offer: 'Figma UI kits: a dashboard kit and an onboarding kit', customer: 'Designers and startup founders', channel: 'Gumroad and the Figma community', pricing: '$24', costs: 'None' },
+    'canva-templates': { offer: 'Packs of 30 social posts for salons, gyms and cafes', customer: 'Small-business owners who post their own social', channel: 'Creative Market search', pricing: '$12 a pack', costs: 'Canva Pro $15 a month; Creative Market keeps 40%' },
+    'review-tool': { offer: "Replies to Google reviews in the owner's voice", customer: 'Local businesses with more reviews than time', channel: 'A landing page and a launch post (Joshua publishes)', pricing: '$12 a month after a 7-day trial', costs: 'Domain $12; Claude API about $0.40 a user a month' },
+    'launch-post': { offer: 'One honest launch post with a demo video', customer: 'Makers and small-business owners', channel: 'A maker community', pricing: 'Free', costs: 'None' },
+    'pod-shirts': { offer: 'Shirts for dog owners, printed on demand', customer: 'Dog owners', channel: 'A Shopify store', pricing: '$28 a shirt, about $8 margin', costs: 'Shopify $39 a month; Printful prints each order' },
+    'meta-ads': { offer: 'Ads for the dog shirts', customer: 'Dog owners on Facebook and Instagram', channel: 'Meta ads', pricing: '$28 a shirt', costs: '$20 a day in ads' },
+    'etsy-pod': { offer: 'The same shirts on Etsy', customer: 'Etsy shoppers', channel: 'Etsy search, no ads', pricing: '$28, about $8 margin', costs: '$0.20 a listing, Etsy fees on each sale' },
+  };
+  const started = new Set();
   const leadOf = Object.fromEntries(LEADS.map((l) => [l.rooms[0], l.name]));
   let order = 1000;
   // a tiny script language per room: plan, play, step, in, out
   const S = {
     plan: (room, d, text) => lines.push({ kind: 'step', path: room, type: 'plan', text, by: 'agent', ts: at(d) }),
-    play: (room, d, play, name, status, extra = {}) => lines.push({ kind: 'play', path: room, play, name, status, by: 'agent', ...extra, ts: at(d) }),
+    play: (room, d, play, name, status, extra = {}) => { const model = started.has(play) ? {} : MODELS[play] || {}; started.add(play); lines.push({ kind: 'play', path: room, play, name, status, by: 'agent', ...model, ...extra, ts: at(d) }); },
     step: (room, d, type, text, play, url) => lines.push({ kind: 'step', path: room, type, text, by: 'agent', ...(play ? { play } : {}), ...(url ? { url } : {}), ts: at(d) }),
     in: (room, d, usd, play, item, source, evidence) => lines.push({ kind: 'money.in', path: room, usd, play, item, source, by: leadOf[room], evidence: evidence || `${source} order #${++order} (demo)`, ts: at(d) }),
     out: (room, d, usd, play, category, payee, evidence) => lines.push({ kind: 'money.out', path: room, usd, play, category, payee, evidence: evidence || `${payee} receipt (demo)`, ts: at(d) }),

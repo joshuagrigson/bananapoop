@@ -13,6 +13,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const LEDGER_HTML = fs.readFileSync(path.join(here, 'dashboard.html'), 'utf8');
 const STATION_HTML = withFolkKit(fs.readFileSync(path.join(here, 'station.html'), 'utf8'));
 const TERMINAL_HTML = fs.readFileSync(path.join(here, 'terminal.html'), 'utf8');
+// the world picker's pictures (scripts/world-shots.mjs writes them)
+const WORLD_SHOTS = path.join(here, '..', 'art', 'worlds');
 
 function readJson(req, limit = 1_000_000) {
   return new Promise((resolve, reject) => {
@@ -59,6 +61,13 @@ export function createServer({ checkHost = true, ...opts }) {
     if (req.method === 'GET' && url.pathname === '/') return send(res, 200, STATION_HTML, 'text/html');
     if (req.method === 'GET' && url.pathname === '/terminal') return send(res, 200, TERMINAL_HTML, 'text/html');
     if (req.method === 'GET' && url.pathname === '/ledger') return send(res, 200, LEDGER_HTML, 'text/html');
+    const shot = req.method === 'GET' && /^\/worlds\/([a-z]+(?:-room)?\.webp)$/.exec(url.pathname);
+    if (shot) {
+      const f = path.join(WORLD_SHOTS, shot[1]);
+      if (!fs.existsSync(f)) return send(res, 404, { ok: false, error: 'no such picture' });
+      res.writeHead(200, { 'content-type': 'image/webp', 'cache-control': 'max-age=3600' });
+      return res.end(fs.readFileSync(f));
+    }
     const r = await handle(req.method, url.pathname, (limit) => readJson(req, limit));
     return send(res, r.code, r.body);
   });

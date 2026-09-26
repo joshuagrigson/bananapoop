@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { tmpLedger } from './helpers.js';
 import { validate, DEFAULT_HORIZONS } from '../src/ledger.js';
 import { reduce } from '../src/reduce.js';
-import { raceBoard } from '../src/race.js';
+import { raceBoard, raceBrief } from '../src/race.js';
 import { snapshot } from '../src/api.js';
 import { seedRaceDemo } from '../src/demo.js';
 import { fromTemplate, catalogFrom, loadCatalog, stationInfo, MODES } from '../src/rooms.js';
@@ -133,4 +133,86 @@ test('the race template, mode and demo; the snapshot carries the board and not e
   assert.ok(snap.race.lanes.find((l) => l.id === 'violet').bankrollUsd < 250);
   // every dollar in the demo carries evidence and a play
   assert.ok(ledger.readAll().filter((e) => e.kind === 'money.in').every((e) => e.evidence && e.play));
+});
+
+test('race rules: defaults are written on the ledger, bad rules are refused, amendments change only the rules', () => {
+  const ev = validate({ kind: 'race', stakeUsd: 250, evidence: 'cards' });
+  assert.ok(ev.rules.methods.includes('digital'));
+  assert.ok(!ev.rules.methods.includes('betting'));
+  assert.ok(!ev.rules.connectors.includes('Microsoft 365'));
+  assert.equal(ev.rules.outreach, 'drafts');
+  assert.throws(() => validate({ kind: 'race', stakeUsd: 250, evidence: 'cards', rules: { methods: ['crime'] } }), /methods must be from/);
+  assert.throws(() => validate({ kind: 'race', stakeUsd: 250, evidence: 'cards', rules: { outreach: 'spam' } }), /outreach must be one of/);
+  assert.throws(() => validate({ kind: 'race', stakeUsd: 250, evidence: 'cards', rules: { everyHours: 0 } }), /everyHours/);
+  assert.throws(() => validate({ kind: 'race', stakeUsd: 250, evidence: 'cards', rules: { stakes: { red: -5 } } }), /stakes/);
+  assert.throws(() => validate({ kind: 'race', amend: true, rules: {} }), /amendment needs evidence/);
+  const events = [gun({ rules: { approveOverUsd: 50 } }), { kind: 'race', id: 'am', ts: at(3), amend: true, evidence: 'Joshua allowed ads off', rules: { ads: false } }];
+  const st = reduce(events.map((e) => validate(e)), CAT);
+  assert.equal(st.race.startedAt, at(0));
+  assert.equal(st.race.rules.ads, false);
+  assert.equal(st.race.amendments.length, 1);
+});
+
+test('per-room stakes, scoring by multiple, knockouts and the earliest tie-break', () => {
+  const rules = { stakes: { blue: 500 }, scoring: 'multiple', knockoutUsd: 0, tiebreak: 'earliest' };
+  const events = [gun({ rules }), sale('red', 1, 250), sale('blue', 2, 400), spend('gold', 1, 250), sale('gold', 3, 900), sale('green', 4, 250)];
+  const b = raceBoard(reduce(events.map((e) => validate(e)), CAT), CAT, T0 + 10 * DAY);
+  const lane = (id) => b.lanes.find((l) => l.id === id);
+  assert.equal(lane('blue').stakeUsd, 500);
+  assert.equal(lane('blue').multiple, 1.8);
+  assert.equal(lane('red').multiple, 2);
+  assert.equal(lane('gold').out.day, 2); // fell to $0 on day 2, so its later $900 cannot win
+  assert.equal(lane('gold').place, 8);
+  // red and green both reach x2; red got there first
+  const w1 = b.standings[0];
+  assert.equal(w1.tieBroken, true);
+  assert.equal(w1.winner, 'red');
+  assert.equal(b.stakedUsd, 2250);
+});
+
+test('spend against income, sources, and each play\'s business model', () => {
+  const events = [
+    gun(),
+    { kind: 'play', id: 'p1', ts: at(0.5), path: 'red', play: 'shop', name: 'Planner shop', status: 'trying', offer: 'planners', customer: 'students', channel: 'Pinterest', pricing: '$9', costs: 'Shopify', by: 'agent' },
+    { kind: 'play', id: 'p2', ts: at(0.6), path: 'red', play: 'ads', name: 'Ads', status: 'trying', by: 'agent' },
+    spend('red', 1, 40, { play: 'shop', category: 'tool' }), spend('red', 1.5, 20, { play: 'ads', category: 'ads' }),
+    sale('red', 2, 9, { play: 'shop', source: 'Shopify' }), sale('red', 3, 9, { play: 'shop', source: 'Etsy' }), sale('red', 4, 12, { play: 'shop', source: 'Shopify' }),
+    { kind: 'play', id: 'p3', ts: at(5), path: 'red', play: 'ads', name: 'Ads', status: 'dropped', why: 'no sales', by: 'agent' },
+  ];
+  const b = raceBoard(reduce(events.map((e) => validate(e)), CAT), CAT, T0 + 6 * DAY);
+  const red = b.lanes.find((l) => l.id === 'red');
+  assert.equal(red.backPerDollar, 0.5);
+  assert.deepEqual(red.bySource.map((s) => [s.key, s.usd, s.n]), [['Shopify', 21, 2], ['Etsy', 9, 1]]);
+  assert.deepEqual(red.byCategory.map((c) => [c.key, c.usd]), [['tool', 40], ['ads', 20]]);
+  const shop = red.plays.find((p) => p.id === 'shop'), ads = red.plays.find((p) => p.id === 'ads');
+  assert.equal(shop.model.offer, 'planners');
+  assert.equal(shop.avgSaleUsd, 10);
+  assert.equal(shop.costPerSaleUsd, 13.33);
+  assert.equal(shop.firstSaleDay, 3);
+  assert.equal(shop.money.length, 4);
+  assert.equal(ads.status, 'dropped');
+  assert.equal(ads.daysActive, 4.4);
+  assert.deepEqual(b.bySource.map((s) => s.key), ['Shopify', 'Etsy']);
+});
+
+test('the brief is written from the rules', () => {
+  const events = [gun({ rules: { methods: ['digital', 'services'], ads: false, approveOverUsd: 25, connectors: ['Shopify', 'Canva'], notes: 'Be kind.', models: { red: 'claude-opus-5-5' } } })];
+  const b = raceBoard(reduce(events.map((e) => validate(e)), CAT), CAT, T0 + DAY);
+  const text = raceBrief(b, 'red', { roomName: 'Red', lead: 'Ada' });
+  assert.match(text, /RED room/);
+  assert.match(text, /\(Ada\)/);
+  assert.match(text, /Claude Opus 5\.5/);
+  assert.match(text, /Freelance services and gigs/);
+  assert.match(text, /Not allowed in this race:[\s\S]*Betting/);
+  assert.match(text, /No paid ads/);
+  assert.match(text, /over \$25 needs Joshua/);
+  assert.match(text, /Shopify, Canva\./);
+  assert.match(text, /Be kind\./);
+});
+
+test('a race set for later has not started yet', () => {
+  const b = raceBoard(reduce([validate(gun({ startsAt: at(3) }))], CAT), CAT, T0 + DAY);
+  assert.equal(b.started, false);
+  assert.equal(b.startsInDays, 2);
+  assert.equal(b.day, 0);
 });
