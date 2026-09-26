@@ -142,13 +142,8 @@
   .logo { width: 40px; height: 44px; flex: none; filter: drop-shadow(0 0 10px rgba(255, 190, 70, .45)); }
   .brand h1 { margin: 0; font: 700 15px/1 var(--f-display); letter-spacing: .22em; background: var(--title-grad); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; }
   .brand .sub { color: var(--muted); font-size: 11px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 360px; }
-  @media (max-width: 1520px) and (min-width: 901px) { .brand .sub { display: none; } .brand nav { margin-top: 8px; } .cmdr { min-width: 220px; } }
-  @media (max-width: 1680px) and (min-width: 901px) { .brand nav a .lbl { display: none; } .brand nav a:not(#navSync) { padding: 4px 6px; } }
+  @media (max-width: 1520px) and (min-width: 901px) { .brand .sub { display: none; } .cmdr { min-width: 220px; } }
   @media (max-width: 1240px) and (min-width: 901px) { .rc .ic { display: none; } .rc { padding: 8px 10px; } .brand h1 { font-size: 13px; letter-spacing: .16em; } }
-  .brand nav { display: flex; gap: 6px; margin-top: 6px; }
-  .brand nav a { display: inline-flex; align-items: center; gap: 5px; font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; text-decoration: none; color: var(--ink2); padding: 4px 7px; border-radius: 6px; border: 1px solid var(--line2); background: var(--field); transition: .15s; }
-  .brand nav a:hover { color: #fff; border-color: var(--cyan); box-shadow: 0 0 12px rgba(95, 212, 255, .25); }
-  .brand nav .i { width: 12px; height: 12px; }
   .res { display: flex; gap: 8px; }
   .rc { display: flex; align-items: center; gap: 9px; padding: 8px 12px 8px 8px; min-width: 0; }
   .rc .ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex: none; color: var(--c); background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--c) 30%, transparent), color-mix(in srgb, var(--c) 8%, transparent)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 40%, transparent), 0 0 16px color-mix(in srgb, var(--c) 22%, transparent); }
@@ -225,6 +220,17 @@
   #areaTitle b { display: block; font-weight: 400; font-size: 30px; line-height: 1.05; letter-spacing: .01em; filter: drop-shadow(0 3px 0 rgba(0,0,0,.35)); }
   #areaTitle .lv { display: inline-block; margin-top: 4px; font-size: 16px; -webkit-text-stroke: 4px #12131c; color: #ffe07a; }
   #areaTitle small { display: block; margin-top: 2px; font-size: 13px; -webkit-text-stroke: 3.5px #12131c; color: #dfe8ff; }
+  #areaTitle .an { display: flex; align-items: center; justify-content: center; gap: 14px; }
+  #areaTitle .ab { pointer-events: auto; -webkit-text-stroke: 0; flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; border: 3px solid #12131c; background: #ffe07a; color: #12131c; cursor: pointer; box-shadow: 0 3px 0 rgba(0, 0, 0, .4); transition: transform .12s; padding: 0; }
+  #areaTitle .ab:hover, #areaTitle .ab:focus-visible { transform: scale(1.12); outline: none; }
+  #areaTitle .ab .i { width: 22px; height: 22px; stroke-width: 3; }
+  #areaTitle .aa { display: flex; gap: 8px; justify-content: center; margin-top: 9px; flex-wrap: wrap; }
+  #areaTitle .ap { pointer-events: auto; -webkit-text-stroke: 0; display: inline-flex; align-items: center; gap: 6px; padding: 8px 13px; border-radius: 999px; border: 3px solid #12131c; background: #eef2ff; color: #12131c; font: 400 14px/1 "Lilita One", "Fredoka", sans-serif; letter-spacing: .02em; cursor: pointer; box-shadow: 0 3px 0 rgba(0, 0, 0, .4); transition: transform .12s; }
+  #areaTitle .ap:hover, #areaTitle .ap:focus-visible { transform: translateY(-2px); outline: none; }
+  #areaTitle .ap.hot { background: #ffcf5a; }
+  #areaTitle .sm { display: none; }
+  #areaTitle .ap.on { background: #5fd4ff; }
+  #areaTitle .ap .i { width: 17px; height: 17px; stroke-width: 2.6; }
   #areaTitle.pop { animation: areaPop .5s cubic-bezier(.2, 1.6, .4, 1) both; }
   @keyframes areaPop { 0% { transform: translateX(-50%) scale(.4); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
   .lbl.sel .plate { animation: platePop .45s cubic-bezier(.2, 1.8, .4, 1); }
@@ -371,13 +377,76 @@
   #feed .ln .t { color: var(--dim); font: 10px/1.6 var(--f-num); white-space: nowrap; }
   #feed .ln.new { animation: flash 1.6s ease-out; }
   @keyframes flash { 0% { background: color-mix(in srgb, var(--lc, #5fd4ff) 22%, transparent); transform: translateX(-6px); } 100% { background: transparent; transform: none; } }
-  #controls { position: absolute; z-index: 3; right: calc(var(--ins-w) + 30px); bottom: 14px; display: flex; gap: 6px; align-items: center; transition: right .45s cubic-bezier(.2,.8,.2,1); }
+
+
+  /* ---------------------------------------------------------------- help under every field */
+  .hq { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: 7px; padding: 0; border-radius: 50%; border: 1px solid var(--line2); background: var(--sunk); color: var(--ink2); font: 700 11px/1 var(--f-ui); letter-spacing: 0; text-transform: none; cursor: pointer; vertical-align: 1px; }
+  .hq:hover, .hq.on { background: var(--cyan); color: #04121a; border-color: var(--cyan); }
+  .hx { display: none; margin: 4px 0 6px; padding: 6px 10px 6px 11px; border-radius: 0 8px 8px 0; background: rgba(95, 212, 255, .06); border: 0; border-left: 3px solid var(--cyan); color: #b9c7e4; font: italic 400 11.5px/1.5 var(--f-ui); letter-spacing: 0; text-transform: none; }
+  .hx.on, .explain .hx { display: block; }
+  .explain .hq { background: rgba(95, 212, 255, .2); }
+  .xall { position: absolute; right: 64px; top: 22px; display: flex; align-items: center; gap: 8px; font: 600 11px/1 var(--f-ui); letter-spacing: .06em; color: var(--ink2); cursor: pointer; z-index: 2; }
+  @media (max-width: 900px) { .xall { position: static; margin: 0 0 10px; } }
+  /* ---------------------------------------------------------------- the tour */
+  #tour { position: fixed; inset: 0; z-index: 60; }
+  #tour[hidden] { display: none; }
+  #tourHole { position: fixed; border-radius: 16px; box-shadow: 0 0 0 200vmax rgba(3, 5, 12, .66), 0 0 0 3px #ffcf5a, 0 0 30px rgba(255, 207, 90, .55); transition: left .4s cubic-bezier(.2,.8,.2,1), top .4s cubic-bezier(.2,.8,.2,1), width .4s cubic-bezier(.2,.8,.2,1), height .4s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
+  #tourCard { position: fixed; width: min(380px, calc(100vw - 24px)); padding: 16px 18px 14px; --c: #ffcf5a; transition: left .35s ease, top .35s ease; }
+  #tourCard .tn { font: 700 10px/1 var(--f-num); letter-spacing: .14em; color: var(--gold); }
+  #tourCard h3 { margin: 6px 0 6px; font: 700 18px/1.2 var(--f-display); color: #fff; letter-spacing: .02em; }
+  #tourCard p { margin: 0 0 14px; font-size: 13.5px; line-height: 1.55; color: var(--ink2); }
+  #tourCard .tb { display: flex; gap: 8px; align-items: center; }
+  #tourCard .tb .btn { min-height: 40px; padding: 0 16px; }
+  #tourCard .td { display: flex; gap: 5px; justify-content: center; margin-top: 12px; }
+  #tourCard .td i { width: 6px; height: 6px; border-radius: 3px; background: var(--line2); transition: width .25s, background .25s; }
+  #tourCard .td i.on { width: 18px; background: var(--gold); }
+  /* ---------------------------------------------------------------- the room close-up */
+  #cu { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; pointer-events: none; transform: scale(1.08); transition: opacity .5s ease, transform .65s cubic-bezier(.2,.8,.2,1); touch-action: none; z-index: 1; }
+  #view.cu #cu { opacity: 1; pointer-events: auto; transform: none; }
+  #view.cu #labels, #view.cu #floats { opacity: 0; pointer-events: none; transition: opacity .3s; }
+  /* ---------------------------------------------------------------- camera dock (bottom) and main menu (left rail) */
+  #controls { position: absolute; z-index: 4; right: calc(var(--ins-w) + 30px); bottom: 14px; display: flex; gap: 3px; align-items: stretch; padding: 5px; border-radius: 16px; --c: #8fb0ff; transition: right .45s cubic-bezier(.2,.8,.2,1), bottom .3s ease; }
   #app.ins-closed #controls { right: 44px; }
-  .cbtn { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; cursor: pointer; color: var(--ink2); padding: 0; --c: #8fb0ff; }
-  .cbtn:hover { color: #fff; border-color: var(--edge2); }
-  .cbtn .i { width: 17px; height: 17px; }
-  .keys { font: 10px/1.3 var(--f-num); color: var(--dim); margin-right: 6px; text-align: right; text-shadow: 0 1px 2px rgba(0,0,0,.85), 0 0 6px rgba(0,0,0,.6); }
-  .keys b { color: var(--muted); font-weight: 500; }
+  .db { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 62px; height: 56px; padding: 4px 8px; border-radius: 11px; border: 1px solid transparent; background: transparent; color: var(--ink2); cursor: pointer; font: 700 10px/1 var(--f-ui); letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; transition: color .15s, background .15s, border-color .15s; }
+  .db .i { width: 22px; height: 22px; }
+  .db:hover, .db:focus-visible { color: #fff; background: rgba(143, 176, 255, .13); border-color: rgba(143, 176, 255, .38); outline: none; }
+  .db.on { color: #fff; background: rgba(95, 212, 255, .18); border-color: var(--cyan); }
+  .dg { display: flex; align-items: center; gap: 2px; padding-right: 5px; margin-right: 2px; border-right: 1px solid var(--line2); }
+  #zslider { -webkit-appearance: none; appearance: none; width: 118px; height: 30px; background: transparent; cursor: pointer; margin: 0 4px; }
+  #zslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--cyan) var(--zp, 0%), #1a2236 var(--zp, 0%)); box-shadow: inset 0 0 0 1px var(--line2); }
+  #zslider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -7px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px var(--cyan), 0 2px 8px rgba(0, 0, 0, .6); }
+  #zslider::-moz-range-track { height: 6px; border-radius: 3px; background: #1a2236; }
+  #zslider::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--cyan); }
+  #zslider::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 3px solid var(--cyan); }
+  #zslider:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; border-radius: 6px; }
+  #rail { position: absolute; z-index: 5; left: 14px; top: var(--top, 96px); display: flex; flex-direction: column; gap: 6px; }
+  .rb { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; width: 76px; height: 58px; padding: 0; border-radius: 14px; color: var(--ink2); cursor: pointer; text-decoration: none; font: 700 10px/1 var(--f-ui); letter-spacing: .06em; text-transform: uppercase; background: linear-gradient(180deg, var(--glass-a), var(--glass-b)); border: 1px solid var(--edge); backdrop-filter: blur(12px) saturate(150%); -webkit-backdrop-filter: blur(12px) saturate(150%); box-shadow: 0 8px 22px rgba(0, 0, 0, .4); transition: transform .15s, color .15s, border-color .15s, box-shadow .15s, background .15s; }
+  .rb .i { width: 23px; height: 23px; color: var(--rbc, var(--cyan)); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--rbc, var(--cyan)) 45%, transparent)); }
+  .rb:hover, .rb:focus-visible { color: #fff; outline: none; border-color: var(--rbc, var(--cyan)); box-shadow: 0 0 18px color-mix(in srgb, var(--rbc, var(--cyan)) 35%, transparent), 0 8px 22px rgba(0, 0, 0, .4); transform: translateX(3px); }
+  .rb.on { color: #fff; border-color: var(--rbc, var(--cyan)); background: color-mix(in srgb, var(--rbc, var(--cyan)) 20%, var(--glass-b)); }
+  .rb .sdot { position: absolute; right: 8px; top: 8px; width: 8px; height: 8px; border-radius: 50%; background: #8a93a8; }
+  .rb .sdot.pulse { animation: blink 1s infinite; }
+  #navWorld { --rbc: #5fd4ff; } #navRoomList { --rbc: #ffcf5a; } #navRooms { --rbc: #a78bfa; } #navSync { --rbc: #3ddc97; } #navLedger { --rbc: #ffb454; } #navTerm { --rbc: #8fb0ff; } #navTour { --rbc: #f472b6; } #help { --rbc: #cfd6e6; }
+  @media (max-height: 800px) and (min-width: 901px) { .rb { height: 48px; gap: 3px; } .rb .i { width: 19px; height: 19px; } #rail { gap: 4px; } }
+  @media (max-height: 660px) and (min-width: 901px) { #navTerm, #help { display: none; } }
+  #rtip { position: fixed; z-index: 40; width: max-content; max-width: 300px; padding: 11px 13px; border-radius: 12px; background: linear-gradient(180deg, var(--tip-a), var(--tip-b)); border: 1px solid var(--edge2); box-shadow: 0 16px 40px rgba(0, 0, 0, .6); font-size: 12px; color: var(--ink2); pointer-events: none; animation: tin .16s ease-out both; }
+  #rtip[hidden] { display: none; }
+  #rtip b { display: block; color: #fff; font: 700 13.5px/1.2 var(--f-display); letter-spacing: .03em; margin-bottom: 5px; }
+  #rtip p { margin: 0; line-height: 1.5; }
+  #rtip .k { margin-top: 8px; color: var(--dim); font: 10.5px/1.4 var(--f-num); }
+  #rtip kbd { font: 600 10px/1 var(--f-num); color: #fff; background: var(--sunk); border: 1px solid var(--line2); border-bottom-width: 2px; border-radius: 4px; padding: 2px 5px; }
+  #roomMenu { position: absolute; z-index: 9; left: 100px; top: var(--top, 96px); width: 340px; max-height: calc(100% - var(--top, 96px) - 20px); overflow: auto; padding: 12px; --c: #ffcf5a; animation: tin .22s cubic-bezier(.2,.9,.3,1.2) both; scrollbar-width: thin; }
+  #roomMenu[hidden] { display: none; }
+  #roomMenu h4 { margin: 2px 4px 4px; font: 600 10px/1 var(--f-ui); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  #roomMenu .rmh { margin: 0 4px 10px; font-size: 11.5px; color: var(--ink2); line-height: 1.45; }
+  .rmi { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; width: 100%; padding: 9px 10px; margin-bottom: 6px; border-radius: 12px; border: 1px solid var(--line); background: linear-gradient(90deg, color-mix(in srgb, var(--rc) 16%, var(--card-a)), var(--card-b)); color: var(--ink); cursor: pointer; text-align: left; font: inherit; transition: border-color .15s, box-shadow .15s, transform .15s; }
+  .rmi:hover, .rmi:focus-visible, .rmi.on { border-color: var(--rc); box-shadow: 0 0 16px color-mix(in srgb, var(--rc) 32%, transparent); transform: translateX(2px); outline: none; }
+  .rmi .n { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font: 700 14px/1 var(--f-num); color: #0b0f19; background: var(--rc); box-shadow: 0 0 12px color-mix(in srgb, var(--rc) 45%, transparent); }
+  .rmi .n .i { width: 18px; height: 18px; }
+  .rmi b { display: block; font-size: 13px; color: #fff; font-weight: 600; }
+  .rmi small { color: var(--muted); font-size: 11px; }
+  .rmi .u { font: 600 13px/1 var(--f-num); color: var(--gold); text-align: right; white-space: nowrap; }
+  .rmi .u small { display: block; margin-top: 4px; font-family: var(--f-ui); }
   #toasts { position: absolute; z-index: 7; left: 50%; top: calc(var(--top) + 4px); transform: translateX(-50%); width: min(430px, 92%); display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
   .toast { display: grid; grid-template-columns: 34px 1fr; gap: 11px; align-items: center; padding: 10px 14px 10px 10px; animation: tin .55s cubic-bezier(.2,.9,.3,1.25) both; }
   .toast .ti { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent), 0 0 18px color-mix(in srgb, var(--c) 30%, transparent); }
@@ -416,9 +485,6 @@
   .btn.hire { width: 100%; border-style: dashed; }
   .btn.hire.on { border-style: solid; }
   /* income sync center */
-  #navSync { position: relative; }
-  #navSync .sdot { width: 7px; height: 7px; border-radius: 50%; background: #8a93a8; }
-  #navSync .sdot.pulse { animation: blink 1s infinite; }
   #syncbox { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: rgba(2, 3, 8, .62); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
   #syncbox[hidden] { display: none; }
   #syncbox .box { position: relative; width: min(1080px, 95vw); max-height: 90vh; overflow: auto; padding: 22px 24px; --c: #5fd4ff; animation: tin .4s cubic-bezier(.2,.9,.3,1.2) both; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
@@ -558,24 +624,77 @@
   #boot .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #5fd4ff, #ffcf5a); box-shadow: 0 0 12px #ffcf5a; transition: width .5s ease; }
   @keyframes pulse { 50% { filter: drop-shadow(0 0 22px rgba(255, 200, 80, .8)); transform: scale(1.04); } }
 
-  /* ---------------------------------------------------------------- small screens: stack instead of overlay */
+  /* ---------------------------------------------------------------- phones: the world full screen, a tab bar, a pull-up sheet */
+  #tabMore, #moreSheet, #sheetHandle { display: none; }
   @media (max-width: 900px) {
-    body { height: auto; min-height: 100%; overflow: auto; display: block; }
-    #app { overflow: visible; display: flex; flex-direction: column; gap: 10px; padding: 10px; }
-    #topbar { position: static; order: 1; flex-wrap: wrap; }
-    .brand { width: 100%; margin-right: 0; } .brand .sub { max-width: none; white-space: normal; }
-    .res { flex-wrap: wrap; width: 100%; } .rc { flex: 1 1 calc(33% - 8px); min-width: 0; padding: 7px 8px; gap: 8px; } .rc .ic { width: 26px; height: 26px; } .rc .v { font-size: 15px; }
-    .cmdr { width: 100%; }
-    #view { position: relative; inset: auto; order: 2; height: min(68vh, 82vw); min-height: 280px; border-radius: 12px; border: 1px solid var(--edge); }
-    #inspector { position: static; order: 3; width: auto; transform: none !important; opacity: 1 !important; pointer-events: auto !important; }
-    #panel { overflow: visible; }
+    html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+    body { display: block; -webkit-tap-highlight-color: transparent; }
+    #app { position: fixed; left: 0; right: 0; bottom: 0; top: var(--mockH, 0px); overflow: hidden; padding: 0; display: block; }
+    #view { position: absolute; inset: 0; height: auto; min-height: 0; border: 0; border-radius: 0; }
+    #topbar { position: absolute; left: 0; right: 0; top: 0; padding: calc(env(safe-area-inset-top, 0px) + 6px) 8px 0; gap: 6px; flex-wrap: nowrap; align-items: stretch; }
+    .brand { display: none; }
+    .res { flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; gap: 6px; padding-bottom: 2px; }
+    .res::-webkit-scrollbar { display: none; }
+    .rc { flex: none; padding: 6px 11px; gap: 0; border-radius: 12px; } .rc .ic { display: none; } .rc .k { font-size: 8.5px; letter-spacing: .1em; } .rc .v { font-size: 15px; margin-top: 2px; }
+    .rc::before, .rc::after { display: none; }
+    .cmdr { flex: none; min-width: 0; width: auto; padding: 5px 7px; } .cmdr > div:last-child { display: none; }
+    #rail { position: absolute; top: auto; left: 0; right: 0; bottom: 0; z-index: 30; flex-direction: row; justify-content: space-around; gap: 2px; padding: 5px 4px calc(env(safe-area-inset-bottom, 0px) + 5px); background: linear-gradient(180deg, var(--glass-a), var(--glass-b)); border-top: 1px solid var(--edge); backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%); box-shadow: 0 -10px 30px rgba(0, 0, 0, .45); }
+    .rb { flex: 1 1 0; width: auto; max-width: 92px; height: 56px; background: none; border: 1px solid transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; border-radius: 14px; font-size: 10px; gap: 4px; }
+    .rb .i { width: 24px; height: 24px; }
+    .rb:hover, .rb:focus-visible { transform: none; box-shadow: none; }
+    .rb .sdot { right: calc(50% - 20px); top: 6px; }
+    #navLedger, #navTerm, #navTour, #help { display: none; }
+    #tabMore { display: flex; --rbc: #cfd6e6; }
+    #inspector { position: absolute; left: 0; right: 0; top: auto; bottom: var(--tabH, 68px); width: auto; height: min(82%, calc(100% - var(--tabH, 68px) - 70px)); z-index: 20; border-radius: 20px 20px 0 0; border-bottom: 0; opacity: 1 !important; pointer-events: auto !important; transform: translateY(calc(100% - var(--peek, 52px))); transition: transform .4s cubic-bezier(.2,.9,.25,1); }
+    #app.ins-closed #inspector { transform: translateY(calc(100% - var(--peek, 52px))); }
+    #app.sheet-half #inspector { transform: translateY(42%); }
+    #app.sheet-full #inspector { transform: none; }
+    #inspector.dragging { transition: none; }
+    #sheetHandle { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 100%; padding: 7px 14px 8px; border: 0; background: none; color: #fff; cursor: grab; touch-action: none; flex: none; }
+    #sheetHandle i { width: 42px; height: 5px; border-radius: 3px; background: var(--line2); }
+    #sheetHandle span { font: 700 13px/1.2 var(--f-display); letter-spacing: .04em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #sheetHandle small { color: var(--muted); font: 600 10px/1 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; }
+    #panel { overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
     #insToggle { display: none; }
-    #comms { position: static; order: 4; width: auto; max-height: none; } #feed { max-height: 260px; }
-    #controls { right: 8px !important; bottom: 8px; } .keys { display: none; }
-    #toasts { position: fixed; top: 10px; }
-    #guide { position: fixed; } #guide .cols { grid-template-columns: 1fr; }
+    #comms { position: absolute; left: 8px; right: 8px; top: calc(var(--hudH, 64px) + 4px); width: auto; max-height: 38px; z-index: 6; overflow: hidden; border-radius: 12px; transition: max-height .3s ease; }
+    #comms::before, #comms::after { display: none; }
+    #comms .hd { display: none; }
+    #comms #feed { padding: 0 10px; overflow: hidden; }
+    #comms #feed .ln { font-size: 11.5px; padding: 9px 0; }
+    #comms:not(.open) #feed .ln:not(:first-child) { display: none; }
+    #comms:not(.open) #feed .ln:first-child { white-space: nowrap; }
+    #comms:not(.open) #feed .ln:first-child > span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; }
+    #comms.open { max-height: 48%; } #comms.open .hd { display: flex; } #comms.open #feed { overflow: auto; max-height: calc(48vh - 40px); }
+    #comms.min #feed { display: block; }
+    #controls { position: absolute; left: auto; right: 8px !important; bottom: calc(var(--tabH, 68px) + var(--peek, 52px) + 10px) !important; flex-direction: column; padding: 4px; gap: 2px; border-radius: 16px; }
+    #controls .dg { flex-direction: column-reverse; border: 0; padding: 0; margin: 0; gap: 2px; }
+    #zslider, #replayBtn, #sound { display: none; }
+    .db { min-width: 56px; height: 52px; font-size: 8.5px; gap: 3px; padding: 2px 4px; } .db .i { width: 21px; height: 21px; }
+    #areaTitle { top: calc(var(--hudH, 64px) + 48px + var(--toastH, 0px)); max-width: calc(100% - 20px); }
+    #areaTitle b { font-size: 22px; -webkit-text-stroke-width: 4px; } #areaTitle .lv { font-size: 13px; } #areaTitle small { font-size: 11px; }
+    #areaTitle .an { gap: 10px; } #areaTitle .ab { width: 38px; height: 38px; }
+    #areaTitle .aa { gap: 6px; margin-top: 7px; } #areaTitle .ap { padding: 7px 10px; font-size: 12.5px; }
+    #roomMenu { position: absolute; left: 0; right: 0; top: auto; bottom: var(--tabH, 68px); width: auto; max-height: 72%; border-radius: 20px 20px 0 0; z-index: 25; padding: 14px 12px; }
+    #moreSheet:not([hidden]) { display: block; position: absolute; left: 0; right: 0; bottom: var(--tabH, 68px); z-index: 25; border-radius: 20px 20px 0 0; padding: 14px 12px 16px; --c: #cfd6e6; animation: tin .22s cubic-bezier(.2,.9,.3,1.2) both; }
+    #toasts { position: absolute; top: calc(var(--hudH, 64px) + 46px); }
+    #guide, #syncbox, #roomsbox { position: fixed; top: var(--mockH, 0px); z-index: 45; }
+    #guide .box, #syncbox .box, #roomsbox .box { width: 100vw !important; max-width: none !important; height: 100% !important; max-height: none !important; border-radius: 0 !important; }
+    #guide .cols { grid-template-columns: 1fr; }
     #boot { position: fixed; }
+    #replay { top: calc(var(--hudH, 64px) + 48px); }
+    #rtip { display: none; }
+    #areaTitle .lg { display: none; } #areaTitle .sm { display: inline; }
+    #areaTitle .aa { flex-wrap: nowrap; }
+    #rail { background: #080b16; }
+    .toast { padding: 7px 10px 7px 8px; grid-template-columns: 26px 1fr; gap: 8px; } .toast .ti { width: 26px; height: 26px; border-radius: 8px; } .toast .tt { font-size: 12px; } .toast .ts { font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #toasts .toast:nth-child(n+2) { display: none; }
+    #toasts { width: calc(100% - 16px); }
   }
+  #moreSheet h4 { margin: 2px 4px 10px; font: 600 10px/1 var(--f-ui); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  #moreSheet .mg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  #moreSheet .mi { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 76px; padding: 8px 4px; border-radius: 14px; border: 1px solid var(--line); background: linear-gradient(180deg, var(--card-a), var(--card-b)); color: #fff; font: 700 11px/1.2 var(--f-ui); letter-spacing: .04em; text-decoration: none; text-align: center; cursor: pointer; }
+  #moreSheet .mi .i { width: 24px; height: 24px; color: var(--mc, var(--cyan)); }
+  #moreSheet .mi small { color: var(--muted); font-weight: 500; font-size: 10px; letter-spacing: 0; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 </style>
 </head>
@@ -584,34 +703,47 @@
 <div id="app">
   <div id="view">
     <canvas id="cv" tabindex="0" aria-label="Proxyfolk: an isometric world of rooms and the folk who work them. Click a room or a character."></canvas>
+    <canvas id="cu" aria-label="Room close-up: the room drawn up close. Tap a character for who they are."></canvas>
     <div id="labels"></div>
     <div id="floats"></div>
-    <div id="controls">
-      <div class="keys"><b>drag</b> pan · <b>scroll</b> zoom · <b>1–9</b> rooms · <b>esc</b> overview</div>
-      <button class="cbtn glass" id="zin" title="Zoom in (+)"></button>
-      <button class="cbtn glass" id="zout" title="Zoom out (−)"></button>
-      <button class="cbtn glass" id="zhome" title="Whole station (F)"></button>
-      <button class="cbtn glass" id="replayBtn" title="Replay the last 24 hours (R)"></button>
-      <button class="cbtn glass" id="sound" title="Sound off (M)"></button>
-      <button class="cbtn glass" id="help" title="Field guide (?)"></button>
+    <div id="controls" class="glass" aria-label="Camera">
+      <div class="dg"><button class="db" id="zout" type="button" data-tip="zout"></button><input id="zslider" type="range" min="0" max="1000" value="0" aria-label="Zoom" data-tip="zslider"><button class="db" id="zin" type="button" data-tip="zin"></button></div>
+      <button class="db" id="zhome" type="button" data-tip="zhome"></button>
+      <button class="db" id="replayBtn" type="button" data-tip="replay"></button>
+      <button class="db" id="sound" type="button" data-tip="sound"></button>
     </div>
-    <div id="areaTitle" hidden><b></b><span class="lv"></span><small></small></div>
+    <div id="areaTitle" hidden><div class="an"><button class="ab" id="roomPrev" type="button" title="Previous room ( [ )"></button><b></b><button class="ab" id="roomNext" type="button" title="Next room ( ] )"></button></div><span class="lv"></span><small></small><div class="aa"><button class="ap" id="roomBack" type="button"></button><button class="ap hot" id="roomClose" type="button"></button><button class="ap" id="roomEdit" type="button"></button></div></div>
     <div id="replay" class="glass" hidden><span class="rl">Replay · last 24 hours</span><b class="rt"></b><span class="rn"></span><span class="rb"><i></i></span><button class="btn sm2" type="button" id="replayStop">Stop</button></div>
     <div class="tip" id="tip"></div>
   </div>
+  <nav id="rail" aria-label="Main menu">
+    <button class="rb" id="navWorld" type="button" data-tip="world"></button>
+    <button class="rb" id="navRoomList" type="button" data-tip="rooms" aria-haspopup="true"></button>
+    <button class="rb" id="navRooms" type="button" data-tip="customize"></button>
+    <button class="rb" id="navSync" type="button" data-tip="income"></button>
+    <a class="rb" id="navLedger" href="/ledger" data-tip="ledger"></a>
+    <a class="rb" id="navTerm" href="/terminal" data-tip="terminal"></a>
+    <button class="rb" id="navTour" type="button" data-tip="tour"></button>
+    <button class="rb" id="help" type="button" data-tip="guide"></button>
+    <button class="rb" id="tabMore" type="button" aria-haspopup="true"></button>
+  </nav>
+  <div id="moreSheet" class="glass" hidden role="menu" aria-label="More"></div>
+  <div id="roomMenu" class="glass" hidden role="menu" aria-label="Rooms"></div>
+  <div id="rtip" role="tooltip" hidden></div>
+  <div id="tour" hidden><div id="tourHole"></div><div id="tourCard" class="glass" role="dialog" aria-live="polite"></div></div>
   <header id="topbar">
     <div class="brand glass">
       <svg class="logo" viewBox="0 0 40 44" aria-hidden="true"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".45" stop-color="#ffcf5a"/><stop offset="1" stop-color="#b8740a"/></linearGradient></defs><path d="M20 1.5l17.5 10v21L20 42.5 2.5 32.5v-21z" fill="url(#lg1)"/><path d="M20 7.5l12.3 7v14.6L20 36.3 7.7 29.1V14.5z" fill="#1c1204" opacity=".9"/><path d="M23.6 16.4c-.8-1-2-1.5-3.3-1.5-2 0-3.5 1.1-3.5 2.6 0 3.6 7 1.8 7 5.3 0 1.5-1.6 2.6-3.7 2.6-1.4 0-2.7-.6-3.5-1.7M20.3 13v18" stroke="#ffcf5a" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
       <div style="min-width:0">
         <h1>PROXYFOLK</h1>
         <div class="sub">Every lit screen, crate, crew member and gold bar is a ledger line.</div>
-        <nav><a href="#" id="navSync" title="Income sync: link where you get paid (I)"></a><a href="#" id="navRooms" title="Customize rooms (C)"></a><a href="/terminal" id="navTerm"></a><a href="/ledger" id="navLedger"></a><a href="#" id="navGuide"></a></nav>
+        
       </div>
     </div>
     <div class="res" id="res"></div>
     <div class="cmdr glass" id="cmdr" title="Commander level: your evidenced revenue, rung by rung"></div>
   </header>
-  <aside id="inspector" class="glass"><div class="ins-bar"></div><div id="panel"></div></aside>
+  <aside id="inspector" class="glass"><div class="ins-bar"></div><button id="sheetHandle" type="button" aria-label="Pull the panel up or down"><i></i><span id="sheetTitle">Station roster</span><small id="sheetSub">tap for details</small></button><div id="panel"></div></aside>
   <button id="insToggle" title="Hide or show the panel (P)"></button>
   <section id="comms" class="glass"><button class="hd" id="commsHd"><span class="live"></span>Comms · ledger feed<span class="ch"></span></button><div id="feed"></div></section>
   <div id="toasts" aria-live="polite"></div>
@@ -661,6 +793,9 @@
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const sget = (k) => { try { return window.sessionStorage.getItem(k); } catch { return null; } };
   const sset = (k, v) => { try { window.sessionStorage.setItem(k, v); } catch { /* storage blocked: fine */ } };
+  // things worth remembering across visits (the tour was seen, explanations on or off)
+  const lget = (k) => { try { return window.localStorage.getItem(k); } catch { return null; } };
+  const lset = (k, v) => { try { window.localStorage.setItem(k, v); } catch { /* storage blocked: fine */ } };
 
   const ICON = {
     coin: '<circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.3c-.6-.8-1.5-1.2-2.6-1.2-1.6 0-2.8.9-2.8 2.1 0 2.9 5.8 1.5 5.8 4.2 0 1.2-1.3 2.1-3 2.1-1.1 0-2.1-.5-2.7-1.3M12 6.3v11.4"/>',
@@ -698,6 +833,11 @@
     folk: '<circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3.3 2.7-5 5.5-5s4.9 1.7 5.5 5"/><circle cx="16.5" cy="9" r="2.4"/><path d="M15.5 14.1c2.6-.4 4.6 1.2 5 4.4"/>',
     sliders: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
+    globe: '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.4 3.8 5.2 3.8 8.5s-1.2 6.1-3.8 8.5c-2.6-2.4-3.8-5.2-3.8-8.5s1.2-6.1 3.8-8.5z"/>',
+    grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+    compass: '<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+    eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+    pencil: '<path d="M4 20l1-4.5L16 4.5l3.5 3.5L8.5 19z"/><path d="M14 7l3.5 3.5"/>',
     chevU: '<path d="M6 15l6-6 6 6"/>',
     trash: '<path d="M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13"/>',
     rooms: '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>',
@@ -3806,12 +3946,13 @@
     replay = { from: start, to, clock: start, events, i: 0, dur: clamp(events.length * 1.3, 24, 75), shown: 0, attract };
     for (const a of agents.values()) if (a.kind === 'folk') { a.busy = null; const f = folkByName(a.name); moveHome(a, f ? folkHome(f) : null); a.queue = []; const home = roomById(a.path); const [x, y] = home ? idleSpot(home) : hubSpot(); a.x = x; a.y = y; a.costume = costumeFor(home); a.pendingCostume = undefined; }
     for (const id of [...agents.keys()]) if (id.startsWith('guest:')) agents.delete(id);
+    paintReplay(true);
     $('#replay').hidden = false; $('#replay .rl').textContent = attract ? 'Replay · while you are away' : 'Replay · last 24 hours'; if (!attract) sfx('start');
     if (!attract) select(null);
   }
   function stopReplay() {
     if (!replay) return;
-    replay = null; $('#replay').hidden = true;
+    replay = null; $('#replay').hidden = true; paintReplay(false);
     for (const id of [...agents.keys()]) if (id.startsWith('guest:')) agents.delete(id);
     for (const a of agents.values()) if (a.kind === 'folk') a.busy = null;
     if (snap) sync();
@@ -3848,7 +3989,8 @@
       }
     } catch { /* no audio: stay quiet */ }
   }
-  function toggleSound() { soundOn = !soundOn; sset('pf-sound', soundOn ? '1' : '0'); $('#sound').innerHTML = ic(soundOn ? 'sound' : 'mute'); $('#sound').title = soundOn ? 'Sound on (M)' : 'Sound off (M)'; if (soundOn) sfx('coin'); }
+  function toggleSound() { soundOn = !soundOn; sset('pf-sound', soundOn ? '1' : '0'); paintSound(); if (soundOn) sfx('coin'); }
+  function paintSound() { $('#sound').innerHTML = ic(soundOn ? 'sound' : 'mute') + `<span>${soundOn ? 'Sound on' : 'Muted'}</span>`; $('#sound').classList.toggle('on', soundOn); }
 
   // ---- what a character is doing, in words, and whether it is real
   function activityText(a) {
@@ -5267,7 +5409,9 @@
         ug.globalAlpha = Math.max(0, fade) * o.dim; ug.drawImage(s2, nx(X + 4), ny(y - 12 * sc), 11 * kUpL * sc, 11 * kUpL * sc); ug.globalAlpha = 1;
       }
       const inArea = selRoom && a.path === selRoom.id;
-      const want = id.kind === 'person' || id.kind === 'kid' || id.kind === 'lead' || (agent && (showTags || inArea || a.runId || follow === a.id || hoverAgentId === a.id)) || (id.kind === 'client' && (showTags || inArea || hoverAgentId === a.id));
+      // on a phone at the overview, names only for whoever is doing something real: the rest would pile up
+      const quiet = !overlayMode() && !selRoom && cam.z < 2.2 && follow !== a.id && !(a.real > 0);
+      const want = !quiet && (id.kind === 'person' || id.kind === 'kid' || id.kind === 'lead' || (agent && (showTags || inArea || a.runId || follow === a.id || hoverAgentId === a.id)) || (id.kind === 'client' && (showTags || inArea || hoverAgentId === a.id)));
       if (want && o.reveal > 0.6) {
         const sc = cssK * (showTags || inArea ? 1 : 0.88), sz = plateSize(ug, id, sc);
         const py = freeY(nx(X), ny(y - 3) - 9 * sc - sz.h * 0.25, sz.w, sz.h);
@@ -5797,9 +5941,21 @@
       const insOpen = !$('#app').classList.contains('ins-closed');
       const insW = insOpen ? $('#inspector').offsetWidth + 28 : 20;
       const commsH = $('#comms').offsetHeight;
-      avail.x0 = 18; avail.y0 = top + 4; avail.x1 = vwCss - insW - 16; avail.y1 = vhCss - Math.max(62, commsH * 0.62 + 20);
+      const railR = $('#rail').getBoundingClientRect().right - app.left;
+      avail.x0 = Math.max(18, railR + 14); avail.y0 = top + 4; avail.x1 = vwCss - insW - 16; avail.y1 = vhCss - Math.max(78, commsH * 0.62 + 20);
+      // the camera dock sits right of the feed; if they would touch, the dock steps up above it
+      const dk = $('#controls'), cm = $('#comms');
+      dk.style.bottom = '';
+      const dr = dk.getBoundingClientRect(), cr = cm.getBoundingClientRect();
+      if (dr.left < cr.right + 10 && !cm.classList.contains('min')) dk.style.bottom = (cm.offsetHeight + 24) + 'px';
     } else {
-      avail.x0 = 8; avail.y0 = 8; avail.x1 = vwCss - 8; avail.y1 = vhCss - 8;
+      // phone: the world fills the screen between the numbers on top, the tab bar and the panel's handle below
+      const tb = $('#topbar').getBoundingClientRect(), root = document.documentElement.style;
+      const hudH = Math.round(tb.bottom - app.top), tabH = $('#rail').offsetHeight, peek = $('#sheetHandle').offsetHeight || 52;
+      root.setProperty('--hudH', hudH + 'px'); root.setProperty('--tabH', tabH + 'px'); root.setProperty('--peek', peek + 'px'); root.setProperty('--top', (hudH + 8) + 'px');
+      const insH = $('#inspector').offsetHeight;
+      const shown = sheet === 'full' ? insH : sheet === 'half' ? insH * 0.58 : peek;
+      avail.x0 = 10; avail.y0 = hudH + 46; avail.x1 = vwCss - 72; avail.y1 = Math.max(avail.y0 + 140, vhCss - tabH - shown - 6);
     }
     if (avail.x1 - avail.x0 < 120) avail.x1 = avail.x0 + 120;
     if (avail.y1 - avail.y0 < 120) avail.y1 = avail.y0 + 120;
@@ -5807,6 +5963,8 @@
     if (cells.size) bbox = stationBBox();
     home = { x: (bbox.x0 + bbox.x1) / 2, y: (bbox.y0 + bbox.y1) / 2 };
     fitS = Math.max(0.25, Math.min((avail.x1 - avail.x0) / (bbox.x1 - bbox.x0), (avail.y1 - avail.y0) / (bbox.y1 - bbox.y0)));
+    // a phone is tall and narrow: start closer in and let a drag show the rest
+    if (!overlayMode()) fitS *= 1.35;
     // background big enough for the most zoomed-out view plus parallax travel
     const need = [Math.ceil(vwCss / (fitS * Z_MIN)) + 160, Math.ceil(vhCss / (fitS * Z_MIN)) + 160].map((v) => Math.min(v, 2600));
     if (!BG || BG.w < need[0] || BG.h < need[1] || BG.w > need[0] * 1.6 || BG.h > need[1] * 1.6) BG = (SK().bg || bakeBG)(need[0], need[1]);
@@ -6131,8 +6289,9 @@
   function hideAreaTitle() { $('#areaTitle').hidden = true; }
   function select(id, { fly = true } = {}) {
     selected = id === 'hub' ? null : id;
-    if (!(id && roomById(id))) hideAreaTitle();
-    follow = id && id.startsWith('a:') ? id.slice(2) : null;
+    if (!selected && closeUp) closeUpOff();
+    if (!(id && roomById(id)) && !closeUp) hideAreaTitle();
+    follow = id && id.startsWith('a:') && !closeUp ? id.slice(2) : null;
     renderPanel(true);
     buildLabels();
     if (follow) { camT.z = Math.max(camT.z, 2.2); clampCam(); return; }
@@ -6153,9 +6312,12 @@
       const [cx, cy] = P(t.x0 + 3.5, t.y0 + 3.5, 8);
       camT.x = cx; camT.y = cy; camT.z = Math.max(camT.z, 1.5); clampCam();
     }
-    if (!overlayMode() && id) $('#inspector').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    sheetTitleUpdate();
+    if (!overlayMode()) setSheet(id && id !== 'hub' && !closeUp ? 'half' : 'peek');
   }
   function zoomBy(f, X = avail.cx, Y = avail.cy) {
+    // zooming in past the closest look on a room hands over to its close-up
+    if (f > 1 && camT.z >= Z_MAX - 1e-3 && selected && roomById(selected) && !closeUp) { closeUpOn(); return; }
     camBounce = false;
     const [nx, ny] = [camT.x + (X - avail.cx) / (fitS * camT.z), camT.y + (Y - avail.cy) / (fitS * camT.z)];
     camT.z = clamp(camT.z * f, Z_MIN, Z_MAX);
@@ -6233,7 +6395,7 @@
     const cmdrHtml = `<div class="hex"><svg viewBox="0 0 44 50"><defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".5" stop-color="#ffcf5a"/><stop offset="1" stop-color="#a86b0c"/></linearGradient></defs><path d="M22 1.5l19.5 11.2v24.6L22 48.5 2.5 37.3V12.7z" fill="url(#hg)"/><path d="M22 6l15.6 9v20L22 44 6.4 35V15z" fill="none" stroke="#7a4d06" stroke-opacity=".5"/></svg><b>${lv.level}</b></div>
       <div style="flex:1;min-width:0"><div class="k">${esc(MODE() === 'allowance' ? 'Family' : NM().leader)} · level ${lv.level}</div><div class="t">${esc(MODE() === 'allowance' && !lv.level ? 'No chores yet' : lv.title)}</div><div class="xp"><i style="width:${pct.toFixed(1)}%"></i></div><div class="n">${lv.next ? `${usd(lv.next.remainingUsd)} to ${esc(lv.next.title)}` : 'top rung reached'}</div></div>`;
     if (cmdrHtml !== lastCmdr) { $('#cmdr').innerHTML = cmdrHtml; lastCmdr = cmdrHtml; }
-    $('#demo').style.display = st.demo ? 'block' : 'none';
+    $('#demo').style.display = st.demo && !window.__PF_MOCK ? 'block' : 'none';
     { const ss = syncStatus(); const dot = $('#navSync .sdot'); if (dot) { dot.style.background = ss.color; dot.style.boxShadow = `0 0 8px ${ss.color}`; dot.classList.toggle('pulse', ss.key === 'syncing' || ss.key === 'error'); } $('#navSync').title = 'Income sync: ' + ss.text + ' (I)'; }
   }
 
@@ -6357,7 +6519,9 @@
     else if (room && isService(room)) (MODE() === 'allowance' ? renderChore : renderService)(el, room);
     else if (room) renderRoom(el, room);
     else (MODE() === 'allowance' ? renderFamily : renderRoster)(el);
+    decorateHelp(el);
     if (force) el.scrollTop = 0;
+    sheetTitleUpdate();
   }
   // A character's card: who they are, what they stand for, what they are doing right now (real or just life).
   function renderAgent(el, a) {
@@ -6867,6 +7031,7 @@
     wireSync(box, d);
   }
   function wireSync(box, d) {
+    decorateHelp(box);
     box.querySelector('[data-close]').addEventListener('click', closeSync);
     box.querySelectorAll('[data-stab]').forEach((b) => b.addEventListener('click', () => { syncTab = b.dataset.stab; renderSync(); }));
     box.querySelectorAll('[data-kind]').forEach((b) => b.addEventListener('click', () => { linkKind = b.dataset.kind; renderSync(); }));
@@ -7066,6 +7231,7 @@
     const full = dr.rooms.length >= d.maxRooms, chores = dr.mode === 'allowance';
     box.innerHTML = `
       <button class="cbtn glass x" data-close title="Close (Esc)">${ic('close')}</button>
+      <label class="xall"><span class="tog"><input type="checkbox" data-explain${explainAll() ? ' checked' : ''}><i></i></span>Explain every field</label>
       <div class="sy-head"><div class="rd-ic">${ic('rooms')}</div><div style="flex:1;min-width:0"><h2>Customize the world</h2><p class="lead">What it's for, what world it lives in, who works in it, and every room. ${chores ? 'Each room is one chore with a price; kids earn it when a parent checks it off.' : 'A synced sale lands in the first room whose keyword appears in its item name, so Square\'s "Skin Fade" goes to the room that claims <i>fade</i>.'} Every dollar still totals in the vault.</p></div></div>
       <div class="rd-top">
         <div><h3>What it's for</h3><div class="modes">${modeTiles(dr.mode, 'data-mode', false)}</div></div>
@@ -7086,6 +7252,9 @@
       </div>
       <div class="rd-foot"><button class="btn go" type="button" data-save>${ic('check')}Save station</button><button class="btn ghost" type="button" data-close>Cancel</button><div class="msg ${rd.err ? 'err' : rd.msg ? 'ok' : ''}">${esc(rd.msg)}</div><button class="btn ghost danger sm2" type="button" data-reset>${rd.armed === '__reset' ? 'Click again to reset' : 'Reset to built-in paths'}</button></div>`;
     wireRooms(box);
+    decorateHelp(box);
+    const xa = box.querySelector('[data-explain]');
+    if (xa) xa.addEventListener('change', () => { lset('pf-explain', xa.checked ? '1' : '0'); box.classList.toggle('explain', xa.checked); });
   }
   function roomsError(e) { rd.msg = /HTTP 40[45]|Failed to fetch|NetworkError/.test(e.message) ? 'This preview is read-only. Run the station on your computer to save rooms.' : e.message; rd.err = true; }
   async function afterRoomsSaved(text) {
@@ -7298,6 +7467,7 @@
     if (pinch && pointers.size === 2) {
       const [a, b] = [...pointers.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
       if (pinch.d > 0) { camT.z = clamp(pinch.z * d / pinch.d, Z_MIN, Z_MAX); clampCam(); }
+      if (pinch.d > 0 && selected && roomById(selected) && !closeUp && pinch.z * d / pinch.d > Z_MAX * 1.2) { closeUpOn(); pinch = null; pointers.clear(); }
       return;
     }
     const r = view.getBoundingClientRect();
@@ -7351,44 +7521,137 @@
   });
   // the area title steps down out of the way while a toast is showing
   new MutationObserver(() => { const h = $('#toasts').offsetHeight; document.documentElement.style.setProperty('--toastH', (h ? h + 6 : 0) + 'px'); }).observe($('#toasts'), { childList: true, subtree: true });
-  $('#replayBtn').innerHTML = ic('replay'); $('#sound').innerHTML = ic(soundOn ? 'sound' : 'mute'); $('#sound').title = soundOn ? 'Sound on (M)' : 'Sound off (M)';
+  const lab = (icon, text) => ic(icon) + `<span>${text}</span>`;
+  function paintReplay(on) { const b = $('#replayBtn'); b.innerHTML = lab(on ? 'close' : 'replay', on ? 'Stop replay' : 'Replay'); b.classList.toggle('on', on); }
+  paintReplay(false); paintSound();
   $('#replayBtn').addEventListener('click', () => (replay ? stopReplay() : startReplay()));
   $('#replayStop').addEventListener('click', stopReplay);
   // left alone for a while, the world replays its last 24 hours by itself; any input hands it back
   let lastInput = performance.now();
   for (const evn of ['pointerdown', 'keydown', 'wheel', 'touchstart']) window.addEventListener(evn, () => { lastInput = performance.now(); if (replay && replay.attract) stopReplay(); }, { passive: true, capture: true });
-  setInterval(() => { if (!replay && snap && !document.hidden && performance.now() - lastInput > 45000 && $('#roomsbox').hidden && $('#syncbox').hidden && $('#guide').hidden) { lastInput = performance.now(); startReplay({ attract: true }); } }, 5000);
+  setInterval(() => { if (!replay && snap && !document.hidden && !tour && performance.now() - lastInput > 45000 && $('#roomsbox').hidden && $('#syncbox').hidden && $('#guide').hidden) { lastInput = performance.now(); startReplay({ attract: true }); } }, 5000);
   $('#sound').addEventListener('click', toggleSound);
-  $('#zin').innerHTML = ic('zin'); $('#zout').innerHTML = ic('zout'); $('#zhome').innerHTML = ic('fit'); $('#help').innerHTML = ic('help');
+  $('#zin').innerHTML = lab('zin', 'Zoom in'); $('#zout').innerHTML = lab('zout', 'Zoom out'); $('#zhome').innerHTML = lab('fit', 'See all');
   $('#insToggle').innerHTML = ic('chevR');
-  $('#navSync').innerHTML = '<span class="sdot"></span>' + ic('bolt') + 'Sync';
-  $('#navSync').addEventListener('click', (e) => { e.preventDefault(); openSync(); });
-  $('#navRooms').innerHTML = ic('rooms') + '<span class="lbl">Rooms</span>';
-  $('#navRooms').addEventListener('click', (e) => { e.preventDefault(); openRooms(); });
+  // ---- the main menu: big labeled buttons, each explained on hover
+  $('#navWorld').innerHTML = lab('globe', 'World');
+  $('#navRoomList').innerHTML = lab('grid', 'Rooms');
+  $('#navRooms').innerHTML = lab('sliders', 'Customize');
+  $('#navSync').innerHTML = '<span class="sdot"></span>' + lab('bolt', 'Income');
+  $('#navLedger').innerHTML = lab('chart', 'Ledger');
+  $('#navTerm').innerHTML = lab('term', 'Terminal');
+  $('#navTour').innerHTML = lab('compass', 'Tour');
+  $('#help').innerHTML = lab('book', 'Guide');
+  $('#roomPrev').innerHTML = ic('chevL'); $('#roomNext').innerHTML = ic('chevR');
+  $('#roomBack').innerHTML = ic('globe') + '<span class="lg">Whole world</span><span class="sm">World</span>'; $('#roomClose').innerHTML = ic('eye') + 'Close-up'; $('#roomEdit').innerHTML = ic('pencil') + 'Edit<span class="lg"> room</span>';
+  $('#navWorld').addEventListener('click', () => { closeRoomMenu(); select('hub'); });
+  $('#navRoomList').addEventListener('click', () => ($('#roomMenu').hidden ? openRoomMenu() : closeRoomMenu()));
+  $('#navSync').addEventListener('click', () => { closeRoomMenu(); openSync(); });
+  $('#navRooms').addEventListener('click', () => { closeRoomMenu(); openRooms({ room: selected && roomById(selected) ? selected : null }); });
+  $('#navTour').addEventListener('click', () => { closeRoomMenu(); startTour(); });
+  $('#roomPrev').addEventListener('click', () => stepRoom(-1));
+  $('#roomNext').addEventListener('click', () => stepRoom(1));
+  $('#roomBack').addEventListener('click', () => select('hub'));
+  $('#roomClose').addEventListener('click', () => toggleCloseUp());
+  $('#roomEdit').addEventListener('click', () => openRooms({ room: selected && roomById(selected) ? selected : null }));
   $('#roomsbox').addEventListener('click', (e) => { if (e.target.id === 'roomsbox') closeRooms(); });
   $('#syncbox').addEventListener('click', (e) => { if (e.target.id === 'syncbox') closeSync(); });
-  $('#navTerm').innerHTML = ic('term') + '<span class="lbl">Terminal</span>'; $('#navLedger').innerHTML = ic('chart') + '<span class="lbl">Ledger</span>'; $('#navGuide').innerHTML = ic('book') + '<span class="lbl">Guide</span>';
-  $('#navTerm').title = 'Production terminal'; $('#navLedger').title = 'Money dashboard'; $('#navGuide').title = 'Field guide (?)';
   // a world picked on the URL (?skin=castle) follows you to the terminal and the dashboard
   if (skinFromUrl) for (const a of [$('#navTerm'), $('#navLedger')]) a.setAttribute('href', a.getAttribute('href') + '?skin=' + skinFromUrl);
-  $('#zin').addEventListener('click', () => zoomBy(1.35));
-  $('#zout').addEventListener('click', () => zoomBy(1 / 1.35));
-  $('#zhome').addEventListener('click', () => { camT.x = home.x; camT.y = home.y; camT.z = 1; });
-  $('#help').addEventListener('click', openGuide);
-  $('#navGuide').addEventListener('click', (e) => { e.preventDefault(); openGuide(); });
+  $('#zin').addEventListener('click', () => zoomBy(1.4));
+  $('#zout').addEventListener('click', () => zoomBy(1 / 1.4));
+  $('#zhome').addEventListener('click', () => { closeUpOff(); camBounce = false; camT.x = home.x; camT.y = home.y; camT.z = 1; });
+  $('#help').addEventListener('click', () => { closeRoomMenu(); openGuide(); });
+  // the zoom slider: log scale from the whole world to the closest look
+  const zs = $('#zslider');
+  let zsDrag = false;
+  const zToS = (z) => Math.round(1000 * Math.log(z / Z_MIN) / Math.log(Z_MAX / Z_MIN));
+  const sToZ = (v) => Z_MIN * Math.pow(Z_MAX / Z_MIN, v / 1000);
+  zs.addEventListener('input', () => { zsDrag = true; camBounce = false; camT.z = clamp(sToZ(Number(zs.value)), Z_MIN, Z_MAX); clampCam(); zs.style.setProperty('--zp', zs.value / 10 + '%'); });
+  zs.addEventListener('change', () => { zsDrag = false; if (Number(zs.value) >= 995 && selected && roomById(selected) && !closeUp) closeUpOn(); });
+  let zsLast = -1;
+  function syncZoomUi() {
+    if (zsDrag) return;
+    const v = zToS(cam.z);
+    if (v === zsLast) return;
+    zsLast = v; zs.value = v; zs.style.setProperty('--zp', v / 10 + '%');
+  }
+  // ---- the rooms menu: every room as a big button that flies you in
+  function roomMenuHtml() {
+    const list = rooms.slice().sort((a, b) => a.spec.rank - b.spec.rank);
+    const mode = MODE();
+    return `<h4>Rooms</h4><div class="rmh">Each room is one thing you track. Pick one to fly in and watch who works it. Keys <b>1</b>–<b>9</b> jump straight there.</div>
+      <button class="rmi${selected ? '' : ' on'}" data-go="hub" style="--rc:#5fd4ff"><span class="n">${ic('globe')}</span><span><b>Whole world</b><small>every room at once</small></span><span class="u">${usd(snap.state.earnedUsd)}<small>all time</small></span></button>
+      ${list.map((room) => { const t = themeOf(room.id), n = workersIn(room).length, today = svcStatsToday(room); return `<button class="rmi${selected === room.id ? ' on' : ''}" data-go="${esc(room.id)}" style="--rc:${t.accent}"><span class="n">${room.spec.rank <= 9 ? room.spec.rank : '·'}</span><span><b>${esc(shortName(room.spec))}</b><small>${n} working${today.n ? ` · ${mode === 'allowance' ? today.n + ' done' : usd(today.usd)} today` : ''}</small></span><span class="u">${usd(pathState(room.id).earnedUsd)}<small>earned</small></span></button>`; }).join('')}`;
+  }
+  function openRoomMenu() { if (!snap) return; const m = $('#roomMenu'); m.innerHTML = roomMenuHtml(); m.hidden = false; $('#navRoomList').classList.add('on'); hideRtip(); }
+  function closeRoomMenu() { $('#roomMenu').hidden = true; $('#navRoomList').classList.remove('on'); }
+  $('#roomMenu').addEventListener('click', (e) => { const b = e.target.closest('[data-go]'); if (!b) return; closeRoomMenu(); select(b.dataset.go); });
+  document.addEventListener('pointerdown', (e) => { if (!$('#roomMenu').hidden && !e.target.closest('#roomMenu, #navRoomList')) closeRoomMenu(); });
+  function stepRoom(d) {
+    const list = rooms.slice().sort((a, b) => a.spec.rank - b.spec.rank);
+    if (!list.length) return;
+    const i = list.findIndex((r) => r.id === selected);
+    const next = list[(i < 0 ? (d > 0 ? 0 : list.length - 1) : (i + d + list.length) % list.length)];
+    const keep = closeUp;
+    select(next.id);
+    if (keep) closeUpOn();
+  }
+  // ---- explain-on-hover: what each button does, in plain words
+  const TIPS = {
+    world: ['The whole world', 'Fly back out to see every room at once. Click any room or character to go in again.', 'Esc or H'],
+    rooms: ['Rooms', 'A list of every room with who is working and what it earned. Pick one to fly straight in.', '1 – 9'],
+    customize: ['Customize', 'Change what the world is for and how it looks: its purpose, its world skin, the folk and their roles, each room\'s name, price, keywords and furniture. The guide inside explains every field.', 'C'],
+    income: ['Income', 'Link where you get paid (Stripe, Square, PayPal, Gumroad) or import a statement (Upwork, Fiverr, a bank CSV). Every payment becomes a ledger line and walks into its room. The dot shows sync health.', 'I'],
+    ledger: ['Ledger', 'The money dashboard: every dollar in and out, with its evidence, in plain tables and charts. Also where kids get paid out in the family tracker.', ''],
+    terminal: ['Terminal', 'The production terminal: the agents\' drafts waiting for you to send or publish, and what each run did.', ''],
+    tour: ['Take the tour', 'A two-minute walk through everything you can see, click and change here, one step at a time.', 'T'],
+    guide: ['Field guide', 'What every marker, badge, ring, star and animation in the world means.', '?'],
+    zin: ['Zoom in', 'Get closer. Keep going on a room for the close-up. The mouse wheel and a pinch do the same.', '+'],
+    zout: ['Zoom out', 'Step back to see more of the world.', '−'],
+    zslider: ['Zoom', 'Drag to zoom smoothly from the whole world down to the closest look.', 'wheel'],
+    zhome: ['See all', 'Fit the whole world in view again.', 'F'],
+    replay: ['Replay', 'Watch the last 24 hours again, sped up: every sale, chore and agent run replays in order. It also starts by itself when you leave the screen alone.', 'R'],
+    sound: ['Sound', 'Turn the world\'s sounds on or off: coins, doors, footsteps.', 'M'],
+  };
+  const rtip = $('#rtip');
+  let rtipFor = null;
+  function showRtip(el) {
+    const t = TIPS[el.dataset.tip];
+    if (!t || !overlayMode()) return;
+    rtipFor = el;
+    rtip.innerHTML = `<b>${esc(t[0])}</b><p>${esc(t[1])}</p>${t[2] ? `<div class="k">Shortcut: <kbd>${esc(t[2])}</kbd></div>` : ''}`;
+    rtip.hidden = false;
+    const r = el.getBoundingClientRect(), w = rtip.offsetWidth, h = rtip.offsetHeight;
+    const inRail = !!el.closest('#rail');
+    const x = inRail ? r.right + 12 : clamp(r.left + r.width / 2 - w / 2, 8, window.innerWidth - w - 8);
+    const y = inRail ? clamp(r.top + r.height / 2 - h / 2, 8, window.innerHeight - h - 8) : r.top - h - 12;
+    rtip.style.left = x + 'px'; rtip.style.top = y + 'px';
+  }
+  function hideRtip() { rtip.hidden = true; rtipFor = null; }
+  for (const el of document.querySelectorAll('[data-tip]')) {
+    el.addEventListener('pointerenter', () => showRtip(el));
+    el.addEventListener('pointerleave', hideRtip);
+    el.addEventListener('focus', () => showRtip(el));
+    el.addEventListener('blur', hideRtip);
+    el.addEventListener('click', hideRtip);
+  }
   $('#cmdr').addEventListener('click', () => select('hub'));
   $('#guide').addEventListener('click', (e) => { if (e.target.id === 'guide' || e.target.closest('[data-close]')) closeGuide(); });
   const toggleIns = () => { $('#app').classList.toggle('ins-closed'); setTimeout(layout, 460); layout(); };
   $('#insToggle').addEventListener('click', toggleIns);
-  $('#commsHd').addEventListener('click', () => $('#comms').classList.toggle('min'));
+  $('#commsHd').addEventListener('click', () => { if (overlayMode()) $('#comms').classList.toggle('min'); });
   window.addEventListener('keydown', (ev) => {
     const tgt = ev.target;
     const typing = tgt && (/INPUT|SELECT|TEXTAREA/.test(tgt.tagName) || tgt.isContentEditable);
     if (ev.key === 'Escape') {
+      if (tour) { endTour(); return; }
+      if (!$('#roomMenu').hidden) { closeRoomMenu(); return; }
       if (!$('#guide').hidden) { closeGuide(); return; }
       if (!$('#syncbox').hidden) { closeSync(); return; }
       if (!$('#roomsbox').hidden) { closeRooms(); return; }
       if (typing) { tgt.blur(); return; }
+      if (closeUp) { closeUpOff(true); return; }
       select('hub'); return;
     }
     if (typing || ev.metaKey || ev.ctrlKey || ev.altKey) return;
@@ -7412,6 +7675,10 @@
       case 'p': case 'P': if (overlayMode()) toggleIns(); break;
       case 'r': case 'R': if (replay) stopReplay(); else startReplay(); break;
       case 'm': case 'M': toggleSound(); break;
+      case 'v': case 'V': if (selected && roomById(selected)) toggleCloseUp(); break;
+      case '[': stepRoom(-1); break;
+      case ']': stepRoom(1); break;
+      case 't': case 'T': startTour(); break;
       default: return;
     }
     ev.preventDefault();
@@ -7437,6 +7704,7 @@
   }
   setTimeout(finishBoot, 4000);
 
+  let toured = false;
   async function poll() {
     try {
       const r = await fetch('api/state', { cache: 'no-store' });
@@ -7461,6 +7729,8 @@
       renderPanel();
       finishBoot();
       if (!welcomed && snap.station && snap.station.configured === false && !snap.state.eventCount && !sget('rs-welcome')) { welcomed = true; openRooms({ welcome: true }); }
+      // the first visit to the preview's mock starts the tour by itself (Skip ends it for good)
+      if (!toured && window.__PF_MOCK && !lget('pf-toured')) { toured = true; setTimeout(() => { if (!tour && $('#roomsbox').hidden && $('#syncbox').hidden) startTour(); }, 2600); }
     } catch (e) {
       // server down or preview offline: keep drawing the last truthful frame. A drawing bug is reported, not hidden.
       if (!(e instanceof TypeError && /fetch|network/i.test(e.message)) && !(e instanceof SyntaxError)) console.error('station:', e);
@@ -7493,6 +7763,1335 @@
     $('#topbar .brand h1').textContent = n.toUpperCase();
     document.title = n === 'Proxyfolk' ? n : `${n} · Proxyfolk`;
   }
+  // ======================================================================= the close-up: one room, up close
+  // Zoom all the way into a room (or press Close-up) and the pixel world hands over to a hand-drawn diorama of that one
+  // room: a cutaway with walls, windows and furniture for what the room is for (a barbershop gets chairs and mirrors, a
+  // "Dishes" chore gets a kitchen, "Yard work" gets grass and a mower), and the same folk, agents and clients at the
+  // same spots doing the same things, drawn big enough to see faces. It is the same sim drawn a second way: every
+  // character, bubble and coin here is the one in the world outside, and the wall screens show the room's real numbers.
+  let closeUp = false;
+  const CUV = (() => {
+    const cvs = $('#cu');
+    let g = cvs.getContext('2d');
+    const N = ROOM, WALLH = 4.3, SLAB = 0.9;
+    let room = null, vis = 0, zoom = 1, zoomT = 1, panX = 0, panY = 0, W = 1, H = 1, dpr = 1, u = 40, ox = 0, oy = 0, tt = 0;
+    let shell = null, shellKey = '', hits = [], hoverId = null, drag = null;
+    const fxs = [];
+
+    // ---- colour helpers
+    const hx = (c) => { let s = String(c || '#888').replace('#', ''); if (s.length === 3) s = s.split('').map((k) => k + k).join(''); const n = parseInt(s.slice(0, 6), 16) || 0; return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+    const rgb = (r, gg, b, a = 1) => `rgba(${Math.round(clamp(r, 0, 255))},${Math.round(clamp(gg, 0, 255))},${Math.round(clamp(b, 0, 255))},${a})`;
+    const shade = (c, k, a = 1) => { const [r, gg, b] = hx(c); return k >= 0 ? rgb(r + (255 - r) * k, gg + (255 - gg) * k, b + (255 - b) * k, a) : rgb(r * (1 + k), gg * (1 + k), b * (1 + k), a); };
+    const mixc = (c1, c2, t) => { const a1 = hx(c1), a2 = hx(c2); return rgb(a1[0] + (a2[0] - a1[0]) * t, a1[1] + (a2[1] - a1[1]) * t, a1[2] + (a2[2] - a1[2]) * t); };
+    const alpha = (c, a) => shade(c, 0, a);
+    const hsh = (s) => { let h = 2166136261; for (const ch of String(s)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0; };
+
+    // ---- the worlds, as materials
+    const SKINS = {
+      space: { bg: ['#040816', '#0f1a3c'], wall: '#cfd8ea', wall2: '#b6c1d8', trim: '#4a5b80', cap: '#e9eef8', floor: ['#8f9ab0', '#838ea4'], fk: 'plates', slab: '#27304c', slab2: '#1b2238', acc: '#5fd4ff', sky: 'space', lamp: '#bfe8ff', pk: 'stars', ink: '#1b2238' },
+      castle: { bg: ['#06050b', '#1d1428'], wall: '#77708a', wall2: '#686178', trim: '#3a3246', cap: '#8d86a0', floor: ['#5e4332', '#523a2b'], fk: 'planks', slab: '#2c2334', slab2: '#1c1622', acc: '#ff9a4a', sky: 'moon', lamp: '#ffb866', pk: 'embers', brick: true, ink: '#1c1622' },
+      farm: { bg: ['#8fd0ff', '#e8f6ff'], wall: '#f0dcb4', wall2: '#e3cc9f', trim: '#8a5a32', cap: '#f7ead0', floor: ['#cfa168', '#c1925a'], fk: 'planks', slab: '#76502e', slab2: '#5a3b20', acc: '#ffb454', sky: 'day', lamp: '#ffe2a0', pk: 'pollen', ink: '#3b2614' },
+      cyber: { bg: ['#05030c', '#1d0b30'], wall: '#2e3144', wall2: '#262a3c', trim: '#ff3fa4', cap: '#3b3f56', floor: ['#20232f', '#1a1d28'], fk: 'tiles', slab: '#0f1019', slab2: '#08080f', acc: '#ff3fa4', sky: 'city', lamp: '#ff7ad9', pk: 'rain', neon: true, ink: '#08080f' },
+      alien: { bg: ['#090314', '#2b0f3d'], wall: '#62407f', wall2: '#553570', trim: '#b86bff', cap: '#7a55a0', floor: ['#40295a', '#38234f'], fk: 'organic', slab: '#1f1030', slab2: '#140a20', acc: '#7dffb0', sky: 'nebula', lamp: '#9dffcf', pk: 'spores', ink: '#140a20' },
+      ocean: { bg: ['#021629', '#07405f'], wall: '#86a2b6', wall2: '#7590a4', trim: '#2f4a5e', cap: '#9fb7c8', floor: ['#5c7483', '#526977'], fk: 'grate', slab: '#1b2e3c', slab2: '#11202b', acc: '#39e0ff', sky: 'water', lamp: '#aef3ff', pk: 'bubbles', ink: '#11202b' },
+    };
+    const sk = () => SKINS[skinId()] || SKINS.space;
+
+    // ---- what the room is for decides its furniture: the name and keywords, then the style the designer picked
+    function themeFor(rm) {
+      const sp = rm.spec, nm = `${sp.name || ''} ${sp.short || ''} ${(sp.match || []).join(' ')}`.toLowerCase();
+      if (sp.style === 'barber' || /barber|fade|haircut|beard|shave|lineup|line-up|\bcut\b|kids cut/.test(nm)) return 'barber';
+      if (/salon|nail|lash|brow|colou?r|stylist|blowout|perm|highlight/.test(nm)) return 'salon';
+      if (/dish|kitchen|cook|meal|lunch|dinner/.test(nm)) return 'kitchen';
+      if (/\bbed\b|make.?bed|bedroom/.test(nm)) return 'bedroom';
+      if (/homework|study|read|school|piano|practice|lesson/.test(nm)) return 'study';
+      if (/laundry|clothes|fold|wash/.test(nm)) return 'laundry';
+      if (/\bpets?\b|dog|cat|feed|fish tank/.test(nm)) return 'pets';
+      if (/trash|garbage|recycl|bins?\b/.test(nm)) return 'trash';
+      if (/yard|lawn|garden|mow|weed|leaves|rake/.test(nm)) return 'yard';
+      if (/tidy|clean|toy|vacuum|room/.test(nm)) return 'playroom';
+      if (sp.style === 'shop') return 'shop';
+      if (sp.style === 'studio' || /content|video|podcast|studio|creator/.test(nm)) return 'studio';
+      return 'office';
+    }
+
+    // ---- projection: room-local floor units (0..7 both ways), height in u
+    const Pl = (x, y, z = 0) => [ox + (x - y) * u, oy + (x + y) * u * 0.5 - z * u];
+    function poly(pts) { g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); }
+    const lw = (k) => Math.max(1, u * k);
+    const INK = 'rgba(18,14,30,0.55)';
+
+    // an iso box with lit faces and an ink outline: the building block of all furniture
+    function box(x, y, w, d, h, z, col, o = {}) {
+      const top = [Pl(x, y, z + h), Pl(x + w, y, z + h), Pl(x + w, y + d, z + h), Pl(x, y + d, z + h)];
+      const lf = [Pl(x, y + d, z), Pl(x + w, y + d, z), Pl(x + w, y + d, z + h), Pl(x, y + d, z + h)];
+      const rf = [Pl(x + w, y, z), Pl(x + w, y + d, z), Pl(x + w, y + d, z + h), Pl(x + w, y, z + h)];
+      g.lineJoin = 'round';
+      poly(lf); g.fillStyle = o.lf || shade(col, -0.08); g.fill();
+      poly(rf); g.fillStyle = o.rf || shade(col, -0.3); g.fill();
+      poly(top); g.fillStyle = o.top || shade(col, 0.16); g.fill();
+      if (o.gloss) { poly(top); const [a0, b0] = top[0], [a2, b2] = top[2]; const gr = g.createLinearGradient(a0, b0, a2, b2); gr.addColorStop(0, 'rgba(255,255,255,0.28)'); gr.addColorStop(0.5, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fill(); }
+      if (o.noInk) return;
+      g.strokeStyle = o.ink || INK; g.lineWidth = lw(0.028);
+      poly(lf); g.stroke(); poly(rf); g.stroke(); poly(top); g.stroke();
+      // a bright lip along the two front top edges
+      g.strokeStyle = 'rgba(255,255,255,0.22)'; g.lineWidth = lw(0.018);
+      g.beginPath(); g.moveTo(...top[3]); g.lineTo(...top[2]); g.lineTo(...top[1]); g.stroke();
+    }
+    // an upright cylinder (pots, stools, poles, bins)
+    function cyl(x, y, r, h, z, col, o = {}) {
+      const [cx, cy] = Pl(x, y, z), [, ty] = Pl(x, y, z + h), rx = r * u * 1.414, ry = r * u * 0.707;
+      const gr = g.createLinearGradient(cx - rx, 0, cx + rx, 0);
+      gr.addColorStop(0, shade(col, -0.05)); gr.addColorStop(0.35, shade(col, 0.18)); gr.addColorStop(1, shade(col, -0.35));
+      g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, 0, Math.PI); g.lineTo(cx - rx, ty); g.ellipse(cx, ty, rx, ry, 0, Math.PI, 0, true); g.closePath();
+      g.fillStyle = gr; g.fill(); g.strokeStyle = o.ink || INK; g.lineWidth = lw(0.026); g.stroke();
+      g.beginPath(); g.ellipse(cx, ty, rx, ry, 0, 0, Math.PI * 2); g.fillStyle = o.top || shade(col, 0.22); g.fill(); g.stroke();
+    }
+    // a flat shape lying on the floor (rugs, mats, grass tufts)
+    function decal(x, y, w, d, col, o = {}) {
+      poly([Pl(x, y, 0.01), Pl(x + w, y, 0.01), Pl(x + w, y + d, 0.01), Pl(x, y + d, 0.01)]);
+      g.fillStyle = col; g.fill();
+      if (o.border) { g.strokeStyle = o.border; g.lineWidth = lw(0.05); g.stroke(); }
+    }
+    function glowAt(X, Y, r, col, a) {
+      const gr = g.createRadialGradient(X, Y, 0, X, Y, r);
+      gr.addColorStop(0, alpha(col, a)); gr.addColorStop(1, alpha(col, 0));
+      g.fillStyle = gr; g.fillRect(X - r, Y - r, r * 2, r * 2);
+    }
+    // drawing on a wall: (s along the wall from its left end, v down from the top of the wall... in wall units)
+    // R is the back-right wall (y = 0), L the back-left wall (x = 0), read left to right toward the viewer
+    function onWall(side, fn) {
+      g.save();
+      if (side === 'R') g.transform(u, 0.5 * u, 0, u, ...Pl(0, 0, WALLH));
+      else g.transform(u, -0.5 * u, 0, u, ...Pl(0, N, WALLH));
+      fn();
+      g.restore();
+    }
+    // text in wall or unit space, set at 64x and scaled down so tiny unit sizes still rasterize crisply
+    function utext(txt, x, y, size, o = {}) {
+      g.save(); g.translate(x, y); g.scale(1 / 64, 1 / 64);
+      g.font = `${o.weight || 700} ${size * 64}px ${o.family || 'system-ui,sans-serif'}`;
+      g.textAlign = o.align || 'left'; g.textBaseline = o.base || 'alphabetic';
+      if (o.glow) { g.shadowColor = o.glow; g.shadowBlur = (o.blur || 0.3) * u * dpr; }
+      g.fillStyle = o.col || '#fff'; g.fillText(txt, 0, 0);
+      g.restore();
+    }
+    function umeasure(txt, size, o = {}) { g.save(); g.font = `${o.weight || 700} ${size * 64}px ${o.family || 'system-ui,sans-serif'}`; const w = g.measureText(txt).width / 64; g.restore(); return w; }
+
+    // ---- the room's shell: slab, floor and the two cut-away walls (cached; redrawn when the size, room or world change)
+    function floorTile(x, y, S, th) {
+      const q = [Pl(x, y), Pl(x + 1, y), Pl(x + 1, y + 1), Pl(x, y + 1)];
+      const chk = (x + y) % 2 === 0;
+      if (th === 'yard') {
+        poly(q); g.fillStyle = chk ? '#6fbf4a' : '#66b544'; g.fill();
+        g.strokeStyle = 'rgba(40,90,30,0.35)'; g.lineWidth = lw(0.02);
+        for (let k = 0; k < 5; k++) { const bx = x + 0.15 + ((hsh(x * 31 + y * 7 + k) % 70) / 100), by = y + 0.15 + ((hsh(k * 13 + x + y * 17) % 70) / 100); const [px, py] = Pl(bx, by); g.beginPath(); g.moveTo(px, py); g.lineTo(px - u * 0.04, py - u * 0.14); g.moveTo(px, py); g.lineTo(px + u * 0.05, py - u * 0.12); g.stroke(); }
+        return;
+      }
+      if (th === 'barber' || th === 'salon') { poly(q); g.fillStyle = chk ? mixc(S.floor[0], '#f4f1ea', 0.75) : mixc(S.floor[1], '#23262e', 0.8); g.fill(); return; }
+      if (th === 'kitchen' || th === 'laundry' || th === 'trash') { poly(q); g.fillStyle = chk ? mixc(S.floor[0], '#e8e4d8', 0.55) : mixc(S.floor[1], '#cfc8b6', 0.55); g.fill(); g.strokeStyle = 'rgba(0,0,0,0.12)'; g.lineWidth = lw(0.015); g.stroke(); return; }
+      if (th === 'bedroom' || th === 'playroom') { poly(q); g.fillStyle = mixc(S.floor[0], '#b79bd6', 0.35); g.fill(); return; }
+      if (S.fk === 'planks') {
+        poly(q); g.fillStyle = S.floor[(x * 3 + y) % 2]; g.fill();
+        g.strokeStyle = 'rgba(0,0,0,0.16)'; g.lineWidth = lw(0.016);
+        for (let k = 1; k < 3; k++) { g.beginPath(); g.moveTo(...Pl(x, y + k / 3)); g.lineTo(...Pl(x + 1, y + k / 3)); g.stroke(); }
+        const off = (hsh(x * 7 + y) % 3) / 3; g.beginPath(); g.moveTo(...Pl(x + off, y)); g.lineTo(...Pl(x + off, y + 1 / 3)); g.stroke();
+        return;
+      }
+      if (S.fk === 'tiles') { poly(q); g.fillStyle = S.floor[chk ? 0 : 1]; g.fill(); g.strokeStyle = alpha(S.acc, 0.14); g.lineWidth = lw(0.02); g.stroke(); return; }
+      if (S.fk === 'organic') { poly(q); g.fillStyle = S.floor[chk ? 0 : 1]; g.fill(); const [cx, cy] = Pl(x + 0.5, y + 0.5); g.beginPath(); g.ellipse(cx, cy, u * 0.5, u * 0.22, 0, 0, 7); g.fillStyle = 'rgba(180,120,255,0.08)'; g.fill(); return; }
+      if (S.fk === 'grate') { poly(q); g.fillStyle = S.floor[chk ? 0 : 1]; g.fill(); g.strokeStyle = 'rgba(0,0,0,0.18)'; g.lineWidth = lw(0.012); for (let k = 1; k < 4; k++) { g.beginPath(); g.moveTo(...Pl(x + k / 4, y)); g.lineTo(...Pl(x + k / 4, y + 1)); g.stroke(); } return; }
+      poly(q); g.fillStyle = S.floor[chk ? 0 : 1]; g.fill();
+      g.strokeStyle = 'rgba(0,0,0,0.2)'; g.lineWidth = lw(0.018); g.stroke();
+      for (const [a, b] of [[0.12, 0.12], [0.88, 0.12], [0.12, 0.88], [0.88, 0.88]]) { const [px, py] = Pl(x + a, y + b); g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(px - 1, py - 1, 2, 2); }
+    }
+    function wallFace(side, S, th) {
+      const pts = side === 'R' ? [Pl(0, 0, 0), Pl(N, 0, 0), Pl(N, 0, WALLH), Pl(0, 0, WALLH)] : [Pl(0, N, 0), Pl(0, 0, 0), Pl(0, 0, WALLH), Pl(0, N, WALLH)];
+      const fence = th === 'yard';
+      const base = side === 'R' ? S.wall : S.wall2;
+      if (!fence) { poly(pts); g.fillStyle = base; g.fill(); }
+      onWall(side, () => {
+        if (fence) {
+          for (let s = 0; s < N; s += 0.5) { g.fillStyle = shade('#c98f55', (s * 2) % 2 ? -0.08 : 0.04); g.fillRect(s + 0.03, WALLH - 1.9, 0.44, 1.9); g.beginPath(); g.moveTo(s + 0.03, WALLH - 1.9); g.lineTo(s + 0.25, WALLH - 2.1); g.lineTo(s + 0.47, WALLH - 1.9); g.fill(); }
+          g.fillStyle = '#a8703e'; g.fillRect(0, WALLH - 1.55, N, 0.14); g.fillRect(0, WALLH - 0.7, N, 0.14);
+          return;
+        }
+        if (S.brick) { g.strokeStyle = 'rgba(0,0,0,0.18)'; g.lineWidth = 0.025; for (let r = 0; r < WALLH / 0.35; r++) { const v = r * 0.35; g.beginPath(); g.moveTo(0, v); g.lineTo(N, v); g.stroke(); for (let s = (r % 2) * 0.35; s < N; s += 0.7) { g.beginPath(); g.moveTo(s, v); g.lineTo(s, v + 0.35); g.stroke(); } } }
+        else if (th === 'barber') { g.fillStyle = 'rgba(0,0,0,0.05)'; for (let s = 0; s < N; s += 0.6) g.fillRect(s, 0, 0.3, WALLH); g.fillStyle = shade(S.wall, -0.35, 0.9); g.fillRect(0, WALLH - 1.35, N, 1.35); g.fillStyle = 'rgba(255,255,255,0.1)'; for (let s = 0.2; s < N; s += 0.4) g.fillRect(s, WALLH - 1.3, 0.03, 1.25); }
+        else if (th === 'kitchen') { g.fillStyle = '#eef3f5'; g.fillRect(0, WALLH - 2.2, N, 1.2); g.strokeStyle = 'rgba(0,0,0,0.1)'; g.lineWidth = 0.02; for (let v = WALLH - 2.2; v < WALLH - 1; v += 0.3) { g.beginPath(); g.moveTo(0, v); g.lineTo(N, v); g.stroke(); } for (let s = 0; s < N; s += 0.3) { g.beginPath(); g.moveTo(s, WALLH - 2.2); g.lineTo(s, WALLH - 1); g.stroke(); } }
+        else if (th === 'bedroom' || th === 'playroom') { g.fillStyle = 'rgba(255,255,255,0.18)'; for (let s = 0.2; s < N; s += 0.55) for (let v = 0.3; v < WALLH - 0.4; v += 0.55) { g.beginPath(); g.arc(s + ((v * 10) % 2 ? 0.27 : 0), v, 0.06, 0, 7); g.fill(); } }
+        else if (S.neon) { g.fillStyle = 'rgba(255,255,255,0.03)'; for (let s = 0; s < N; s += 1) g.fillRect(s + 0.02, 0, 0.96, WALLH); }
+        else if (S.fk === 'plates' || S.fk === 'grate') { g.strokeStyle = 'rgba(0,0,0,0.12)'; g.lineWidth = 0.025; for (let s = 1; s < N; s += 1.4) { g.beginPath(); g.moveTo(s, 0); g.lineTo(s, WALLH); g.stroke(); } g.fillStyle = 'rgba(0,0,0,0.18)'; for (let s = 0.7; s < N; s += 1.4) for (const v of [0.25, WALLH - 0.45]) { g.beginPath(); g.arc(s, v, 0.04, 0, 7); g.fill(); } }
+        else if (S.fk === 'organic') { g.strokeStyle = alpha(S.acc, 0.22); g.lineWidth = 0.05; for (let k = 0; k < 5; k++) { g.beginPath(); g.moveTo(k * 1.6, WALLH); g.bezierCurveTo(k * 1.6 + 0.6, WALLH - 1.5, k * 1.6 - 0.4, 1.4, k * 1.6 + 0.5, 0); g.stroke(); } }
+        else { g.fillStyle = 'rgba(0,0,0,0.04)'; for (let s = 0; s < N; s += 0.5) g.fillRect(s, 0, 0.25, WALLH); }
+        // skirting board and a top rail
+        g.fillStyle = shade(S.trim, 0.1); g.fillRect(0, WALLH - 0.26, N, 0.26);
+        g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(0, WALLH - 0.26, N, 0.03);
+        g.fillStyle = shade(S.trim, -0.1); g.fillRect(0, 0.08, N, 0.1);
+      });
+      if (fence) return;
+      // light falls across each wall: brighter toward the back corner
+      poly(pts);
+      const [ax, ay] = side === 'R' ? Pl(0, 0, WALLH / 2) : Pl(0, 0, WALLH / 2), [bx, by] = side === 'R' ? Pl(N, 0, WALLH / 2) : Pl(0, N, WALLH / 2);
+      const gr = g.createLinearGradient(ax, ay, bx, by); gr.addColorStop(0, 'rgba(255,255,255,0.08)'); gr.addColorStop(1, side === 'R' ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.2)');
+      g.fillStyle = gr; g.fill();
+      g.strokeStyle = INK; g.lineWidth = lw(0.03); g.stroke();
+      // the cut-away cap on top: this is what makes it read as a doll's house
+      const t = 0.22, cap = side === 'R' ? [Pl(0, 0, WALLH), Pl(N, 0, WALLH), Pl(N, -t, WALLH), Pl(-t, -t, WALLH)] : [Pl(0, N, WALLH), Pl(0, 0, WALLH), Pl(-t, -t, WALLH), Pl(-t, N, WALLH)];
+      if (!fence) { poly(cap); g.fillStyle = S.cap; g.fill(); g.strokeStyle = INK; g.stroke(); }
+      const endCap = side === 'R' ? [Pl(N, 0, 0), Pl(N, -t, 0), Pl(N, -t, WALLH), Pl(N, 0, WALLH)] : [Pl(0, N, 0), Pl(-t, N, 0), Pl(-t, N, WALLH), Pl(0, N, WALLH)];
+      if (!fence) { poly(endCap); g.fillStyle = shade(S.wall2, -0.35); g.fill(); g.stroke(); }
+    }
+    function bakeShell(rm, th) {
+      const S = sk();
+      const key = [W, H, dpr, u.toFixed(2), ox.toFixed(1), oy.toFixed(1), rm.id, th, skinId()].join('|');
+      if (shell && shellKey === key) return;
+      shellKey = key;
+      if (!shell) shell = document.createElement('canvas');
+      shell.width = cvs.width; shell.height = cvs.height;
+      const main = g;
+      const sg = shell.getContext('2d');
+      // draw with the same helpers by swapping the context
+      swapCtx(sg);
+      sg.setTransform(dpr, 0, 0, dpr, 0, 0);
+      sg.clearRect(0, 0, W, H);
+      // the slab the room stands on, and its drop shadow
+      const [sx, sy] = Pl(N / 2, N / 2, -SLAB);
+      const sh = sg.createRadialGradient(sx, sy + u * 1.2, u, sx, sy + u * 1.2, u * 9);
+      sh.addColorStop(0, 'rgba(0,0,0,0.5)'); sh.addColorStop(1, 'rgba(0,0,0,0)'); sg.fillStyle = sh; sg.fillRect(sx - u * 10, sy - u * 4, u * 20, u * 12);
+      poly([Pl(0, N, 0), Pl(N, N, 0), Pl(N, N, -SLAB), Pl(0, N, -SLAB)]); sg.fillStyle = S.slab; sg.fill(); sg.strokeStyle = INK; sg.lineWidth = lw(0.03); sg.stroke();
+      poly([Pl(N, 0, 0), Pl(N, N, 0), Pl(N, N, -SLAB), Pl(N, 0, -SLAB)]); sg.fillStyle = S.slab2; sg.fill(); sg.stroke();
+      sg.fillStyle = alpha(themeOf(rm.id).accent, 0.9); poly([Pl(0, N, -0.05), Pl(N, N, -0.05), Pl(N, N, -0.2), Pl(0, N, -0.2)]); sg.fill(); poly([Pl(N, 0, -0.05), Pl(N, N, -0.05), Pl(N, N, -0.2), Pl(N, 0, -0.2)]); sg.fillStyle = alpha(shade(themeOf(rm.id).accent, -0.25), 0.9); sg.fill();
+      for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) floorTile(x, y, S, th);
+      // soft contact shadow where the floor meets the walls
+      const aoR = [Pl(0, 0), Pl(N, 0), Pl(N, 0.6), Pl(0.6, 0.6)], aoL = [Pl(0, 0), Pl(0, N), Pl(0.6, N), Pl(0.6, 0.6)];
+      for (const q of [aoR, aoL]) { poly(q); const [a0, b0] = q[0], [a3, b3] = q[3]; const gr = sg.createLinearGradient(a0, b0, a3, b3); gr.addColorStop(0, 'rgba(0,0,0,0.28)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); sg.fillStyle = gr; sg.fill(); }
+      poly([Pl(0, 0), Pl(N, 0), Pl(N, N), Pl(0, N)]); sg.strokeStyle = INK; sg.lineWidth = lw(0.03); sg.stroke();
+      wallFace('L', S, th);
+      wallFace('R', S, th);
+      swapCtx(main);
+    }
+    function swapCtx(c) { g = c; }
+
+    // ---- windows and wall things that change with the time and the data (drawn every frame)
+    function sky(side, s0, s1, v0, v1, S) {
+      const dark = darkness();
+      onWall(side, () => {
+        g.save();
+        g.beginPath(); g.roundRect(s0, v0, s1 - s0, v1 - v0, 0.12); g.clip();
+        const gr = g.createLinearGradient(0, v0, 0, v1);
+        const day = { space: ['#0a1433', '#1d2d63'], castle: ['#1a1633', '#3a2c55'], farm: ['#7cc6ff', '#d8f0ff'], cyber: ['#261043', '#5a1f5e'], alien: ['#2a0f45', '#5f2a7a'], ocean: ['#0a5a85', '#1a8fb8'] }[skinId()] || ['#7cc6ff', '#d8f0ff'];
+        const night = { farm: ['#0b1433', '#28305a'], ocean: ['#031a2c', '#073a58'] }[skinId()] || day;
+        gr.addColorStop(0, mixc(day[0], night[0], dark)); gr.addColorStop(1, mixc(day[1], night[1], dark));
+        g.fillStyle = gr; g.fillRect(s0, v0, s1 - s0, v1 - v0);
+        const k = S.sky, w = s1 - s0, h = v1 - v0;
+        if (k === 'space' || k === 'nebula' || dark > 0.5) { g.fillStyle = '#fff'; for (let i = 0; i < 14; i++) { const px = s0 + ((hsh(i * 97 + s0 * 10) % 1000) / 1000) * w, py = v0 + ((hsh(i * 31 + 7) % 1000) / 1000) * h; g.globalAlpha = 0.4 + 0.6 * Math.abs(Math.sin(tt * 1.5 + i)); g.fillRect(px, py, 0.03, 0.03); } g.globalAlpha = 1; }
+        if (k === 'space') { g.fillStyle = '#e8a36a'; g.beginPath(); g.arc(s0 + w * 0.7, v0 + h * 0.75, h * 0.45, 0, 7); g.fill(); g.strokeStyle = 'rgba(255,220,180,0.6)'; g.lineWidth = 0.04; g.beginPath(); g.ellipse(s0 + w * 0.7, v0 + h * 0.75, h * 0.75, h * 0.16, -0.25, 0, 7); g.stroke(); }
+        if (k === 'moon') { g.fillStyle = '#f4f0d0'; g.beginPath(); g.arc(s0 + w * 0.65, v0 + h * 0.35, h * 0.16, 0, 7); g.fill(); }
+        if (k === 'day') { if (dark < 0.5) { g.fillStyle = '#fff6b0'; g.beginPath(); g.arc(s0 + w * 0.75, v0 + h * 0.28, h * 0.12, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,0.9)'; const cx = s0 + ((tt * 0.05) % 1) * w; g.beginPath(); g.ellipse(cx, v0 + h * 0.3, 0.3, 0.1, 0, 0, 7); g.ellipse(cx + 0.2, v0 + h * 0.26, 0.2, 0.1, 0, 0, 7); g.fill(); } else { g.fillStyle = '#f4f0d0'; g.beginPath(); g.arc(s0 + w * 0.7, v0 + h * 0.3, h * 0.11, 0, 7); g.fill(); } g.fillStyle = mixc('#5fae4a', '#1e3a2a', dark); g.beginPath(); g.moveTo(s0, v1); g.quadraticCurveTo(s0 + w * 0.3, v0 + h * 0.55, s0 + w * 0.6, v0 + h * 0.8); g.quadraticCurveTo(s0 + w * 0.85, v0 + h * 0.62, s1, v0 + h * 0.75); g.lineTo(s1, v1); g.fill(); }
+        if (k === 'city') { for (let i = 0; i < 7; i++) { const bx = s0 + i * w / 7, bh = h * (0.35 + (hsh(i * 11) % 50) / 100); g.fillStyle = '#120a22'; g.fillRect(bx, v1 - bh, w / 7 - 0.03, bh); g.fillStyle = i % 2 ? '#ff3fa4' : '#39e0ff'; for (let j = 0; j < 4; j++) if ((hsh(i * 7 + j) + Math.floor(tt)) % 3) g.fillRect(bx + 0.06 + (j % 2) * 0.12, v1 - bh + 0.12 + Math.floor(j / 2) * 0.2, 0.05, 0.07); } g.strokeStyle = 'rgba(160,190,255,0.35)'; g.lineWidth = 0.015; for (let i = 0; i < 12; i++) { const rx = s0 + ((i * 0.37 + tt * 0.9) % 1) * w, ry = v0 + ((i * 0.53 + tt * 2.2) % 1) * h; g.beginPath(); g.moveTo(rx, ry); g.lineTo(rx - 0.04, ry + 0.16); g.stroke(); } }
+        if (k === 'nebula') { const ng = g.createRadialGradient(s0 + w * 0.4, v0 + h * 0.5, 0, s0 + w * 0.4, v0 + h * 0.5, w * 0.7); ng.addColorStop(0, 'rgba(125,255,176,0.45)'); ng.addColorStop(1, 'rgba(125,255,176,0)'); g.fillStyle = ng; g.fillRect(s0, v0, w, h); }
+        if (k === 'water') { g.fillStyle = 'rgba(255,255,255,0.08)'; for (let i = 0; i < 3; i++) g.fillRect(s0 + ((tt * 0.1 + i * 0.33) % 1) * w, v0, 0.08, h); for (let i = 0; i < 2; i++) { const fx = s0 + ((tt * (0.07 + i * 0.03) + i * 0.5) % 1.2) * w - 0.2, fy = v0 + h * (0.35 + i * 0.3); g.fillStyle = i ? '#ffb454' : '#ff7a59'; g.beginPath(); g.ellipse(fx, fy, 0.14, 0.07, 0, 0, 7); g.fill(); g.beginPath(); g.moveTo(fx - 0.12, fy); g.lineTo(fx - 0.24, fy - 0.07); g.lineTo(fx - 0.24, fy + 0.07); g.fill(); } }
+        if (k === 'moon' || k === 'city' || k === 'nebula') { /* rain, ships... kept calm */ }
+        g.restore();
+        // frame, mullions, sill
+        g.strokeStyle = shade(S.trim, -0.1); g.lineWidth = 0.1; g.beginPath(); g.roundRect(s0, v0, s1 - s0, v1 - v0, 0.12); g.stroke();
+        g.lineWidth = 0.05; g.beginPath(); g.moveTo((s0 + s1) / 2, v0); g.lineTo((s0 + s1) / 2, v1); g.moveTo(s0, (v0 + v1) / 2); g.lineTo(s1, (v0 + v1) / 2); g.stroke();
+        g.fillStyle = shade(S.trim, 0.25); g.fillRect(s0 - 0.12, v1, s1 - s0 + 0.24, 0.1);
+        // glass glint
+        g.fillStyle = 'rgba(255,255,255,0.1)'; g.beginPath(); g.moveTo(s0 + 0.1, v1 - 0.1); g.lineTo(s0 + 0.5, v0 + 0.1); g.lineTo(s0 + 0.7, v0 + 0.1); g.lineTo(s0 + 0.3, v1 - 0.1); g.fill();
+      });
+    }
+    // the room's name on the back wall: neon in the city and in space, a painted board on the farm, iron in the castle
+    function sign(rm, S) {
+      const name = shortName(rm.spec).toUpperCase(), acc = themeOf(rm.id).accent, fam = '"Lilita One","Fredoka",sans-serif';
+      onWall('R', () => {
+        const s = 3.5, v = 0.78;
+        let size = 0.5;
+        while (umeasure(name, size, { weight: 400, family: fam }) > 4.0 && size > 0.2) size -= 0.02;
+        const w = umeasure(name, size, { weight: 400, family: fam }) + 0.6;
+        const glow = S.neon || skinId() === 'space' || skinId() === 'alien';
+        g.fillStyle = glow ? 'rgba(0,0,0,0.35)' : skinId() === 'farm' ? '#8a5a32' : skinId() === 'castle' ? '#2b2230' : shade(S.trim, -0.2);
+        g.beginPath(); g.roundRect(s - w / 2, v - 0.42, w, 0.8, 0.14); g.fill();
+        if (!glow) { g.strokeStyle = 'rgba(0,0,0,0.4)'; g.lineWidth = 0.04; g.stroke(); for (const px of [s - w / 2 + 0.15, s + w / 2 - 0.15]) { g.fillStyle = '#c9b48a'; g.beginPath(); g.arc(px, v - 0.28, 0.04, 0, 7); g.fill(); } }
+        const flick = glow && Math.sin(tt * 23) > 0.97 ? 0.35 : 1;
+        utext(name, s, v, size, { weight: 400, family: fam, align: 'center', base: 'middle', col: glow ? shade(acc, 0.35, flick) : '#fff4d8', glow: glow ? acc : null });
+      });
+    }
+    // a wall screen with the room's real numbers: today and the last 7 days, the chore chart, or the pipeline
+    function dataScreen(rm, S) {
+      onWall('L', () => {
+        const s0 = 4.9, s1 = 6.75, v0 = 1.0, v1 = 2.45, w = s1 - s0, h = v1 - v0;
+        g.fillStyle = '#10131d'; g.beginPath(); g.roundRect(s0 - 0.08, v0 - 0.08, w + 0.16, h + 0.16, 0.1); g.fill();
+        const scr = g.createLinearGradient(0, v0, 0, v1); scr.addColorStop(0, '#0e2236'); scr.addColorStop(1, '#0a1522');
+        g.fillStyle = scr; g.fillRect(s0, v0, w, h);
+        const acc = themeOf(rm.id).accent;
+        if (MODE() === 'allowance') {
+          utext('CHORE CHART · TODAY', s0 + 0.1, v0 + 0.24, 0.16, { col: '#ffe07a' });
+          const kids = kidsList().slice(0, 4), d0 = new Date(); d0.setHours(0, 0, 0, 0);
+          kids.forEach((k, i) => {
+            const n = snap.state.moneyIn.filter((e) => e.path === rm.id && (e.by || e.kid || '').toLowerCase() === k.name.toLowerCase() && Date.parse(e.ts) >= d0.getTime()).length;
+            const yy = v0 + 0.5 + i * 0.26;
+            g.fillStyle = k.color; g.beginPath(); g.arc(s0 + 0.2, yy - 0.06, 0.07, 0, 7); g.fill();
+            utext(k.name, s0 + 0.34, yy, 0.15, { weight: 600, col: '#dfe8ff' });
+            utext(n ? '✓'.repeat(Math.min(n, 4)) : '·', s0 + 1.25, yy, 0.17, { col: n ? '#3ddc97' : 'rgba(255,255,255,0.25)' });
+          });
+        } else if (isService(rm)) {
+          const today = svcStatsToday(rm);
+          utext('TODAY', s0 + 0.1, v0 + 0.2, 0.13, { col: '#9fb3d9' });
+          utext(usd(today.usd), s0 + 0.1, v0 + 0.52, 0.3, { weight: 800, col: '#ffcf5a' });
+          utext(`${today.n} served`, s1 - 0.1, v0 + 0.2, 0.12, { weight: 600, col: '#dfe8ff', align: 'right' });
+          const days = [];
+          for (let k = 6; k >= 0; k--) { const a = new Date(); a.setHours(0, 0, 0, 0); a.setDate(a.getDate() - k); days.push([a.getTime(), a.getTime() + 864e5, 0]); }
+          for (const e of snap.state.moneyIn) if (e.path === rm.id) { const t = Date.parse(e.ts); for (const d of days) if (t >= d[0] && t < d[1]) d[2] += e.usd; }
+          const mx = Math.max(1, ...days.map((d) => d[2]));
+          days.forEach((d, i) => { const bh = (d[2] / mx) * 0.7; g.fillStyle = i === 6 ? acc : alpha(acc, 0.55); g.fillRect(s0 + 0.12 + i * 0.24, v1 - 0.12 - bh, 0.16, bh); });
+          g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(s0 + 0.1, v1 - 0.11, w - 0.2, 0.01);
+        } else {
+          const info = stageInfo(rm);
+          utext('PIPELINE', s0 + 0.1, v0 + 0.2, 0.13, { col: '#9fb3d9' });
+          info.forEach((st, i) => {
+            const yy = v0 + 0.38 + i * 0.17, pct = Math.min(1, st.n / st.target);
+            utext(st.id, s0 + 0.1, yy, 0.11, { weight: 600, col: st.done ? '#3ddc97' : st.next ? '#5fd4ff' : '#6b7896' });
+            g.fillStyle = 'rgba(255,255,255,0.12)'; g.fillRect(s0 + 0.85, yy - 0.08, 0.8, 0.07);
+            g.fillStyle = st.done ? '#3ddc97' : st.next && Math.sin(tt * 5) > 0 ? '#5fd4ff' : alpha('#5fd4ff', 0.7); g.fillRect(s0 + 0.85, yy - 0.08, 0.8 * pct, 0.07);
+          });
+        }
+        // scanline shimmer and glass
+        g.fillStyle = 'rgba(255,255,255,0.04)'; for (let v = v0; v < v1; v += 0.06) g.fillRect(s0, v, w, 0.02);
+        g.fillStyle = 'rgba(255,255,255,0.07)'; g.beginPath(); g.moveTo(s0, v0); g.lineTo(s0 + w * 0.45, v0); g.lineTo(s0 + w * 0.15, v1); g.lineTo(s0, v1); g.fill();
+      });
+    }
+    function clock(S) {
+      onWall('R', () => {
+        const s = 6.35, v = 1.0, r = 0.34, d = new Date(), h = (d.getHours() % 12) + d.getMinutes() / 60, m = d.getMinutes() + d.getSeconds() / 60;
+        g.fillStyle = '#fbfaf5'; g.beginPath(); g.arc(s, v, r, 0, 7); g.fill(); g.strokeStyle = shade(S.trim, -0.2); g.lineWidth = 0.07; g.stroke();
+        g.strokeStyle = '#222'; g.lineCap = 'round';
+        g.lineWidth = 0.05; g.beginPath(); g.moveTo(s, v); g.lineTo(s + Math.sin(h / 12 * 6.283) * r * 0.5, v - Math.cos(h / 12 * 6.283) * r * 0.5); g.stroke();
+        g.lineWidth = 0.035; g.beginPath(); g.moveTo(s, v); g.lineTo(s + Math.sin(m / 60 * 6.283) * r * 0.78, v - Math.cos(m / 60 * 6.283) * r * 0.78); g.stroke();
+        g.fillStyle = '#e03c3c'; g.beginPath(); g.arc(s, v, 0.035, 0, 7); g.fill();
+      });
+    }
+
+    // ---- furniture: every piece is built from lit boxes and cylinders, depth-sorted with the characters
+    const ST = (i) => [DESKS[i][0] + 0.5, DESKS[i][1] + 0.5];
+    const lights = [];                    // [x, y, z, radius(u), colour, strength] for the night pass
+    const WOOD = '#a8743f', WOOD2 = '#8a5a2e', METAL = '#b8c2d4', DARK = '#2b2f3c', WHITE = '#f2f0ea';
+    function legs(x, y, w, d, h, col) { const t = 0.07; for (const [a, b] of [[x, y], [x + w - t, y], [x, y + d - t], [x + w - t, y + d - t]]) box(a, b, t, t, h, 0, col); }
+    function plant(x, y, s = 1, pot = '#c2673f') {
+      cyl(x, y, 0.2 * s, 0.38 * s, 0, pot);
+      const [px, py] = Pl(x, y, 0.38 * s), sway = Math.sin(tt * 1.3 + x * 3) * u * 0.03;
+      const leaves = [[-0.28, -0.25, 0.3], [0.26, -0.3, 0.28], [0, -0.55, 0.32], [-0.14, -0.78, 0.24], [0.18, -0.7, 0.24], [0, -0.95, 0.2]];
+      for (const [lx, ly, r] of leaves) { g.beginPath(); g.ellipse(px + lx * u * s + sway * (1 - ly), py + ly * u * s, r * u * s, r * 0.8 * u * s, lx, 0, 7); g.fillStyle = ly < -0.6 ? '#5cc46a' : '#3f9e52'; g.fill(); g.strokeStyle = 'rgba(20,60,30,0.5)'; g.lineWidth = lw(0.02); g.stroke(); }
+      g.fillStyle = 'rgba(255,255,255,0.25)'; g.beginPath(); g.ellipse(px - u * 0.08 * s + sway, py - u * 0.75 * s, u * 0.06 * s, u * 0.03 * s, -0.5, 0, 7); g.fill();
+    }
+    function lamp(x, y, col = '#ffe2a0') {
+      cyl(x, y, 0.16, 0.05, 0, DARK); box(x - 0.025, y - 0.025, 0.05, 0.05, 1.9, 0.05, DARK, { noInk: true });
+      const [cx, cy] = Pl(x, y, 2.2), [, by] = Pl(x, y, 1.85);
+      g.beginPath(); g.moveTo(cx - u * 0.18, cy); g.lineTo(cx + u * 0.18, cy); g.lineTo(cx + u * 0.3, by); g.lineTo(cx - u * 0.3, by); g.closePath();
+      g.fillStyle = darkness() > 0.3 ? '#fff1c4' : '#f3e2b8'; g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke();
+      lights.push([x, y, 1.9, 3.2, col, 0.75]);
+    }
+    function rug(x, y, w, d, col) {
+      decal(x, y, w, d, shade(col, -0.1), { border: shade(col, 0.3) });
+      decal(x + 0.25, y + 0.25, w - 0.5, d - 0.5, 'rgba(0,0,0,0)', { border: alpha(shade(col, 0.5), 0.6) });
+    }
+    function officeDesk(i, rm, screenCol) {
+      const [cx, cy] = ST(i), x = cx - 0.65, y = cy - 0.42;
+      return [
+        { d: cx + cy - 0.2, fn: () => {
+          legs(x, y, 1.3, 0.62, 0.9, DARK);
+          box(x - 0.04, y - 0.03, 1.38, 0.68, 0.08, 0.9, WOOD, { gloss: true });
+          box(x + 0.85, y + 0.08, 0.36, 0.5, 0.55, 0.3, shade(WOOD, -0.1));
+          // monitor on its stand, screen facing the chair
+          box(cx - 0.05, y + 0.12, 0.1, 0.08, 0.22, 0.98, DARK);
+          const sx0 = cx - 0.36, sy0 = y + 0.08;
+          box(sx0, sy0, 0.72, 0.07, 0.46, 1.16, '#1b1f2b', { lf: screenCol ? screenCol() : '#2a78c8' });
+          const [a0, b0] = Pl(sx0 + 0.36, sy0 + 0.07, 1.39);
+          lights.push([cx, sy0 + 0.3, 1.3, 1.4, screenCol ? screenCol() : '#5fb4ff', 0.5]);
+          g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(a0 - u * 0.25, b0 - u * 0.02, u * 0.3, u * 0.02);
+          box(cx - 0.3, y + 0.34, 0.6, 0.16, 0.03, 0.98, '#d9dde6');
+          cyl(x + 1.12, y + 0.45, 0.06, 0.12, 0.98, '#ffffff');
+        } },
+        { d: cx + cy + 0.78, fn: () => officeChair(cx, cy + 0.62) },
+      ];
+    }
+    function officeChair(x, y, col = '#39405a') {
+      cyl(x, y, 0.2, 0.04, 0.02, DARK); box(x - 0.03, y - 0.03, 0.06, 0.06, 0.42, 0.04, METAL, { noInk: true });
+      box(x - 0.24, y - 0.24, 0.48, 0.48, 0.1, 0.46, col, { gloss: true });
+      box(x - 0.22, y + 0.2, 0.44, 0.09, 0.52, 0.56, col);
+    }
+    function barberChair(x, y, col = '#b3262e') {
+      cyl(x, y, 0.26, 0.06, 0, '#c9ced8'); cyl(x, y, 0.1, 0.36, 0.06, '#d8dde6');
+      box(x - 0.3, y - 0.26, 0.6, 0.55, 0.14, 0.42, col, { gloss: true });
+      box(x - 0.28, y - 0.33, 0.56, 0.12, 0.78, 0.5, col);
+      box(x - 0.14, y - 0.3, 0.28, 0.08, 0.2, 1.3, shade(col, -0.15));
+      for (const ax of [-0.36, 0.28]) { box(x + ax, y - 0.22, 0.08, 0.46, 0.08, 0.72, '#d8dde6'); box(x + ax + 0.01, y + 0.12, 0.06, 0.06, 0.2, 0.52, '#d8dde6', { noInk: true }); }
+      box(x - 0.2, y + 0.34, 0.4, 0.2, 0.05, 0.2, '#d8dde6');
+    }
+    function mirrorOnWall(s, S, lit) {
+      onWall('R', () => {
+        const v0 = 1.25, v1 = 2.95, w = 1.0;
+        g.fillStyle = '#1b1c22'; g.beginPath(); g.roundRect(s - w / 2 - 0.1, v0 - 0.1, w + 0.2, v1 - v0 + 0.2, 0.2); g.fill();
+        const gr = g.createLinearGradient(s - w / 2, v0, s + w / 2, v1); gr.addColorStop(0, '#dfeaf5'); gr.addColorStop(0.45, '#a9bdd2'); gr.addColorStop(0.55, '#c7d7e8'); gr.addColorStop(1, '#8aa0b8');
+        g.fillStyle = gr; g.beginPath(); g.roundRect(s - w / 2, v0, w, v1 - v0, 0.16); g.fill();
+        g.fillStyle = 'rgba(255,255,255,0.35)'; g.beginPath(); g.moveTo(s - 0.35, v1 - 0.2); g.lineTo(s - 0.05, v0 + 0.2); g.lineTo(s + 0.08, v0 + 0.2); g.lineTo(s - 0.22, v1 - 0.2); g.fill();
+        for (let k = 0; k < 5; k++) { const bv = v0 + 0.15 + k * 0.35; for (const bs of [s - w / 2 - 0.05, s + w / 2 + 0.05]) { g.fillStyle = lit ? '#fff6c8' : '#e8e2c8'; g.beginPath(); g.arc(bs, bv, 0.055, 0, 7); g.fill(); } }
+      });
+      lights.push([s, 0.2, 2.1, 1.8, '#fff1c4', 0.35]);
+    }
+    function barberCounter(s) {
+      box(s - 0.55, 0.04, 1.1, 0.38, 0.86, 0, '#26272e');
+      box(s - 0.58, 0.02, 1.16, 0.42, 0.06, 0.86, '#d9d4c8', { gloss: true });
+      const cols = ['#3ddc97', '#5fd4ff', '#ffb454', '#f472b6'];
+      cols.forEach((c, k) => cyl(s - 0.4 + k * 0.2, 0.22, 0.05, 0.18 + (k % 2) * 0.06, 0.92, c));
+    }
+    function mirrorStand(x, y) {
+      box(x - 0.55, y - 0.08, 1.1, 0.16, 0.2, 0, '#26272e');
+      box(x - 0.5, y - 0.06, 1.0, 0.12, 1.9, 0.2, '#26272e', { lf: '#b9cbe0' });
+      const [a, b] = Pl(x - 0.3, y + 0.06, 1.9), [c2, d2] = Pl(x - 0.1, y + 0.06, 0.6);
+      g.fillStyle = 'rgba(255,255,255,0.35)'; g.beginPath(); g.moveTo(a, b); g.lineTo(a + u * 0.12, b); g.lineTo(c2 + u * 0.12, d2); g.lineTo(c2, d2); g.fill();
+      box(x - 0.52, y + 0.05, 1.04, 0.2, 0.05, 0.9, '#d9d4c8');
+      cyl(x + 0.3, y + 0.15, 0.05, 0.2, 0.95, '#3ddc97'); cyl(x + 0.15, y + 0.15, 0.05, 0.15, 0.95, '#ffb454');
+    }
+    function barberPole(x, y) {
+      cyl(x, y, 0.13, 0.12, 0, '#d8dde6');
+      const [cx, cy] = Pl(x, y, 0.12), [, ty] = Pl(x, y, 1.9), rx = u * 0.12;
+      g.save(); g.beginPath(); g.rect(cx - rx, ty, rx * 2, cy - ty); g.clip();
+      g.fillStyle = '#ffffff'; g.fillRect(cx - rx, ty, rx * 2, cy - ty);
+      const off = (tt * u * 0.8) % (u * 0.6);
+      for (let k = -2; k < 12; k++) { const yy = ty + k * u * 0.3 + off; g.beginPath(); g.moveTo(cx - rx, yy); g.lineTo(cx + rx, yy - u * 0.22); g.lineTo(cx + rx, yy - u * 0.14); g.lineTo(cx - rx, yy + u * 0.08); g.fillStyle = k % 2 ? '#d62828' : '#1d4ed8'; g.fill(); }
+      const sh = g.createLinearGradient(cx - rx, 0, cx + rx, 0); sh.addColorStop(0, 'rgba(0,0,0,0.25)'); sh.addColorStop(0.4, 'rgba(255,255,255,0.35)'); sh.addColorStop(1, 'rgba(0,0,0,0.35)'); g.fillStyle = sh; g.fillRect(cx - rx, ty, rx * 2, cy - ty);
+      g.restore();
+      g.strokeStyle = INK; g.lineWidth = lw(0.025); g.strokeRect(cx - rx, ty, rx * 2, cy - ty);
+      cyl(x, y, 0.14, 0.14, 1.9, '#d8dde6');
+      const [bx, by] = Pl(x, y, 2.12); g.fillStyle = '#e8ecf4'; g.beginPath(); g.arc(bx, by, u * 0.12, 0, 7); g.fill(); g.strokeStyle = INK; g.stroke();
+    }
+    function bench(x, y, w, col) { legs(x, y, w, 0.45, 0.35, DARK); box(x, y, w, 0.45, 0.1, 0.35, WOOD); for (let k = 0; k < Math.floor(w / 0.6); k++) box(x + 0.05 + k * 0.6, y + 0.04, 0.5, 0.38, 0.1, 0.45, col, { gloss: true }); box(x, y - 0.02, w, 0.08, 0.55, 0.45, WOOD2); }
+    function counter(x, y, w, d, col, top = '#e8e3d6') { box(x, y, w, d, 0.86, 0, col); box(x - 0.02, y - 0.02, w + 0.04, d + 0.04, 0.07, 0.86, top, { gloss: true }); g.strokeStyle = 'rgba(0,0,0,0.25)'; g.lineWidth = lw(0.02); for (let k = 1; k < w / 0.55; k++) { const [a, b] = Pl(x + k * 0.55, y + d, 0.1), [, b2] = Pl(x + k * 0.55, y + d, 0.78); g.beginPath(); g.moveTo(a, b); g.lineTo(a, b2); g.stroke(); } }
+    function sink(x, y) { const [a, b] = Pl(x, y + 0.02, 0.935); g.fillStyle = '#9fb0c2'; g.beginPath(); g.ellipse(a, b, u * 0.3, u * 0.13, 0, 0, 7); g.fill(); g.fillStyle = '#6f8196'; g.beginPath(); g.ellipse(a, b + u * 0.02, u * 0.24, u * 0.09, 0, 0, 7); g.fill(); box(x - 0.04, y - 0.28, 0.08, 0.08, 0.35, 0.93, METAL); box(x - 0.04, y - 0.28, 0.08, 0.22, 0.05, 1.24, METAL); }
+    function stove(x, y, hot) { for (const [dx, dy] of [[-0.2, -0.12], [0.2, -0.12], [-0.2, 0.14], [0.2, 0.14]]) { const [a, b] = Pl(x + dx, y + dy, 0.935); g.fillStyle = hot ? `rgba(255,${120 + Math.sin(tt * 9 + dx * 10) * 40},60,1)` : '#2b2f3c'; g.beginPath(); g.ellipse(a, b, u * 0.13, u * 0.065, 0, 0, 7); g.fill(); } if (hot) { lights.push([x, y, 1, 1.4, '#ff8a3c', 0.5]); steam(x, y + 0.14, 1.1); } }
+    function steam(x, y, z) { const [a, b] = Pl(x, y, z); for (let k = 0; k < 3; k++) { const p = (tt * 0.6 + k / 3) % 1; g.fillStyle = `rgba(255,255,255,${0.35 * (1 - p)})`; g.beginPath(); g.arc(a + Math.sin(p * 6 + k) * u * 0.08, b - p * u * 0.9, u * (0.06 + p * 0.1), 0, 7); g.fill(); } }
+    function fridge(x, y) { box(x, y, 0.8, 0.7, 2.3, 0, '#e9edf2', { gloss: true }); const [a, b] = Pl(x + 0.1, y + 0.7, 1.6), [, b2] = Pl(x + 0.1, y + 0.7, 1.05); g.strokeStyle = '#8a95a8'; g.lineWidth = lw(0.05); g.beginPath(); g.moveTo(a, b); g.lineTo(a, b2); g.stroke(); const [c1, d1] = Pl(x, y + 0.7, 1.35), [c2, d2] = Pl(x + 0.8, y + 0.7, 1.35); g.strokeStyle = 'rgba(0,0,0,0.25)'; g.lineWidth = lw(0.02); g.beginPath(); g.moveTo(c1, d1); g.lineTo(c2, d2); g.stroke(); }
+    function table(x, y, w, d, col = WOOD) { legs(x + 0.08, y + 0.08, w - 0.16, d - 0.16, 0.72, shade(col, -0.2)); box(x, y, w, d, 0.07, 0.72, col, { gloss: true }); }
+    function stool(x, y, col = '#e05a47') { box(x - 0.03, y - 0.03, 0.06, 0.06, 0.55, 0, METAL, { noInk: true }); cyl(x, y, 0.2, 0.07, 0.55, col); }
+    function bed(x, y, w, d, col) {
+      box(x, y, w, d, 0.35, 0, WOOD2); box(x + 0.04, y + 0.04, w - 0.08, d - 0.08, 0.2, 0.35, '#f5f3ee');
+      box(x + 0.02, y + d * 0.35, w - 0.04, d * 0.63, 0.1, 0.5, col, { gloss: true });
+      box(x + 0.12, y + 0.1, w - 0.24, 0.42, 0.14, 0.55, '#ffffff');
+      box(x - 0.02, y - 0.06, w + 0.04, 0.1, 1.15, 0, WOOD2);
+    }
+    function shelfUnit(x, y, w, h, fill) {
+      box(x, y, w, 0.42, h, 0, WOOD2);
+      const cols = fill || ['#e05a47', '#4f8fe0', '#f2c14e', '#3ddc97', '#a78bfa', '#f472b6'];
+      for (let r = 0; r < Math.floor(h / 0.5); r++) for (let k = 0; k < Math.floor(w / 0.16); k++) { const hh = 0.28 + ((hsh(r * 17 + k * 7 + x * 3) % 10) / 60); box(x + 0.04 + k * 0.16, y + 0.28, 0.12, 0.12, hh, 0.08 + r * 0.5, cols[(hsh(r * 5 + k + y * 9) % cols.length)], { noInk: true }); }
+    }
+    function washer(x, y, spin) { box(x, y, 0.8, 0.75, 0.95, 0, '#eef1f5', { gloss: true }); const [a, b] = Pl(x + 0.4, y + 0.75, 0.48); g.fillStyle = '#8a95a8'; g.beginPath(); g.ellipse(a, b, u * 0.28, u * 0.26, 0, 0, 7); g.fill(); g.fillStyle = '#5a7fa8'; g.beginPath(); g.ellipse(a, b, u * 0.22, u * 0.2, 0, 0, 7); g.fill(); if (spin) { for (let k = 0; k < 3; k++) { const an = tt * 6 + k * 2.1; g.fillStyle = ['#f472b6', '#ffd84d', '#60a5fa'][k]; g.beginPath(); g.arc(a + Math.cos(an) * u * 0.11, b + Math.sin(an) * u * 0.1, u * 0.06, 0, 7); g.fill(); } } g.fillStyle = 'rgba(255,255,255,0.35)'; g.beginPath(); g.ellipse(a - u * 0.08, b - u * 0.08, u * 0.06, u * 0.04, -0.6, 0, 7); g.fill(); }
+    function basket(x, y, col = '#d9b27a') { cyl(x, y, 0.3, 0.42, 0, col); const [a, b] = Pl(x, y, 0.45); for (let k = 0; k < 4; k++) { g.fillStyle = ['#f472b6', '#60a5fa', '#ffffff', '#4ade80'][k]; g.beginPath(); g.arc(a + (k - 1.5) * u * 0.14, b - u * 0.04 * (k % 2), u * 0.12, 0, 7); g.fill(); } }
+    function bin(x, y, col, lid = true) { cyl(x, y, 0.28, 0.9, 0, col); if (lid) box(x - 0.3, y - 0.3, 0.6, 0.6, 0.06, 0.9, shade(col, -0.2)); }
+    function bag(x, y) { const [a, b] = Pl(x, y, 0); g.fillStyle = '#23262e'; g.beginPath(); g.ellipse(a, b - u * 0.28, u * 0.28, u * 0.3, 0, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,0.18)'; g.beginPath(); g.ellipse(a - u * 0.1, b - u * 0.38, u * 0.06, u * 0.1, -0.4, 0, 7); g.fill(); g.strokeStyle = '#ffd84d'; g.lineWidth = lw(0.04); g.beginPath(); g.moveTo(a - u * 0.06, b - u * 0.6); g.lineTo(a + u * 0.06, b - u * 0.66); g.stroke(); }
+    function tree(x, y, s = 1) { box(x - 0.1, y - 0.1, 0.2, 0.2, 1.4 * s, 0, '#7a4e2a'); const [a, b] = Pl(x, y, 1.4 * s); for (const [dx, dy, r, c] of [[0, -0.4, 0.9, '#3f9e52'], [-0.5, 0, 0.7, '#46a95a'], [0.5, 0.05, 0.7, '#3a9350'], [0, 0.2, 0.75, '#4bb562'], [0.1, -0.9, 0.55, '#5cc46a']]) { g.beginPath(); g.arc(a + dx * u * s + Math.sin(tt + dx) * u * 0.03, b + dy * u * s, r * u * s, 0, 7); g.fillStyle = c; g.fill(); g.strokeStyle = 'rgba(20,60,30,0.4)'; g.lineWidth = lw(0.02); g.stroke(); } }
+    function flowers(x, y, w) { box(x, y, w, 0.5, 0.25, 0, '#7a4e2a'); for (let k = 0; k < w / 0.22; k++) { const [a, b] = Pl(x + 0.1 + k * 0.22, y + 0.25, 0.4 + Math.sin(tt * 2 + k) * 0.02); g.fillStyle = ['#ff5c8a', '#ffd84d', '#a78bfa', '#ff8a4c'][k % 4]; for (let p = 0; p < 5; p++) { g.beginPath(); g.arc(a + Math.cos(p * 1.26) * u * 0.06, b + Math.sin(p * 1.26) * u * 0.05, u * 0.05, 0, 7); g.fill(); } g.fillStyle = '#fff3b0'; g.beginPath(); g.arc(a, b, u * 0.035, 0, 7); g.fill(); } }
+    function mower(x, y) { box(x - 0.3, y - 0.22, 0.6, 0.44, 0.25, 0.1, '#e05a47', { gloss: true }); for (const [dx, dy] of [[-0.25, -0.2], [0.25, -0.2], [-0.25, 0.2], [0.25, 0.2]]) cyl(x + dx, y + dy, 0.09, 0.08, 0.02, '#23262e'); const [a, b] = Pl(x + 0.25, y + 0.1, 0.35), [c, d] = Pl(x + 0.7, y + 0.35, 1.05); g.strokeStyle = '#23262e'; g.lineWidth = lw(0.05); g.beginPath(); g.moveTo(a, b); g.lineTo(c, d); g.stroke(); }
+    function toyBlocks(x, y) { const cols = ['#e05a47', '#4f8fe0', '#f2c14e', '#3ddc97']; [[0, 0, 0], [0.3, 0, 0], [0.15, 0.05, 0.25], [0.5, 0.35, 0]].forEach(([dx, dy, dz], k) => box(x + dx, y + dy, 0.25, 0.25, 0.25, dz, cols[k])); }
+    function beanbag(x, y, col) { const [a, b] = Pl(x, y, 0); g.fillStyle = col; g.beginPath(); g.ellipse(a, b - u * 0.25, u * 0.5, u * 0.35, 0, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); g.fillStyle = 'rgba(255,255,255,0.2)'; g.beginPath(); g.ellipse(a - u * 0.15, b - u * 0.4, u * 0.15, u * 0.08, -0.4, 0, 7); g.fill(); }
+    function bowl(x, y, col) { const [a, b] = Pl(x, y, 0); g.fillStyle = col; g.beginPath(); g.ellipse(a, b - u * 0.05, u * 0.2, u * 0.09, 0, 0, 7); g.fill(); g.fillStyle = '#8a5a2e'; g.beginPath(); g.ellipse(a, b - u * 0.08, u * 0.14, u * 0.05, 0, 0, 7); g.fill(); }
+    function petBed(x, y, col) { const [a, b] = Pl(x, y, 0); g.fillStyle = shade(col, -0.2); g.beginPath(); g.ellipse(a, b - u * 0.1, u * 0.55, u * 0.3, 0, 0, 7); g.fill(); g.fillStyle = col; g.beginPath(); g.ellipse(a, b - u * 0.12, u * 0.42, u * 0.2, 0, 0, 7); g.fill(); }
+    function fishTank(x, y) { box(x - 0.45, y - 0.25, 0.9, 0.5, 0.75, 0, WOOD2); box(x - 0.42, y - 0.22, 0.84, 0.44, 0.62, 0.75, '#5fb4e0', { lf: 'rgba(95,180,224,0.75)', rf: 'rgba(60,140,190,0.75)', top: 'rgba(160,220,255,0.6)' }); for (let k = 0; k < 2; k++) { const [a, b] = Pl(x - 0.3 + ((tt * 0.15 + k * 0.5) % 1) * 0.6, y + 0.22, 1.05 + k * 0.15); g.fillStyle = k ? '#ffb454' : '#ff7a59'; g.beginPath(); g.ellipse(a, b, u * 0.07, u * 0.04, 0, 0, 7); g.fill(); } }
+    function softbox(x, y) { box(x - 0.03, y - 0.03, 0.06, 0.06, 1.6, 0, DARK, { noInk: true }); box(x - 0.35, y - 0.1, 0.7, 0.2, 0.55, 1.6, '#f7f7f7', { lf: '#fffdf0' }); lights.push([x, y + 0.5, 1.5, 2.6, '#fff8e0', 0.6]); }
+    function camTripod(x, y) { const [a, b] = Pl(x, y, 1.2); g.strokeStyle = DARK; g.lineWidth = lw(0.05); for (const [dx, dy] of [[-0.3, 0.2], [0.3, 0.2], [0, -0.3]]) { const [c, d] = Pl(x + dx, y + dy, 0); g.beginPath(); g.moveTo(a, b); g.lineTo(c, d); g.stroke(); } box(x - 0.2, y - 0.14, 0.4, 0.28, 0.28, 1.2, '#23262e'); cyl(x, y - 0.2, 0.1, 0.12, 1.28, '#3b4050'); const [ra, rb] = Pl(x + 0.15, y + 0.14, 1.44); g.fillStyle = Math.sin(tt * 4) > 0 ? '#ff3b3b' : '#6b1c1c'; g.beginPath(); g.arc(ra, rb, u * 0.035, 0, 7); g.fill(); }
+    function waterCooler(x, y) { box(x - 0.2, y - 0.2, 0.4, 0.4, 0.95, 0, '#e9edf2'); cyl(x, y, 0.18, 0.5, 0.95, '#8fd3ff', { top: '#bfe6ff' }); }
+    function coffee(x, y) { box(x - 0.2, y - 0.18, 0.4, 0.36, 0.45, 0.93, '#2b2f3c'); steam(x, y + 0.1, 1.45); }
+
+    // ---- where things go, per room theme. Six stations per room (the pixel world's desks, chairs and pens), so a
+    // character working station 2 in the world stands at the same furniture here.
+    function furnish(rm, th) {
+      const S = sk(), acc = themeOf(rm.id).accent, items = [], add = (d, fn) => items.push({ d, fn });
+      const wall = [];               // wall-mounted things, drawn with the walls
+      const busyAt = (i) => [...agents.values()].some((a) => a.path === rm.id && a.station === i && (a.busy || a.act === 'tinker' || a.act === 'chore') && !a.queue.length);
+      const stageCol = (i) => () => { if (isService(rm) || MODE() === 'allowance') return busyAt(i) ? '#3ddc97' : '#2a78c8'; const st = stageInfo(rm)[i]; return !st ? '#2a78c8' : st.done ? '#2fbf7f' : st.next ? (Math.sin(tt * 4) > 0 ? '#39a8ff' : '#1f6fb8') : '#34405a'; };
+      if (th === 'barber' || th === 'salon') {
+        const chair = th === 'salon' ? '#f472b6' : '#b3262e';
+        for (let i = 0; i < 6; i++) {
+          const [cx, cy] = ST(i);
+          if (i < 3) { wall.push(() => mirrorOnWall(cx, S, darkness() > 0.2)); add(cx + 0.25, () => barberCounter(cx)); }
+          else add(cx + cy - 0.4, () => mirrorStand(cx, cy - 0.4));
+          add(cx + cy + 0.6, () => barberChair(cx, cy + 0.62, chair));
+        }
+        add(6.9, () => barberPole(6.6, 0.3));
+        add(0.3 + 6.3, () => bench(0.08, 5.7, 1.2, acc));
+        add(0.8, () => plant(0.4, 0.4, 1.2));
+        add(6.6 + 6.6, () => plant(6.6, 6.6, 0.9));
+        add(0.5, () => rug(2.2, 2.7, 2.6, 1.0, acc));
+        lights.push([3.5, 3.5, 4, 5, '#fff1c4', 0.25]);
+      } else if (th === 'kitchen') {
+        add(0.1, () => { counter(0.9, 0.05, 5.2, 0.72, '#f2efe6'); sink(1.5, 0.4); stove(3.5, 0.4, busyAt(1)); box(5.0, 0.18, 0.5, 0.35, 0.3, 0.93, '#8ab7c9'); cyl(5.7, 0.4, 0.12, 0.25, 0.93, '#e05a47'); });
+        add(6.6, () => fridge(6.15, 0.05));
+        wall.push(() => onWall('R', () => { for (let k = 0; k < 4; k++) { g.fillStyle = '#f2efe6'; g.fillRect(1.0 + k * 1.3, 0.35, 1.2, 1.1); g.strokeStyle = 'rgba(0,0,0,0.2)'; g.lineWidth = 0.03; g.strokeRect(1.0 + k * 1.3, 0.35, 1.2, 1.1); g.fillStyle = '#9aa6b8'; g.fillRect(1.5 + k * 1.3, 1.3, 0.2, 0.05); } }));
+        add(2.5 + 4.2 + 0.4, () => table(2.3, 4.1, 2.6, 0.9));
+        for (const i of [3, 4, 5]) { const [cx, cy] = ST(i); add(cx + cy + 0.7, () => stool(cx, cy + 0.72)); }
+        add(0.8 + 6, () => plant(0.4, 6.4));
+        add(0.5, () => rug(1.8, 3.6, 3.6, 2.2, acc));
+      } else if (th === 'bedroom') {
+        add(1.8, () => bed(0.8, 0.12, 1.6, 2.1, acc));
+        add(2.9, () => { box(2.6, 0.1, 0.55, 0.45, 0.6, 0, WOOD); lampSmall(2.87, 0.3); });
+        add(5.2, () => { box(4.1, 0.08, 1.5, 0.55, 1.1, 0, WOOD); for (let r = 0; r < 3; r++) { const [a, b] = Pl(4.1, 0.63, 0.25 + r * 0.32), [c, d] = Pl(5.6, 0.63, 0.25 + r * 0.32); g.strokeStyle = 'rgba(0,0,0,0.3)'; g.lineWidth = lw(0.02); g.beginPath(); g.moveTo(a, b); g.lineTo(c, d); g.stroke(); } });
+        add(6.8, () => box(5.9, 0.8, 0.9, 0.55, 0.55, 0, '#e05a47', { gloss: true }));
+        add(0.5, () => rug(1.6, 3.4, 3.8, 2.6, acc));
+        add(3 + 4.8, () => toyBlocks(3.0, 4.8));
+        add(1.2 + 5.2, () => beanbag(1.2, 5.3, '#60a5fa'));
+        add(5.5 + 5, () => { table(4.9, 4.6, 1.2, 0.7, WOOD); officeChair(5.5, 5.6, '#a78bfa'); });
+        add(6.6 + 6.5, () => plant(6.6, 6.5));
+      } else if (th === 'study') {
+        for (const i of [0, 2, 4]) add(ST(i)[0] + ST(i)[1], () => { const [cx, cy] = ST(i); table(cx - 0.6, cy - 0.4, 1.2, 0.62, WOOD); for (let k = 0; k < 3; k++) box(cx - 0.45 + k * 0.08, cy - 0.3, 0.07, 0.3, 0.28, 0.79, ['#e05a47', '#4f8fe0', '#f2c14e'][k]); lampSmall(cx + 0.4, cy - 0.25, 0.79); officeChair(cx, cy + 0.62); });
+        add(0.9, () => shelfUnit(0.05, 2.4, 1.5, 2.0));
+        add(5.6, () => shelfUnit(4.6, 0.05, 1.3, 2.0));
+        add(1.5 + 5.5, () => beanbag(1.5, 5.4, acc));
+        add(0.5, () => rug(1.2, 2.7, 4.2, 3.4, acc));
+        add(6.5 + 6.5, () => plant(6.5, 6.5));
+      } else if (th === 'laundry') {
+        add(1.4, () => washer(1.1, 0.08, busyAt(0) || busyAt(3)));
+        add(3.4, () => washer(3.1, 0.08, busyAt(1)));
+        add(5.6, () => shelfUnit(5.0, 0.05, 1.2, 1.6, ['#ffffff', '#60a5fa', '#f472b6', '#ffd84d']));
+        add(1.5 + 4.6, () => basket(1.5, 4.6));
+        add(3.5 + 4.6, () => basket(3.5, 4.6, '#c89e62'));
+        add(5.5 + 4.6, () => { box(4.9, 4.4, 1.3, 0.35, 0.05, 0.85, '#e8e3d6'); legs(5.0, 4.45, 1.1, 0.25, 0.85, METAL); box(5.3, 4.45, 0.3, 0.2, 0.1, 0.9, '#9aa6b8'); });
+        add(0.4 + 6.4, () => plant(0.4, 6.4));
+      } else if (th === 'pets') {
+        add(1.5 + 1.8, () => petBed(1.5, 1.7, acc));
+        add(3.5 + 1.8, () => { bowl(3.3, 1.8, '#4f8fe0'); bowl(3.75, 1.8, '#e05a47'); });
+        add(5.5 + 1.2, () => { box(5.2, 0.9, 0.7, 0.7, 0.3, 0, '#c9a27a'); cyl(5.55, 1.25, 0.08, 1.1, 0.3, '#e8d6b8'); box(5.25, 0.95, 0.6, 0.6, 0.15, 1.4, '#c9a27a'); });
+        add(1.5 + 4.2, () => fishTank(1.5, 4.2));
+        add(3.5 + 4.9, () => { const [a, b] = Pl(3.5, 4.9, 0.12); g.fillStyle = '#ff5c6c'; g.beginPath(); g.arc(a, b, u * 0.12, 0, 7); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = lw(0.02); g.stroke(); });
+        add(0.5, () => rug(2.4, 3.6, 2.6, 2.2, acc));
+        add(6.6 + 6.6, () => plant(6.6, 6.6));
+      } else if (th === 'trash') {
+        add(1.5 + 1.2, () => bin(1.5, 1.2, '#2f9e5a'));
+        add(3.5 + 1.2, () => bin(3.5, 1.2, '#3576d6'));
+        add(5.5 + 1.2, () => bin(5.5, 1.2, '#3b3f4c'));
+        for (const [bx, by] of [[1.6, 4.6], [3.4, 4.9], [5.6, 4.5]]) add(bx + by, () => bag(bx, by));
+        add(0.4 + 6.4, () => plant(0.4, 6.4));
+      } else if (th === 'yard') {
+        add(1.2 + 1.2, () => tree(1.2, 1.2, 1.2));
+        add(0.3, () => flowers(2.6, 0.1, 3.6));
+        add(0.3 + 3, () => flowers(0.1, 3.0, 0.5));
+        add(3.5 + 4.5, () => mower(3.5, 4.5));
+        add(5.6 + 4.6, () => { box(5.2, 4.3, 0.8, 0.5, 0.3, 0.2, '#4f8fe0'); cyl(5.3, 4.9, 0.12, 0.08, 0, '#23262e'); });
+        add(6.4 + 6.4, () => { const [a, b] = Pl(6.4, 6.4, 0); g.fillStyle = '#3f9e52'; g.beginPath(); g.arc(a, b - u * 0.35, u * 0.45, 0, 7); g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); });
+      } else if (th === 'playroom') {
+        add(1.5 + 1.2, () => box(1.0, 0.6, 1.0, 0.6, 0.6, 0, '#e05a47', { gloss: true }));
+        add(3.5 + 0.5, () => shelfUnit(2.9, 0.05, 1.3, 1.5));
+        add(5.5 + 1.5, () => toyBlocks(5.2, 1.3));
+        add(1.5 + 4.9, () => beanbag(1.5, 4.9, '#60a5fa'));
+        add(3.5 + 4.9, () => beanbag(3.6, 5.0, '#f472b6'));
+        add(5.5 + 4.8, () => { table(5.0, 4.4, 1.0, 0.8, '#ffd84d'); stool(5.5, 5.4, '#4ade80'); });
+        add(0.5, () => rug(1.0, 2.6, 5.0, 3.0, acc));
+      } else if (th === 'shop') {
+        for (const i of [0, 1, 2]) add(ST(i)[0] + 0.3, () => shelfUnit(ST(i)[0] - 0.7, 0.05, 1.4, 2.0));
+        for (const i of [3, 4]) add(ST(i)[0] + ST(i)[1], () => { const [cx, cy] = ST(i); table(cx - 0.6, cy - 0.35, 1.2, 0.7, WOOD); for (let k = 0; k < 4; k++) box(cx - 0.45 + k * 0.25, cy - 0.2, 0.18, 0.3, 0.18 + (k % 2) * 0.1, 0.79, ['#e05a47', '#4f8fe0', '#f2c14e', '#3ddc97'][k]); });
+        add(5.5 + 4.6, () => { counter(4.9, 4.2, 1.3, 0.6, WOOD2); box(5.2, 4.3, 0.4, 0.3, 0.25, 0.93, '#2b2f3c'); const [a, b] = Pl(5.4, 4.6, 1.1); g.fillStyle = '#3ddc97'; g.fillRect(a - u * 0.12, b - u * 0.05, u * 0.24, u * 0.06); });
+        add(0.4 + 6.4, () => plant(0.4, 6.4));
+      } else if (th === 'studio') {
+        wall.push(() => onWall('R', () => { const gr = g.createLinearGradient(0, 0.4, 0, WALLH); gr.addColorStop(0, shade(acc, 0.5)); gr.addColorStop(1, shade(acc, -0.1)); g.fillStyle = gr; g.fillRect(2.0, 0.35, 3.0, WALLH - 0.35); g.fillStyle = '#3b3f4c'; g.fillRect(1.9, 0.25, 3.2, 0.14); }));
+        add(1.5 + 1.8, () => softbox(1.4, 1.8));
+        add(5.6 + 1.8, () => softbox(5.6, 1.8));
+        add(3.5 + 4.9, () => camTripod(3.5, 4.9));
+        add(1.5 + 4.6, () => { table(0.9, 4.2, 1.2, 0.62, WOOD); const [a, b] = Pl(1.5, 4.5, 0.79); g.fillStyle = '#23262e'; g.beginPath(); g.ellipse(a, b - u * 0.25, u * 0.06, u * 0.12, 0, 0, 7); g.fill(); officeChair(1.5, 5.1); });
+        add(5.5 + 4.8, () => { stool(5.5, 4.9, acc); });
+        add(0.5, () => rug(2.2, 2.2, 2.8, 1.6, acc));
+      } else {
+        for (let i = 0; i < 6; i++) for (const it of officeDesk(i, rm, stageCol(i))) items.push(it);
+        add(0.4 + 3.0, () => waterCooler(0.4, 3.0));
+        add(0.4 + 0.4, () => plant(0.4, 0.4, 1.2));
+        add(6.6 + 6.6, () => plant(6.6, 6.6));
+        add(0.3 + 6.4, () => lamp(0.35, 6.4));
+        add(6.6 + 3.1, () => { box(6.3, 2.8, 0.55, 0.5, 0.9, 0, WOOD2); coffee(6.55, 3.05); });
+        wall.push(() => onWall('R', () => { g.fillStyle = '#f7f7f2'; g.fillRect(4.7, 1.45, 1.1, 0.75); g.strokeStyle = '#9aa6b8'; g.lineWidth = 0.05; g.strokeRect(4.7, 1.45, 1.1, 0.75); g.strokeStyle = acc; g.lineWidth = 0.035; g.beginPath(); g.moveTo(4.8, 2.05); g.lineTo(5.1, 1.8); g.lineTo(5.35, 1.9); g.lineTo(5.7, 1.55); g.stroke(); g.fillStyle = '#e05a47'; g.fillRect(1.2, 1.5, 0.5, 0.6); g.fillStyle = '#ffd84d'; g.fillRect(1.8, 1.6, 0.45, 0.5); }));
+      }
+      return { items, wall };
+    }
+    function lampSmall(x, y, z = 0.6) { cyl(x, y, 0.07, 0.03, z, DARK); box(x - 0.015, y - 0.015, 0.03, 0.03, 0.3, z + 0.03, DARK, { noInk: true }); const [a, b] = Pl(x, y, z + 0.42); g.beginPath(); g.moveTo(a - u * 0.1, b - u * 0.08); g.lineTo(a + u * 0.1, b - u * 0.08); g.lineTo(a + u * 0.16, b + u * 0.06); g.lineTo(a - u * 0.16, b + u * 0.06); g.closePath(); g.fillStyle = '#ffe9b0'; g.fill(); g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); lights.push([x, y, z + 0.4, 1.8, '#ffd98a', 0.6]); }
+
+    // ---- the characters, drawn big: a face, hair, clothes for their job, arms that do the work
+    const SKIN_TONES = ['#f6d2b5', '#eec39a', '#e0ac7e', '#c68b59', '#a86b43', '#8d5524', '#6b3f22'];
+    const HAIR_COLS = ['#2b1d14', '#4a2f1b', '#6b4226', '#161616', '#a0522d', '#d9a441', '#e8d27a', '#8a8a8a', '#b8352b'];
+    const PANTS = ['#2f3b5c', '#3a3f4b', '#4b3a2f', '#23304a', '#50445e'];
+    // costumes in the castle, the city and the ship: the same person, dressed for the room they work
+    const COSTUME = {
+      crypt: { skin: '#eeeadf', eyes: 'sockets', body: 'ribs', hair: 'none' }, forge: { skin: '#79b85a', ears: 'pointy', body: 'apron', hair: 'none' }, library: { ghost: true, skin: '#e8f0ff', eyes: 'hollow', hair: 'none' },
+      den: { body: 'hoodie', hair: 'hood', eyes: 'glasses' }, bar: { skin: '#b9c6d8', eyes: 'glow', body: 'panels', hair: 'none' }, dojo: { body: 'robe', hair: 'topknot' }, garage: { body: 'overalls', hair: 'cap' }, club: { hair: 'headphones', body: 'neon' }, clinic: { eyes: 'cyborg', body: 'panels' },
+      lab: { skin: '#b9c0c8', eyes: 'almond', hair: 'none' }, hatchery: { blob: true, skin: '#7dffb0' }, bridge: { skin: '#b07ad8', hair: 'tentacles' }, garden: { skin: '#e8d6b8', hair: 'mushroom' }, probe: { skin: '#9ccf5a', hair: 'antennae', eyes: 'bug' }, lounge: { skin: '#9aa6ff', eyes: 'cyclops', hair: 'none' },
+    };
+    function lookFor(a, id) {
+      const h = hsh(a.name || a.id);
+      const small = id.kind === 'kid' || a.small;
+      const o = { skin: SKIN_TONES[h % SKIN_TONES.length], hair: HAIR_COLS[(h >> 3) % HAIR_COLS.length], style: (h >> 6) % 8, pants: PANTS[(h >> 9) % PANTS.length], shirt: id.col, small, eyes: 'normal', body: 'normal', hairStyle: null, ears: 'round' };
+      if (id.kind === 'client') { o.shirt = a.tint || '#9ec5ff'; o.style = (h >> 5) % 8; }
+      if (id.kind === 'lead') { o.shirt = '#ffcf5a'; o.body = 'jacket'; }
+      if (a.costume && a.costume.res && COSTUME[a.costume.id]) Object.assign(o, COSTUME[a.costume.id], { hairStyle: COSTUME[a.costume.id].hair || null });
+      return o;
+    }
+    // pose from what the sim says they are doing
+    function poseOf(a) {
+      const moving = a.queue.length > 0;
+      if (a.act === 'sleep' && !moving) return 'sleep';
+      if (moving) return 'walk';
+      if ((a.state === 'work') || (a.kind === 'guest' && a.act === 'seated')) return 'sit';
+      if (a.act === 'serve') return 'serve';
+      if (a.act === 'chore') return 'chore';
+      if (a.act === 'tinker') return 'tinker';
+      if (a.act === 'chat') return 'chat';
+      if (a.carry) return 'carry';
+      return 'stand';
+    }
+    function limb(x0, y0, x1, y1, w, col, bend = 0) {
+      g.strokeStyle = 'rgba(18,14,30,0.75)'; g.lineWidth = w + 0.07; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo((x0 + x1) / 2 + bend, (y0 + y1) / 2, x1, y1); g.stroke();
+      g.strokeStyle = col; g.lineWidth = w; g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo((x0 + x1) / 2 + bend, (y0 + y1) / 2, x1, y1); g.stroke();
+    }
+    function blob(x, y, r, col, ink = true) { g.beginPath(); g.arc(x, y, r, 0, 7); g.fillStyle = col; g.fill(); if (ink) { g.strokeStyle = 'rgba(18,14,30,0.7)'; g.lineWidth = 0.035; g.stroke(); } }
+    // draws one person in unit space: feet at (0,0), 1 = one floor unit on screen; returns the head-top height
+    function drawPerson(a, id, L, pose, t) {
+      const holo = id.kind === 'agent';
+      const walk = pose === 'walk', sit = pose === 'sit';
+      const ph = Math.sin(t * (a.busy ? 11 : 8));
+      const bounce = walk ? Math.abs(ph) * 0.05 : pose === 'serve' || pose === 'chore' ? Math.abs(Math.sin(t * 6)) * 0.03 : Math.sin(t * 1.6 + hsh(a.id) % 7) * 0.012;
+      const hipY = sit ? -0.62 : -0.98 - bounce, shY = hipY - (L.small ? 0.58 : 0.74);
+      const headR = L.small ? 0.43 : 0.42, headY = shY - headR - 0.06;
+      const back = a.view === 'back' && !sit && pose !== 'serve';
+      const seatedBack = sit && a.kind !== 'guest';
+      const showFace = !back && !seatedBack;
+      // ---- legs
+      if (L.ghost || L.blob || holo) {
+        g.beginPath();
+        if (L.blob) { g.ellipse(0, hipY + 0.35, 0.55, 0.5, 0, 0, 7); }
+        else { g.moveTo(-0.34, hipY + 0.05); g.quadraticCurveTo(-0.3, -0.35, -0.12 + Math.sin(t * 4) * 0.05, -0.12); g.lineTo(0.12 + Math.sin(t * 4 + 1) * 0.05, -0.12); g.quadraticCurveTo(0.3, -0.35, 0.34, hipY + 0.05); g.closePath(); }
+        g.fillStyle = holo ? alpha(id.col, 0.28) : L.blob ? L.skin : alpha(L.skin, 0.8); g.fill();
+        g.strokeStyle = holo ? alpha(id.col, 0.9) : 'rgba(18,14,30,0.5)'; g.lineWidth = 0.035; g.stroke();
+      } else if (sit) {
+        limb(-0.15, hipY, -0.17, -0.34, 0.2, L.pants, -0.02); limb(0.15, hipY, 0.17, -0.34, 0.2, L.pants, 0.02);
+        limb(-0.17, -0.34, -0.19, -0.04, 0.17, L.pants); limb(0.17, -0.34, 0.19, -0.04, 0.17, L.pants);
+        blob(-0.2, -0.02, 0.1, '#2b2522'); blob(0.2, -0.02, 0.1, '#2b2522');
+      } else {
+        const sw = walk ? ph * 0.13 : 0;
+        const lift = (s) => (walk ? Math.max(0, s) * 0.08 : 0);
+        limb(-0.14, hipY, -0.15 + sw, -0.04 - lift(ph), 0.21, L.pants);
+        limb(0.14, hipY, 0.15 - sw, -0.04 - lift(-ph), 0.21, L.pants);
+        g.fillStyle = '#2b2522'; g.strokeStyle = 'rgba(18,14,30,0.7)'; g.lineWidth = 0.03;
+        for (const [fx, fy] of [[-0.16 + sw, -0.02 - lift(ph)], [0.16 - sw, -0.02 - lift(-ph)]]) { g.beginPath(); g.ellipse(fx, fy, 0.13, 0.07, 0, 0, 7); g.fill(); g.stroke(); }
+      }
+      // ---- torso
+      const tw = L.small ? 0.28 : 0.31;
+      const shirt = holo ? alpha(id.col, 0.35) : L.body === 'ribs' ? '#3b3440' : L.body === 'hoodie' ? '#2b2f3c' : L.body === 'robe' ? '#2a2233' : L.body === 'panels' ? '#8fa0b8' : L.shirt;
+      if (!L.blob) {
+        g.beginPath(); g.roundRect(-tw, shY, tw * 2, hipY - shY + 0.08, [0.16, 0.16, 0.09, 0.09]);
+        const gr = g.createLinearGradient(-tw, shY, tw, hipY); gr.addColorStop(0, holo ? alpha(id.col, 0.5) : shade(shirt, 0.22)); gr.addColorStop(1, holo ? alpha(id.col, 0.2) : shade(shirt, -0.15));
+        g.fillStyle = gr; g.fill(); g.strokeStyle = holo ? id.col : 'rgba(18,14,30,0.7)'; g.lineWidth = 0.035; g.stroke();
+        if (!holo) {
+          if (L.body === 'ribs') { g.strokeStyle = '#eeeadf'; g.lineWidth = 0.035; for (let k = 0; k < 3; k++) { g.beginPath(); g.moveTo(-0.18, shY + 0.18 + k * 0.13); g.quadraticCurveTo(0, shY + 0.24 + k * 0.13, 0.18, shY + 0.18 + k * 0.13); g.stroke(); } }
+          else if (L.body === 'apron' || (id.kind === 'person' && (roomTheme === 'barber' || roomTheme === 'salon' || roomTheme === 'kitchen'))) { g.fillStyle = roomTheme === 'kitchen' ? '#f5f3ee' : '#23262e'; g.beginPath(); g.roundRect(-tw * 0.75, shY + 0.22, tw * 1.5, hipY - shY - 0.1, 0.06); g.fill(); g.strokeStyle = 'rgba(255,255,255,0.25)'; g.lineWidth = 0.02; g.beginPath(); g.moveTo(-tw * 0.75, shY + 0.22); g.lineTo(-0.1, shY); g.moveTo(tw * 0.75, shY + 0.22); g.lineTo(0.1, shY); g.stroke(); }
+          else if (L.body === 'overalls' || roomTheme === 'yard') { g.fillStyle = '#3e6fb0'; g.fillRect(-tw * 0.8, shY + 0.3, tw * 1.6, hipY - shY - 0.22); g.fillRect(-tw * 0.7, shY, 0.07, 0.32); g.fillRect(tw * 0.7 - 0.07, shY, 0.07, 0.32); }
+          else if (L.body === 'robe') { g.fillStyle = '#c0392b'; g.fillRect(-tw, hipY - 0.2, tw * 2, 0.1); }
+          else if (L.body === 'neon') { g.strokeStyle = '#ff3fa4'; g.lineWidth = 0.04; g.beginPath(); g.moveTo(-tw, shY + 0.3); g.lineTo(tw, shY + 0.2); g.stroke(); }
+          else if (L.body === 'jacket') { g.fillStyle = '#fff3c4'; g.beginPath(); g.moveTo(-0.08, shY); g.lineTo(0, shY + 0.3); g.lineTo(0.08, shY); g.fill(); g.fillStyle = '#b8740a'; g.beginPath(); g.arc(0.14, shY + 0.2, 0.05, 0, 7); g.fill(); }
+          else if (id.kind === 'person' && roomTheme === 'office') { g.strokeStyle = '#5fd4ff'; g.lineWidth = 0.025; g.beginPath(); g.moveTo(-0.08, shY); g.lineTo(0, shY + 0.32); g.lineTo(0.08, shY); g.stroke(); g.fillStyle = '#f7f7f7'; g.fillRect(-0.06, shY + 0.3, 0.12, 0.14); }
+          // collar
+          g.fillStyle = shade(L.skin, -0.05); g.beginPath(); g.moveTo(-0.08, shY); g.lineTo(0, shY + 0.1); g.lineTo(0.08, shY); g.fill();
+        }
+      }
+      // ---- arms and hands (what they hold says what they do)
+      const arm = holo ? alpha(id.col, 0.6) : shirt, hand = holo ? alpha(id.col, 0.8) : L.skin, aw = 0.15;
+      const sx = tw + 0.02, sy = shY + 0.1;
+      let hl = [-sx - 0.05, sy + 0.58], hr = [sx + 0.05, sy + 0.58], tool = null;
+      if (walk) { hl = [-sx - 0.04, sy + 0.55 - ph * 0.08]; hr = [sx + 0.04, sy + 0.55 + ph * 0.08]; }
+      else if (pose === 'serve') { const sn = Math.sin(t * 14); hr = [sx + 0.12, sy + 0.05 + sn * 0.03]; hl = [-0.1, sy + 0.32]; tool = roomTheme === 'barber' || roomTheme === 'salon' ? 'scissors' : roomTheme === 'shop' ? 'bag' : 'clip'; }
+      else if (pose === 'chore') { const c = t * 7; hl = [-0.18 + Math.cos(c) * 0.08, sy + 0.42 + Math.sin(c) * 0.05]; hr = [0.18 + Math.cos(c + 3) * 0.08, sy + 0.42 + Math.sin(c + 3) * 0.05]; tool = roomTheme === 'kitchen' ? 'sponge' : roomTheme === 'yard' ? 'rake' : roomTheme === 'laundry' ? 'shirt' : roomTheme === 'study' ? 'book' : 'duster'; }
+      else if (pose === 'tinker' || (sit && a.kind !== 'guest')) { const k = Math.sin(t * 16) * 0.025; hl = [-0.16, sy + 0.4 + k]; hr = [0.16, sy + 0.4 - k]; tool = holo ? 'tablet' : roomTheme === 'office' || roomTheme === 'study' ? null : 'tablet'; }
+      else if (pose === 'chat') { hr = [sx + 0.2, sy - 0.05 + Math.sin(t * 5) * 0.08]; }
+      else if (pose === 'carry') { hl = [-0.2, sy + 0.25]; hr = [0.2, sy + 0.25]; tool = 'box'; }
+      else if (sit) { hl = [-sx + 0.05, sy + 0.45]; hr = [sx - 0.05, sy + 0.45]; }
+      const armsBehind = back || seatedBack;
+      const drawArms = () => {
+        limb(-sx + 0.04, sy, hl[0], hl[1], aw, arm, -0.06); limb(sx - 0.04, sy, hr[0], hr[1], aw, arm, 0.06);
+        blob(hl[0], hl[1], 0.08, hand, !holo); blob(hr[0], hr[1], 0.08, hand, !holo);
+        if (tool) drawTool(tool, hr[0], hr[1], hl, t, id);
+      };
+      if (!L.blob && !armsBehind) drawArms();
+      // ---- head
+      const hs = L.small ? 1.08 : 1;
+      g.save(); g.translate(0, headY); g.scale(hs, hs);
+      if (holo) {
+        g.beginPath(); g.roundRect(-0.36, -0.34, 0.72, 0.64, 0.2);
+        g.fillStyle = alpha(id.col, 0.35); g.fill(); g.strokeStyle = id.col; g.lineWidth = 0.04; g.stroke();
+        g.fillStyle = '#0b1020'; g.beginPath(); g.roundRect(-0.28, -0.16, 0.56, 0.3, 0.12); g.fill();
+        const bl = (t % 3.3) < 0.14;
+        g.fillStyle = shade(id.col, 0.5); g.shadowColor = id.col; g.shadowBlur = 0.2 * u * dpr;
+        if (!back) { if (bl) { g.fillRect(-0.18, -0.01, 0.12, 0.03); g.fillRect(0.06, -0.01, 0.12, 0.03); } else { g.beginPath(); g.roundRect(-0.18, -0.08, 0.1, 0.14, 0.05); g.roundRect(0.08, -0.08, 0.1, 0.14, 0.05); g.fill(); } }
+        g.shadowBlur = 0;
+        g.strokeStyle = id.col; g.lineWidth = 0.03; g.beginPath(); g.moveTo(0, -0.34); g.lineTo(0, -0.5); g.stroke(); blob(0, -0.53, 0.05, shade(id.col, 0.4), false);
+      } else if (L.blob) {
+        const bl = (t + hsh(a.id) % 5) % 3.7 < 0.13;
+        for (const ex of [-0.14, 0.14]) { blob(ex, 0.05, 0.1, '#fff'); if (!bl) blob(ex + 0.02, 0.07, 0.05, '#1a1a1a', false); }
+      } else {
+        // back hair, ears
+        if (!showFace || L.style === 2 || L.style === 6) backHair(L, back || seatedBack);
+        if (L.ears === 'pointy') { g.fillStyle = L.skin; for (const s of [-1, 1]) { g.beginPath(); g.moveTo(s * 0.36, -0.05); g.lineTo(s * 0.62, -0.2); g.lineTo(s * 0.4, 0.1); g.fill(); } }
+        else if (L.hairStyle !== 'hood') for (const s of [-1, 1]) blob(s * 0.41, 0.03, 0.09, L.skin);
+        g.beginPath(); g.arc(0, 0, headR, 0, 7);
+        const hg = g.createRadialGradient(-0.14, -0.16, 0.05, 0, 0, headR);
+        hg.addColorStop(0, shade(L.skin, 0.2, L.ghost ? 0.8 : 1)); hg.addColorStop(1, shade(L.skin, -0.12, L.ghost ? 0.8 : 1));
+        g.fillStyle = hg; g.fill(); g.strokeStyle = 'rgba(18,14,30,0.7)'; g.lineWidth = 0.035; g.stroke();
+        if (showFace) face(a, L, pose, t);
+        hairOn(L, !showFace);
+      }
+      g.restore();
+      if (!L.blob && armsBehind) drawArms();
+      return -(headY - headR * hs - 0.12);
+    }
+    function face(a, L, pose, t) {
+      const bl = (t + hsh(a.id) % 5) % 3.9 < 0.13 || pose === 'sleep';
+      const look = a.face > 0 ? 0.025 : -0.025;
+      const eyeY = 0.02;
+      if (L.eyes === 'sockets' || L.eyes === 'hollow') { for (const ex of [-0.15, 0.15]) { g.fillStyle = '#1a1420'; g.beginPath(); g.ellipse(ex, eyeY, 0.09, 0.11, 0, 0, 7); g.fill(); } }
+      else if (L.eyes === 'almond' || L.eyes === 'bug') { for (const ex of [-0.16, 0.16]) { g.fillStyle = '#0d0d12'; g.beginPath(); g.ellipse(ex, eyeY, 0.12, 0.08, ex > 0 ? -0.5 : 0.5, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,0.6)'; g.beginPath(); g.arc(ex - 0.03, eyeY - 0.02, 0.02, 0, 7); g.fill(); } }
+      else if (L.eyes === 'cyclops') { blob(0, eyeY, 0.16, '#fff'); if (!bl) { blob(look * 2, eyeY, 0.09, '#5b3fd6', false); blob(look * 2, eyeY, 0.045, '#111', false); } }
+      else if (L.eyes === 'glow') { g.fillStyle = '#5fd4ff'; g.shadowColor = '#5fd4ff'; g.shadowBlur = 0.15 * u * dpr; g.fillRect(-0.22, eyeY - 0.03, 0.14, 0.05); g.fillRect(0.08, eyeY - 0.03, 0.14, 0.05); g.shadowBlur = 0; }
+      else {
+        for (const ex of [-0.15, 0.15]) {
+          if (bl) { g.strokeStyle = '#2a1d1a'; g.lineWidth = 0.03; g.beginPath(); g.arc(ex, eyeY - 0.01, 0.06, 0.2, Math.PI - 0.2); g.stroke(); continue; }
+          g.fillStyle = '#fff'; g.beginPath(); g.ellipse(ex, eyeY, 0.085, 0.105, 0, 0, 7); g.fill();
+          g.fillStyle = L.eyes === 'cyborg' && ex > 0 ? '#ff3b3b' : '#3a2a22'; g.beginPath(); g.arc(ex + look, eyeY + 0.015, 0.058, 0, 7); g.fill();
+          g.fillStyle = '#fff'; g.beginPath(); g.arc(ex + look - 0.02, eyeY - 0.015, 0.02, 0, 7); g.fill();
+        }
+        if (L.eyes === 'glasses') { g.fillStyle = 'rgba(80,255,160,0.45)'; g.strokeStyle = '#111'; g.lineWidth = 0.03; g.beginPath(); g.roundRect(-0.27, -0.05, 0.22, 0.14, 0.04); g.roundRect(0.05, -0.05, 0.22, 0.14, 0.04); g.fill(); g.stroke(); }
+        if (L.eyes === 'cyborg') { g.strokeStyle = '#8fa0b8'; g.lineWidth = 0.03; g.beginPath(); g.arc(0.15, eyeY, 0.14, 0, 7); g.stroke(); }
+        // brows
+        g.strokeStyle = shade(L.hair, -0.2); g.lineWidth = 0.03; g.lineCap = 'round';
+        const lift = pose === 'serve' || a.real > 0 ? 0.02 : 0;
+        for (const ex of [-0.15, 0.15]) { g.beginPath(); g.moveTo(ex - 0.07, -0.12 - lift); g.quadraticCurveTo(ex, -0.15 - lift, ex + 0.07, -0.12 - lift); g.stroke(); }
+      }
+      // cheeks and mouth
+      g.fillStyle = 'rgba(255,110,120,0.22)'; for (const ex of [-0.26, 0.26]) { g.beginPath(); g.ellipse(ex, 0.17, 0.07, 0.04, 0, 0, 7); g.fill(); }
+      const talking = pose === 'chat' && Math.sin(t * 12) > 0;
+      const happy = a.real > 0 || pose === 'serve' || (a.bubble && (a.bubble.icon === 'heart' || a.bubble.icon === 'coin' || a.bubble.icon === 'star'));
+      if (pose === 'sleep') { g.strokeStyle = '#6b3a32'; g.lineWidth = 0.025; g.beginPath(); g.arc(0, 0.25, 0.03, 0, 7); g.stroke(); }
+      else if (talking || (happy && Math.sin(t * 3) > 0.3)) { g.fillStyle = '#6b1f24'; g.beginPath(); g.ellipse(0, 0.23, 0.08, talking ? 0.06 : 0.05, 0, 0, Math.PI * 2); g.fill(); g.fillStyle = '#ff8a8a'; g.beginPath(); g.ellipse(0, 0.26, 0.045, 0.02, 0, 0, 7); g.fill(); }
+      else { g.strokeStyle = '#6b3a32'; g.lineWidth = 0.03; g.lineCap = 'round'; g.beginPath(); g.arc(0, 0.16, 0.08, 0.35, Math.PI - 0.35); g.stroke(); }
+    }
+    function backHair(L, full) {
+      if (L.hairStyle && L.hairStyle !== 'none') return;
+      g.fillStyle = L.hair;
+      if (L.style === 2) { g.beginPath(); g.roundRect(-0.46, -0.2, 0.92, 0.8, 0.3); g.fill(); }
+      else if (L.style === 6) { g.beginPath(); g.ellipse(0.42, 0.25, 0.12, 0.3, -0.4, 0, 7); g.fill(); }
+      if (full) { g.beginPath(); g.arc(0, -0.02, 0.45, 0, 7); g.fill(); }
+    }
+    function hairOn(L, backView) {
+      const hs = L.hairStyle;
+      g.strokeStyle = 'rgba(18,14,30,0.6)'; g.lineWidth = 0.03;
+      if (hs === 'none') return;
+      if (hs === 'hood') { g.fillStyle = '#2b2f3c'; g.beginPath(); g.arc(0, -0.02, 0.52, Math.PI * 0.95, Math.PI * 2.05); g.lineTo(0.5, 0.35); g.lineTo(0.38, 0.15); g.arc(0, 0, 0.4, -0.2, Math.PI + 0.2, true); g.lineTo(-0.5, 0.35); g.closePath(); g.fill(); g.stroke(); return; }
+      if (hs === 'topknot') { g.fillStyle = '#161616'; g.beginPath(); g.arc(0, -0.05, 0.44, Math.PI * 1.05, Math.PI * 1.95); g.fill(); blob(0, -0.52, 0.12, '#161616'); return; }
+      if (hs === 'cap') { g.fillStyle = '#e05a47'; g.beginPath(); g.arc(0, -0.08, 0.44, Math.PI, 0); g.fill(); g.stroke(); g.fillRect(0, -0.12, 0.55, 0.08); return; }
+      if (hs === 'headphones') { g.strokeStyle = '#111'; g.lineWidth = 0.07; g.beginPath(); g.arc(0, -0.02, 0.47, Math.PI * 1.05, Math.PI * 1.95); g.stroke(); blob(-0.44, 0.02, 0.12, '#ff3fa4'); blob(0.44, 0.02, 0.12, '#ff3fa4'); }
+      if (hs === 'tentacles') { g.strokeStyle = '#8a4fc0'; g.lineWidth = 0.07; for (let k = -2; k <= 2; k++) { g.beginPath(); g.moveTo(k * 0.08, 0.3); g.quadraticCurveTo(k * 0.12 + Math.sin(tt * 3 + k) * 0.05, 0.5, k * 0.1, 0.62); g.stroke(); } return; }
+      if (hs === 'mushroom') { g.fillStyle = '#e0473c'; g.beginPath(); g.ellipse(0, -0.28, 0.62, 0.3, 0, Math.PI, 0); g.fill(); g.stroke(); g.fillStyle = '#fff'; for (const [x, y] of [[-0.3, -0.38], [0.1, -0.45], [0.35, -0.33]]) { g.beginPath(); g.arc(x, y, 0.06, 0, 7); g.fill(); } return; }
+      if (hs === 'antennae') { g.strokeStyle = '#3d5a1f'; g.lineWidth = 0.03; for (const s of [-1, 1]) { g.beginPath(); g.moveTo(s * 0.12, -0.38); g.quadraticCurveTo(s * 0.2, -0.65, s * 0.35, -0.7); g.stroke(); blob(s * 0.35, -0.7, 0.05, '#ffd84d'); } return; }
+      if (hs) return;
+      g.fillStyle = L.hair;
+      const st = L.style;
+      if (backView) { g.beginPath(); g.arc(0, -0.02, 0.45, 0, 7); g.fill(); g.stroke(); return; }
+      g.beginPath();
+      if (st === 5) { g.arc(0, -0.02, 0.43, Math.PI * 1.08, Math.PI * 1.92); g.closePath(); g.globalAlpha = 0.7; g.fill(); g.globalAlpha = 1; return; }
+      if (st === 4) { for (const [x, y, r] of [[-0.3, -0.25, 0.2], [0, -0.38, 0.24], [0.3, -0.25, 0.2], [-0.4, 0, 0.14], [0.4, 0, 0.14], [-0.15, -0.35, 0.18], [0.15, -0.35, 0.18]]) { g.moveTo(x + r, y); g.arc(x, y, r, 0, 7); } g.fill(); return; }
+      if (st === 7) { g.fillStyle = '#e05a47'; g.arc(0, -0.08, 0.45, Math.PI, 0); g.fill(); g.stroke(); g.beginPath(); g.ellipse(0.28, -0.1, 0.3, 0.07, 0, 0, 7); g.fill(); g.stroke(); return; }
+      // a cap of hair with a fringe
+      g.moveTo(-0.45, 0.05); g.arc(0, -0.02, 0.46, Math.PI * 1.02, Math.PI * 1.98);
+      if (st === 1) { for (let k = 0; k < 5; k++) { g.lineTo(0.4 - k * 0.2, -0.12 + (k % 2) * 0.1); } }
+      else { g.quadraticCurveTo(0.3, -0.18, 0.05, -0.12); g.quadraticCurveTo(-0.2, -0.05, -0.45, 0.05); }
+      g.closePath(); g.fill(); g.stroke();
+      if (st === 3) blob(0, -0.5, 0.16, L.hair);
+      g.fillStyle = 'rgba(255,255,255,0.18)'; g.beginPath(); g.ellipse(-0.15, -0.3, 0.12, 0.05, -0.4, 0, 7); g.fill();
+    }
+    function drawTool(k, x, y, hl, t, id) {
+      g.save(); g.translate(x, y);
+      if (k === 'scissors') { const o = Math.abs(Math.sin(t * 14)) * 0.5; g.strokeStyle = '#d8dde6'; g.lineWidth = 0.035; g.rotate(-0.6); for (const s of [-1, 1]) { g.save(); g.rotate(s * o * 0.5); g.beginPath(); g.moveTo(0, 0); g.lineTo(0.28, 0); g.stroke(); g.beginPath(); g.arc(-0.06, s * 0.04, 0.04, 0, 7); g.stroke(); g.restore(); } }
+      else if (k === 'sponge') { g.fillStyle = '#ffd84d'; g.fillRect(-0.08, -0.05, 0.16, 0.1); g.fillStyle = '#3ddc97'; g.fillRect(-0.08, -0.07, 0.16, 0.03); }
+      else if (k === 'rake') { g.strokeStyle = '#8a5a2e'; g.lineWidth = 0.04; g.beginPath(); g.moveTo(0, -0.4); g.lineTo(0.05, 0.5); g.stroke(); g.strokeStyle = '#9aa6b8'; g.beginPath(); g.moveTo(-0.12, 0.5); g.lineTo(0.22, 0.5); g.stroke(); }
+      else if (k === 'shirt') { g.fillStyle = '#60a5fa'; g.beginPath(); g.moveTo(-0.14, -0.08); g.lineTo(0.14, -0.08); g.lineTo(0.12, 0.14); g.lineTo(-0.12, 0.14); g.fill(); }
+      else if (k === 'book') { g.fillStyle = '#e05a47'; g.fillRect(-0.12, -0.08, 0.24, 0.16); g.fillStyle = '#fff'; g.fillRect(-0.1, -0.06, 0.2, 0.12); }
+      else if (k === 'duster') { g.strokeStyle = '#8a5a2e'; g.lineWidth = 0.03; g.beginPath(); g.moveTo(0, 0); g.lineTo(0.15, -0.2); g.stroke(); blob(0.2, -0.28, 0.08, '#f472b6', false); }
+      else if (k === 'tablet') { g.fillStyle = '#1b1f2b'; g.beginPath(); g.roundRect(-0.16, -0.1, 0.32, 0.22, 0.03); g.fill(); g.fillStyle = id.kind === 'agent' ? alpha(id.col, 0.9) : '#5fb4ff'; g.fillRect(-0.13, -0.07, 0.26, 0.16); }
+      else if (k === 'clip') { g.fillStyle = '#c9a27a'; g.fillRect(-0.12, -0.14, 0.24, 0.3); g.fillStyle = '#fff'; g.fillRect(-0.09, -0.1, 0.18, 0.22); }
+      else if (k === 'bag') { g.fillStyle = '#e8d6b8'; g.fillRect(-0.12, -0.05, 0.24, 0.26); }
+      else if (k === 'box') { g.restore(); g.save(); g.fillStyle = '#c9a27a'; g.fillRect(hl[0] - 0.02, y - 0.3, x - hl[0] + 0.04, 0.3); g.strokeStyle = 'rgba(0,0,0,0.4)'; g.lineWidth = 0.03; g.strokeRect(hl[0] - 0.02, y - 0.3, x - hl[0] + 0.04, 0.3); }
+      g.restore();
+    }
+    // animals of the farm and the sea, the rooms' stock
+    function drawAnimal(a, t) {
+      const id = (a.lk && a.lk.id) || 'x', moving = a.queue.length > 0, st = moving ? Math.sin(t * 10) * 0.05 : 0, bob = Math.sin(t * 2 + hsh(a.id)) * 0.03;
+      const four = { pasture: ['#f7f7f2', '#2b2522'], pigpen: ['#f4a6b8', '#e58aa0'], meadow: ['#f5f1e6', '#3a3035'], stable: ['#8a5a2e', '#3b2614'], garden: ['#d9d4c8', '#f4a6b8'] }[id];
+      if (four) {
+        const [c1, c2] = four;
+        for (const lx of [-0.3, -0.12, 0.12, 0.3]) limb(lx, -0.35, lx + (lx > 0 ? st : -st), -0.02, 0.09, c2);
+        g.beginPath(); g.ellipse(0, -0.45 + bob, id === 'garden' ? 0.3 : 0.45, id === 'garden' ? 0.25 : 0.28, 0, 0, 7); g.fillStyle = c1; g.fill(); g.strokeStyle = 'rgba(18,14,30,0.7)'; g.lineWidth = 0.03; g.stroke();
+        if (id === 'pasture') { blob(-0.15, -0.5, 0.1, c2, false); blob(0.2, -0.38, 0.08, c2, false); }
+        if (id === 'meadow') for (let k = 0; k < 6; k++) blob(-0.3 + k * 0.12, -0.62 + (k % 2) * 0.05, 0.1, '#ffffff', false);
+        blob(0.45, -0.62 + bob, id === 'garden' ? 0.16 : 0.19, id === 'meadow' ? '#3a3035' : c1);
+        if (id === 'garden') { for (const s of [-0.05, 0.08]) { g.fillStyle = c1; g.beginPath(); g.ellipse(0.45 + s, -0.92, 0.04, 0.15, s, 0, 7); g.fill(); } }
+        blob(0.5, -0.66 + bob, 0.03, '#111', false);
+        if (id === 'pigpen') blob(0.6, -0.6 + bob, 0.06, '#e58aa0');
+        return 1.0;
+      }
+      if (id === 'coop') { g.beginPath(); g.ellipse(0, -0.35 + bob, 0.26, 0.24, 0, 0, 7); g.fillStyle = '#fff'; g.fill(); g.strokeStyle = 'rgba(18,14,30,0.7)'; g.lineWidth = 0.03; g.stroke(); blob(0.18, -0.58 + bob, 0.13, '#fff'); g.fillStyle = '#ffb454'; g.beginPath(); g.moveTo(0.3, -0.58); g.lineTo(0.42, -0.55); g.lineTo(0.3, -0.52); g.fill(); blob(0.16, -0.72 + bob, 0.05, '#e03c3c', false); blob(0.22, -0.6 + bob, 0.025, '#111', false); limb(-0.05, -0.12, -0.05 + st, 0, 0.03, '#ffb454'); limb(0.08, -0.12, 0.08 - st, 0, 0.03, '#ffb454'); return 0.8; }
+      // sea life floats
+      const fy = -0.6 + Math.sin(t * 1.5 + hsh(a.id)) * 0.08;
+      if (id === 'reef' || id === 'kelp') { g.beginPath(); g.ellipse(0, fy, 0.3, 0.18, 0, 0, 7); g.fillStyle = id === 'reef' ? '#ff8a3c' : '#ffd84d'; g.fill(); g.strokeStyle = 'rgba(18,14,30,0.7)'; g.lineWidth = 0.03; g.stroke(); if (id === 'reef') { g.fillStyle = '#fff'; g.fillRect(-0.05, fy - 0.17, 0.07, 0.34); } g.beginPath(); g.moveTo(-0.28, fy); g.lineTo(-0.48, fy - 0.15 + Math.sin(t * 8) * 0.04); g.lineTo(-0.48, fy + 0.15 + Math.sin(t * 8) * 0.04); g.fillStyle = id === 'reef' ? '#ff8a3c' : '#ffd84d'; g.fill(); blob(0.16, fy - 0.03, 0.04, '#111', false); return 0.9; }
+      if (id === 'grotto') { blob(0, fy - 0.1, 0.3, '#c06bd6'); g.strokeStyle = '#c06bd6'; g.lineWidth = 0.08; for (let k = -2; k <= 2; k++) { g.beginPath(); g.moveTo(k * 0.1, fy + 0.1); g.quadraticCurveTo(k * 0.18 + Math.sin(t * 3 + k) * 0.08, fy + 0.3, k * 0.2, fy + 0.45); g.stroke(); } blob(-0.1, fy - 0.12, 0.05, '#fff'); blob(0.1, fy - 0.12, 0.05, '#fff'); return 1.1; }
+      if (id === 'wreck') { g.beginPath(); g.ellipse(0, -0.2, 0.3, 0.16, 0, 0, 7); g.fillStyle = '#e0473c'; g.fill(); g.strokeStyle = 'rgba(18,14,30,0.7)'; g.lineWidth = 0.03; g.stroke(); for (const s of [-1, 1]) { blob(s * 0.4, -0.35 + Math.sin(t * 4) * 0.03, 0.1, '#e0473c'); } blob(-0.08, -0.36, 0.035, '#111', false); blob(0.08, -0.36, 0.035, '#111', false); return 0.6; }
+      if (id === 'deep') { g.beginPath(); g.arc(0, fy, 0.28, Math.PI, 0); g.fillStyle = 'rgba(200,140,255,0.75)'; g.fill(); g.strokeStyle = 'rgba(230,200,255,0.9)'; g.lineWidth = 0.025; for (let k = -2; k <= 2; k++) { g.beginPath(); g.moveTo(k * 0.1, fy); g.quadraticCurveTo(k * 0.1 + Math.sin(t * 3 + k) * 0.06, fy + 0.25, k * 0.1, fy + 0.45); g.stroke(); } return 1.0; }
+      g.beginPath(); g.ellipse(0, fy, 0.35, 0.22, 0, 0, 7); g.fillStyle = '#6fbf8a'; g.fill(); g.strokeStyle = 'rgba(18,14,30,0.7)'; g.lineWidth = 0.03; g.stroke(); blob(0.36, fy - 0.05, 0.12, '#8fd6a0'); blob(0.4, fy - 0.08, 0.03, '#111', false);
+      return 0.9;
+    }
+
+    // ---- over their heads: the plumbob (what they are up to), a progress bar while they work, a bubble, and a name
+    let roomTheme = 'office';
+    const MOOD = (a, id) => {
+      if (id.kind === 'agent') return a.runId || a.kind === 'visit' ? '#39e0ff' : '#7fb8ff';
+      if (id.kind === 'client') return '#ffffff';
+      if (a.act === 'sleep') return '#6aa7ff';
+      if (a.busy || a.act === 'serve' || a.act === 'chore') return '#2fe07a';
+      if (a.act === 'tinker' || a.state === 'work') return '#9be15d';
+      return '#ffd84d';
+    };
+    function plumbob(X, Y, col, t) {
+      const s = u * 0.14, h = u * 0.44, w = s * Math.max(0.25, Math.abs(Math.cos(t * 1.8)));
+      const y = Y + Math.sin(t * 2.2) * u * 0.05;
+      glowAt(X, y, u * 0.5, col, 0.35);
+      g.beginPath(); g.moveTo(X, y - h / 2); g.lineTo(X + w, y); g.lineTo(X, y + h / 2); g.lineTo(X - w, y); g.closePath();
+      const gr = g.createLinearGradient(X - w, y - h / 2, X + w, y + h / 2); gr.addColorStop(0, shade(col, 0.55)); gr.addColorStop(0.5, col); gr.addColorStop(1, shade(col, -0.35));
+      g.fillStyle = gr; g.fill(); g.strokeStyle = 'rgba(10,20,10,0.55)'; g.lineWidth = lw(0.02); g.stroke();
+      g.beginPath(); g.moveTo(X, y - h / 2); g.lineTo(X, y + h / 2); g.moveTo(X - w, y); g.lineTo(X + w, y); g.strokeStyle = 'rgba(255,255,255,0.35)'; g.stroke();
+    }
+    function pill(X, Y, text, sub, col, big = false) {
+      const fs = Math.max(11, u * (big ? 0.3 : 0.26)), fs2 = fs * 0.72;
+      g.font = `700 ${fs}px system-ui,sans-serif`; const w1 = g.measureText(text).width;
+      g.font = `800 ${fs2}px system-ui,sans-serif`; const w2 = sub ? g.measureText(sub).width + fs * 0.6 : 0;
+      const pad = fs * 0.55, dot = fs * 0.9, w = pad * 2 + dot + w1 + w2, h = fs * 1.7;
+      g.fillStyle = 'rgba(12,14,24,0.84)'; g.beginPath(); g.roundRect(X - w / 2, Y - h / 2, w, h, h / 2); g.fill();
+      g.strokeStyle = alpha(col, 0.9); g.lineWidth = Math.max(1.5, fs * 0.12); g.stroke();
+      g.fillStyle = col; g.beginPath(); g.arc(X - w / 2 + pad + dot * 0.35, Y, dot * 0.32, 0, 7); g.fill();
+      g.fillStyle = '#fff'; g.font = `700 ${fs}px system-ui,sans-serif`; g.textBaseline = 'middle'; g.textAlign = 'left';
+      g.fillText(text, X - w / 2 + pad + dot, Y + 0.5);
+      if (sub) { g.fillStyle = alpha(col, 1); g.font = `800 ${fs2}px system-ui,sans-serif`; g.fillText(sub, X - w / 2 + pad + dot + w1 + fs * 0.45, Y + 0.5); }
+      return [X - w / 2, Y - h / 2, X + w / 2, Y + h / 2];
+    }
+    function pillW(text, sub, fs) {
+      g.font = `700 ${fs}px system-ui,sans-serif`; const w1 = g.measureText(text).width;
+      g.font = `800 ${fs * 0.72}px system-ui,sans-serif`; const w2 = sub ? g.measureText(sub).width + fs * 0.6 : 0;
+      return fs * 0.55 * 2 + fs * 0.9 + w1 + w2;
+    }
+    function progress(X, Y, p, label, right, col, t) {
+      const fs = Math.max(11, u * 0.24), w = Math.max(u * 2.1, fs * 9), h = fs * 0.95;
+      g.font = `700 ${fs}px system-ui,sans-serif`; g.textBaseline = 'alphabetic';
+      g.fillStyle = 'rgba(12,14,24,0.86)'; g.beginPath(); g.roundRect(X - w / 2 - fs * 0.4, Y - h - fs * 1.55, w + fs * 0.8, h + fs * 1.95, fs * 0.6); g.fill();
+      const rw = right ? g.measureText(right).width + fs * 0.5 : 0;
+      let lab = label; while (lab.length > 3 && g.measureText(lab).width > w - rw) lab = lab.slice(0, -2) + '…';
+      g.fillStyle = '#fff'; g.textAlign = 'left'; g.fillText(lab, X - w / 2, Y - h - fs * 0.35);
+      if (right) { g.fillStyle = '#ffcf5a'; g.textAlign = 'right'; g.fillText(right, X + w / 2, Y - h - fs * 0.35); }
+      g.fillStyle = '#1d2233'; g.beginPath(); g.roundRect(X - w / 2, Y - h, w, h * 0.7, h * 0.35); g.fill();
+      if (p === null) { const x0 = X - w / 2 + ((t * 0.6) % 1) * w * 0.75; g.fillStyle = col; g.beginPath(); g.roundRect(x0, Y - h, w * 0.25, h * 0.7, h * 0.35); g.fill(); }
+      else { const gr = g.createLinearGradient(X - w / 2, 0, X + w / 2, 0); gr.addColorStop(0, shade(col, -0.2)); gr.addColorStop(1, shade(col, 0.3)); g.fillStyle = gr; g.beginPath(); g.roundRect(X - w / 2, Y - h, Math.max(h * 0.7, w * clamp(p, 0, 1)), h * 0.7, h * 0.35); g.fill(); }
+      g.fillStyle = 'rgba(255,255,255,0.25)'; g.fillRect(X - w / 2 + h * 0.3, Y - h + h * 0.1, w - h * 0.6, h * 0.12);
+    }
+    const BUB = { heart: '❤', note: '♪', coin: '$', star: '★', dots: '…', q: '?', bang: '!', zzz: 'z' };
+    function speech(X, Y, icon, age, dur) {
+      const k = Math.min(1, age * 6), out = age > dur - 0.25 ? Math.max(0, (dur - age) / 0.25) : 1, sc = (0.6 + 0.4 * easeBack(k)) * out;
+      if (sc <= 0.02) return;
+      const r = u * 0.34 * sc;
+      g.fillStyle = '#ffffff'; g.strokeStyle = 'rgba(18,14,30,0.8)'; g.lineWidth = Math.max(1.5, u * 0.035);
+      g.beginPath(); g.roundRect(X - r * 1.2, Y - r, r * 2.4, r * 2, r * 0.9); g.fill(); g.stroke();
+      g.beginPath(); g.moveTo(X - r * 0.6, Y + r * 0.9); g.lineTo(X - r * 1.0, Y + r * 1.6); g.lineTo(X - r * 0.1, Y + r * 0.95); g.fill();
+      const col = { heart: '#ff4d6d', coin: '#e6a700', star: '#f5b400', bang: '#ff5c3a', q: '#5b6bff', note: '#7a4de0', dots: '#555' }[icon] || '#333';
+      g.fillStyle = col; g.font = `900 ${r * 1.25}px system-ui,sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(BUB[icon] || '•', X, Y + r * 0.05);
+    }
+
+    // ---- the whole frame
+    const motes = Array.from({ length: 70 }, (_, k) => ({ x: Math.random(), y: Math.random(), s: 0.4 + Math.random(), p: Math.random() * 7, k }));
+    function background(S) {
+      const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, mixc(S.bg[0], '#000', darkness() * 0.3)); gr.addColorStop(1, mixc(S.bg[1], '#000', darkness() * 0.4));
+      g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      const vg = g.createRadialGradient(W / 2, H * 0.55, Math.min(W, H) * 0.2, W / 2, H * 0.55, Math.max(W, H) * 0.75); vg.addColorStop(0, 'rgba(255,255,255,0.06)'); vg.addColorStop(1, 'rgba(0,0,0,0.35)'); g.fillStyle = vg; g.fillRect(0, 0, W, H);
+      for (const m of motes) {
+        let x = m.x * W, y = m.y * H, a = 0.5;
+        if (S.pk === 'stars') { a = 0.3 + 0.7 * Math.abs(Math.sin(tt * m.s + m.p)); g.fillStyle = `rgba(255,255,255,${a * 0.8})`; g.fillRect(x, y, 1.5 * m.s, 1.5 * m.s); continue; }
+        if (S.pk === 'rain') { y = ((m.y + tt * (0.8 + m.s * 0.4)) % 1) * H; x = (m.x * W - y * 0.15 + W) % W; g.strokeStyle = 'rgba(170,190,255,0.25)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x, y); g.lineTo(x - 3, y + 14 * m.s); g.stroke(); continue; }
+        if (S.pk === 'bubbles') { y = (1 - ((m.y + tt * 0.05 * m.s) % 1)) * H; x += Math.sin(tt + m.p) * 8; g.strokeStyle = 'rgba(200,240,255,0.35)'; g.lineWidth = 1; g.beginPath(); g.arc(x, y, 2 + m.s * 3, 0, 7); g.stroke(); continue; }
+        if (S.pk === 'embers') { y = (1 - ((m.y + tt * 0.04 * m.s) % 1)) * H; x += Math.sin(tt * 0.7 + m.p) * 12; g.fillStyle = `rgba(255,${140 + m.k % 60},60,${0.5 * Math.abs(Math.sin(tt + m.p))})`; g.fillRect(x, y, 2, 2); continue; }
+        y = ((m.y + tt * 0.01 * m.s) % 1) * H; x += Math.sin(tt * 0.5 + m.p) * 14;
+        g.fillStyle = S.pk === 'spores' ? `rgba(125,255,176,${0.35 * Math.abs(Math.sin(tt + m.p))})` : `rgba(255,250,200,${0.35 * Math.abs(Math.sin(tt + m.p))})`;
+        g.beginPath(); g.arc(x, y, 1.5 + m.s, 0, 7); g.fill();
+      }
+    }
+    function nightPass(S) {
+      const dk = darkness() * (S.pk === 'stars' || S.neon ? 0.45 : 0.62);
+      // daylight through the windows
+      if (dk < 0.3 && roomTheme !== 'yard') {
+        g.save(); g.globalCompositeOperation = 'lighter';
+        for (const [y0, y1] of [[1.2, 2.6], [3.6, 5.0]]) {
+          poly([Pl(0, y0, 3.2), Pl(0, y1, 3.2), Pl(3.2, y1 + 1.4, 0), Pl(3.2, y0 + 1.4, 0)]);
+          const [a, b] = Pl(0, (y0 + y1) / 2, 3.2), [c, d] = Pl(3.2, (y0 + y1) / 2 + 1.4, 0);
+          const gr = g.createLinearGradient(a, b, c, d); gr.addColorStop(0, `rgba(255,244,210,${0.16 * (1 - dk * 3)})`); gr.addColorStop(1, 'rgba(255,244,210,0)'); g.fillStyle = gr; g.fill();
+        }
+        g.restore();
+      }
+      if (dk < 0.02) return;
+      g.fillStyle = `rgba(8,12,38,${dk})`; g.fillRect(0, 0, W, H);
+      g.save(); g.globalCompositeOperation = 'lighter';
+      for (const [x, y, z, r, col, s] of lights) { const [X, Y] = Pl(x, y, z); glowAt(X, Y, r * u, col, s * dk * 0.9); const [fx, fy] = Pl(x, y, 0); g.save(); g.translate(fx, fy); g.scale(1, 0.5); glowAt(0, 0, r * u * 0.8, col, s * dk * 0.5); g.restore(); }
+      g.restore();
+    }
+    function eachInRoom(fn) {
+      for (const a of agents.values()) {
+        if (a.dying && T - a.dying > 0.95) continue;
+        const lx = a.x - room.x0, ly = a.y - room.y0;
+        if (lx < -0.35 || ly < -0.35 || lx > N + 0.35 || ly > N + 0.35) continue;
+        fn(a, lx, ly);
+      }
+    }
+    function drawFrame(dt) {
+      const rect = cvs.getBoundingClientRect();
+      const nd = Math.min(2, window.devicePixelRatio || 1);
+      if (Math.round(rect.width * nd) !== cvs.width || Math.round(rect.height * nd) !== cvs.height) { cvs.width = Math.round(rect.width * nd); cvs.height = Math.round(rect.height * nd); }
+      W = rect.width; H = rect.height; dpr = nd;
+      zoom += (zoomT - zoom) * Math.min(1, dt * 9);
+      // fit the room into the free part of the view, under the room's title
+      // fit the floor and most of the walls into the free view: the tops of the walls may slip under the room's title
+      const title = $('#areaTitle'), titleH = title && !title.hidden ? title.offsetHeight : 0;
+      const dockH = overlayMode() ? ($('#controls').offsetHeight + 20) : ($('#tabbar') ? $('#tabbar').offsetHeight + 12 : 12);
+      const x0 = overlayMode() ? avail.x0 : 4, x1 = overlayMode() ? avail.x1 : W - 4, y0 = avail.y0 + titleH * (overlayMode() ? 0.45 : 0.6), y1 = overlayMode() ? H - dockH : avail.y1 + 4;
+      const vis = N + SLAB + WALLH * 0.62;
+      const base = Math.max(8, Math.min((x1 - x0) * 0.98 / (2 * N), (y1 - y0) / vis));
+      u = base * zoom;
+      const cx = (x0 + x1) / 2;
+      const maxPan = Math.max(0, (zoom - 1)) * base * N;
+      panX = clamp(panX, -maxPan, maxPan); panY = clamp(panY, -maxPan * 0.6, maxPan * 0.6);
+      // the floor's back corner sits so that the floor's front tip and the slab land on the bottom of the free area
+      ox = cx + panX; oy = (y0 + y1) / 2 - ((N + SLAB) - WALLH * 0.62) * u / 2 + panY;
+      tt = T;
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const S = sk();
+      roomTheme = themeFor(room);
+      background(S);
+      bakeShell(room, roomTheme);
+      g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(shell, 0, 0); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      lights.length = 0;
+      const { items, wall } = furnish(room, roomTheme);
+      // things on the walls: windows, the sign, the screen, the clock, mirrors
+      if (roomTheme !== 'yard') { sky('L', 1.0, 2.4, 0.9, 2.6, S); sky('L', 2.8, 4.2, 0.9, 2.6, S); }
+      sign(room, S); if (roomTheme !== 'yard') { dataScreen(room, S); clock(S); }
+      for (const w of wall) w();
+      // everything that stands on the floor, back to front, with the characters among it
+      const list = items.slice();
+      const selId = follow || (selected && selected.startsWith('a:') ? selected.slice(2) : null);
+      eachInRoom((a, lx, ly) => list.push({ d: lx + ly + 0.02, a, lx, ly }));
+      list.sort((p, q) => p.d - q.d);
+      hits = [];
+      const over = [];
+      for (const it of list) {
+        if (!it.a) { it.fn(); continue; }
+        const a = it.a, lx = it.lx, ly = it.ly;
+        const edge = Math.min(lx + 0.35, ly + 0.35, N + 0.35 - lx, N + 0.35 - ly);
+        const fade = clamp(edge / 0.5, 0, 1) * (a.dying ? Math.max(0, 1 - (T - a.dying) / 0.95) : 1) * (a.born && T - a.born < 0.8 ? (T - a.born) / 0.8 : 1);
+        if (fade <= 0.01) continue;
+        const id = identity(a);
+        const [X, Y] = Pl(lx, ly, a.jz > 0 ? Math.sin(a.jz * Math.PI) * 0.35 : 0);
+        const [, Yfloor] = Pl(lx, ly);
+        g.save(); g.globalAlpha = fade;
+        // shadow and the selection ring
+        g.fillStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.ellipse(X, Yfloor, u * 0.42, u * 0.18, 0, 0, 7); g.fill();
+        if (a.id === hoverId || a.id === selId) { g.strokeStyle = id.col; g.lineWidth = Math.max(2, u * 0.05); g.setLineDash([u * 0.18, u * 0.1]); g.lineDashOffset = -T * u * 0.4; g.beginPath(); g.ellipse(X, Yfloor, u * 0.6, u * 0.28, 0, 0, 7); g.stroke(); g.setLineDash([]); }
+        let top;
+        g.translate(X, Y);
+        if (a.kind === 'res') { g.scale(u * 1.15 * (a.face < 0 ? -1 : 1), u * 1.15); top = drawAnimal(a, a.t) * 1.15; }
+        else {
+          const L = lookFor(a, id), pose = poseOf(a), k = L.small ? 0.98 : 1.22;
+          if (id.kind === 'agent') {
+            // a hologram, projected from a disc on the floor
+            g.save(); g.scale(1, 0.45); g.strokeStyle = alpha(id.col, 0.9); g.lineWidth = Math.max(1.5, u * 0.04); g.setLineDash([u * 0.2, u * 0.12]); g.lineDashOffset = T * u; g.beginPath(); g.arc(0, 0, u * 0.5, 0, 7); g.stroke(); g.setLineDash([]); g.restore();
+            const beam = g.createLinearGradient(0, 0, 0, -u * 2.4); beam.addColorStop(0, alpha(id.col, 0.3)); beam.addColorStop(1, alpha(id.col, 0)); g.fillStyle = beam; g.beginPath(); g.moveTo(-u * 0.5, 0); g.lineTo(u * 0.5, 0); g.lineTo(u * 0.3, -u * 2.4); g.lineTo(-u * 0.3, -u * 2.4); g.fill();
+            g.translate(0, -u * (0.18 + Math.sin(a.t * 2) * 0.05));
+            g.globalAlpha = fade * (0.85 + (Math.sin(a.t * 37) > 0.93 ? -0.4 : 0));
+            if (Math.sin(a.t * 11) > 0.97) g.translate(u * 0.05, 0);
+            g.shadowColor = id.col; g.shadowBlur = u * 0.25 * dpr;
+          }
+          if (pose === 'sleep') { g.rotate(-Math.PI / 2 * (a.face < 0 ? -1 : 1)); g.translate(u * 0.3, u * 0.1); }
+          g.scale(u * k * (a.face < 0 ? -1 : 1), u * k);
+          top = drawPerson(a, id, L, pose, a.t) * k;
+          g.shadowBlur = 0;
+          if (pose === 'sleep') top = 1.0;
+        }
+        g.restore();
+        const topY = Y - top * u;
+        hits.push([X - u * 0.6, topY, X + u * 0.6, Yfloor + u * 0.2, a]);
+        over.push({ a, id, X, Y, Yfloor, topY, fade });
+      }
+      nightPass(S);
+      // over everything: plumbobs, progress, bubbles, names (names pushed apart so none overlap)
+      const tags = [];
+      for (const o of over) {
+        const { a, id, X, Yfloor, topY } = o;
+        g.globalAlpha = o.fade;
+        const moodCol = MOOD(a, id);
+        if (a.kind !== 'res') plumbob(X, topY - u * 0.38, moodCol, a.t + (hsh(a.id) % 10));
+        if (a.busy) {
+          const b = a.busy, dur = b.chore ? 5 : 7.5, item = (b.e && (b.e.item || b.e.source)) || shortName(room.spec);
+          progress(X, topY - u * 0.72, b.t / dur, `${b.chore ? '🧽' : roomTheme === 'barber' ? '✂' : '●'} ${String(item).slice(0, 18)}`, b.e ? '+' + usd(b.e.usd) : '', '#2fe07a', a.t);
+        } else if (id.kind === 'agent' && (a.runId || a.kind === 'visit')) {
+          const r = a.run || {}, secs = r.startedAt ? Math.max(0, (Date.now() - Date.parse(r.startedAt)) / 1000) : a.t;
+          progress(X, topY - u * 0.72, null, `${roleTitle(a.role)} · working`, `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}`, id.col, a.t);
+        }
+        if (a.bubble) speech(X + u * 0.55, topY + u * 0.05, a.bubble.icon, a.bubble.t, a.bubble.dur);
+        if (a.act === 'sleep') { g.fillStyle = '#cfe0ff'; g.font = `800 ${u * 0.3}px system-ui,sans-serif`; for (let k = 0; k < 3; k++) { const p = (a.t * 0.5 + k / 3) % 1; g.globalAlpha = o.fade * (1 - p); g.fillText('z', X + u * (0.3 + p * 0.5), topY - p * u * 0.9); } g.globalAlpha = o.fade; }
+        if (a.kind !== 'res') tags.push(o);
+      }
+      g.globalAlpha = 1;
+      tags.sort((p, q) => p.Yfloor - q.Yfloor);
+      const placed = [];
+      for (const o of tags) {
+        const { a, id, X } = o;
+        const sub = id.kind === 'agent' ? 'AI AGENT' : id.kind === 'client' ? 'CLIENT' : id.kind === 'lead' ? 'YOU' : id.label.slice(0, 14);
+        const name = id.kind === 'agent' ? roleTitle(a.role) : id.name;
+        const fs = Math.max(11, u * 0.26), hw = pillW(name, sub, fs) / 2, hh = fs * 0.85 + 2;
+        let y = o.Yfloor + Math.max(14, u * 0.36);
+        for (let k = 0; k < 10; k++) { const clash = placed.some((b) => X - hw < b[2] && X + hw > b[0] && y - hh < b[3] && y + hh > b[1]); if (!clash) break; y += hh * 2 + 2; }
+        placed.push([X - hw, y - hh, X + hw, y + hh]);
+        g.globalAlpha = o.fade;
+        const bx = pill(X, y, name, sub, id.col);
+        hits.push([...bx, a]);
+      }
+      g.globalAlpha = 1;
+      // money landing: the value pops up big and coins fly
+      for (let i = pops.length - 1; i >= 0; i--) {
+        const p = pops[i], age = T - p.t0;
+        if (age > 2.2) { pops.splice(i, 1); continue; }
+        if (p.kind !== 'text') continue;
+        const lx = p.x - room.x0, ly = p.y - room.y0;
+        if (lx < -0.3 || ly < -0.3 || lx > N + 0.3 || ly > N + 0.3) continue;
+        const [X, Y] = Pl(lx, ly, 2.8 + age * 1.3);
+        const k = Math.min(1, age * 5), a = age > 1.6 ? Math.max(0, (2.2 - age) / 0.6) : 1;
+        g.globalAlpha = a;
+        for (let c = 0; c < 7; c++) { const an = c * 0.9 + 0.4, d = age * u * (1.2 + c * 0.12); const cx2 = X + Math.cos(an) * d, cy2 = Y + u * 1.5 - Math.sin(an) * d + age * age * u * 1.6; g.fillStyle = '#ffcf5a'; g.beginPath(); g.ellipse(cx2, cy2, u * 0.11 * Math.abs(Math.cos(age * 9 + c)) + 1, u * 0.11, 0, 0, 7); g.fill(); g.strokeStyle = '#a86b0c'; g.lineWidth = 1.5; g.stroke(); }
+        const fs = u * 0.55 * (0.7 + 0.3 * easeBack(k));
+        g.font = `900 ${fs}px "Lilita One","Fredoka",system-ui,sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.lineWidth = fs * 0.18; g.strokeStyle = '#12131c'; g.strokeText(p.text, X, Y); g.fillStyle = '#ffcf5a'; g.fillText(p.text, X, Y);
+        g.globalAlpha = 1;
+      }
+    }
+
+    // ---- input: drag or swipe, pinch or wheel, tap a character
+    const ptrs = new Map();
+    let gest = null;
+    function pickAt(x, y) { for (let i = hits.length - 1; i >= 0; i--) { const h = hits[i]; if (x >= h[0] && x <= h[2] && y >= h[1] && y <= h[3]) return h[4]; } return null; }
+    cvs.addEventListener('pointerdown', (e) => {
+      cvs.setPointerCapture(e.pointerId);
+      ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+      if (ptrs.size === 1) gest = { x: e.clientX, y: e.clientY, t: performance.now(), px: panX, py: panY, moved: false };
+      else if (ptrs.size === 2) { const [p, q] = [...ptrs.values()]; gest = { pinch: Math.hypot(p[0] - q[0], p[1] - q[1]), z: zoomT }; }
+    });
+    cvs.addEventListener('pointermove', (e) => {
+      const r = cvs.getBoundingClientRect();
+      if (!ptrs.size) {
+        if (e.pointerType !== 'mouse') return;
+        const a = pickAt(e.clientX - r.left, e.clientY - r.top);
+        hoverId = a ? a.id : null; cvs.style.cursor = a ? 'pointer' : zoom > 1.05 ? 'grab' : 'default';
+        showTip(a ? { kind: 'crew', agent: a } : null, e);
+        return;
+      }
+      ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+      if (gest && gest.pinch && ptrs.size === 2) { const [p, q] = [...ptrs.values()]; zoomT = clamp(gest.z * Math.hypot(p[0] - q[0], p[1] - q[1]) / gest.pinch, 0.7, 2.6); return; }
+      if (gest && !gest.pinch) {
+        const dx = e.clientX - gest.x, dy = e.clientY - gest.y;
+        if (Math.hypot(dx, dy) > 8) gest.moved = true;
+        if (zoomT > 1.05) { panX = gest.px + dx; panY = gest.py + dy; }
+      }
+    });
+    const up = (e) => {
+      ptrs.delete(e.pointerId);
+      if (!gest) return;
+      if (gest.pinch) { if (!ptrs.size) { if (zoomT < 0.85) api.off(true); gest = null; } return; }
+      const dx = e.clientX - gest.x, dy = e.clientY - gest.y, dt2 = performance.now() - gest.t;
+      if (!gest.moved) {
+        const r = cvs.getBoundingClientRect(), a = pickAt(e.clientX - r.left, e.clientY - r.top);
+        if (a) { select('a:' + a.id, { fly: false }); follow = null; sfx && sfx('tick'); }
+      } else if (zoomT <= 1.05 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && dt2 < 700) stepRoom(dx < 0 ? 1 : -1);
+      gest = null;
+    };
+    cvs.addEventListener('pointerup', up); cvs.addEventListener('pointercancel', up);
+    cvs.addEventListener('pointerleave', () => { if (!ptrs.size) { hoverId = null; showTip(null); } });
+    cvs.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const dy = e.deltaMode === 1 ? e.deltaY * 30 : e.deltaY;
+      zoomT = clamp(zoomT * Math.exp(-dy * 0.0016), 0.7, 2.6);
+      if (zoomT < 0.86 && dy > 0) api.off(true);
+    }, { passive: false });
+    cvs.addEventListener('dblclick', () => { zoomT = zoomT > 1.3 ? 1 : 1.8; });
+
+    const api = {
+      on() {
+        const rm = selected && roomById(selected);
+        if (!rm) return false;
+        room = rm; zoomT = overlayMode() ? 1 : 1.35; zoom = zoomT * 0.82; panX = panY = 0; closeUp = true;
+        if (!overlayMode()) setSheet('peek');
+        $('#view').classList.add('cu');
+        const b = $('#roomClose'); if (b) { b.classList.add('on'); b.innerHTML = ic('close') + 'Exit<span class="lg"> close-up</span>'; }
+        sfx && sfx('hire');
+        return true;
+      },
+      off(toWorld = false) {
+        if (!closeUp) return;
+        closeUp = false; hoverId = null; showTip(null);
+        $('#view').classList.remove('cu');
+        const b = $('#roomClose'); if (b) { b.classList.remove('on'); b.innerHTML = ic('eye') + 'Close-up'; }
+        if (toWorld) { camBounce = false; camT.z = Z_MAX * 0.72; }
+      },
+      step(dt) {
+        vis = clamp(vis + (closeUp ? dt : -dt) * 2.4, 0, 1);
+        if (closeUp && selected && roomById(selected) && roomById(selected) !== room) { room = roomById(selected); zoom = 0.9; }
+        if (vis > 0 && room) drawFrame(dt);
+      },
+      get covering() { return closeUp && vis >= 1; },
+      get room() { return room; },
+    };
+    return api;
+  })();
+  function closeUpOn() { CUV.on(); }
+  function closeUpOff(toWorld) { CUV.off(toWorld); }
+  function toggleCloseUp() { if (closeUp) CUV.off(true); else CUV.on(); }
+
+
+  // ======================================================================= phones: the pull-up sheet, More, the feed ticker
+  let sheet = 'peek';
+  function setSheet(st) {
+    if (overlayMode()) return;
+    sheet = st;
+    const app = $('#app');
+    app.classList.toggle('sheet-half', st === 'half'); app.classList.toggle('sheet-full', st === 'full');
+    $('#inspector').style.transform = '';
+    $('#sheetSub').textContent = st === 'peek' ? 'tap for details' : st === 'half' ? 'pull up for more' : 'tap to close';
+    closeMore(); closeRoomMenu();
+    setTimeout(layout, 420);
+  }
+  function sheetTitleUpdate() {
+    let t = MODE() === 'allowance' ? 'Family roster' : 'Station roster';
+    if (selected && roomById(selected)) t = shortName(roomById(selected).spec);
+    else if (selected && selected.startsWith('a:')) { const a = agents.get(selected.slice(2)); if (a) t = identity(a).name; }
+    $('#sheetTitle').textContent = t;
+  }
+  {
+    const h = $('#sheetHandle'), ins = $('#inspector');
+    let d = null;
+    const pos = () => { const m = new DOMMatrix(getComputedStyle(ins).transform); return m.m42; };
+    h.addEventListener('pointerdown', (e) => { if (overlayMode()) return; d = { y: e.clientY, base: pos(), t: performance.now(), moved: false }; h.setPointerCapture(e.pointerId); ins.classList.add('dragging'); });
+    h.addEventListener('pointermove', (e) => { if (!d) return; const dy = e.clientY - d.y; if (Math.abs(dy) > 6) d.moved = true; ins.style.transform = `translateY(${clamp(d.base + dy, 0, ins.offsetHeight - h.offsetHeight)}px)`; });
+    const end = (e) => {
+      if (!d) return;
+      ins.classList.remove('dragging');
+      const dy = e.clientY - d.y, H0 = ins.offsetHeight, peekY = H0 - h.offsetHeight;
+      if (!d.moved) setSheet(sheet === 'peek' ? 'half' : sheet === 'half' ? 'full' : 'peek');
+      else { const y = clamp(d.base + dy, 0, peekY), fast = (performance.now() - d.t) < 250; const target = fast ? (dy < 0 ? (sheet === 'peek' ? 'half' : 'full') : (sheet === 'full' ? 'half' : 'peek')) : [['full', 0], ['half', H0 * 0.42], ['peek', peekY]].sort((a, b) => Math.abs(a[1] - y) - Math.abs(b[1] - y))[0][0]; setSheet(target); }
+      d = null;
+    };
+    h.addEventListener('pointerup', end); h.addEventListener('pointercancel', end);
+  }
+  function moreHtml() {
+    const it = (k, icon, t, sub, col, href) => href ? `<a class="mi" href="${esc(href)}" style="--mc:${col}">${ic(icon)}${t}<small>${sub}</small></a>` : `<button class="mi" type="button" data-more="${k}" style="--mc:${col}">${ic(icon)}${t}<small>${sub}</small></button>`;
+    return `<h4>More</h4><div class="mg">
+      ${it('ledger', 'chart', 'Ledger', 'every dollar', '#ffb454', $('#navLedger').getAttribute('href'))}
+      ${it('term', 'term', 'Terminal', 'agent drafts', '#8fb0ff', $('#navTerm').getAttribute('href'))}
+      ${it('tour', 'compass', 'Tour', 'how it all works', '#f472b6')}
+      ${it('guide', 'book', 'Guide', 'what things mean', '#cfd6e6')}
+      ${it('replay', 'replay', replay ? 'Stop replay' : 'Replay', 'the last 24 hours', '#5fd4ff')}
+      ${it('sound', soundOn ? 'sound' : 'mute', soundOn ? 'Sound on' : 'Sound off', 'tap to switch', '#3ddc97')}
+      ${it('feed', 'posts', 'Live feed', 'every event', '#a78bfa')}
+      ${it('rooms', 'grid', 'All rooms', 'jump to one', '#ffcf5a')}
+      ${it('world', 'globe', 'Whole world', 'fly out', '#5fd4ff')}
+    </div>`;
+  }
+  function openMore() { const m = $('#moreSheet'); m.innerHTML = moreHtml(); m.hidden = false; $('#tabMore').classList.add('on'); closeRoomMenu(); }
+  function closeMore() { $('#moreSheet').hidden = true; $('#tabMore').classList.remove('on'); }
+  $('#tabMore').innerHTML = ic('sliders').replace('sliders', 'more') + '<span>More</span>';
+  $('#tabMore').innerHTML = `<svg class="i" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg><span>More</span>`;
+  $('#tabMore').addEventListener('click', () => ($('#moreSheet').hidden ? openMore() : closeMore()));
+  $('#moreSheet').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-more]'); if (!b) return;
+    const k = b.dataset.more; closeMore();
+    if (k === 'tour') startTour(); else if (k === 'guide') openGuide(); else if (k === 'replay') (replay ? stopReplay() : startReplay());
+    else if (k === 'sound') toggleSound(); else if (k === 'feed') $('#comms').classList.add('open'); else if (k === 'rooms') openRoomMenu(); else if (k === 'world') select('hub');
+  });
+  document.addEventListener('pointerdown', (e) => { if (!$('#moreSheet').hidden && !e.target.closest('#moreSheet, #tabMore')) closeMore(); });
+  // the feed as a one-line ticker on phones: tap it to open, tap again to close
+  $('#comms').addEventListener('click', (e) => { if (overlayMode() || e.target.closest('#commsHd')) return; $('#comms').classList.toggle('open'); });
+  $('#commsHd').addEventListener('click', () => { if (!overlayMode()) $('#comms').classList.remove('open'); });
+  { const mb = document.getElementById('pfMockBar'); if (mb) { const setH = () => { document.documentElement.style.setProperty('--mockH', (overlayMode() ? 0 : mb.offsetHeight) + 'px'); }; setH(); if (window.ResizeObserver) new ResizeObserver(() => { setH(); layout(); }).observe(mb); window.addEventListener('resize', setH); } }
+
+
+  // ======================================================================= help on every field you can change
+  // Each label in Customize, Income and the room forms gets a "?" that opens a plain-words explanation under it, and
+  // "Explain every field" at the top of Customize shows them all. Matched by the label's own words, so a new field
+  // only needs a line here.
+  const HELP = [
+    ["What it's for", 'The purpose. Service station: one room per service you sell; sales from Square or Stripe split into rooms by item name and rank by profit per hour. Allowance tracker: one room per chore; a parent checks chores off and kids earn. Command center: AI agents work money paths from prospect to paid. Switching never touches the ledger, it only changes what the screens lead with.'],
+    ['World', 'Only the look: space, castle, farm, city, ship or sea. Any world fits any purpose: a barber can run a castle, a chore chart can be cyberpunk. Click one to try it on; nothing changes until you save.'],
+    ['Your ', 'Each name becomes a character who lives in the world. Their colour is their shirt and name tag, their role (Barber, Colorist) shows on the tag. When a sale or chore names them, they walk to that room and do it, and their level rises with the work.'],
+    ['Kids', 'Each kid becomes a character in the world with their own colour. When you check off a chore for them, they walk to that room and do it, and their pay adds up until you pay them out.'],
+    ['Folk', 'Each name becomes a character who lives in the world, with their own colour and role.'],
+    ['Station name', 'Shown in the title bar, the browser tab and the vault in the middle of the world.'],
+    ['Rooms ·', 'Each room is one thing you track, up to ten. Click one to edit it on the right. Order matters when two rooms share a keyword: the higher one wins.'],
+    ['Chores ·', 'Each chore is a room in the world with its own price. Up to ten. Click one to edit it.'],
+    ['Name', "The room's name: on its sign in the close-up, its label in the world and in every list."],
+    ['Short label', 'A shorter name for tight spots such as the map labels. Leave it empty to use the name.'],
+    ['Colour', "The room's accent colour: its label, floor trim, rug, charts and the sign in its close-up."],
+    ['Who works here', "Pin people to this room. Pinned folk stay here between jobs. Folk who aren't pinned live in the room of their most recent work."],
+    ['What the folk here become', 'Only in this world: the costume folk wear while they work this room, such as a skeleton in the crypt or a hacker in the den. Pure looks.'],
+    ['What lives here', 'Only in this world: the animals that live in this room, such as cows in the pasture or crabs in the wreck. More of them appear as the room gets busier.'],
+    ['Furniture', 'The furniture style in the world view: desks, barber chairs, shelves or studio lights. The close-up also furnishes by the room\'s name, so a room called Dishes gets a kitchen and Yard work gets a lawn.'],
+    ['Wall sign', "What the room's wall screen shows in the world view: an OPEN sign, bars, a calendar, a map and more. Decoration only."],
+    ['Corner prop', "A decoration in the room's corner: a barber pole, a register, a plant, a coffee machine. Decoration only."],
+    ['Claims sales whose item name contains', "Keywords. A synced sale lands in the first room whose keyword appears in the sale's item name, so 'fade' claims 'Skin Fade'. Change them any time: history re-sorts itself and not one ledger line is rewritten."],
+    ['Minutes each', 'How long one takes. Used to work out profit (or pay) per hour, which ranks the rooms against each other.'],
+    ['Supplies each', 'What one costs you in supplies. Taken off the price to get profit.'],
+    ['Price', "The usual price. It pre-fills Log a sale in this room's panel; the real amount is whatever you log or sync."],
+    ['Pays', 'What a kid earns each time this chore is checked off.'],
+    ['Monthly goal', "A target for the month. The room's tube fills toward it. Zero hides it."],
+    ['Or start over from a template', 'Replace every room with a ready-made set (barber, salon, chores, freelance and more). Your ledger is never touched; only the rooms change.'],
+    ['Service or product', 'What was sold, as it will read on the ledger. Its words decide which room claims it.'],
+    ['Paid by', 'How the client paid. Kept on the ledger line as part of the evidence.'],
+    ['Who did it', 'Which of your folk did the work. They walk over and do it in the world, and it counts toward their level.'],
+    ['Evidence', 'Proof the money or outcome is real: an invoice number, a Stripe charge, a bank line, a URL. No evidence, no revenue: the ledger refuses a line without it.'],
+    ['Spend cap', 'The most this one agent run may spend on AI. The run stops at the cap. The room\'s total budget also applies.'],
+    ['Works', 'How often this agent clocks in on its own.'],
+    ['Max per run', 'The most each of its runs may spend.'],
+    ['Stage', 'Where this lead is in the pipeline: prospect, conversation, demo, pilot, paid, retained.'],
+    ['Counts toward', 'Which room this income belongs to, when no room\'s keywords claim a sale first.'],
+    ['Sales no room claims go to', 'Where a synced sale lands when no room\'s keywords match its item name.'],
+    ['Nickname', 'A name for this link so you can tell two accounts apart.'],
+    ['Source name', 'What the statement is from, shown next to each imported line.'],
+  ];
+  const helpFor = (label) => { const t = String(label || '').trim(); const hit = HELP.find(([k]) => t.startsWith(k)); return hit ? hit[1] : null; };
+  const explainAll = () => lget('pf-explain') !== '0';
+  function decorateHelp(root) {
+    if (!root) return;
+    root.classList.toggle('explain', root.id === 'roomsbox' || root.closest('#roomsbox') ? explainAll() : false);
+    for (const sp of root.querySelectorAll('.field > span:first-child, h3')) {
+      if (sp.querySelector('.hq') || sp.dataset.helped) continue;
+      const text = sp.childNodes[0] && sp.childNodes[0].textContent;
+      const h = helpFor(text);
+      if (!h) continue;
+      sp.dataset.helped = '1';
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'hq'; b.textContent = '?'; b.setAttribute('aria-label', 'What is this?');
+      sp.appendChild(b);
+      const x = document.createElement(sp.tagName === 'H3' ? 'p' : 'small'); x.className = 'hx'; x.textContent = h;
+      sp.after(x);
+    }
+  }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('.hq'); if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    const host = b.closest('span, h3'), x = host && host.nextElementSibling;
+    if (x && x.classList.contains('hx')) { x.classList.toggle('on'); b.classList.toggle('on', x.classList.contains('on')); }
+  }, true);
+
+  let tour = null;
+
+  // ======================================================================= the tour: every feature, one step at a time
+  // A spotlight walks the page: what each part is, what you can click, what you can change. It drives the world as it
+  // goes (flies into a room, opens the close-up) so you see the thing while you read about it. Esc or Skip ends it.
+  function tourSteps() {
+    const mode = MODE(), phone = !overlayMode();
+    const busiest = rooms.slice().sort((a, b) => workersIn(b).length - workersIn(a).length || pathState(b.id).earnedUsd - pathState(a.id).earnedUsd)[0];
+    const what = mode === 'allowance' ? 'a chore' : mode === 'service' ? 'a service you sell' : 'a way you make money';
+    const who = mode === 'allowance' ? 'kids' : mode === 'service' ? 'your team' : 'AI agents and you';
+    const steps = [
+      { title: 'Welcome to ' + (snap.station.name || 'Proxyfolk'), text: `This little world is a live picture of real records. Each room is ${what}. The characters are ${who}, plus clients walking in for real sales. Nothing moves unless the ledger says it happened.`, at: null },
+      { title: 'Your numbers', text: mode === 'allowance' ? 'What the kids earned, what you owe them, what you already paid, and who is ahead this week. Hover or tap any of them for what it counts.' : 'Money in, today and this month, straight from the ledger. Every number here traces back to a line with evidence behind it.', at: ['#res'] },
+      { title: 'The world', text: `Drag to look around, scroll or pinch to zoom. Click or tap a room to go in. Click or tap a character to see who they are and what they are doing. ${phone ? '' : 'Keys 1 to 9 jump to a room.'}`, at: ['#cv'] },
+      { title: 'Main menu', text: phone ? 'Everything you can do lives in the bar at the bottom: the world, the room list, customizing, income links, and More for the ledger, the tour and the guide.' : 'Everything you can do lives on this rail. Hover a button and it tells you what it does.', at: ['#rail'] },
+      { title: 'Every room in one list', text: 'Who is working where and what each room earned. Pick one to fly in.', at: ['#navRoomList'] },
+    ];
+    if (busiest) {
+      steps.push({ title: shortName(busiest.spec) + ', up close', text: 'This is one room. The arrows step to the next room. Whole world flies back out. Close-up shows the room in full detail. Edit room changes this room\'s name, price, keywords and look.', at: ['#areaTitle'], go: () => { closeUpOff(); select(busiest.id); } });
+      steps.push({ title: 'The close-up', text: 'The same room, drawn big: every character here is a real person, kid, client or agent from the world outside. The diamond over a head is what they are up to: green working, yellow free, blue asleep, cyan an AI agent. A bar over a head is a job in progress, with what it will earn. The screen on the wall is this room\'s real numbers.', at: ['#cu'], pad: -40, go: () => { if (!closeUp) { select(busiest.id); closeUpOn(); } } });
+      steps.push({ title: 'The panel', text: mode === 'allowance' ? 'Everything about the selected room: what it earned and who did it. Check off a chore here and the kid walks over and does it.' : mode === 'service' ? 'Everything about the selected room: sales, profit per hour, rankings. Log a sale by hand here and a client walks in for it.' : 'Everything about the selected room: its pipeline, budget and crew. Log an outcome or revenue, dispatch an agent, or hire one to work here on a schedule.', at: ['#inspector'], go: () => {} });
+    }
+    steps.push(
+      { title: 'Customize anything', text: 'Change what this world is for (a business, a family, AI agents), which world it looks like (space, castle, farm, city, ship, sea), the rooms and their prices, and the folk with their roles. Every field explains itself as you edit.', at: ['#navRooms'], go: () => closeUpOff() },
+      { title: 'Income', text: 'Link where you get paid: Stripe, Square, PayPal or Gumroad with a read key, or import a statement from Upwork, Fiverr, Etsy or a bank. Each payment becomes a ledger line and walks into the room it belongs to. The dot is sync health.', at: ['#navSync'] },
+      { title: 'Ledger and terminal', text: 'The Ledger is the money dashboard: every dollar in and out with its evidence. The Terminal is where agents leave drafts for you to send; agents never send anything themselves.', at: ['#navLedger', '#tabMore'] },
+      { title: 'Camera', text: 'Zoom, see everything, replay the last 24 hours sped up, and sound. Left alone for a while, the world replays its day by itself.', at: ['#controls'] },
+    );
+    if (window.__PF_MOCK) steps.push({ title: 'This is a working mock', text: 'Everything here really works, on made-up data kept only in this browser: log a sale, pay a kid, hire an agent, link a pretend Stripe, redesign rooms. Autopilot keeps the world busy; Reset demo puts it back.', at: ['#pfMockBar'] });
+    steps.push({ title: 'That is the tour', text: phone ? 'Tap Tour under More any time to see it again, and Guide for what every marker means.' : 'Press T or the Tour button any time to see it again, and ? for the field guide to every marker.', at: null, go: () => select('hub') });
+    return steps;
+  }
+  function startTour() {
+    if (!snap) return;
+    if (!$('#roomsbox').hidden) closeRooms(); if (!$('#syncbox').hidden) closeSync(); if (!$('#guide').hidden) closeGuide();
+    closeRoomMenu(); hideRtip(); if (replay) stopReplay();
+    tour = { i: 0, steps: tourSteps() };
+    $('#tour').hidden = false;
+    showTourStep();
+  }
+  function endTour() {
+    if (!tour) return;
+    tour = null; $('#tour').hidden = true;
+    lset('pf-toured', '1');
+  }
+  function tourTarget(st) {
+    for (const sel of st.at || []) { const el = $(sel); if (el && el.offsetParent !== null && el.getBoundingClientRect().width > 0) return el; }
+    return null;
+  }
+  function showTourStep() {
+    if (!tour) return;
+    const st = tour.steps[tour.i];
+    if (st.go) st.go();
+    const card = $('#tourCard'), hole = $('#tourHole');
+    card.innerHTML = `<div class="tn">${tour.i + 1} / ${tour.steps.length}</div><h3>${esc(st.title)}</h3><p>${esc(st.text)}</p>
+      <div class="tb"><button type="button" class="btn sm2" data-tour="skip">Skip tour</button><span style="flex:1"></span>${tour.i ? '<button type="button" class="btn sm2" data-tour="back">Back</button>' : ''}<button type="button" class="btn go sm2" data-tour="next">${tour.i === tour.steps.length - 1 ? 'Done' : 'Next'}</button></div>
+      <div class="td">${tour.steps.map((_, k) => `<i class="${k === tour.i ? 'on' : ''}"></i>`).join('')}</div>`;
+    // wait a beat for anything the step moved (a room flying in, a panel opening) before placing the spotlight
+    setTimeout(() => placeTour(st), st.go ? 420 : 30);
+    placeTour(st);
+  }
+  function placeTour(st) {
+    if (!tour || tour.steps[tour.i] !== st) return;
+    const card = $('#tourCard'), hole = $('#tourHole'), el = tourTarget(st);
+    const vw = window.innerWidth, vh = window.innerHeight;
+    let r = null;
+    if (el) { const b = el.getBoundingClientRect(), p = st.pad ?? 8; r = { x: Math.max(4, b.left - p), y: Math.max(4, b.top - p), w: Math.min(vw - 8, b.width + p * 2), h: Math.min(vh - 8, b.height + p * 2) }; }
+    if (r) { Object.assign(hole.style, { left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px', opacity: 1 }); }
+    else Object.assign(hole.style, { left: vw / 2 + 'px', top: vh / 2 + 'px', width: '0px', height: '0px', opacity: 1 });
+    const cw = card.offsetWidth, ch = card.offsetHeight, m = 14;
+    let x, y;
+    if (!r) { x = (vw - cw) / 2; y = (vh - ch) / 2; }
+    else if (vw < 700) { x = (vw - cw) / 2; y = r.y + r.h / 2 > vh / 2 ? Math.max(m, r.y - ch - m) : Math.min(vh - ch - m, r.y + r.h + m); if (r.h > vh * 0.6) y = vh - ch - m - 70; }
+    else if (r.x + r.w + cw + m * 2 < vw && r.w < vw * 0.5) { x = r.x + r.w + m; y = clamp(r.y + r.h / 2 - ch / 2, m, vh - ch - m); }
+    else if (r.x - cw - m * 2 > 0 && r.w < vw * 0.5) { x = r.x - cw - m; y = clamp(r.y + r.h / 2 - ch / 2, m, vh - ch - m); }
+    else if (r.y + r.h + ch + m < vh) { x = clamp(r.x + r.w / 2 - cw / 2, m, vw - cw - m); y = r.y + r.h + m; }
+    else if (r.y - ch - m > 0) { x = clamp(r.x + r.w / 2 - cw / 2, m, vw - cw - m); y = r.y - ch - m; }
+    else { x = (vw - cw) / 2; y = vh - ch - m - 80; }
+    card.style.left = clamp(x, 8, vw - cw - 8) + 'px'; card.style.top = clamp(y, 8, vh - ch - 8) + 'px';
+  }
+  $('#tour').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-tour]');
+    if (!b || !tour) return;
+    const k = b.dataset.tour;
+    if (k === 'skip') return endTour();
+    if (k === 'back') tour.i = Math.max(0, tour.i - 1);
+    if (k === 'next') { if (tour.i >= tour.steps.length - 1) return endTour(); tour.i++; }
+    showTourStep();
+  });
+  window.addEventListener('resize', () => { if (tour) placeTour(tour.steps[tour.i]); });
   let last = performance.now(), slow = 0, fast = 0, followTick = 0;
   const perf = { step: 0, world: 0, display: 0, quality: 2 };
   window.__stationPerf = perf;
@@ -7505,11 +9104,14 @@
       step(dt);
       if (follow) { const a = agents.get(follow); if (a) { const [fx0, fy0] = P(a.x, a.y, 10); camT.x = fx0; camT.y = fy0; clampCam(); if (Math.floor(now / 500) !== followTick) { followTick = Math.floor(now / 500); renderAgentLive(); } } else { follow = null; } }
       const t1 = performance.now();
-      composeWorld(dt);
+      // the close-up covers the world once it has faded in: the sim keeps running, the world skips drawing
+      if (!CUV.covering) composeWorld(dt);
       const t2 = performance.now();
-      render(dt);
+      if (!CUV.covering) render(dt);
+      CUV.step(dt);
+      syncZoomUi();
       const t3 = performance.now();
-      if (labelsDirty) positionLabels();
+      if (labelsDirty && !CUV.covering) positionLabels();
       perf.step += (t1 - t0 - perf.step) * 0.05; perf.world += (t2 - t1 - perf.world) * 0.05; perf.display += (t3 - t2 - perf.display) * 0.05; perf.quality = quality;
       // adaptive quality: step down if frames stay slow, step back up if there is headroom
       if (dt > 0.034) { slow++; fast = 0; } else if (dt < 0.02) { fast++; slow = 0; }

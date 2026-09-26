@@ -379,6 +379,8 @@ function replayRunner(provider, params, toolList) {
   async function* gen() {
     for (let i = 0; i < script.length; i += 1) {
       const step = script[i];
+      // a paced replay (the preview's mock) waits like a model would, so the station can watch the run happen
+      if (step.waitMs > 0) await new Promise((r) => setTimeout(r, step.waitMs));
       const calls = step.calls || [];
       const content = [];
       if (step.text) content.push({ type: 'text', text: step.text });
