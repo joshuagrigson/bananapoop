@@ -12,7 +12,8 @@ const DAY = 86400e3;
 const T0 = Date.parse('2026-09-01T12:00:00Z');
 const at = (d) => new Date(T0 + d * DAY).toISOString();
 const CAT = catalogFrom(fromTemplate('race'));
-const gun = (extra = {}) => ({ kind: 'race', id: 'gun', ts: at(0), stakeUsd: 250, evidence: 'eight cards', horizons: [7, 30, 90, 180], ...extra });
+// these races move real money: a race is a simulation unless it says otherwise
+const gun = (extra = {}) => ({ kind: 'race', id: 'gun', ts: at(0), stakeUsd: 250, evidence: 'eight cards', horizons: [7, 30, 90, 180], ...extra, rules: { moneyMode: 'real', ...(extra.rules || {}) } });
 const sale = (room, d, usd, extra = {}) => ({ kind: 'money.in', id: `in${room}${d}${usd}`, ts: at(d), path: room, usd, source: 'buyer', evidence: 'order 1', ...extra });
 const spend = (room, d, usd, extra = {}) => ({ kind: 'money.out', id: `out${room}${d}${usd}`, ts: at(d), path: room, usd, category: 'ads', evidence: 'receipt', ...extra });
 
@@ -146,7 +147,7 @@ test('race rules: defaults are written on the ledger, bad rules are refused, ame
   assert.throws(() => validate({ kind: 'race', stakeUsd: 250, evidence: 'cards', rules: { everyHours: 0 } }), /everyHours/);
   assert.throws(() => validate({ kind: 'race', stakeUsd: 250, evidence: 'cards', rules: { stakes: { red: -5 } } }), /stakes/);
   assert.throws(() => validate({ kind: 'race', amend: true, rules: {} }), /amendment needs evidence/);
-  const events = [gun({ rules: { approveOverUsd: 50 } }), { kind: 'race', id: 'am', ts: at(3), amend: true, evidence: 'Joshua allowed ads off', rules: { ads: false } }];
+  const events = [gun({ rules: { approveOverUsd: 50 } }), { kind: 'race', id: 'am', ts: at(3), amend: true, evidence: 'Joshua allowed ads off', rules: { moneyMode: 'real', ads: false } }];
   const st = reduce(events.map((e) => validate(e)), CAT);
   assert.equal(st.race.startedAt, at(0));
   assert.equal(st.race.rules.ads, false);

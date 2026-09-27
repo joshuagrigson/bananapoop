@@ -6,7 +6,7 @@ import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { Ledger, LedgerError, RACE_SCORING } from './ledger.js';
 import { reduce } from './reduce.js';
-import { raceBoard, raceBrief, racePlaybook, spanLabel } from './race.js';
+import { raceBoard, raceBrief, racePlaybook, realRaceEvent, spanLabel } from './race.js';
 import { quests, summary } from './quests.js';
 import { commanderLevel } from './level.js';
 import { CATALOG, GATES } from './paths.js';
@@ -66,6 +66,21 @@ const HELP = `revenue-engine
   race signal <room> --type signup|preorder|reply|lead|meeting|follower|favorite|view --evidence E [--count N] [--play ID]
                                                        demand shown without a sale, with its evidence
   race judge <room> --points N --why "..." [--play ID] your own score for a room, when the race is judged by you
+  THE SIMULATION (every race is one until REAL MONEY: the web is real, every sale, email, site and ad is simulated)
+  race research <room> --title T --text "what the page shows" --url U [--topic trend|idea|price|demand|competition|channel|cost|rule|benchmark]
+            [--number "label=value unit"]... [--play ID]      a finding on the real web, with its link
+  race sim test <room> --variants variants.json [--play ID] [--days 7,30,90]
+  race sim test <room> --channel email|dm|local|freelance|marketplace|ads|social|seo --price P --volume V [--platform etsy] [--label L]
+                                                       run variants through the market simulator (200 runs each): ranges, odds of profit
+  race sim launch <room> <play-id> --spec spec.json [--label L]   put a variant live in the simulated market
+  race sim stop <room> <play-id> [--why W]             take it out of the simulated market
+  race build <room> --what email|site|post|listing|ad|product|script|proposal|other --title T (--file F | --text T)
+            [--format html|markdown|text] [--to "who it would go to"] [--play ID]
+                                                       the real thing, built in the sandbox: nothing is sent or published
+  race panel <room> <play-id> --score 0.45 --n 20 [--notes N] [--build ID]   a simulated buyers' read of what a play built
+  race real --evidence "where the real money sits" [--rooms a,b] [--stake 50] [--times 1h,1d | --days 7,30]
+                                                       REAL MONEY: start a real-money race for the rooms you pick (default: the
+                                                       simulation's podium), with the simulation's forecast fixed on the ledger
   (tie money to a play with log-in/log-out --play ID; log-out --payee WHO --approved marks a purchase Joshua said yes to)
   rooms reset                                          back to the built-in money paths
   connections                                          income links and when each last synced
@@ -147,6 +162,7 @@ async function main(argv) {
       name: { type: 'string' }, city: { type: 'string' }, category: { type: 'string' }, website: { type: 'string' },
       monthly: { type: 'string' }, notes: { type: 'string' }, services: { type: 'string' }, 'harvest-daily': { type: 'boolean' }, open: { type: 'boolean' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
       key: { type: 'string' }, secret: { type: 'string' }, item: { type: 'string' }, label: { type: 'string' }, since: { type: 'string' }, 'dry-run': { type: 'boolean' }, 'sync-every': { type: 'string' }, barber: { type: 'boolean' }, family: { type: 'boolean' }, skin: { type: 'string' }, mode: { type: 'string' },
+      variants: { type: 'string' }, spec: { type: 'string' }, what: { type: 'string' }, to: { type: 'string' }, format: { type: 'string' }, topic: { type: 'string' }, number: { type: 'string', multiple: true }, rooms: { type: 'string' }, score: { type: 'string' }, n: { type: 'string' }, build: { type: 'string' }, price: { type: 'string' }, volume: { type: 'string' },
       race: { type: 'boolean' }, stake: { type: 'string' }, times: { type: 'string' }, rules: { type: 'string' }, offer: { type: 'string' }, customer: { type: 'string' }, channel: { type: 'string' }, pricing: { type: 'string' }, costs: { type: 'string' }, play: { type: 'string' }, status: { type: 'string' }, method: { type: 'string' }, approved: { type: 'boolean' }, payee: { type: 'string' }, count: { type: 'string' }, points: { type: 'string' }, at: { type: 'string' }, plan: { type: 'string' }, why: { type: 'string' }, text: { type: 'string' }, by: { type: 'string' },
     },
   });
@@ -307,10 +323,63 @@ async function main(argv) {
         const ev = ledger.append({ kind: 'judge', path: room(rest[1]), points: Number(v.points), why: v.why, ...(v.play ? { play: v.play } : {}) });
         console.log(`judged ${ev.path}: ${ev.points > 0 ? '+' : ''}${ev.points} points`); return;
       }
-      if (sub !== 'status') throw new LedgerError('race needs start, amend, brief, playbook, play, step, signal, judge or nothing (standings)');
+      if (sub === 'research') {
+        const numbers = (v.number || []).map((t) => { const m = /^\s*([^=]{1,60})=\s*(-?[\d.]+)\s*(.{0,20})$/.exec(t); if (!m) throw new LedgerError(`--number takes "label=value unit", e.g. "median price=14.5 usd" (got "${t}")`); return { label: m[1].trim(), value: Number(m[2]), ...(m[3].trim() ? { unit: m[3].trim() } : {}) }; });
+        const ev = ledger.append({ kind: 'research', path: room(rest[1]), title: v.title, text: v.text, url: v.url, by, ...(v.topic ? { topic: v.topic } : {}), ...(numbers.length ? { numbers } : {}), ...(v.play ? { play: v.play } : {}) });
+        console.log(`research ${ev.id} in ${ev.path} (${ev.topic}): ${ev.title}`); return;
+      }
+      if (sub === 'sim') {
+        const act = rest[1];
+        if (act === 'test') {
+          const variants = v.variants ? JSON.parse(fs.readFileSync(path.resolve(v.variants), 'utf8'))
+            : [{ label: v.label, spec: { channel: v.channel, price: Number(v.price), volume: Number(v.volume), ...(v.platform ? { platform: v.platform } : {}) } }];
+          const ev = ledger.append({ kind: 'sim', act: 'test', path: room(rest[2]), variants: Array.isArray(variants) ? variants : [variants], by, ...(v.play ? { play: v.play } : {}), ...(v.days ? { horizons: v.days.split(',').map((d) => Number(d.trim())) } : {}) });
+          console.log(`tested ${ev.variants.length} variant${ev.variants.length === 1 ? '' : 's'} in ${ev.path} (${ev.variants[0].result.runs} simulated runs each), best first:`);
+          for (const x of ev.variants) {
+            console.log(`  ${x.label}\n    ${x.result.net.map((n, i) => `${n.days}d: ${usd(n.p10)} to ${usd(n.p90)}, typical ${usd(n.p50)}, ${Math.round(x.result.pProfit[i] * 100)}% profit`).join(' | ')}${x.result.breakEvenDay ? ` | breaks even ~day ${x.result.breakEvenDay}` : ''}`);
+            for (const f of x.flags) console.log(`    note: ${f}`);
+          }
+          return;
+        }
+        if (act === 'launch') {
+          if (!v.spec) throw new LedgerError('race sim launch needs --spec spec.json (one variant\'s spec)');
+          const spec = JSON.parse(fs.readFileSync(path.resolve(v.spec), 'utf8'));
+          const ev = ledger.append({ kind: 'sim', act: 'launch', path: room(rest[2]), play: rest[3], spec: spec.spec || spec, by, ...(v.label ? { label: v.label } : {}) });
+          console.log(`launched ${ev.play} in the simulated market (${ev.path}): ${ev.forecast.net.map((n) => `${n.days}d typical ${usd(n.p50)}`).join(', ')}`);
+          for (const f of ev.flags) console.log(`  note: ${f}`);
+          return;
+        }
+        if (act === 'stop') {
+          const ev = ledger.append({ kind: 'sim', act: 'stop', path: room(rest[2]), play: rest[3], by, ...(v.why ? { why: v.why } : {}) });
+          console.log(`stopped ${ev.play} in the simulated market`); return;
+        }
+        throw new LedgerError('race sim needs test, launch or stop');
+      }
+      if (sub === 'build') {
+        const content = v.file ? fs.readFileSync(path.resolve(v.file), 'utf8') : v.text;
+        const format = v.format || (v.file && /\.html?$/i.test(v.file) ? 'html' : v.file && /\.md$/i.test(v.file) ? 'markdown' : 'text');
+        const ev = ledger.append({ kind: 'sim', act: 'build', path: room(rest[1]), what: v.what, title: v.title, content, format, by, ...(v.to ? { to: v.to } : {}), ...(v.play ? { play: v.play } : {}) });
+        console.log(`built in the sandbox ${ev.id} (${ev.what}, ${ev.content.length} characters): nothing was sent or published`); return;
+      }
+      if (sub === 'panel') {
+        const ev = ledger.append({ kind: 'sim', act: 'panel', path: room(rest[1]), play: rest[2], score: Number(v.score), n: Number(v.n), by, ...(v.notes ? { notes: v.notes } : {}), ...(v.build ? { build: v.build } : {}) });
+        console.log(`panel on ${ev.play}: ${Math.round(ev.score * 100)}% of ${ev.n} would act, quality ${ev.quality}`); return;
+      }
+      if (sub === 'real') {
+        const times = v.times ? v.times.split(',').map((t) => durationMin(t)) : null;
+        if (times && times.some((m) => !m)) throw new LedgerError('--times takes durations like 30m, 1h, 2h, 3d, 2w');
+        let ev;
+        try {
+          ev = realRaceEvent(reduce(ledger.readAll(), CAT), CAT, Date.now(), { rooms: v.rooms ? v.rooms.split(',').map((x) => x.trim()) : null, stakeUsd: v.stake ? Number(v.stake) : undefined, evidence: v.evidence, horizonsMin: times, horizons: v.days ? v.days.split(',').map((d) => Number(d.trim())) : null, name: v.name || null });
+        } catch (e) { throw new LedgerError(e.message); }
+        const got = ledger.append(ev);
+        console.log(`REAL MONEY: race ${got.id} started for ${got.rooms.join(', ')} at ${usd(got.stakeUsd)} each. The simulation's forecast is on the ledger; from now on only real money counts.`); return;
+      }
+      if (sub !== 'status') throw new LedgerError('race needs start, amend, brief, playbook, play, step, signal, judge, research, sim, build, panel, real or nothing (standings)');
       const b = raceBoard(reduce(ledger.readAll(), CAT), CAT);
       if (!b) { console.log('no race yet. Start one: node src/cli.js race start --stake 250 --evidence "8 virtual cards, $250 each"'); return; }
-      if (b.purpose) console.log(`for: ${b.purpose} · scored on ${RACE_SCORING[b.rules.scoring].split(':')[0].toLowerCase()}${b.paper ? ' · PAPER race, no real money' : ''}`);
+      if (b.purpose) console.log(`for: ${b.purpose} · scored on ${RACE_SCORING[b.rules.scoring].split(':')[0].toLowerCase()}${b.paper ? ' · PAPER race, no real money' : ''}${b.simMode ? ' · SIMULATION: every dollar below is simulated' : ''}`);
+      if (b.sim) console.log(`simulation: ${b.sim.totals.research} findings on the web, ${b.sim.totals.variants} variants tested, ${b.sim.totals.builds} things built, ${b.sim.totals.live} plays live · ${b.sim.speedLabel}${b.apiUsd ? ` · agents' model use so far ${usd(b.apiUsd)} (real)` : ''}`);
       console.log(`${b.name || 'Sandbox race'} · ${b.short ? `${spanLabel(Math.max(1, b.elapsedMin))} of ${spanLabel(b.totalMin)}` : `day ${b.day} of ${b.totalDays}`} · ${usd(b.stakeUsd)} a room · ${usd(b.potUsd)} across ${b.lanes.length} rooms (staked ${usd(b.stakedUsd)})`);
       for (const l of b.lanes.slice().sort((x, y) => x.place - y.place)) {
         const nm = (CAT.find((p) => p.id === l.id) || {}).name || l.id;

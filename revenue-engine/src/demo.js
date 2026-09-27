@@ -230,7 +230,7 @@ export function seedRaceDemo(ledger, dataDir, now = Date.now()) {
   const lines = [
     { kind: 'note', demo: true, text: 'DEMO LEDGER: a fictional sandbox race. Every agent, plan, sale and dollar here is made up.', ts: new Date(t0 - 3600e3).toISOString() },
     { kind: 'race', stakeUsd: 250, name: 'The $250 Race', evidence: 'eight virtual cards, $250 on each (demo)', horizons: [7, 30, 90, 180], ts: at(0),
-      rules: { purpose: 'idea', places: 3, approveOverUsd: 50, maxSpendPerDayUsd: 40, knockoutUsd: 0, tiebreak: 'earliest', everyHours: 24,
+      rules: { purpose: 'idea', moneyMode: 'real', places: 3, approveOverUsd: 50, maxSpendPerDayUsd: 40, knockoutUsd: 0, tiebreak: 'earliest', everyHours: 24,
         customRules: [{ kind: 'must', text: 'Show the price before anyone pays' }, { kind: 'mustnot', text: 'Sell anything to children' }],
         roomNotes: { gold: 'Put the review tool in front of three real businesses before building anything more.' },
         models: { red: 'claude-opus-5-5', orange: 'claude-sonnet-5', gold: 'claude-opus-5-5', green: 'claude-haiku-4-5', teal: 'claude-sonnet-5', blue: 'claude-opus-5-5', violet: 'claude-haiku-4-5', pink: 'claude-sonnet-5' },

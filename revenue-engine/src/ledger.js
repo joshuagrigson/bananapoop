@@ -4,10 +4,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { SIM_CHANNELS, SIM_ARTIFACTS, SimError, normalizeSpec, testVariants, monteCarlo, panelQuality } from './sim.js';
 
 export const KINDS = Object.freeze([
   'money.in', 'money.out', 'outcome', 'post', 'job', 'agent.run.start', 'agent.run.end', 'path.status', 'gate', 'note',
-  'race', 'play', 'step', 'signal', 'judge',
+  'race', 'play', 'step', 'signal', 'judge', 'research', 'sim',
 ]);
 export const STAGES = Object.freeze(['prospect', 'conversation', 'demo', 'pilot', 'paid', 'retained']);
 export const OUT_CATEGORIES = Object.freeze(['api', 'tool', 'ads', 'capital', 'other']);
@@ -67,7 +68,18 @@ export const RACE_POSTING = Object.freeze({ drafts: 'Agents draft; Joshua publis
 export const RACE_NAME_USE = Object.freeze({ never: 'Never', drafts: 'Only in drafts Joshua sends', allowed: 'Allowed' });
 export const RACE_ACCOUNTS = Object.freeze({ ask: 'Ask Joshua first', allowed: 'Allowed', never: 'Never' });
 export const RACE_PENALTY = Object.freeze({ warn: 'Flag it on the board', fine: 'Fine the room', out: 'Knock the room out' });
-export const RACE_MONEY_MODES = Object.freeze({ real: 'Real money', paper: 'Paper money: nothing real is bought or sold' });
+export const RACE_MONEY_MODES = Object.freeze({
+  sim: 'Simulation: agents research the real web, but every sale, email, site and ad is simulated',
+  paper: 'Paper money: nothing is bought or sold, but real people see the work',
+  real: 'Real money',
+});
+// how fast the simulated market runs, in simulated days per real day
+export const SIM_SPEEDS = Object.freeze({ 1: 'Real time: a day is a day', 7: 'A week every day', 30: 'A month every day', 24: 'A day every hour', 288: 'A day every 5 minutes', 1440: 'A day every minute' });
+// what an agent can find on the real web and log as research
+export const RESEARCH_TOPICS = Object.freeze({ trend: 'A trend', idea: 'A way to make money', price: 'What things sell for', demand: 'Proof people want it', competition: 'Who else sells it', channel: 'Where the buyers are', cost: 'What it costs', rule: 'A platform rule or limit', benchmark: 'A benchmark rate' });
+// what an agent does in the simulation: test variants, put one live in the simulated market, stop it, build the real
+// thing in the sandbox (an email, a site), or have a simulated panel of buyers read what it built
+export const SIM_ACTS = Object.freeze({ test: 'Tested variants', launch: 'Launched in the simulation', stop: 'Stopped in the simulation', build: 'Built in the sandbox', panel: 'Shown to a simulated panel' });
 export const RACE_EVIDENCE = Object.freeze({ any: 'Any note', id: 'An order or charge number', link: 'A link to the proof' });
 export const RACE_VISIBILITY = Object.freeze({ open: 'Agents can see every room', blind: 'Agents see only their own room' });
 export const SPEND_CATEGORIES = Object.freeze({ api: 'API and AI use', tool: 'Tools and software', ads: 'Ads', capital: 'Stock and inventory', other: 'Fees and other' });
@@ -78,7 +90,7 @@ export const DEFAULT_SIGNAL_WEIGHTS = Object.freeze({ signup: 1, preorder: 10, r
 export const RULE_KINDS = Object.freeze({ must: 'Must', mustnot: 'Must not', may: 'May' });
 export function defaultRaceRules() {
   return {
-    purpose: 'idea', purposeText: '', moneyMode: 'real',
+    purpose: 'idea', purposeText: '', moneyMode: 'sim', simSpeed: 1,
     methods: Object.keys(RACE_METHODS).filter((k) => k !== 'trading' && k !== 'betting'), customMethods: [],
     connectors: RACE_CONNECTORS.filter((c) => !RACE_WORK_CONNECTORS.includes(c)), banned: ['TikTok'],
     spendCategories: Object.keys(SPEND_CATEGORIES), ads: true,
@@ -113,6 +125,7 @@ function raceRules(input) {
   const words = (k, maxN, maxLen) => { if (input[k] !== undefined) { if (!Array.isArray(input[k]) || input[k].length > maxN || !input[k].every((c) => isText(c) && c.trim().length <= maxLen)) fail(`race rules: ${k} must be a list of up to ${maxN} short names`); r[k] = [...new Set(input[k].map((c) => c.trim()))]; } };
   const roomMap = (k, ok, what) => { if (input[k] !== undefined) { if (!input[k] || typeof input[k] !== 'object' || Array.isArray(input[k]) || !Object.entries(input[k]).every(([id, v]) => isRoomId(id) && ok(v))) fail(`race rules: ${k} must map room ids to ${what}`); r[k] = { ...input[k] }; } };
   pick('purpose', RACE_PURPOSES); text('purposeText', 600); pick('moneyMode', RACE_MONEY_MODES);
+  if (input.simSpeed !== undefined) { if (!SIM_SPEEDS[input.simSpeed]) fail(`race rules: simSpeed must be one of ${Object.keys(SIM_SPEEDS).join(', ')} simulated days per real day`); r.simSpeed = Number(input.simSpeed); }
   if (input.methods !== undefined) {
     if (!Array.isArray(input.methods) || !input.methods.every((m) => RACE_METHODS[m])) fail(`race rules: methods must be from ${Object.keys(RACE_METHODS).join(', ')}`);
     r.methods = [...new Set(input.methods)];
@@ -152,6 +165,8 @@ function raceRules(input) {
 }
 
 export class LedgerError extends Error {}
+// what a Monte Carlo result keeps on the ledger
+function slimResult(r) { return { runs: r.runs, horizons: r.horizons, net: r.net, sales: r.sales, gross: r.gross, hours: r.hours, pProfit: r.pProfit, breakEvenDay: r.breakEvenDay, pBreakEven: r.pBreakEven }; }
 const fail = (msg) => { throw new LedgerError(msg); };
 
 // Returns a normalized copy of the event or throws LedgerError. Pure.
@@ -264,6 +279,9 @@ export function validate(input) {
       if (ev.startsAt !== undefined && (!isText(ev.startsAt) || Number.isNaN(Date.parse(ev.startsAt)))) fail('race startsAt must be an ISO-8601 date');
       // an amendment changes the rules (and name) of the race under way; the stake, horizons, rooms and start stay
       if (ev.amend !== undefined && typeof ev.amend !== 'boolean') fail('race amend must be true or false');
+      // a real-money race started from a simulation carries what the simulation forecast, fixed at the moment of the switch
+      if (ev.fromRace !== undefined && !(isText(ev.fromRace) && ev.fromRace.length <= 40)) fail('race fromRace must be the id of the simulated race it came from');
+      if (ev.forecasts !== undefined && !(ev.forecasts && typeof ev.forecasts === 'object' && !Array.isArray(ev.forecasts) && Object.keys(ev.forecasts).every(isRoomId) && JSON.stringify(ev.forecasts).length <= 60000)) fail('race forecasts must map room ids to what the simulation forecast');
       ev.rules = raceRules(ev.rules);
       break;
     case 'play':
@@ -295,6 +313,57 @@ export function validate(input) {
       if (!isUsd(ev.points) || ev.points < -1000 || ev.points > 1000) fail('judge points must be a number from -1000 to 1000');
       if (!isText(ev.why)) fail('judge needs a why');
       if (ev.play !== undefined && !isPlayId(ev.play)) fail('judge play must be a play id');
+      break;
+    case 'research':
+      // something an agent found on the real web: the url is the evidence, and the simulation's numbers can cite it
+      if (!isRoomId(ev.path)) fail('research needs the room id (path) it belongs to');
+      if (!(isText(ev.title) && ev.title.length <= 120)) fail('research needs a title (1-120 characters)');
+      if (!(isText(ev.text) && ev.text.length <= 1500)) fail('research needs text (1-1500 characters): what the page shows');
+      if (!isUrl(ev.url)) fail('research needs the url of the page it came from. No source, no finding.');
+      if (ev.topic === undefined) ev.topic = 'trend';
+      if (!RESEARCH_TOPICS[ev.topic]) fail(`research topic must be one of ${Object.keys(RESEARCH_TOPICS).join(', ')}`);
+      if (ev.numbers !== undefined && !(Array.isArray(ev.numbers) && ev.numbers.length <= 12 && ev.numbers.every((n) => n && isText(n.label) && n.label.length <= 60 && isUsd(n.value) && (n.unit === undefined || (typeof n.unit === 'string' && n.unit.length <= 20))))) fail('research numbers must be up to 12 of { label, value, unit }');
+      if (ev.play !== undefined && !isPlayId(ev.play)) fail('research play must be a play id');
+      if (!isBy(ev.by)) fail('research.by must be "user" or "agent"');
+      break;
+    case 'sim':
+      if (!isRoomId(ev.path)) fail('sim needs the room id (path) it belongs to');
+      if (!SIM_ACTS[ev.act]) fail(`sim act must be one of ${Object.keys(SIM_ACTS).join(', ')}`);
+      if (ev.play !== undefined && !isPlayId(ev.play)) fail('sim play must be a play id');
+      if (['launch', 'stop', 'panel'].includes(ev.act) && !isPlayId(ev.play)) fail(`sim ${ev.act} needs the play id`);
+      if (!isBy(ev.by)) fail('sim.by must be "user" or "agent"');
+      try {
+        if (ev.act === 'test') {
+          // the results are worked out here, at the door, from the specs: nobody can log a simulated result by hand
+          if (!Array.isArray(ev.variants) || ev.variants.length < 1 || ev.variants.length > 24) fail('sim test needs 1-24 variants, each { label, spec }');
+          const horizons = ev.horizons === undefined ? [7, 30, 90] : ev.horizons;
+          if (!(Array.isArray(horizons) && horizons.length >= 1 && horizons.length <= 4 && horizons.every((d) => Number.isInteger(d) && d >= 1 && d <= 365))) fail('sim test horizons must be 1-4 whole numbers of days up to 365');
+          ev.horizons = [...new Set(horizons)].sort((a, b) => a - b);
+          ev.variants = testVariants(ev.variants.map((v) => ({ label: v && v.label, spec: v && (v.spec || v) })), { horizons: ev.horizons, runs: 200, seed: ev.id }).map((v) => ({ ...v, result: slimResult(v.result) }));
+        } else if (ev.act === 'launch') {
+          const n = normalizeSpec(ev.spec);
+          ev.spec = n.spec; ev.flags = n.flags; ev.cited = n.cited; ev.set = n.set;
+          if (ev.label !== undefined && !(isText(ev.label) && ev.label.length <= 120)) fail('sim launch label must be 1-120 characters');
+          ev.forecast = slimResult(monteCarlo(n.spec, { horizons: [7, 30, 90], runs: 200, seed: ev.id }));
+        } else if (ev.act === 'build') {
+          if (!SIM_ARTIFACTS[ev.what]) fail(`sim build what must be one of ${Object.keys(SIM_ARTIFACTS).join(', ')}`);
+          if (!(isText(ev.title) && ev.title.length <= 120)) fail('sim build needs a title (1-120 characters)');
+          if (!(isText(ev.content) && ev.content.length <= 60000)) fail('sim build needs the content itself (up to 60,000 characters): the email, the page, the listing');
+          if (ev.to !== undefined && !(isText(ev.to) && ev.to.length <= 200)) fail('sim build to must say who it would go to (up to 200 characters)');
+          if (ev.format !== undefined && !['text', 'markdown', 'html'].includes(ev.format)) fail('sim build format must be text, markdown or html');
+        } else if (ev.act === 'panel') {
+          if (!(typeof ev.score === 'number' && ev.score >= 0 && ev.score <= 1)) fail('sim panel score must be the share of the panel who would act, 0 to 1');
+          if (!(Number.isInteger(ev.n) && ev.n >= 1 && ev.n <= 200)) fail('sim panel n must be how many simulated buyers read it, 1 to 200');
+          if (ev.notes !== undefined && !(isText(ev.notes) && ev.notes.length <= 2000)) fail('sim panel notes must be up to 2000 characters');
+          if (ev.build !== undefined && !isText(ev.build)) fail('sim panel build must be the id of what it read');
+          ev.quality = panelQuality(ev.score);
+        } else if (ev.act === 'stop') {
+          if (ev.why !== undefined && !(isText(ev.why) && ev.why.length <= 500)) fail('sim stop why must be 1-500 characters');
+        }
+      } catch (e) {
+        if (e instanceof SimError) fail(`sim ${ev.act}: ${e.message}`);
+        throw e;
+      }
       break;
     case 'step':
       if (!isRoomId(ev.path)) fail('step needs the room id (path) it belongs to');

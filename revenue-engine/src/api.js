@@ -4,11 +4,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { reduce } from './reduce.js';
-import { raceBoard, raceBrief, racePlaybook } from './race.js';
+import { raceBoard, raceBrief, racePlaybook, realRaceEvent } from './race.js';
+import { SIM_CHANNELS, SIM_ARTIFACTS, SIM_COMPETITION, SIM_TREND, PRIORS, FEES, SimError, testVariants } from './sim.js';
 import { quests, summary } from './quests.js';
 import { commanderLevel } from './level.js';
 import { CATALOG, GATES, stagesFor } from './paths.js';
-import { LedgerError, validate, RACE_METHODS, RACE_CONNECTORS, RACE_WORK_CONNECTORS, RACE_MODELS, RACE_SCORING, RACE_CONTACT, RACE_PURPOSES, RACE_TIEBREAKS, RACE_POSTING, RACE_NAME_USE, RACE_ACCOUNTS, RACE_PENALTY, RACE_MONEY_MODES, RACE_EVIDENCE, RACE_VISIBILITY, SPEND_CATEGORIES, SIGNAL_TYPES, SIGNAL_PLURAL, RULE_KINDS, DEFAULT_HORIZONS, defaultRaceRules } from './ledger.js';
+import { LedgerError, validate, RACE_METHODS, RACE_CONNECTORS, RACE_WORK_CONNECTORS, RACE_MODELS, RACE_SCORING, RACE_CONTACT, RACE_PURPOSES, RACE_TIEBREAKS, RACE_POSTING, RACE_NAME_USE, RACE_ACCOUNTS, RACE_PENALTY, RACE_MONEY_MODES, RACE_EVIDENCE, RACE_VISIBILITY, SPEND_CATEGORIES, SIGNAL_TYPES, SIGNAL_PLURAL, RULE_KINDS, DEFAULT_HORIZONS, SIM_SPEEDS, RESEARCH_TOPICS, SIM_ACTS, defaultRaceRules } from './ledger.js';
 import { ROLES, DEFAULT_MODEL } from './agent.js';
 import { addItem, listItems } from './inbox.js';
 import { addClient, listClients, updateClient, isDue } from './clients.js';
@@ -63,6 +64,10 @@ export function snapshot(ledger, catalog = CATALOG, dataDir = null, now = Date.n
       methods: RACE_METHODS, connectors: RACE_CONNECTORS, work: RACE_WORK_CONNECTORS, models: RACE_MODELS, scoring: RACE_SCORING, contact: RACE_CONTACT, horizons: DEFAULT_HORIZONS,
       purposes: RACE_PURPOSES, tiebreaks: RACE_TIEBREAKS, posting: RACE_POSTING, nameUse: RACE_NAME_USE, accounts: RACE_ACCOUNTS, penalty: RACE_PENALTY, moneyModes: RACE_MONEY_MODES,
       evidence: RACE_EVIDENCE, visibility: RACE_VISIBILITY, spendCategories: SPEND_CATEGORIES, signalTypes: SIGNAL_TYPES, signalPlural: SIGNAL_PLURAL, ruleKinds: RULE_KINDS, defaults: defaultRaceRules(),
+      simSpeeds: SIM_SPEEDS, researchTopics: RESEARCH_TOPICS, simActs: SIM_ACTS, simArtifacts: SIM_ARTIFACTS, simCompetition: Object.keys(SIM_COMPETITION), simTrend: Object.keys(SIM_TREND),
+      // the market simulator's channels and the benchmarks each one starts from, with their sources
+      simChannels: Object.fromEntries(Object.entries(SIM_CHANNELS).map(([k, c]) => [k, { title: c.title, unit: c.unit, volMax: c.volMax, feePct: PRIORS[k].feePct, rates: PRIORS[k].rates }])),
+      simChurn: PRIORS.recurring.churn, simFees: FEES,
     },
     level: commanderLevel(state),
     quests: q,
@@ -122,6 +127,38 @@ export function createApi({ ledger, catalog: fixedCatalog = null, dataDir, runAg
           return ok(200, { ok: true, markdown: raceBrief(board, room.id, { roomName: room.name, lead: lead ? lead.name : null }) });
         } catch (e) {
           if (e instanceof LedgerError) return ok(400, { ok: false, error: e.message });
+          throw e;
+        }
+      }
+      // Joshua's own go at the simulator: test variants and see the ranges, nothing written
+      if (method === 'POST' && pathname === '/api/sim/try') {
+        const body = await readBody();
+        try {
+          const horizons = Array.isArray(body.horizons) && body.horizons.length ? body.horizons.map(Number).filter((d) => Number.isInteger(d) && d >= 1 && d <= 365).slice(0, 4) : [7, 30, 90];
+          if (!Array.isArray(body.variants) || !body.variants.length || body.variants.length > 24) return ok(400, { ok: false, error: 'send 1-24 variants, each { label, spec }' });
+          return ok(200, { ok: true, horizons, variants: testVariants(body.variants, { horizons, runs: 200, seed: 'try', stakeUsd: Number(body.stakeUsd) || null }) });
+        } catch (e) {
+          if (e instanceof SimError) return ok(400, { ok: false, error: e.message });
+          throw e;
+        }
+      }
+      // one thing an agent built in the sandbox, in full: /api/race/build/<id>
+      const bd = method === 'GET' && /^\/api\/race\/build\/([A-Za-z0-9_-]{1,64})$/.exec(pathname);
+      if (bd) {
+        const ev = ledger.readAll().find((e) => e.kind === 'sim' && e.act === 'build' && e.id === bd[1]);
+        return ev ? ok(200, { ok: true, build: { id: ev.id, ts: ev.ts, path: ev.path, play: ev.play || null, what: ev.what, title: ev.title, to: ev.to || null, format: ev.format || 'text', content: ev.content } }) : ok(404, { ok: false, error: 'no such build' });
+      }
+      // REAL MONEY: a simulation's chosen rooms start a race with real money, the forecast fixed on the ledger
+      if (method === 'POST' && pathname === '/api/race/real') {
+        const body = await readBody();
+        try {
+          const ev = realRaceEvent(reduce(ledger.readAll(), catalog), catalog, Date.now(), {
+            rooms: Array.isArray(body.rooms) ? body.rooms : null, stakeUsd: body.stakeUsd === undefined ? undefined : Number(body.stakeUsd), evidence: body.evidence,
+            horizonsMin: Array.isArray(body.horizonsMin) ? body.horizonsMin : null, rules: body.rules && typeof body.rules === 'object' ? body.rules : {}, name: body.name || null,
+          });
+          return ok(201, { ok: true, event: ledger.append(ev) });
+        } catch (e) {
+          if (e instanceof LedgerError || e instanceof SimError || /race|room/.test(e.message)) return ok(400, { ok: false, error: e.message });
           throw e;
         }
       }

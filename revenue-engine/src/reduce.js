@@ -50,6 +50,10 @@ export function reduce(events, catalog = CATALOG) {
     steps: [],
     signals: [],
     judges: [],
+    // the simulation: what agents found on the real web, and what they tested, launched, built and showed a panel
+    research: [],
+    sims: [],
+    pastRaces: [],
     demo: false,
     tail: sorted.slice(-30),
     eventCount: sorted.length,
@@ -151,7 +155,8 @@ export function reduce(events, catalog = CATALOG) {
           st.race.amendments.push({ id: ev.id, ts: ev.ts, evidence: ev.evidence });
           break;
         }
-        st.race = { id: ev.id, startedAt: ev.startsAt || ev.ts, setAt: ev.ts, stakeUsd: ev.stakeUsd, horizonsMin: ev.horizonsMin || ev.horizons.map((d) => d * 1440), name: ev.name || null, evidence: ev.evidence, rooms: ev.rooms || null, rules: ev.rules || defaultRaceRules(), amendments: [] };
+        if (st.race) st.pastRaces.push({ id: st.race.id, name: st.race.name, startedAt: st.race.startedAt, moneyMode: (st.race.rules || {}).moneyMode || 'real', rooms: st.race.rooms });
+        st.race = { fromRace: ev.fromRace || null, forecasts: ev.forecasts || null, id: ev.id, startedAt: ev.startsAt || ev.ts, setAt: ev.ts, stakeUsd: ev.stakeUsd, horizonsMin: ev.horizonsMin || ev.horizons.map((d) => d * 1440), name: ev.name || null, evidence: ev.evidence, rooms: ev.rooms || null, rules: ev.rules || defaultRaceRules(), amendments: [] };
         break;
       case 'play': {
         const key = `${ev.path}|${ev.play}`;
@@ -170,6 +175,12 @@ export function reduce(events, catalog = CATALOG) {
         break;
       case 'judge':
         st.judges.push({ id: ev.id, ts: ev.ts, path: ev.path, play: ev.play || null, points: ev.points, why: ev.why });
+        break;
+      case 'research':
+        st.research.push({ id: ev.id, ts: ev.ts, path: ev.path, play: ev.play || null, title: ev.title, text: ev.text, url: ev.url, topic: ev.topic, numbers: ev.numbers || [], by: ev.by });
+        break;
+      case 'sim':
+        st.sims.push(ev);
         break;
       case 'step':
         st.steps.push({ id: ev.id, ts: ev.ts, path: ev.path, play: ev.play || null, type: ev.type || 'did', text: ev.text, url: ev.url || null, by: ev.by });
