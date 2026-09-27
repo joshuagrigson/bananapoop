@@ -6,6 +6,7 @@ import { LedgerError } from './ledger.js';
 import { addItem, markDone } from './inbox.js';
 import { addClient, markPacked } from './clients.js';
 import { fromTemplate, saveConfig } from './rooms.js';
+import { RESEARCHED_IDEAS } from './demo-ideas.js';
 
 export function seedDemo(ledger, dataDir, now = Date.now()) {
   const existing = ledger.readAll();
@@ -464,6 +465,21 @@ export function seedRaceDemo(ledger, dataDir, now = Date.now()) {
   T('pink', 0.08, 'canva-templates', [{ label: 'Canva packs at $12', spec: SPECS['canva-templates'] }, { label: 'Figma kits at $24', spec: SPECS['ui-kits'] }]);
   lines.push({ kind: 'sim', act: 'build', path: 'orange', play: 'site-rebuilds', what: 'email', title: 'Intro email with a preview link', to: 'owners of local businesses with no website', format: 'text', content: 'Subject: I built you a free preview site\n\nHi [owner name],\n\nI noticed [business name] has no website, so I built a one-page preview with your hours, photos and a call button: [preview link].\n\nIf you like it, it goes live for $300, half now and half at launch. If not, no charge and I will take it down.\n\n[signature]', by: 'agent', ts: at(0.2) });
   lines.push({ kind: 'sim', act: 'build', path: 'gold', play: 'review-tool', what: 'site', title: 'Review-reply tool landing page', to: 'local business owners', format: 'html', content: '<div style="font-family:system-ui;max-width:560px;margin:40px auto;padding:0 16px"><h1>Reply to every Google review in your own voice</h1><p>Paste a review, get a warm, specific reply in seconds. $12 a month after a 7-day free trial.</p><button style="padding:12px 20px;font-size:16px">Start the free trial</button></div>', by: 'agent', ts: at(0.2) });
+  // each room's researched idea: real pages, a play, variants tested around its price, what it built, launched
+  const slug = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30).replace(/-$/, '');
+  RESEARCHED_IDEAS.forEach((x, i) => {
+    const room = x.room, play = 'r-' + slug(x.title), d0 = 0.15 + i * 0.02;
+    x.research.forEach((r, k) => lines.push({ kind: 'research', path: room, play, title: r.title.slice(0, 120), text: (r.text + ' (checked 2026-09-27)').slice(0, 1500), url: r.url, topic: r.topic, by: 'agent', ts: at(d0 + k * 0.005) }));
+    lines.push({ kind: 'play', path: room, play, name: x.title.slice(0, 80), status: 'working', by: 'agent', plan: `${x.summary} Found by: ${x.angle}.${x.room === 'violet' ? ' The printer\'s cost per deck was not found, so simulated profit is overstated.' : ''}`.slice(0, 2000), offer: x.summary.slice(0, 400), ts: at(d0 + 0.02) });
+    const sp = x.spec;
+    lines.push({ kind: 'sim', act: 'test', path: room, play, by: 'agent', ts: at(d0 + 0.03), variants: [
+      { label: `${x.title.slice(0, 60)} at $${sp.price}`, spec: sp },
+      { label: `${x.title.slice(0, 60)} at $${Math.round(sp.price * 0.7)}`, spec: { ...sp, price: Math.max(1, Math.round(sp.price * 0.7)) } },
+      { label: `${x.title.slice(0, 60)} at $${Math.round(sp.price * 1.4)}`, spec: { ...sp, price: Math.round(sp.price * 1.4) } },
+    ] });
+    lines.push({ kind: 'sim', act: 'build', path: room, play, what: x.build.what, title: x.build.title.slice(0, 120), content: x.build.content, format: 'text', by: 'agent', ts: at(d0 + 0.04) });
+    lines.push({ kind: 'sim', act: 'launch', path: room, play, spec: sp, label: x.title.slice(0, 120), by: 'agent', ts: at(d0 + 0.05) });
+  });
   // the demo's money is simulated: its old made-up sales and receipts stay out
   for (const l of lines) if (l.kind !== 'money.in' && l.kind !== 'money.out') ledger.append(l);
   return lines.length;
