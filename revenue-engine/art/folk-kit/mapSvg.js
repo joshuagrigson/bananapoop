@@ -4,7 +4,7 @@
 // the comm mast top right, each on a floating slab joined by walkways, nothing underneath.
 //
 //   mapSvg(world, options) returns an SVG string, 1600 x 1000.
-//   world    space castle farm cyber alien ocean haunted pumpkin
+//   world    space castle farm cyber alien ocean haunted pumpkin rocket lab mafia gamer
 //   options  { id, rooms: [{ name, accent, id }] (up to 10), hub, dock, level, title, plates }
 //            a room with an id (and the vault and dock) gets data-sel="<id>" on its plate and its building, to click
 
@@ -42,6 +42,10 @@ const WORLD = {
   ocean: { title: 'Deep sea base', sky: ['#021526', '#063356', '#0b5a7a'], slab: '#c9b27a', slabTop: '#e6d29a', edge: '#8f7a4a', walk: '#9aa3a8', hub: 'Pearl vault', dock: 'Sub dock' },
   haunted: { title: 'Haunted mansion', sky: ['#05040c', '#1a1228', '#2c1c3a'], slab: '#3a2e3a', slabTop: '#34402e', edge: '#1e161e', walk: '#4a3a3a', hub: 'Family vault', dock: 'Dead letters' },
   pumpkin: { title: 'Pumpkin patch', sky: ['#150a28', '#3a1a44', '#6a2a4a'], slab: '#4a3020', slabTop: '#3a2a1a', edge: '#2a1a10', walk: '#8a6a4a', hub: 'Candy cauldron', dock: 'Hay wagon' },
+  rocket: { title: 'Rocket works', sky: ['#1a2a6a', '#6a4a8a', '#ff9a5a'], slab: '#6a5a4a', slabTop: '#9aa1ae', edge: '#3a3028', walk: '#5b6272', hub: 'Launch silo', dock: 'Payload bay' },
+  lab: { title: 'Mad scientist lab', sky: ['#07040f', '#1a0c30', '#2a1446'], slab: '#3a3a52', slabTop: '#d8e6e0', edge: '#22223a', walk: '#4a4a62', hub: 'Grand reactor', dock: 'Delivery chute' },
+  mafia: { title: 'Family mansion', sky: ['#3a2a5a', '#a05a6a', '#ffb070'], slab: '#8a6a4a', slabTop: '#7a8a4a', edge: '#5a4430', walk: '#c8a878', hub: "The don's office", dock: 'The garage' },
+  gamer: { title: 'Game den', sky: ['#0a0428', '#3a0a5a', '#ff3fb8'], slab: '#2a2748', slabTop: '#1a1830', edge: '#12101f', walk: '#3a3660', hub: 'Championship stage', dock: 'Loot drop' },
 };
 
 // ---------------------------------------------------------------------------------------------- drawing kit
@@ -116,7 +120,7 @@ function slab(k, wd, cx, cy, s = 0.62) {
   let s2 = outlined([{ d: under, fill: dark(wd.slab, 0.35), c: dark(wd.slab, 0.35) }, ...shapes], 7);
   if (k === 'space' || k === 'cyber') s2 += `<ellipse cx="${f(bx)}" cy="${f(by + 30)}" rx="9" ry="5" fill="${k === 'space' ? '#7fd8ff' : '#ff5ce0'}" opacity=".7"/><ellipse cx="${f(bx)}" cy="${f(by + 44)}" rx="5" ry="14" fill="${k === 'space' ? '#7fd8ff' : '#ff5ce0'}" opacity=".25"/>`;
   // a touch of texture on the top
-  const tx = { farm: '#6bbf49', castle: '#7d7483', space: '#b3bccd', cyber: '#56567a', alien: '#6fb8a8', ocean: '#d9c386', haunted: '#4a5a3a', pumpkin: '#3f8a3a' }[k];
+  const tx = { farm: '#6bbf49', castle: '#7d7483', space: '#b3bccd', cyber: '#56567a', alien: '#6fb8a8', ocean: '#d9c386', haunted: '#4a5a3a', pumpkin: '#3f8a3a', rocket: '#c9ced8', lab: '#7dff4a', mafia: '#5a7a3a', gamer: '#39ff9e' }[k];
   for (let i = 0; i < 5; i++) { const [px, py] = iso(x + 0.25 + ((i * 0.37) % 1) * (w - 0.5), y + 0.3 + ((i * 0.61) % 1) * (d - 0.6), 0); s2 += `<ellipse cx="${f(px)}" cy="${f(py)}" rx="7" ry="3" fill="${tx}" opacity=".7"/>`; }
   if (k === 'cyber') s2 += `<polygon points="${pts(top)}" fill="none" stroke="#ff5ce0" stroke-width="1.5" opacity=".55"/>`;
   return s2;
@@ -203,6 +207,38 @@ function building(k, cx, cy, acc, rank, K) {
     extra += `<path d="M${f(a - R * 0.55)} ${f(b - R * 0.45)}l${f(R * 0.18)} ${f(R * 0.14)}l${f(R * 0.18)} ${f(-R * 0.1)}l${f(R * 0.18)} ${f(R * 0.14)}l${f(R * 0.18)} ${f(-R * 0.1)}l${f(R * 0.18)} ${f(R * 0.14)}l${f(R * 0.02)} ${f(-R * 0.18)}q${f(-R * 0.55)} ${f(R * 0.2)} ${f(-R * 1.1)} 0z" fill="#ffe94a" stroke="${OUT}" stroke-width="2.4"/>`;
     extra += `<path d="M${f(a - 4)} ${f(b - R * 1.25)}q-4 -20 10 -28" fill="none" stroke="${OUT}" stroke-width="13" stroke-linecap="round"/><path d="M${f(a - 4)} ${f(b - R * 1.25)}q-4 -20 10 -28" fill="none" stroke="#3f6a2a" stroke-width="8" stroke-linecap="round"/>`;
     extra += `<rect x="${f(a + R * 0.5)}" y="${f(b - R * 0.5)}" width="${f(R * 0.28)}" height="${f(R * 0.46)}" rx="${f(R * 0.14)}" fill="${acc}" stroke="${OUT}" stroke-width="3"/>`;
+  } else if (k === 'rocket') {
+    // a white hangar with an orange stripe, a rocket's nose showing over the roof
+    const x = cx - 0.36, y = cy - 0.3, w = 0.72, d = 0.6, h = 64;
+    s.push(...box(x, y, 0, w, d, h, '#e3e7ee'));
+    s.push(...cyl(x + w * 0.7, y + d * 0.4, h, 0.1, 70 + (rank % 3) * 14, '#f4f6fb', { bands: '' }), ...cone(x + w * 0.7, y + d * 0.4, h + 70 + (rank % 3) * 14, 0.1, 34, '#ff6a1a'));
+    const A = iso(x, y + d, 34), B = iso(x + w, y + d, 34), C = iso(x + w, y, 34);
+    extra += `<polyline points="${pts([A, B, C])}" fill="none" stroke="#ff6a1a" stroke-width="5"/>`;
+    extra += win(x, y, w, d, 'L', 0.5, 0, 0.34, 40, '#2a2f3c') + win(x, y, w, d, 'R', 0.4, 44, 0.12, 12, acc);
+  } else if (k === 'lab') {
+    // a stone lab with a glass dome glowing green, a chimney puffing color
+    const x = cx - 0.32, y = cy - 0.3, w = 0.64, d = 0.6, h = 60;
+    s.push(...box(x, y, 0, w, d, h, '#5a5a74'));
+    s.push(...dome(cx, cy, h, 0.28, '#9aff7a', { h: 40 }));
+    s.push(...cyl(x + w - 0.08, y + 0.08, h, 0.06, 40, '#4a4a62', { bands: '' }));
+    const [px2, py2] = iso(x + w - 0.08, y + 0.08, h + 44);
+    extra += `<circle cx="${f(px2)}" cy="${f(py2 - 8)}" r="10" fill="${acc}" opacity=".6"/><circle cx="${f(px2 + 8)}" cy="${f(py2 - 24)}" r="13" fill="#ff4fb8" opacity=".45"/>`;
+    extra += win(x, y, w, d, 'L', 0.3, 18, 0.1, 22, '#9aff7a') + win(x, y, w, d, 'L', 0.72, 18, 0.1, 22, '#39f0ff') + win(x, y, w, d, 'R', 0.5, 18, 0.12, 22, '#ff4fb8');
+  } else if (k === 'mafia') {
+    // a villa: ochre walls, a terracotta roof, arched windows lit warm
+    const x = cx - 0.38, y = cy - 0.3, w = 0.76, d = 0.6, h = 54;
+    s.push(...box(x, y, 0, w, d, h, '#e0c08a'));
+    const r2 = iso(x + w + 0.05, y - 0.05, h), r3 = iso(x + w + 0.05, y + d + 0.05, h), r4 = iso(x - 0.05, y + d + 0.05, h), r1 = iso(x - 0.05, y - 0.05, h), top = iso(cx, cy, h + 30);
+    s.push({ p: [r4, r3, top], fill: '#b8563a', c: '#b8563a' }, { p: [r3, r2, top], fill: '#9a4430', c: '#9a4430' }, { p: [r1, r4, top], fill: '#c8664a', c: '#c8664a' });
+    for (const t of [0.2, 0.5, 0.8]) extra += win(x, y, w, d, 'L', t, 10, 0.1, 26, '#ffd98a');
+    extra += win(x, y, w, d, 'R', 0.5, 10, 0.12, 26, acc);
+  } else if (k === 'gamer') {
+    // a dark block wrapped in RGB, a giant screen on its face
+    const x = cx - 0.32, y = cy - 0.32, w = 0.64, h = 90 + (rank % 3) * 20;
+    s.push(...box(x, y, 0, w, w, h, '#2a2748'));
+    const cols = ['#39ff9e', '#29e7ff', '#9a5cff', '#ff3fb8'];
+    for (let r = 0; r < 3; r++) { const A = iso(x, y + w, 20 + r * (h - 30) / 3), B = iso(x + w, y + w, 20 + r * (h - 30) / 3), C = iso(x + w, y, 20 + r * (h - 30) / 3); extra += `<polyline points="${pts([A, B, C])}" fill="none" stroke="${cols[(r + rank) % 4]}" stroke-width="4"/>`; }
+    extra += win(x, y, w, w, 'L', 0.5, h * 0.45, 0.4, 36, acc, '#12101f');
   } else if (k === 'ocean') {
     s.push(...cyl(cx, cy, 0, 0.36, 18, '#8a95a3'));
     const [x0, y0] = iso(cx, cy, 18), rx = 0.36 * U * 1.414;
@@ -215,7 +251,7 @@ function building(k, cx, cy, acc, rank, K) {
 // the vault: a gold dome with a $ door, the same in every world, on a base in that world's stone
 function vault(k, wd, K) {
   const [cx, cy] = [HUB[0] * CELL, HUB[1] * CELL];
-  const base = { space: '#c9d1e0', castle: '#8a8294', farm: '#c9a46a', cyber: '#4a4468', alien: '#4f8a7f', ocean: '#b8a570', haunted: '#3a2e3a', pumpkin: '#5a3a20' }[k];
+  const base = { space: '#c9d1e0', castle: '#8a8294', farm: '#c9a46a', cyber: '#4a4468', alien: '#4f8a7f', ocean: '#b8a570', haunted: '#3a2e3a', pumpkin: '#5a3a20', rocket: '#9aa1ae', lab: '#5a5a74', mafia: '#8a5a3a', gamer: '#2a2748' }[k];
   const s = [...cyl(cx, cy, 0, 0.44, 34, base), ...cyl(cx, cy, 34, 0.36, 40, '#f2c14e', { bands: '' }), ...dome(cx, cy, 74, 0.36, '#f2c14e', { h: 46 })];
   const [dx, dy] = iso(cx + 0.36, cy + 0.36, 34);
   let extra = `<path d="M${f(dx - 18)} ${f(dy)}V${f(dy - 26)}A18 18 0 0 1 ${f(dx + 18)} ${f(dy - 26)}V${f(dy)}Z" fill="#7a5410" stroke="${OUT}" stroke-width="3"/><text x="${f(dx)}" y="${f(dy - 12)}" font-size="26" font-weight="900" text-anchor="middle" fill="#ffe27a" font-family="Arial Black, Arial, sans-serif">$</text>`;
@@ -238,6 +274,10 @@ function dock(k, wd, K) {
     alien: `<ellipse cx="${px}" cy="${py - 34}" rx="54" ry="20" fill="#6fc7b5"/><ellipse cx="${px}" cy="${py - 48}" rx="24" ry="16" fill="#bff3e6" opacity=".9"/><circle cx="${px - 30}" cy="${py - 30}" r="5" fill="#ffe27a"/><circle cx="${px}" cy="${py - 24}" r="5" fill="#ffe27a"/><circle cx="${px + 30}" cy="${py - 30}" r="5" fill="#ffe27a"/>`,
     haunted: `<rect x="${px - 44}" y="${py - 64}" width="88" height="48" rx="6" fill="#16121a"/><rect x="${px - 30}" y="${py - 56}" width="34" height="24" rx="3" fill="#b8ffb0" opacity=".5"/><circle cx="${px - 30}" cy="${py - 12}" r="13" fill="none" stroke-width="5"/><circle cx="${px + 30}" cy="${py - 12}" r="13" fill="none" stroke-width="5"/><circle cx="${px + 46}" cy="${py - 60}" r="6" fill="#9dff8a"/>`,
     pumpkin: `<rect x="${px - 46}" y="${py - 46}" width="92" height="30" rx="6" fill="#8a5a32"/><path d="M${px - 44} ${py - 46}Q${px - 6} ${py - 80} ${px + 40} ${py - 46}Z" fill="#e6c25a"/><ellipse cx="${px + 4}" cy="${py - 56}" rx="18" ry="14" fill="#f07a1a"/><circle cx="${px - 26}" cy="${py - 12}" r="12" fill="#4a2f1b"/><circle cx="${px + 26}" cy="${py - 12}" r="12" fill="#4a2f1b"/>`,
+    rocket: `<rect x="${px - 40}" y="${py - 50}" width="80" height="38" rx="4" fill="#e3e7ee"/><rect x="${px - 40}" y="${py - 30}" width="80" height="6" fill="#ff6a1a"/><circle cx="${px - 24}" cy="${py - 12}" r="9" fill="#2a2f3c"/><circle cx="${px + 24}" cy="${py - 12}" r="9" fill="#2a2f3c"/>`,
+    lab: `<rect x="${px - 34}" y="${py - 70}" width="68" height="58" rx="8" fill="#4a4a62"/><circle cx="${px}" cy="${py - 46}" r="16" fill="#9aff7a" opacity=".85"/><rect x="${px - 6}" y="${py - 84}" width="12" height="18" fill="#8a95a8"/>`,
+    mafia: `<rect x="${px - 50}" y="${py - 44}" width="100" height="26" rx="10" fill="#1a1418"/><rect x="${px - 30}" y="${py - 62}" width="56" height="22" rx="8" fill="#1a1418"/><rect x="${px - 26}" y="${py - 58}" width="22" height="14" rx="3" fill="#bfd8f0"/><circle cx="${px - 30}" cy="${py - 16}" r="9" fill="#2a2a30"/><circle cx="${px + 30}" cy="${py - 16}" r="9" fill="#2a2a30"/><rect x="${px + 40}" y="${py - 40}" width="10" height="6" fill="#e0b454"/>`,
+    gamer: `<rect x="${px - 40}" y="${py - 60}" width="80" height="44" rx="8" fill="#2a2748"/><path d="M${px - 16} ${py - 50}V${py - 26}L${px + 16} ${py - 38}Z" fill="#39ff9e"/><rect x="${px - 44}" y="${py - 64}" width="88" height="52" rx="10" fill="none" stroke="#ff3fb8" stroke-width="3"/>`,
     ocean: `<ellipse cx="${px}" cy="${py - 34}" rx="50" ry="24" fill="#ffd23f"/><circle cx="${px + 14}" cy="${py - 38}" r="11" fill="#8fe3ff" stroke="${OUT}" stroke-width="2.4"/><path d="M${px - 48} ${py - 36}L${px - 70} ${py - 52}V${py - 20}Z" fill="#ffb300"/><rect x="${px - 8}" y="${py - 72}" width="8" height="18" fill="#ffd23f"/>`,
   }[k];
   extra += `<g stroke="${OUT}" stroke-width="3" stroke-linejoin="round">${craft}</g>`;
@@ -256,7 +296,7 @@ function mast(k, K) {
 function sky(k, wd, K) {
   let s = `<rect width="${W}" height="${H}" fill="${K.lin([[0, wd.sky[0]], [0.55, wd.sky[1]], [1, wd.sky[2]]])}"/>`;
   const rnd = (i) => { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
-  if (k === 'space' || k === 'cyber' || k === 'castle' || k === 'alien' || k === 'haunted' || k === 'pumpkin') for (let i = 0; i < 140; i++) s += `<circle cx="${f(rnd(i) * W)}" cy="${f(rnd(i + 500) * H * (k === 'cyber' ? 0.45 : 0.9))}" r="${f(0.6 + rnd(i + 900) * 1.6)}" fill="#fff" opacity="${f(0.3 + rnd(i + 70) * 0.6)}"/>`;
+  if (k === 'space' || k === 'cyber' || k === 'castle' || k === 'alien' || k === 'haunted' || k === 'pumpkin' || k === 'rocket' || k === 'lab' || k === 'gamer' || k === 'mafia') for (let i = 0; i < 140; i++) s += `<circle cx="${f(rnd(i) * W)}" cy="${f(rnd(i + 500) * H * (k === 'cyber' ? 0.45 : 0.9))}" r="${f(0.6 + rnd(i + 900) * 1.6)}" fill="#fff" opacity="${f(0.3 + rnd(i + 70) * 0.6)}"/>`;
   if (k === 'space') s += outlined([{ e: [1330, 210, 120, 120], fill: K.lin([[0, '#f6a36b'], [1, '#b0487a']], 0.3, 1), c: '#d06a70' }], 9) + `<ellipse cx="1330" cy="215" rx="210" ry="38" fill="none" stroke="${OUT}" stroke-width="14" transform="rotate(-14 1330 215)"/><ellipse cx="1330" cy="215" rx="210" ry="38" fill="none" stroke="#ffd9a8" stroke-width="7" transform="rotate(-14 1330 215)"/><path d="M1224 180A120 120 0 0 1 1436 186" fill="none" stroke="#fff" stroke-width="6" opacity=".35"/>` + outlined([{ e: [230, 150, 34, 34], fill: '#c9d1e0', c: '#c9d1e0' }], 8);
   if (k === 'castle') {
     s += `<circle cx="1320" cy="170" r="120" fill="${K.rad([[0, '#fff3c4', 0.35], [1, '#fff3c4', 0]])}"/>` + outlined([{ e: [1320, 170, 64, 64], fill: '#fff3c4', c: '#fff3c4', line: '#c9b98a' }], 9);
@@ -290,6 +330,29 @@ function sky(k, wd, K) {
     s += `<path d="M0 760Q300 690 640 750T1300 720T1600 760V1000H0Z" fill="#2a1a2e"/><path d="M0 860Q400 800 800 850T1600 830V1000H0Z" fill="#1e1220"/>`;
     for (let i = 0; i < 14; i++) s += `<ellipse cx="${60 + i * 115}" cy="${790 + Math.sin(i * 1.7) * 14}" rx="16" ry="12" fill="#e8741a" stroke="${OUT}" stroke-width="3"/>`;
     for (const [x, y] of [[1150, 200], [1230, 250], [1320, 170]]) s += `<path d="M${x} ${y}q10 -10 20 0q10 -10 20 0q-10 4 -20 12q-10 -8 -20 -12Z" fill="#0a0612"/>`;
+  }
+  if (k === 'rocket') {
+    s += `<circle cx="1200" cy="760" r="260" fill="${K.rad([[0, '#ffc080', 0.55], [1, '#ffc080', 0]])}"/><circle cx="1200" cy="760" r="70" fill="#ffd08a"/>`;
+    s += `<path d="M0 800Q300 740 600 790T1200 770T1600 790V1000H0Z" fill="#6a4a5a"/>`;
+    for (const [x, hh] of [[220, 240], [420, 180], [1420, 210]]) s += `<rect x="${x}" y="${800 - hh}" width="16" height="${hh}" fill="#2a2030"/><rect x="${x + 26}" y="${800 - hh * 0.85}" width="14" height="${hh * 0.85}" fill="#e8ebf1"/><path d="M${x + 26} ${800 - hh * 0.85}L${x + 33} ${800 - hh * 0.85 - 22}L${x + 40} ${800 - hh * 0.85}Z" fill="#e8ebf1"/>`;
+  }
+  if (k === 'lab') {
+    for (const [x, w] of [[300, 260], [900, 320], [1400, 220]]) s += `<ellipse cx="${x}" cy="160" rx="${w}" ry="46" fill="#140a24" opacity=".85"/>`;
+    s += `<path d="M1120 0L1080 160L1130 170L1070 360" fill="none" stroke="#f4f0ff" stroke-width="5"/>`;
+    s += `<path d="M0 780Q260 660 560 740T1100 700T1600 740V1000H0Z" fill="#120a20"/><rect x="1260" y="560" width="70" height="190" fill="#0c0616"/><path d="M1250 560L1295 480L1340 560Z" fill="#0c0616"/>`;
+    for (const y of [590, 640, 690]) s += `<rect x="1285" y="${y}" width="16" height="22" fill="#9aff7a"/>`;
+  }
+  if (k === 'mafia') {
+    s += `<circle cx="300" cy="600" r="200" fill="${K.rad([[0, '#ffd0a0', 0.5], [1, '#ffd0a0', 0]])}"/>`;
+    s += `<path d="M0 760Q300 640 700 720T1300 680T1600 720V1000H0Z" fill="#7a6a5a"/><path d="M0 860Q400 780 800 840T1600 820V1000H0Z" fill="#5a6a3a"/>`;
+    for (let i = 0; i < 14; i++) s += `<ellipse cx="${60 + i * 115}" cy="${760 + Math.sin(i * 1.3) * 18}" rx="14" ry="56" fill="#1f3a24"/>`;
+  }
+  if (k === 'gamer') {
+    s += `<circle cx="800" cy="720" r="240" fill="#ff3fb8"/><circle cx="800" cy="720" r="240" fill="${K.lin([[0, '#ffe14a'], [1, '#ff3fb8']])}"/>`;
+    for (let i = 0; i < 6; i++) s += `<rect x="540" y="${560 + i * 32}" width="520" height="${6 + i * 2}" fill="#3a0a5a"/>`;
+    s += `<rect x="0" y="780" width="${W}" height="220" fill="#0a0420"/>`;
+    for (let i = 1; i < 10; i++) s += `<path d="M0 ${780 + i * i * 2.4}H${W}" stroke="#ff3fb8" stroke-width="2" opacity=".6"/>`;
+    for (let i = -12; i <= 12; i++) s += `<path d="M${800 + i * 30} 780L${800 + i * 200} 1000" stroke="#29e7ff" stroke-width="2" opacity=".5"/>`;
   }
   if (k === 'ocean') {
     for (let i = 0; i < 7; i++) s += `<path d="M${200 + i * 200} 0L${120 + i * 210} ${H}H${260 + i * 210}Z" fill="#bff3ff" opacity=".05"/>`;

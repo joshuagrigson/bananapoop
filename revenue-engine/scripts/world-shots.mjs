@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const previewDir = path.join(root, 'preview');
 const out = path.join(root, 'art', 'worlds');
-const ALL = ['space', 'castle', 'farm', 'cyber', 'alien', 'ocean', 'haunted', 'pumpkin'];
+const ALL = ['space', 'castle', 'farm', 'cyber', 'alien', 'ocean', 'haunted', 'pumpkin', 'rocket', 'lab', 'mafia', 'gamer'];
 const worlds = process.argv.slice(2).filter((w) => ALL.includes(w));
 const W = 960, H = 600, Q = 0.84;
 

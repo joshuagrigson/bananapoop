@@ -36,6 +36,10 @@ export const SKINS = Object.freeze({
   ocean: { title: 'Deep sea base', blurb: 'A base on the sea floor: divers, fish, octopuses and crabs among the coral.' },
   haunted: { title: 'Haunted mansion', blurb: 'A mansion on a hill at midnight: ghosts in the ballroom, something in the attic. Seasonal: late October.' },
   pumpkin: { title: 'Pumpkin patch', blurb: 'Halloween night in the patch: carved pumpkin houses, trick-or-treaters and a candy cauldron. Seasonal: October.' },
+  rocket: { title: 'Rocket works', blurb: 'A rocket factory round a launch silo: engine shops, weld bays and mission control, the rocket built part by part as money comes in.' },
+  lab: { title: 'Mad scientist lab', blurb: 'White coats and wild hair, bubbling flasks and glass coils, little colored poofs, and a potion for every win.' },
+  mafia: { title: 'Family mansion', blurb: "An old-money family's mansion: a pizzeria, a wine cellar, a tailor, all legitimate, and the don at his desk with a cigar and a bourbon." },
+  gamer: { title: 'Game den', blurb: 'PC rigs, VR, couch co-op, AR and arcade rooms full of friends, a high score for every room and a championship stage.' },
 });
 export const FOLK_COLORS = Object.freeze(['#f472b6', '#60a5fa', '#4ade80', '#ffb454', '#a78bfa', '#2dd4bf', '#ff5c6c', '#ffd84d', '#e5e7eb', '#c8a27a', '#818cf8', '#9be15d']);
 export const KID_COLORS = FOLK_COLORS;

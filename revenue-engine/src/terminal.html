@@ -153,7 +153,7 @@
   let painted = '', lastSnap = null;
   function applyWorld(s) {
     // the Halloween worlds borrow the castle's scrying glass
-    const id = urlSkin || (s && s.station && WORLD_IDS.includes(s.station.skin) ? s.station.skin : (s && s.station && { haunted: 'castle', pumpkin: 'castle' }[s.station.skin]) || 'space');
+    const id = urlSkin || (s && s.station && WORLD_IDS.includes(s.station.skin) ? s.station.skin : (s && s.station && { haunted: 'castle', pumpkin: 'castle', rocket: 'space', lab: 'alien', mafia: 'castle', gamer: 'cyber' }[s.station.skin]) || 'space');
     document.documentElement.dataset.skin = id;
     const key = id + ':' + innerWidth + 'x' + innerHeight;
     if (key !== painted) { painted = key; paintWorld($('#world'), id); }

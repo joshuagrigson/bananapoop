@@ -47,7 +47,7 @@ const HELP = `revenue-engine
   jobs                                                 list jobs
   rooms                                                the rooms this station is built from
   rooms template <barber|salon|freelance|chores|race|paths|blank> [--name "Kayla's Chair"] [--skin castle]   start the rooms from a template
-  rooms skin <space|castle|farm|cyber|alien|ocean|haunted|pumpkin>   how the station looks (decoration only)
+  rooms skin <space|castle|farm|cyber|alien|ocean|haunted|pumpkin|rocket|lab|mafia|gamer>   how the station looks (decoration only)
   rooms mode <agents|service|allowance|race>           what the screens lead with
   race                                                 standings: day, bankrolls, rates, each horizon's winner
   race start --stake 250 --evidence "where the money sits" [--times 30m,1h,2h | --days 7,30,90,180] [--name N] [--rules rules.json]

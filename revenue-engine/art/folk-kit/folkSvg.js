@@ -11,7 +11,8 @@
 //   look: { role, world, tier, species, skin, hair, hairC, eyeC, expr, tint, agent }
 //     role     prospector outreach pricing creator lister scout fulfiller auditor manager commander
 //              barber kid crew client            (FOLK.roles has the titles and the tool each one carries)
-//     world    space castle farm cyber alien ocean haunted pumpkin   (the outfit and headgear)
+//     world    space castle farm cyber alien ocean haunted pumpkin rocket lab mafia gamer   (the outfit and headgear)
+//     gear     optional headgear that overrides the world's: hardhat weldmask chef cap comm goggles fedora gamerset vrset arglasses
 //     tier     0 Runner, 1 Clerk, 2 Trader, 3 Broker, 4 Tycoon   (gear grows with it)
 //     species  human fox robot grey skeleton octo
 //     skin, hair, hairC, eyeC: index numbers into FOLK.skins, FOLK.hairs, FOLK.hairColors, FOLK.eyeColors
@@ -54,6 +55,10 @@ const WORLDS = {
   ocean: { title: 'Deep sea base', suit: '#1f3d60', trim: '#ffd23f', legs: '#1f3d60', boots: '#ffd23f', jacket: '#16304e', gear: 'mask' },
   haunted: { title: 'Haunted mansion', suit: '#2a2233', trim: '#8a1c2b', legs: '#1e1a24', boots: '#141018', jacket: '#1a1420', gear: 'tophat' },
   pumpkin: { title: 'Pumpkin patch', suit: '#e8741a', trim: '#2a1d33', legs: '#3a2a4a', boots: '#4a2e24', jacket: '#5a2a6a', gear: 'costume' },
+  rocket: { title: 'Rocket works', suit: '#f2f4f8', trim: '#ff6a1a', legs: '#e3e7ee', boots: '#2b2f3c', jacket: '#1d2b4a', gear: 'hardhat' },
+  lab: { title: 'Mad scientist lab', suit: '#f7f7f2', trim: '#7dff4a', legs: '#3a3f58', boots: '#2a2a33', jacket: '#eef0ea', gear: 'goggles' },
+  mafia: { title: 'Family mansion', suit: '#2a2a32', trim: '#e0b454', legs: '#26262e', boots: '#1a1418', jacket: '#1e1e26', gear: 'fedora' },
+  gamer: { title: 'Game den', suit: '#3a2a6a', trim: '#39ff9e', legs: '#23233a', boots: '#f0f0f5', jacket: '#2a1f4a', gear: 'gamerset' },
 };
 const SPECIES = ['human', 'fox', 'robot', 'grey', 'skeleton', 'octo', 'blob'];
 const SKINS = ['#fbdcc6', '#f3c5a2', '#dea57c', '#bd7c52', '#8f5b3b', '#5f3b29'];
@@ -233,7 +238,16 @@ function headParts(P, look, pose, mode) {
 }
 function brows(c) { const d = dark(c, 0.25); return `<path d="M25.4 21.9Q27.2 21 29 21.7M35.4 21.7Q37.2 21 39 21.9" fill="none" stroke="${d}" stroke-width=".85" stroke-linecap="round"/>`; }
 function hairParts(P, look, c, back, front) {
-  const st = at(HAIRS, look.hair);
+  const st = look.world === 'lab' ? 'frizz' : at(HAIRS, look.hair);
+  if (st === 'frizz') {
+    // the mad scientist's hair: a wild cloud of it, sticking out every way
+    let d = ''; const n = 22;
+    for (let i = 0; i <= n; i++) { const a = Math.PI * (0.92 + i / n * 1.16), r = 13.4 + (i % 2 ? 4.2 + (look.hair % 3) : 0.6), x = 32.2 + Math.cos(a) * r * 1.05, y = 22.4 + Math.sin(a) * r * 0.92; d += (i ? 'L' : 'M') + f(x) + ' ' + f(y); }
+    d += 'L44.6 30Q43.4 27.6 42 26.4L22.4 26.4Q21 27.6 19.8 30Z';
+    back.push(P.part(d, c, { w: 1.8, detail: `<path d="M24 14Q27 10.6 31 12.4M34 11.6Q38.4 10.6 40.6 14" fill="none" stroke="${light(c, 0.45)}" stroke-width=".9" opacity=".7" stroke-linecap="round"/>` }));
+    front.push(P.part('M21 23.4C21 18.4 25.4 15.2 32.2 15.2C39 15.2 43.4 18.4 43.4 23.4Q41 20.4 38.4 21.4L36.6 18.6L34.6 21.2L32.2 18.2L29.8 21.2L27.8 18.6L26 21.4Q23.4 20.4 21 23.4Z', c, { detail: `<path d="M26 18.4Q30.6 15.9 36.6 17.4" fill="none" stroke="${light(c, 0.45)}" stroke-width="1" stroke-linecap="round" opacity=".7"/>` }));
+    return;
+  }
   const sheen = `<path d="M26 18.4Q30.6 15.9 36.6 17.4" fill="none" stroke="${light(c, 0.45)}" stroke-width="1" stroke-linecap="round" opacity=".7"/>`;
   // the cap every style shares: the crown of the head, with a fringe cut across the forehead
   const cap = (fr) => P.part(`M20.4 25.4C20.2 18.6 25 14 32.2 14C39.4 14 44.2 18.6 44 25.4C43.4 22.8 41.8 21.2 39.6 ${fr}Q37.4 ${fr - 0.8} 35.8 ${fr - 2.6}Q33.6 ${fr + 0.4} 30.4 ${fr - 0.6}Q27.6 ${fr + 0.6} 25 ${fr + 0.2}Q22.4 ${fr + 0.8} 20.4 25.4Z`, c, { detail: sheen });
@@ -247,10 +261,44 @@ function hairParts(P, look, c, back, front) {
   front.push(cap(20.8));
 }
 function headGear(P, look, front, back) {
-  const w = WORLDS[look.world], t = look.tier, acc = look._accent, gold = '#f2c14e';
+  const w0 = WORLDS[look.world], w = look.gear ? { ...w0, gear: look.gear } : w0, t = look.tier, acc = look._accent, gold = '#f2c14e';
   const trim = t >= 3 ? gold : acc;
   if (look.species === 'blob' || (look.species === 'robot' && w.gear !== 'straw' && w.gear !== 'hood')) return;
-  if (w.gear === 'straw') {
+  if (w.gear === 'hardhat') {
+    // a white hard hat with an orange stripe
+    front.push(P.part('M19.6 20.4Q19.8 10.8 32.2 10.4Q44.6 10.8 44.8 20.4Z', '#f4f6fb', { w: 1.8, detail: `<path d="M30.8 10.6H33.6V20.4H30.8Z" fill="${w0.trim === '#ff6a1a' ? '#ff6a1a' : trim}"/><path d="M24 14.4Q27.4 11.8 31 12" fill="none" stroke="#fff" stroke-width=".9" opacity=".8" stroke-linecap="round"/>` }));
+    front.push(P.part('M17.4 21.2Q32.2 18.2 47 21.2Q46.6 22.8 44.6 22.8Q32.2 20.6 19.8 22.8Q17.8 22.8 17.4 21.2Z', '#e3e7ee', { w: 1.4 }));
+  } else if (w.gear === 'weldmask') {
+    // a welding helmet flipped down, the dark window glowing with the arc
+    front.push(P.part('M19.4 18.6Q19.6 11.2 32.2 10.8Q44.8 11.2 45 18.6L44.2 33.4Q32.2 37.4 20.2 33.4Z', '#3a404e', { w: 1.9, detail: `<path d="${rrect(24.4, 21.2, 15.6, 5.6, 1.4)}" fill="#12151f"/><path d="${rrect(25.4, 22, 13.6, 4, 1)}" fill="#5fb4ff" opacity=".55"/><path d="M26.2 22.8H30.4" stroke="#fff" stroke-width=".7" opacity=".8" stroke-linecap="round"/>` }));
+  } else if (w.gear === 'chef') {
+    // a tall white toque
+    front.push(P.part('M22.4 19.4V14.6Q17.8 13.4 19.4 8.6Q21.4 4.4 26 6.6Q27.6 2.4 32.2 2.6Q36.8 2.4 38.4 6.6Q43 4.4 45 8.6Q46.6 13.4 42 14.6V19.4Q32.2 17.8 22.4 19.4Z', '#fbfaf5', { w: 1.8, detail: `<path d="M22.4 16.8Q32.2 15.2 42 16.8" fill="none" stroke="#d8d4c8" stroke-width=".8"/><path d="M27.4 8V14M32.2 6V14M37 8V14" stroke="#e6e2d6" stroke-width=".7"/>` }));
+  } else if (w.gear === 'cap') {
+    // a ball cap, brim forward
+    front.push(P.part('M20.4 20.6Q20.6 11.4 32.2 11Q43.8 11.4 44 20.6Z', acc, { w: 1.8, detail: `<path d="M31.6 11.2H32.8V20.6H31.6Z" fill="${dark(acc, 0.2)}"/><circle cx="32.2" cy="11.4" r="1" fill="${dark(acc, 0.25)}"/>` }));
+    front.push(P.part('M30 19.6Q40 18.6 48.4 21.4Q47.6 23.4 44 23Q37.6 21.8 30 22.2Z', dark(acc, 0.15), { w: 1.4 }));
+  } else if (w.gear === 'goggles') {
+    // brass goggles pushed up onto the forehead
+    front.push(P.part('M20.4 19.4Q32.2 15.6 44 19.4L43.8 21.2Q32.2 17.6 20.6 21.2Z', '#4a3a2a', { w: 1.2 }));
+    for (const x of [27.4, 37]) front.push(P.part(ell(x, 18, 3.3, 2.9), '#c9a24a', { w: 1.5, detail: `<ellipse cx="${x}" cy="18" rx="2.3" ry="2" fill="#7fe8c8" opacity=".85"/><path d="M${x - 1.2} 17.2L${x - 0.2} 16.6" stroke="#fff" stroke-width=".7" stroke-linecap="round"/>` }));
+  } else if (w.gear === 'fedora') {
+    // a fedora with a band, brim snapped down in front
+    front.push(P.part('M14.8 20Q32.2 15.6 49.6 20Q47.4 22.6 42.6 21.6Q32.2 19.4 21.8 21.6Q17 22.6 14.8 20Z', '#2a2a32', { w: 1.6 }));
+    front.push(P.part('M22 19.2Q21.4 9 32.2 8.4Q43 9 42.4 19.2Q32.2 17.2 22 19.2Z', '#34343e', { w: 1.8, detail: `<path d="M22.2 15.8Q32.2 14 42.2 15.8L42.3 18.2Q32.2 16.4 22.1 18.2Z" fill="${t >= 3 ? gold : '#1a1418'}"/><path d="M28 10Q32.2 12.4 36.4 10" fill="none" stroke="#1a1a22" stroke-width=".9"/>` }));
+  } else if (w.gear === 'gamerset' || w.gear === 'comm') {
+    // a gaming headset: big ear cups with RGB rings, a boom mic
+    front.push(P.part('M20 24.2C20 15.8 25.4 12 32.2 12C39 12 44.4 15.8 44.4 24.2L42.4 24.2C42.4 17.4 38 14 32.2 14C26.4 14 22 17.4 22 24.2Z', w.gear === 'comm' ? '#c9d2e0' : '#2a2a3a', { w: 1.6 }));
+    for (const x of [18.8, 41.8]) front.push(P.part(rrect(x, 21.8, 3.8, 7.2, 1.8), w.gear === 'comm' ? '#e9edf5' : '#1a1a26', { w: 1.6, detail: `<circle cx="${x + 1.9}" cy="25.4" r="1.4" fill="none" stroke="${w.gear === 'comm' ? trim : acc}" stroke-width=".9"/>` }));
+    front.push(P.part(capsule(43, 28.4, 36.8, 31.6, 0.45), '#3a3f58', { w: 1 }), P.part(ell(36.4, 31.8, 0.95, 0.95), w.gear === 'comm' ? '#2d3548' : acc, { w: 1 }));
+  } else if (w.gear === 'vrset') {
+    // a VR headset strapped over the eyes
+    front.push(P.part('M20.4 22.6Q32.2 20.4 44 22.6', '#1a1a26', { w: 1.2 }));
+    front.push(P.part(rrect(21.4, 20.6, 21.6, 8.4, 3), '#f0f0f5', { w: 1.8, detail: `<path d="${rrect(22.6, 21.8, 19.2, 6, 2.2)}" fill="#1a1a26"/><path d="M24 26.4H40.4" stroke="${acc}" stroke-width="1.2" stroke-linecap="round"/><circle cx="38.6" cy="23.6" r=".8" fill="${acc}"/>` }));
+  } else if (w.gear === 'arglasses') {
+    // AR glasses: a clear visor with a heads-up line across it
+    front.push(P.part(rrect(22, 22.4, 20.4, 5.4, 2.2), '#8fe3ff', { w: 1.4, detail: `<path d="M24 24.6H33" stroke="#39ff9e" stroke-width=".8" stroke-linecap="round"/><circle cx="38" cy="24.8" r=".9" fill="#ff3fb8"/>` }));
+  } else if (w.gear === 'straw') {
     back.push(P.part('M22.6 17.8Q23 9.8 32.2 9.6Q41.4 9.8 41.8 17.8Z', '#e8c96a', { detail: `<path d="M22.6 15.6Q32.2 13.4 41.8 15.6V17.9H22.6Z" fill="${trim}"/><path d="M26 12.6Q29 11 32 11" fill="none" stroke="#fff3c4" stroke-width=".7" opacity=".7"/>` }));
     front.push(P.part('M13.6 19.2Q15 16.2 22 16.4Q32.2 15.2 42.4 16.4Q49.4 16.2 50.8 19.2Q47.8 21.4 42 20.8Q32.2 19.6 22.4 20.8Q16.6 21.4 13.6 19.2Z', '#e8c96a', { detail: `<path d="M17 18.8Q24 17.6 32.2 17.4Q40.4 17.6 47.4 18.8" fill="none" stroke="#c9a449" stroke-width=".5" stroke-dasharray="1 1"/>` }));
   } else if (w.gear === 'comm') {
@@ -287,12 +335,12 @@ function headGear(P, look, front, back) {
     back.push(P.part('M18.6 30Q17.4 13.4 32.2 12.2Q47 13.4 45.8 30L43.4 34.2Q44 21 32.2 20.2Q20.4 21 21 34.2Z', '#4a3040', { detail: `<path d="M22 17.6Q32.2 12.6 42.4 17.6" fill="none" stroke="#6a4a5e" stroke-width=".8" opacity=".8"/>` }));
   }
   // from Trader up, a trading-floor headset: an earpiece and a mic on a boom
-  if (t >= 2 && w.gear !== 'comm') {
+  if (t >= 2 && !['comm', 'gamerset', 'weldmask', 'vrset'].includes(w.gear)) {
     front.push(P.part(rrect(42, 23.6, 3.6, 5.6, 1.6), '#2b2f42', { w: 1.5, detail: `<circle cx="43.8" cy="26.4" r=".9" fill="${trim}"/>` }));
     front.push(P.part(capsule(43.4, 28.6, 37.4, 31.6, 0.42), '#3a3f58', { w: 1 }), P.part(ell(36.9, 31.8, 0.95, 0.95), '#2b2f42', { w: 1 }));
   }
   // the tycoon's circlet: gold, with the role's gem
-  if (t === 4 && !['straw', 'mask', 'tophat', 'costume'].includes(w.gear)) front.push(P.part('M22.6 18.4L25 13.8L28.2 16.8L32.2 11.8L36.2 16.8L39.4 13.8L41.8 18.4Q32.2 16.2 22.6 18.4Z', gold, { w: 1.6, detail: `<circle cx="32.2" cy="16.2" r="1.3" fill="${acc}"/><circle cx="31.8" cy="15.8" r=".45" fill="#fff"/>` }));
+  if (t === 4 && !['straw', 'mask', 'tophat', 'costume', 'hardhat', 'weldmask', 'chef', 'cap', 'fedora', 'vrset', 'gamerset'].includes(w.gear)) front.push(P.part('M22.6 18.4L25 13.8L28.2 16.8L32.2 11.8L36.2 16.8L39.4 13.8L41.8 18.4Q32.2 16.2 22.6 18.4Z', gold, { w: 1.6, detail: `<circle cx="32.2" cy="16.2" r="1.3" fill="${acc}"/><circle cx="31.8" cy="15.8" r=".45" fill="#fff"/>` }));
 }
 
 // ---------------------------------------------------------------------------------------------- body, outfit and tier gear
@@ -307,6 +355,10 @@ function outfit(P, look) {
   if (look.world === 'farm') det += `<path d="M24 34H40.6V40.4Q32.2 39.4 24 40.4Z" fill="${w.trim}"/><path d="M24 36.2H40.6M24 38.4H40.6M28 34V40M32.2 34V40M36.4 34V40" stroke="#8a2a24" stroke-width=".5" opacity=".7"/><path d="M27 40.2H37.6V49.6H27Z" fill="${light(w.suit, 0.08)}"/><path d="M27.4 40.4L25.6 34.8M37.2 40.4L39 34.8" stroke="${w.suit}" stroke-width="1.6"/><circle cx="28" cy="41.2" r=".7" fill="#f2c14e"/><circle cx="36.6" cy="41.2" r=".7" fill="#f2c14e"/><path d="M29.6 43.4H35" stroke="${dark(w.suit, 0.2)}" stroke-width=".6"/>`;
   if (look.world === 'cyber') det += `<path d="M31.4 34.4V49.6" stroke="${acc}" stroke-width=".9"/><path d="M24.2 47.6H40.4" stroke="${acc}" stroke-width=".9"/><path d="M28.6 34.4Q29.6 37.4 31.2 37.8" fill="none" stroke="#3a3a52" stroke-width="1.2"/><path d="M26 41.4L29.4 41.4" stroke="${acc}" stroke-width=".7" opacity=".8"/>`;
   if (look.world === 'alien') det += `<path d="M28.4 34.4L32.2 38.6L36 34.4Z" fill="${acc}"/><path d="M24 40.6H40.6V42.4H24Z" fill="${w.trim}" opacity=".35"/><path d="M34.8 38.6l1.3 -1.6 1.3 1.6 -1.3 1.8Z" fill="${w.trim}"/>`;
+  if (look.world === 'rocket') det += `<path d="M24 41.2H40.4V43H24Z" fill="${w.trim}"/><circle cx="36.4" cy="38.2" r="1.7" fill="#26345a"/><path d="M35.4 38.8L36.4 36.6L37.4 38.8Z" fill="#fff"/><rect x="27" y="37" width="4.2" height="1.6" rx=".4" fill="#1d2b4a"/><path d="M29.2 34.4V49.6" stroke="#c9ced8" stroke-width=".6"/>`;
+  if (look.world === 'lab') det += `<path d="M28.6 34.4L32.2 42.4L35.8 34.4Z" fill="${acc}"/><path d="M28.6 34.4L30.4 44.8M35.8 34.4L34 44.8" stroke="#c9ccc4" stroke-width=".9"/><rect x="35.2" y="40.6" width="3.2" height="3.4" rx=".4" fill="none" stroke="#c9ccc4" stroke-width=".6"/><path d="M36 40.8V38.6M37 40.8V39" stroke="${w.trim}" stroke-width=".7" stroke-linecap="round"/><path d="M36.8 40.8V38.8" stroke="#ff4fb8" stroke-width=".7" stroke-linecap="round"/>`;
+  if (look.world === 'mafia') det += `<path d="M26 34.8V49.4M28.4 34.6V49.4M36 34.6V49.4M38.4 34.8V49.4" stroke="#8a8a96" stroke-width=".35" opacity=".7"/><path d="M29.2 34.4L32.2 39.8L35.2 34.4Z" fill="#f4f0e8"/><path d="M31.4 35.2H33L33.4 36.4L32.8 42L32.2 43.2L31.6 42L31 36.4Z" fill="#8a1c2b"/><path d="M35.8 37.2L38.2 36.6L37.8 38.4Z" fill="${w.trim}"/>`;
+  if (look.world === 'gamer') det += `<path d="M26.6 42.4H37.8V47.6H26.6Z" fill="${dark(w.suit, 0.15)}"/><path d="M30.2 34.6V39.4M34.2 34.6V39.4" stroke="#e8e6ff" stroke-width=".6" stroke-linecap="round"/><path d="M29 37.8L32.2 36.2L35.4 37.8L32.2 40.2Z" fill="${w.trim}"/>`;
   if (look.world === 'ocean') det += `<path d="M24.2 39.2L40.4 36.4V38.4L24.2 41.2Z" fill="${w.trim}"/><path d="M24.2 44.2L40.4 41.4V42.8L24.2 45.6Z" fill="${w.trim}" opacity=".85"/><path d="M29.4 34.6Q32.2 36.4 35 34.6" fill="none" stroke="#0f2238" stroke-width="1"/>`;
   // tier gear over the outfit: 1 a tie, 2 a vest and a pen, 3 a jacket with gold buttons, 4 gold trim and a medallion
   if (t >= 1 && t < 3) det += `<path d="M31.2 35.4H33.2L33.6 36.6L32.9 42.2L32.2 43.4L31.5 42.2L30.8 36.6Z" fill="${acc}" stroke="${dark(acc, 0.45)}" stroke-width=".4"/>`;
@@ -327,7 +379,7 @@ function outfit(P, look) {
   if (t === 4) parts.push(P.part(ell(32.2, 40.6, 2.3, 2.3), gold, { w: 1.4, detail: `<text x="32.2" y="41.8" font-size="3.3" font-weight="900" text-anchor="middle" fill="#7a5410" font-family="Arial, sans-serif">$</text>` }));
   return parts;
 }
-function belt(P, look) { return look.world === 'space' || look.world === 'castle' ? [] : [P.part(rrect(24, 46.6, 16.4, 2.2, 0.8), look.world === 'farm' ? '#3f74b0' : look.world === 'cyber' ? '#1a1a26' : dark(WORLDS[look.world].suit, 0.2), { w: 1, rim: false, detail: `<rect x="31.1" y="46.8" width="2.2" height="1.8" rx=".4" fill="${look.tier >= 3 ? '#f2c14e' : '#c9c9d6'}"/>` })]; }
+function belt(P, look) { return ['space', 'castle', 'lab', 'mafia', 'gamer'].includes(look.world) ? [] : [P.part(rrect(24, 46.6, 16.4, 2.2, 0.8), look.world === 'farm' ? '#3f74b0' : look.world === 'cyber' ? '#1a1a26' : dark(WORLDS[look.world].suit, 0.2), { w: 1, rim: false, detail: `<rect x="31.1" y="46.8" width="2.2" height="1.8" rx=".4" fill="${look.tier >= 3 ? '#f2c14e' : '#c9c9d6'}"/>` })]; }
 function leg(P, look, side) {
   const w = WORLDS[look.world], x = side < 0 ? 28.4 : 35.9;
   const legC = look.species === 'skeleton' ? '#efe8da' : look.species === 'robot' ? '#9aa6bd' : w.legs;

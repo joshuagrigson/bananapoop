@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 1.5l13 7.5v14l-13 7.5-13-7.5V9z' fill='%23ffcf5a'/%3E%3Cpath d='M16 7l8 4.6v8.8L16 25l-8-4.6v-8.8z' fill='%23704a08'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Cinzel:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Audiowide&family=Exo+2:wght@500;600;700&family=Righteous&family=Lilita+One&family=Creepster&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Cinzel:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Audiowide&family=Exo+2:wght@500;600;700&family=Righteous&family=Lilita+One&family=Creepster&family=Bungee&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #04060c; --ink: #e9eefb; --ink2: #b8c2da; --muted: #7c88a6; --dim: #4d5775;
@@ -96,6 +96,48 @@
     --field: #180c1c; --tile: #221228; --line: #4a2a44; --line2: #7a4a4a; --sunk: #2a1630;
     --title-grad: linear-gradient(90deg, #fff4e0, #ffcf3a 55%, #ff8a1a);
   }
+  :root[data-skin="rocket"] {
+    --bg: #07090f; --ink: #f4f6fb; --ink2: #c3cad8; --muted: #8791a6; --dim: #535c70;
+    --edge: rgba(255, 106, 26, .22); --edge2: rgba(255, 140, 70, .42);
+    --gold: #ffc23a; --gold2: #ff8a2a; --cyan: #6fd8ff; --violet: #9aa8ff; --pink: #ff6a5a; --good: #5fe39a;
+    --f-ui: "Rajdhani", "Segoe UI", system-ui, sans-serif; --f-display: "Orbitron", "Rajdhani", sans-serif; --radius: 6px;
+    --glass-a: rgba(18, 22, 32, .84); --glass-b: rgba(8, 10, 16, .9); --plate-a: rgba(22, 26, 38, .9); --plate-b: rgba(9, 11, 18, .93);
+    --tip-a: rgba(22, 26, 38, .97); --tip-b: rgba(9, 11, 18, .97); --btn-a: #1d2230; --btn-b: #10131c; --card-a: rgba(26, 30, 44, .74); --card-b: rgba(10, 12, 20, .64);
+    --field: #0b0e16; --tile: #121622; --line: #262c3c; --line2: #3c4458; --sunk: #181c2a;
+    --title-grad: linear-gradient(90deg, #ffffff, #ffd9b0 55%, #ff6a1a);
+  }
+  :root[data-skin="lab"] {
+    --bg: #07040f; --ink: #f2fff0; --ink2: #c8e6c8; --muted: #8aa88e; --dim: #52685a;
+    --edge: rgba(125, 255, 74, .2); --edge2: rgba(150, 255, 110, .4);
+    --gold: #ffe14a; --gold2: #ffb52a; --cyan: #39f0ff; --violet: #c46bff; --pink: #ff4fb8; --good: #7dff4a;
+    --f-ui: "Nunito", "Segoe UI", system-ui, sans-serif; --f-display: "Lilita One", "Fredoka", sans-serif; --radius: 20px;
+    --glass-a: rgba(22, 14, 38, .84); --glass-b: rgba(9, 5, 18, .9); --plate-a: rgba(26, 16, 44, .9); --plate-b: rgba(10, 6, 20, .93);
+    --tip-a: rgba(26, 16, 44, .97); --tip-b: rgba(10, 6, 20, .97); --btn-a: #2a1a44; --btn-b: #170e28; --card-a: rgba(30, 20, 50, .74); --card-b: rgba(12, 8, 22, .64);
+    --field: #0e0818; --tile: #170f26; --line: #33234e; --line2: #4e3a72; --sunk: #1e1432;
+    --title-grad: linear-gradient(90deg, #f4fff0, #7dff4a 50%, #39f0ff);
+  }
+  :root[data-skin="mafia"] {
+    --bg: #0c0806; --ink: #f6ecd8; --ink2: #dccaa8; --muted: #a08e70; --dim: #6a5a44;
+    --edge: rgba(212, 168, 74, .22); --edge2: rgba(230, 190, 100, .42);
+    --gold: #e0b454; --gold2: #b8862e; --cyan: #d8c088; --violet: #9a3040; --pink: #c83a48; --good: #8ac27a;
+    --f-ui: "Alegreya Sans", "Segoe UI", system-ui, sans-serif; --f-display: "Cinzel", Georgia, serif; --radius: 3px;
+    --glass-a: rgba(30, 20, 14, .86); --glass-b: rgba(12, 8, 5, .92); --plate-a: rgba(36, 24, 16, .9); --plate-b: rgba(14, 9, 6, .93);
+    --tip-a: rgba(36, 24, 16, .97); --tip-b: rgba(14, 9, 6, .97); --btn-a: #2e2016; --btn-b: #1a120c; --card-a: rgba(40, 28, 18, .76); --card-b: rgba(16, 10, 6, .66);
+    --field: #140d08; --tile: #1e1510; --line: #3e2e1e; --line2: #5e4630; --sunk: #241a12;
+    --title-grad: linear-gradient(90deg, #fff6e0, #f2d48a 55%, #c8963a);
+  }
+  :root[data-skin="gamer"] {
+    --bg: #06051a; --ink: #f4f2ff; --ink2: #c8c4ee; --muted: #8a86b8; --dim: #545080;
+    --edge: rgba(57, 255, 158, .22); --edge2: rgba(41, 231, 255, .42);
+    --gold: #ffd23a; --gold2: #ffa62a; --cyan: #29e7ff; --violet: #9a5cff; --pink: #ff3fb8; --good: #39ff9e;
+    --f-ui: "Exo 2", "Segoe UI", system-ui, sans-serif; --f-display: "Bungee", "Audiowide", sans-serif; --radius: 12px;
+    --glass-a: rgba(20, 16, 50, .84); --glass-b: rgba(8, 6, 24, .9); --plate-a: rgba(24, 18, 58, .9); --plate-b: rgba(9, 7, 26, .93);
+    --tip-a: rgba(24, 18, 58, .97); --tip-b: rgba(9, 7, 26, .97); --btn-a: #221a50; --btn-b: #130e30; --card-a: rgba(28, 22, 66, .74); --card-b: rgba(10, 8, 30, .64);
+    --field: #0b0922; --tile: #13102e; --line: #2c2660; --line2: #463c8a; --sunk: #1a1640;
+    --title-grad: linear-gradient(90deg, #39ff9e, #29e7ff 40%, #9a5cff 70%, #ff3fb8);
+  }
+  :root[data-skin="gamer"] .brand h1, :root[data-skin="gamer"] .ih h2 { text-shadow: 0 0 14px rgba(57, 255, 158, .35); }
+  :root[data-skin="mafia"] .brand h1, :root[data-skin="mafia"] .ih h2 { letter-spacing: .06em; }
   :root[data-skin="haunted"] .brand h1, :root[data-skin="haunted"] .ih h2 { text-shadow: 0 0 14px rgba(157, 255, 138, .3); letter-spacing: .04em; }
   :root[data-skin="cyber"] .brand h1, :root[data-skin="cyber"] .ih h2 { text-shadow: 0 0 12px rgba(0, 240, 255, .35); }
   :root[data-skin="cyber"] .glass { box-shadow: 0 14px 40px rgba(0, 0, 0, .5), 0 0 22px rgba(255, 43, 214, .12), inset 0 1px 0 rgba(0, 240, 255, .12); }
@@ -1174,7 +1216,7 @@
   // A skin changes palettes, floors, walls, furniture, characters, the sky and the HUD. It never changes what is
   // bound to the ledger: lit stations, stacks, tubes, the vault, the crew and the coins mean the same thing in every
   // world. Each skin fills in hooks; a hook it leaves out falls back to the space station.
-  const SKIN_IDS = ['space', 'castle', 'farm', 'cyber', 'alien', 'ocean', 'haunted', 'pumpkin'];
+  const SKIN_IDS = ['space', 'castle', 'farm', 'cyber', 'alien', 'ocean', 'haunted', 'pumpkin', 'rocket', 'lab', 'mafia', 'gamer'];
   // What each world calls things, and the looks its rooms can take: who lives in them (the farm's cows, the sea's crabs)
   // or what the folk working them turn into (the castle's skeletons, the city's hackers). Pure looks, never data.
   const SKINS = {
@@ -1186,6 +1228,14 @@
     ocean: { names: { hub: "Pearl vault", dock: "Mail sub", dockLong: "Mail sub dock", dockSign: "MAIL", leader: "Captain", mast: "Buoy line", crew: "divers", station: "base" }, themeColor: "#02101c", looks: [{ id: "reef", title: "Coral reef", resident: "Clownfish", res: { speed: 1.5, float: 9 } }, { id: "grotto", title: "Octopus grotto", resident: "Octopuses", res: { speed: 0.7, float: 3 } }, { id: "wreck", title: "Shipwreck", resident: "Crabs", res: { speed: 1.2 } }, { id: "kelp", title: "Kelp forest", resident: "Seahorses", res: { speed: 0.6, float: 7 } }, { id: "subbay", title: "Sub bay", resident: "Sea turtles", res: { speed: 0.6, float: 5 } }, { id: "deep", title: "The deep", resident: "Jellyfish", res: { speed: 0.4, float: 11 } }] },
     haunted: { names: { hub: "Family vault", dock: "Dead letters", dockLong: "Dead letter office", dockSign: "LETTERS", leader: "Master", mast: "Bell tower", crew: "ghosts", station: "mansion" }, themeColor: "#07050c", looks: [{ id: "ballroom", title: "Ghost ballroom", resident: "Ghosts", res: { speed: 0.6, float: 6 } }, { id: "bonecellar", title: "Bone cellar", resident: "Skeletons", res: { speed: 0.9 } }, { id: "gallery", title: "Portrait gallery", resident: "Vampires", res: { speed: 0.8 } }, { id: "attic", title: "The attic", resident: "Werewolves", res: { speed: 1.4 } }, { id: "nursery", title: "Old nursery", resident: "Ghost children", res: { speed: 0.7, float: 5 } }, { id: "seance", title: "Seance room", resident: "Mediums", res: { speed: 0.6 } }] },
     pumpkin: { names: { hub: "Candy cauldron", dock: "Hay wagon", dockLong: "Hay wagon", dockSign: "TREATS", leader: "Pumpkin king", mast: "Scarecrow", crew: "trick-or-treaters", station: "patch" }, themeColor: "#120a1e", looks: [{ id: "patch", title: "Pumpkin patch", resident: "Scarecrows", res: { speed: 0.7 } }, { id: "maze", title: "Corn maze", resident: "Trick-or-treaters", res: { speed: 1.3 } }, { id: "graveyard", title: "Spooky yard", resident: "Skeletons", res: { speed: 0.9 } }, { id: "witches", title: "Witches' hut", resident: "Witches", res: { speed: 0.8 } }, { id: "carving", title: "Carving shed", resident: "Carvers", res: { speed: 0.9 } }, { id: "cats", title: "Black cat alley", resident: "Black cats", res: { speed: 1.5 } }] },
+    // a rocket works round a launch silo: every room builds a part, welds it on, or flies it
+    rocket: { names: { hub: "Launch silo", dock: "Payload bay", dockLong: "Payload bay", dockSign: "PAYLOAD", leader: "Flight director", mast: "Tracking dish", crew: "engineers", station: "works" }, themeColor: "#07090f", looks: [{ id: "engines", title: "Engine shop", resident: "Propulsion techs", res: { speed: 1 } }, { id: "avionics", title: "Avionics bay", resident: "Avionics engineers", res: { speed: 0.9 } }, { id: "tankfarm", title: "Tank farm", resident: "Fuel techs", res: { speed: 1 } }, { id: "fairing", title: "Fairing shop", resident: "Composite techs", res: { speed: 0.9 } }, { id: "weldbay", title: "Weld bay", resident: "Welders", res: { speed: 1.1 } }, { id: "mission", title: "Mission control", resident: "Flight controllers", res: { speed: 0.7 } }] },
+    // a mad scientist's laboratory: white coats, wild hair, bubbling glass, and a potion for every win
+    lab: { names: { hub: "Grand reactor", dock: "Delivery chute", dockLong: "Delivery chute", dockSign: "POTIONS", leader: "Professor", mast: "Lightning rod", crew: "assistants", station: "lab" }, themeColor: "#07040f", looks: [{ id: "potions", title: "Potion bench", resident: "Potion brewers", res: { speed: 1.2 } }, { id: "tesla", title: "Tesla room", resident: "Sparky scientists", res: { speed: 1.3 } }, { id: "specimens", title: "Specimen hall", resident: "Biologists", res: { speed: 0.8 } }, { id: "distillery", title: "Glass-coil distillery", resident: "Chemists", res: { speed: 1 } }, { id: "blast", title: "Blast chamber", resident: "Explosives nerds", res: { speed: 1.4 } }, { id: "clones", title: "Cloning vats", resident: "Clones", res: { speed: 0.9 } }] },
+    // an old-money family's mansion: every room runs a classic family business, all of it legitimate
+    mafia: { names: { hub: "The don's office", dock: "The garage", dockLong: "The garage", dockSign: "DELIVERIES", leader: "Don", mast: "Bell tower", crew: "the family", station: "mansion" }, themeColor: "#0c0806", looks: [{ id: "pizzeria", title: "Pizzeria", resident: "Pizzaioli", res: { speed: 1.1 } }, { id: "oliveoil", title: "Olive oil import", resident: "Importers", res: { speed: 0.9 } }, { id: "vino", title: "Wine cellar", resident: "Sommeliers", res: { speed: 0.7 } }, { id: "tailor", title: "Tailor shop", resident: "Tailors", res: { speed: 0.8 } }, { id: "cardroom", title: "Card room (licensed)", resident: "Dealers", res: { speed: 0.7 } }, { id: "builders", title: "Construction company", resident: "Builders", res: { speed: 1.1 } }, { id: "waste", title: "Waste management", resident: "Haulers", res: { speed: 1 } }, { id: "bakery", title: "Cannoli bakery", resident: "Bakers", res: { speed: 1 } }] },
+    // a huge gaming den: every room plays a different way, and winning is how the money shows
+    gamer: { names: { hub: "Championship stage", dock: "Loot drop", dockLong: "Loot drop", dockSign: "LOOT", leader: "Team captain", mast: "Stream tower", crew: "squad", station: "den" }, themeColor: "#06051a", looks: [{ id: "pcrig", title: "PC battlestations", resident: "PC gamers", res: { speed: 1 } }, { id: "vrarena", title: "VR arena", resident: "VR players", res: { speed: 1.2 } }, { id: "couch", title: "Couch co-op", resident: "Couch crew", res: { speed: 0.6 } }, { id: "argame", title: "AR playground", resident: "AR hunters", res: { speed: 1.3 } }, { id: "aiarena", title: "AI arena", resident: "AI trainers", res: { speed: 0.9 } }, { id: "arcade", title: "Retro arcade", resident: "Arcade kids", res: { speed: 1 } }] },
   };
   let skinTry = null;
   const skinFromUrl = (() => { try { const q = new URLSearchParams(location.search).get('skin'); return SKIN_IDS.includes(q) ? q : null; } catch { return null; } })();
@@ -1300,14 +1350,20 @@
     receptionist: { name: 'Glorp', label: 'RECEPTIONIST', col: '#6fdc9a', say: 'Greets visitors at the core. Scenery, not on your roster.' },
     accountant: { name: 'Octavia', label: 'ACCOUNTANT', col: '#a466d8', say: 'Eight arms, eight ledgers, all of them yours. Scenery: she reads the vault, she does not change it.' },
     crab: { name: 'Crab courier', label: 'CRAB COURIER', col: '#e8573f', roam: true, say: 'Scuttles round the sub dock. Scenery, not on your roster.' },
+    don: { name: 'Don Vito', label: 'THE DON', col: '#e0b454', say: 'Runs the family from the big desk: a cigar, a crystal glass of bourbon, every business legitimate. Scenery, not on your roster.' },
+    prof: { name: 'Professor Fizz', label: 'PROFESSOR', col: '#7dff4a', say: 'Built the grand reactor. Jumps when it bubbles. Scenery, not on your roster.' },
+    flightdir: { name: 'Flight director', label: 'FLIGHT DIRECTOR', col: '#ff6a1a', say: 'Calls go or no-go on the rocket in the silo. Scenery, not on your roster.' },
+    caster: { name: 'Caster', label: 'SHOUTCASTER', col: '#39ff9e', say: 'Calls every win on the championship stage. Scenery, not on your roster.' },
   };
   // the residents drawn from the kit rather than from Code Lab
-  const NPC_LOOK = { cargo: { role: 'crew', species: 'robot', world: 'space', tier: 1, tint: '#ffb454' }, courier: { role: 'crew', world: 'cyber', tier: 2, skin: 3, hair: 4, hairC: 5, tint: '#ff5ce0' }, dj: { role: 'creator', species: 'robot', world: 'cyber', tier: 3 }, receptionist: { role: 'client', species: 'blob', world: 'alien', tier: 1, tint: '#b06bff' }, accountant: { role: 'fulfiller', species: 'octo', world: 'ocean', tier: 3 } };
+  const NPC_LOOK = { don: { role: 'commander', world: 'mafia', tier: 4, skin: 1, hair: 0, hairC: 4, eyeC: 3 }, prof: { role: 'crew', world: 'lab', tier: 3, skin: 0, hair: 4, hairC: 4, tint: '#7dff4a' }, flightdir: { role: 'commander', world: 'rocket', tier: 3, skin: 3, hair: 0, hairC: 1, gear: 'comm' }, caster: { role: 'creator', world: 'gamer', tier: 3, skin: 2, hair: 5, hairC: 5 }, cargo: { role: 'crew', species: 'robot', world: 'space', tier: 1, tint: '#ffb454' }, courier: { role: 'crew', world: 'cyber', tier: 2, skin: 3, hair: 4, hairC: 5, tint: '#ff5ce0' }, dj: { role: 'creator', species: 'robot', world: 'cyber', tier: 3 }, receptionist: { role: 'client', species: 'blob', world: 'alien', tier: 1, tint: '#b06bff' }, accountant: { role: 'fulfiller', species: 'octo', world: 'ocean', tier: 3 } };
   // costumes become species in the kit (a skeleton in the crypt, a robot at the bar, a grey in the lab), and each
   // world's floor crowd mixes in its natives
-  const KIT_SPECIES = { crypt: 'skeleton', library: 'skeleton', bar: 'robot', clinic: 'robot', lab: 'grey', probe: 'grey', lounge: 'grey', hatchery: 'blob', bridge: 'octo', bonecellar: 'skeleton', attic: 'fox', graveyard: 'skeleton', cats: 'fox' };
-  const CROWD_SPECIES = { space: [['robot', 3]], castle: [['skeleton', 4]], farm: [['fox', 5]], cyber: [['robot', 4]], alien: [['grey', 8], ['blob', 3]], ocean: [['octo', 5]], haunted: [['skeleton', 4]], pumpkin: [['fox', 3], ['skeleton', 2]] };
-  const NPC_BARK = { mordra: 'coin', vex: 'dots', mott: 'heart', warg: 'bang', mumblecrow: 'q', cargo: 'dots', courier: 'bang', dj: 'note', receptionist: 'heart', accountant: 'coin', crab: 'heart' };
+  const KIT_SPECIES = { aiarena: 'robot', crypt: 'skeleton', library: 'skeleton', bar: 'robot', clinic: 'robot', lab: 'grey', probe: 'grey', lounge: 'grey', hatchery: 'blob', bridge: 'octo', bonecellar: 'skeleton', attic: 'fox', graveyard: 'skeleton', cats: 'fox' };
+  const CROWD_SPECIES = { space: [['robot', 3]], castle: [['skeleton', 4]], farm: [['fox', 5]], cyber: [['robot', 4]], alien: [['grey', 8], ['blob', 3]], ocean: [['octo', 5]], haunted: [['skeleton', 4]], pumpkin: [['fox', 3], ['skeleton', 2]], rocket: [['robot', 2]], lab: [['blob', 2], ['skeleton', 1]], gamer: [['robot', 2]] };
+  // what a room's kind puts on its workers' heads in the kit: a welding mask, a chef's hat, a VR headset...
+  const KIT_GEAR = { weldbay: 'weldmask', mission: 'comm', pizzeria: 'chef', bakery: 'chef', builders: 'hardhat', waste: 'cap', vrarena: 'vrset', argame: 'arglasses', arcade: 'cap' };
+  const NPC_BARK = { mordra: 'coin', vex: 'dots', mott: 'heart', warg: 'bang', mumblecrow: 'q', cargo: 'dots', courier: 'bang', dj: 'note', receptionist: 'heart', accountant: 'coin', crab: 'heart', don: 'coin', prof: 'bang', flightdir: 'dots', caster: 'note' };
   // somewhere free to stand anywhere on a cell's floor, clear of the furniture by a little
   function spotIn(c, r, fallback) {
     const b = cellBox(c, r);
@@ -1330,6 +1386,10 @@
     if (w === 'space') add('cargo', 'dock', dx + 1, dy + 1.3);
     if (w === 'cyber') { add('courier', 'dock', dx + 1, dy + 1.3); add('dj', 'hub', hx + 2, hy + 1.2); }
     if (w === 'alien') add('receptionist', 'hub', hx - 2, hy + 1.4);
+    if (w === 'mafia') add('don', 'hub', hx - 0.55, hy - 0.55);
+    if (w === 'lab') add('prof', 'hub', hx - 2.3, hy + 1.5);
+    if (w === 'rocket') add('flightdir', 'hub', hx + 2.4, hy + 1.6);
+    if (w === 'gamer') add('caster', 'hub', hx - 2.2, hy + 1.8);
     if (w === 'ocean') { add('accountant', 'hub', hx - 2, hy + 1.4); add('crab', 'dock', dx - 0.8, dy + 1.7, ':0'); add('crab', 'dock', dx + 1.6, dy + 1.2, ':1'); }
     return out;
   }
@@ -1537,7 +1597,7 @@
   // night) is life, not data; a real event lights their marker gold and pops a bubble. Animals and sea life in the farm
   // and ocean worlds are the room's stock, growing with how busy it has been. In the castle, the city and the ship,
   // folk wear the costume of the room they work: a skeleton in the crypt, a hacker in the den.
-  const COSTUME_SKINS = new Set(['castle', 'cyber', 'alien', 'haunted', 'pumpkin']);
+  const COSTUME_SKINS = new Set(['castle', 'cyber', 'alien', 'haunted', 'pumpkin', 'rocket', 'lab', 'mafia', 'gamer']);
   const STOCK_SKINS = new Set(['farm', 'ocean']);
   const folkList = () => (snap && snap.station && (snap.station.folk || snap.station.kids)) || [];
   const byOf = (e) => e.by || e.kid || null;
@@ -1774,6 +1834,10 @@
     ocean: [{ kind: 'fish', n: 12 }, { kind: 'bubble', n: 14 }],
     haunted: [{ kind: 'bat', n: 10 }, { kind: 'ghost', n: 5 }],
     pumpkin: [{ kind: 'bat', n: 5 }, { kind: 'leaf', n: 18 }, { kind: 'firefly', n: 14 }],
+    rocket: [{ kind: 'drone', n: 4 }, { kind: 'bird', n: 4, day: true }],
+    lab: [{ kind: 'bat', n: 4 }, { kind: 'spore', n: 14 }],
+    mafia: [{ kind: 'bird', n: 5, day: true }, { kind: 'firefly', n: 14, night: true }],
+    gamer: [{ kind: 'drone', n: 5 }, { kind: 'spore', n: 16 }],
   };
   const MAPX = 4 * CELL + 2, MAPY = 3 * CELL + 2;
   function spawnCritter(kind, anywhere) {
@@ -2150,12 +2214,14 @@
 
   function simStep(dt) {
     deskBusy.clear();
+    const labHops = skinId() === 'lab' && !reduceMotion;
     for (const [id, a] of agents) {
       a.t += dt;
       if (a.dying) { if (T - a.dying > 0.95) agents.delete(id); else if (Math.random() < dt * 30) { const [sx, sy] = P(a.x, a.y, 4 + Math.random() * 16); particles.push({ x: sx + (Math.random() - 0.5) * 8, y: sy, vx: (Math.random() - 0.5) * 10, vy: -20 - Math.random() * 25, g: 0, life: 0.5, col: roleCol(a.role), glow: true }); } continue; }
       if (a.bubble) { a.bubble.t += dt; if (a.bubble.t > a.bubble.dur) a.bubble = null; }
       if (a.real > 0) a.real -= dt;
       if (a.jz > 0) a.jz = Math.max(0, a.jz - dt * 1.6);
+      else if (labHops && !a.queue.length && (a.kind === 'extra' || a.kind === 'folk' || a.npc === 'prof') && Math.random() < dt * (a.npc === 'prof' ? 0.5 : 0.12)) a.jz = 1;
       if (a.queue.length) {
         const [tx, ty] = a.queue[0];
         const dx = tx - a.x, dy = ty - a.y, dist = Math.hypot(dx, dy);
@@ -2253,6 +2319,7 @@
       for (let k = 0; k < 5; k++) particles.push({ x: sx + (Math.random() - 0.5) * 6, y: sy, vx: (Math.random() - 0.5) * 34, vy: -24 - Math.random() * 26, g: 26, life: 1.1 + Math.random() * 0.6, col: k % 3 ? '#f5f2e8' : '#e8f0ff' });
     }
     flowBurst(room, Math.ceil(n / 3), amt);
+    worldMoment(room, true);
     const [cx, cy] = cellCenter(room.c, room.r);
     const hub = cellCenter(...HUB);
     const from = P(cx, cy, 12), to = P(hub[0], hub[1], 30);
@@ -2265,6 +2332,20 @@
   // ever earned keeps a trickle going, so the station never looks idle while money is in it; a room with nothing at all
   // sends nothing. Every sale sends a burst whose first token carries the amount into the vault.
   const flows = [], flowAcc = new Map();
+  // the newer worlds' own moments: poofs over the lab benches, a potion flying to the shelf, a mini rocket lifting off
+  const worldFx = [];
+  let fxAcc = 0;
+  function worldMoment(room, big) {
+    const w = skinId(); if (!room || reduceMotion) return;
+    const [cx, cy] = cellCenter(room.c, room.r);
+    if (w === 'lab') for (let k = 0; k < (big ? 3 : 1); k++) worldFx.push({ kind: 'poof', x: cx + (Math.random() - 0.5) * 5, y: cy + (Math.random() - 0.5) * 5, z: 2 + Math.random(), t0: T + k * 0.25, col: ['#7dff4a', '#ff4fb8', '#39f0ff', '#ffe14a', '#c46bff'][(Math.random() * 5) | 0], s: big ? 1.6 : 1 });
+    if (w === 'rocket' && big) worldFx.push({ kind: 'launch', x: cx + 2, y: cy - 2, t0: T });
+    if (w === 'gamer' && big) {
+      popValue(cx, cy - 1, ['VICTORY!', 'GG!', 'NEW HIGH SCORE!', 'COMBO x3!', 'LEVEL UP!'][(Math.random() * 5) | 0], '#ffd23a');
+      const [sx, sy] = P(cx, cy, 60); for (let k = 0; k < 28; k++) particles.push({ x: sx + (Math.random() - 0.5) * 30, y: sy, vx: (Math.random() - 0.5) * 90, vy: -40 - Math.random() * 60, g: 60, life: 1.4 + Math.random() * 0.8, col: ['#39ff9e', '#ff3fb8', '#29e7ff', '#ffd23a', '#9a5cff'][k % 5] });
+    }
+    if (w === 'mafia' && big) popValue(cx, cy - 1, ['Salute!', 'Molto bene', 'Grazie'][(Math.random() * 3) | 0], '#e0b454');
+  }
   let flowSig = '', flowCache = new Map(), vaultPulse = 0, flowLevel = 0;
   function roomFlow(room) {
     const sig = snap.state.eventCount + ':' + Math.floor(Date.now() / 60000) + ':' + rooms.length;
@@ -2313,6 +2394,9 @@
       flowAcc.set(room.id, a);
     }
     flowLevel += (clamp(lvl / 4, 0, 1) - flowLevel) * Math.min(1, dt * 0.8);
+    // the lab never stops experimenting: a poof over a busy bench every second or so
+    if (skinId() === 'lab' && !reduceMotion) { fxAcc += dt; if (fxAcc > 1.1) { fxAcc = 0; const busy = rooms.filter((r) => { const f = roomFlow(r); return f.every || f.leadEvery; }); if (busy.length) worldMoment(busy[(Math.random() * busy.length) | 0], false); } }
+    for (let i = worldFx.length - 1; i >= 0; i--) if (T - worldFx[i].t0 > 2.6) worldFx.splice(i, 1);
     vaultPulse = Math.max(0, vaultPulse - dt * 1.6);
     for (let i = flows.length - 1; i >= 0; i--) {
       const t = flows[i];
@@ -2323,6 +2407,8 @@
           flows.splice(i, 1); vaultPulse = Math.min(1.6, vaultPulse + (t.kind === 'money' ? (t.big ? 0.5 : 0.25) : 0.1));
           // the amount lands in the vault where you can read it
           if (t.label) { const [hx, hy] = cellCenter(...HUB); popValue(hx, hy, t.label, t.acc); }
+          // in the lab every win comes out of the reactor as a potion
+          if (t.kind === 'money' && t.big && skinId() === 'lab') worldFx.push({ kind: 'potion', t0: T, col: ['#7dff4a', '#ff4fb8', '#39f0ff', '#ffe14a', '#c46bff'][t.seed % 5] });
         }
       }
     }
@@ -4160,6 +4246,11 @@
     ocean: 'linear-gradient(104deg, transparent 28%, rgba(170,235,255,.2) 31% 37%, transparent 40%), linear-gradient(180deg, #0e6a96, #062a4a 68%, #c9b07a 68%, #a08858)',
     haunted: 'radial-gradient(circle at 76% 30%, #e8ecd8 0 9px, rgba(200,255,190,.25) 10px 18px, transparent 19px), linear-gradient(180deg, #0c0a1c, #2a1a36 62%, #141018 62%, #0a080e)',
     pumpkin: 'radial-gradient(circle at 74% 32%, #ffb040 0 11px, rgba(255,150,40,.3) 12px 20px, transparent 21px), radial-gradient(circle at 26% 80%, #ff8a1a 0 7px, transparent 8px), linear-gradient(180deg, #2a1440, #5a2a4a 60%, #2a1a14 60%, #1a100a)',
+
+    rocket: 'linear-gradient(90deg, transparent 0 46%, #e8ebf1 46% 54%, transparent 54%), radial-gradient(circle at 50% 30%, #ff6a1a 0 6px, transparent 7px), linear-gradient(180deg, #1a1f3a, #ff8a4a 70%, #3a2a24 70%, #1a1410)',
+    lab: 'radial-gradient(circle at 30% 60%, #7dff4a 0 14px, rgba(125,255,74,.3) 15px 24px, transparent 25px), radial-gradient(circle at 70% 50%, #ff4fb8 0 10px, transparent 11px), linear-gradient(180deg, #120824, #2a1446 70%, #d8e6e0 70%)',
+    mafia: 'radial-gradient(circle at 50% 44%, #e0b454 0 7px, transparent 8px), linear-gradient(90deg, transparent 0 20%, #1a120a 20% 23%, transparent 23% 77%, #1a120a 77% 80%, transparent 80%), linear-gradient(180deg, #3a1e18, #7a3a2a 65%, #5a3820 65%, #2a1a10)',
+    gamer: 'linear-gradient(0deg, rgba(255,63,184,.5) 1px, transparent 1px) 0 0/100% 14px, linear-gradient(90deg, rgba(41,231,255,.35) 1px, transparent 1px) 0 0/14px 100%, linear-gradient(180deg, #1a0a3a, #ff3fb8 60%, #06051a 60%)',
   };
   const normKw = (v) => String(v || '').toLowerCase().replace(/[\s_]+/g, ' ').trim().slice(0, 40);
   const rd = { data: null, draft: null, orig: '', byMode: {}, sel: 0, armed: null, welcome: false, msg: '', err: false, step: 1, wmode: null, wtpl: null, wskin: null };
@@ -4475,7 +4566,7 @@
 
   // ======================================================================= field guide
   // ---- the map: the station drawn as an illustrated map of its world (art/folk-kit/mapSvg.js), with your own rooms
-  const SKINS_TITLE = { space: 'Space station', castle: 'Dark castle', farm: 'Farm', cyber: 'Cyberpunk city', alien: 'Alien ship', ocean: 'Deep sea base', haunted: 'Haunted mansion', pumpkin: 'Pumpkin patch' };
+  const SKINS_TITLE = { space: 'Space station', castle: 'Dark castle', farm: 'Farm', cyber: 'Cyberpunk city', alien: 'Alien ship', ocean: 'Deep sea base', haunted: 'Haunted mansion', pumpkin: 'Pumpkin patch', rocket: 'Rocket works', lab: 'Mad scientist lab', mafia: 'Family mansion', gamer: 'Game den' };
   function openMap() {
     if (typeof window.mapSvg !== 'function' || !snap) return;
     const box = $('#mapbox .box');
@@ -4497,7 +4588,7 @@
     img.replaceWith(s);
   };
   // who stands where in each world (residentsFor places them)
-  const WORLD_NPCS = { castle: ['mordra', 'vex'], haunted: ['mordra', 'vex'], farm: ['mott', 'warg', 'mumblecrow'], pumpkin: ['mumblecrow'], space: ['cargo'], cyber: ['courier', 'dj'], alien: ['receptionist'], ocean: ['accountant', 'crab'] };
+  const WORLD_NPCS = { mafia: ['don'], lab: ['prof'], rocket: ['flightdir'], gamer: ['caster'], castle: ['mordra', 'vex'], haunted: ['mordra', 'vex'], farm: ['mott', 'warg', 'mumblecrow'], pumpkin: ['mumblecrow'], space: ['cargo'], cyber: ['courier', 'dj'], alien: ['receptionist'], ocean: ['accountant', 'crab'] };
   const SPECIES_NAME = { robot: 'Robots', skeleton: 'Skeletons', fox: 'Foxes', grey: 'Greys', blob: 'Blobs', octo: 'Octopuses', human: 'People' };
   let worldPick = null;
   // a room's residents are drawn by the renderer itself, onto a small canvas
@@ -5066,6 +5157,10 @@
       alien: { wall: '#62407f', wall2: '#553570', trim: '#b86bff', cap: '#7a55a0', floor: ['#40295a', '#38234f'], fk: 'organic', slab: '#1f1030', slab2: '#140a20', acc: '#7dffb0', sky: 'nebula', lamp: '#9dffcf', hall: '#4b2e66', rail: '#7dffb0' },
       haunted: { wall: '#4a3a56', wall2: '#3e3048', trim: '#241a2a', cap: '#5c4a68', floor: ['#3a2a24', '#32241e'], fk: 'planks', slab: '#1a1218', slab2: '#100b10', acc: '#9dff8a', sky: 'moon', lamp: '#ffcf7a', hall: '#3a2e38', rail: '#16101a', wallpaper: true },
       pumpkin: { wall: '#6a4a30', wall2: '#5a3e28', trim: '#2a1a10', cap: '#7c5c3c', floor: ['#6a4a2a', '#5e4224'], fk: 'planks', slab: '#2a1a10', slab2: '#1a1008', acc: '#ff8a1a', sky: 'moon', lamp: '#ffb040', hall: '#5a4634', rail: '#2a1a10' },
+      rocket: { wall: '#d9dde6', wall2: '#c5cad6', trim: '#1d2433', cap: '#eef1f6', floor: ['#9aa1ae', '#8e95a2'], fk: 'plates', slab: '#2a2f3c', slab2: '#1c2029', acc: '#ff6a1a', sky: 'launch', lamp: '#fff2d8', hall: '#5b6272', rail: '#ff6a1a', hazard: true },
+      lab: { wall: '#cfe2da', wall2: '#bcd2c8', trim: '#2a3a44', cap: '#e2f0ea', floor: ['#e8ece6', '#343a48'], fk: 'checker', slab: '#1e1830', slab2: '#140f22', acc: '#7dff4a', sky: 'storm', lamp: '#d8ffb0', hall: '#4a4a62', rail: '#7dff4a', tiled: true },
+      mafia: { wall: '#6a2a24', wall2: '#5a241f', trim: '#2a1a12', cap: '#7a3a2e', floor: ['#7a4a2a', '#6a3e22'], fk: 'parquet', slab: '#1a120c', slab2: '#100a06', acc: '#e0b454', sky: 'villa', lamp: '#ffd98a', hall: '#4a3a2e', rail: '#e0b454', wallpaper: true, paper: 'rgba(224,180,84,0.1)' },
+      gamer: { wall: '#1c1a3a', wall2: '#17152f', trim: '#39ff9e', cap: '#26234a', floor: ['#1a1830', '#15132a'], fk: 'tiles', slab: '#0c0b1a', slab2: '#08070f', acc: '#39ff9e', sky: 'synth', lamp: '#b48cff', hall: '#24213f', rail: '#29e7ff', neon: true, rgb: true },
       ocean: { wall: '#86a2b6', wall2: '#7590a4', trim: '#2f4a5e', cap: '#9fb7c8', floor: ['#5c7483', '#526977'], fk: 'grate', slab: '#1b2e3c', slab2: '#11202b', acc: '#39e0ff', sky: 'water', lamp: '#aef3ff', hall: '#6d8797', rail: '#2f4a5e' },
     };
     const sk = () => MAT[skinId()] || MAT.space;
@@ -5204,6 +5299,8 @@
         const quad = () => { lines.moveTo(...Pl(x, y)); lines.lineTo(...Pl(x + 1, y)); lines.lineTo(...Pl(x + 1, y + 1)); lines.lineTo(...Pl(x, y + 1)); lines.closePath(); };
         if (t2 === 'kitchen' || t2 === 'laundry' || t2 === 'trash') { quad(); lineCol = lineCol || 'rgba(0,0,0,0.12)'; }
         else if (S.fk === 'tiles') { quad(); lineCol = lineCol || alpha(S.acc, 0.14); }
+        else if (S.fk === 'checker') { quad(); lineCol = lineCol || 'rgba(0,0,0,0.12)'; lineW = 0.015; }
+        else if (S.fk === 'parquet') { const f = (x + y) % 2 ? 1 : -1; for (const k of [0.25, 0.75]) { if (f > 0) { lines.moveTo(...Pl(x + k, y)); lines.lineTo(...Pl(x, y + k)); lines.moveTo(...Pl(x + 1, y + k)); lines.lineTo(...Pl(x + k, y + 1)); } else { lines.moveTo(...Pl(x + k, y)); lines.lineTo(...Pl(x + 1, y + 1 - k)); lines.moveTo(...Pl(x, y + k)); lines.lineTo(...Pl(x + 1 - k, y + 1)); } } quad(); lineCol = lineCol || 'rgba(40,20,8,0.28)'; lineW = 0.015; }
         else if (S.fk === 'planks') { for (let k = 1; k < 3; k++) { lines.moveTo(...Pl(x, y + k / 3)); lines.lineTo(...Pl(x + 1, y + k / 3)); } const off = (hsh(x * 7 + y) % 3) / 3; lines.moveTo(...Pl(x + off, y)); lines.lineTo(...Pl(x + off, y + 1 / 3)); lineCol = lineCol || 'rgba(0,0,0,0.16)'; }
         else if (S.fk === 'organic') { const [cx, cy] = Pl(x + 0.5, y + 0.5); blobs.moveTo(cx + u * 0.5, cy); blobs.ellipse(cx, cy, u * 0.5, u * 0.22, 0, 0, 7); }
         else if (S.fk === 'grate') { for (let k = 1; k < 4; k++) { lines.moveTo(...Pl(x + k / 4, y)); lines.lineTo(...Pl(x + k / 4, y + 1)); } lineCol = lineCol || 'rgba(0,0,0,0.18)'; lineW = 0.012; }
@@ -5291,8 +5388,20 @@
           else if (th === 'barber' || th === 'salon') { g.fillStyle = 'rgba(0,0,0,0.05)'; for (let s = 0; s < L; s += 0.6) g.fillRect(s, 0, 0.3, FULLH); g.fillStyle = shade(S.wall, -0.35, 0.9); g.fillRect(0, FULLH - 1.35, L, 1.35); g.fillStyle = 'rgba(255,255,255,0.1)'; for (let s = 0.2; s < L; s += 0.4) g.fillRect(s, FULLH - 1.3, 0.03, 1.25); }
           else if (th === 'kitchen') { g.fillStyle = '#eef3f5'; g.fillRect(0, FULLH - 2.2, L, 1.2); g.strokeStyle = 'rgba(0,0,0,0.1)'; g.lineWidth = 0.02; g.beginPath(); for (let v = FULLH - 2.2; v < FULLH - 1; v += 0.3) { g.moveTo(0, v); g.lineTo(L, v); } for (let s = 0; s < L; s += 0.3) { g.moveTo(s, FULLH - 2.2); g.lineTo(s, FULLH - 1); } g.stroke(); }
           else if (th === 'bedroom' || th === 'playroom') { g.fillStyle = 'rgba(255,255,255,0.18)'; g.beginPath(); for (let s = 0.2; s < L; s += 0.55) for (let v = 0.3; v < FULLH - 0.4; v += 0.55) { const px = s + ((v * 10) % 2 ? 0.27 : 0); g.moveTo(px + 0.06, v); g.arc(px, v, 0.06, 0, 7); } g.fill(); }
-          else if (S.wallpaper) { g.fillStyle = 'rgba(0,0,0,0.13)'; for (let s = 0; s < L; s += 0.9) g.fillRect(s, 0, 0.45, FULLH); g.fillStyle = 'rgba(157,255,138,0.08)'; g.beginPath(); for (let s = 0.45; s < L; s += 0.9) for (let v = 0.5; v < FULLH - 1.4; v += 0.8) { g.moveTo(s, v - 0.18); g.quadraticCurveTo(s + 0.16, v, s, v + 0.18); g.quadraticCurveTo(s - 0.16, v, s, v - 0.18); } g.fill(); g.fillStyle = shade(S.wall, -0.4, 0.92); g.fillRect(0, FULLH - 1.2, L, 1.2); g.fillStyle = 'rgba(255,255,255,0.05)'; for (let s = 0.2; s < L; s += 1.2) g.fillRect(s, FULLH - 1.1, 1.0, 0.9); if (LOD === 2) { g.fillStyle = 'rgba(0,0,0,0.3)'; for (let k = 0; k < 5; k++) { const sx = (hsh(k * 31 + Math.round(L * 7)) % 100) / 100 * L; g.fillRect(sx, 0, 0.05, 0.9 + (k % 3) * 0.5); } } }
-          else if (S.neon) { g.fillStyle = 'rgba(255,255,255,0.03)'; for (let s = 0; s < L; s += 1) g.fillRect(s + 0.02, 0, 0.96, FULLH); }
+          else if (S.wallpaper) { g.fillStyle = 'rgba(0,0,0,0.13)'; for (let s = 0; s < L; s += 0.9) g.fillRect(s, 0, 0.45, FULLH); g.fillStyle = S.paper || 'rgba(157,255,138,0.08)'; g.beginPath(); for (let s = 0.45; s < L; s += 0.9) for (let v = 0.5; v < FULLH - 1.4; v += 0.8) { g.moveTo(s, v - 0.18); g.quadraticCurveTo(s + 0.16, v, s, v + 0.18); g.quadraticCurveTo(s - 0.16, v, s, v - 0.18); } g.fill(); g.fillStyle = shade(S.wall, -0.4, 0.92); g.fillRect(0, FULLH - 1.2, L, 1.2); g.fillStyle = 'rgba(255,255,255,0.05)'; for (let s = 0.2; s < L; s += 1.2) g.fillRect(s, FULLH - 1.1, 1.0, 0.9); if (LOD === 2) { g.fillStyle = 'rgba(0,0,0,0.3)'; for (let k = 0; k < 5; k++) { const sx = (hsh(k * 31 + Math.round(L * 7)) % 100) / 100 * L; g.fillRect(sx, 0, 0.05, 0.9 + (k % 3) * 0.5); } } }
+          else if (S.neon) { g.fillStyle = 'rgba(255,255,255,0.03)'; for (let s = 0; s < L; s += 1) g.fillRect(s + 0.02, 0, 0.96, FULLH); if (S.rgb) { for (let s = 0; s < L; s += 0.25) { g.fillStyle = `hsl(${((s * 36 + tt * 70) % 360).toFixed(0)},100%,62%)`; g.fillRect(s, 0.32, 0.26, 0.07); g.fillRect(s, FULLH - 0.36, 0.26, 0.05); } } }
+          else if (S.hazard) {
+            // clean-room panels, an orange stripe, and a hazard band where the forklifts run
+            g.strokeStyle = 'rgba(0,0,0,0.1)'; g.lineWidth = 0.025; g.beginPath(); for (let s = 1.2; s < L; s += 1.2) { g.moveTo(s, 0); g.lineTo(s, FULLH - 0.9); } g.moveTo(0, FULLH * 0.45); g.lineTo(L, FULLH * 0.45); g.stroke();
+            g.fillStyle = S.acc; g.fillRect(0, FULLH * 0.45 - 0.14, L, 0.1);
+            g.save(); g.beginPath(); g.rect(0, FULLH - 0.9, L, 0.5); g.clip(); g.fillStyle = '#ffc23a'; g.fillRect(0, FULLH - 0.9, L, 0.5); g.fillStyle = '#1d2433'; for (let s = -1; s < L + 1; s += 0.5) { g.beginPath(); g.moveTo(s, FULLH - 0.4); g.lineTo(s + 0.25, FULLH - 0.4); g.lineTo(s + 0.5, FULLH - 0.9); g.lineTo(s + 0.25, FULLH - 0.9); g.fill(); } g.restore();
+          }
+          else if (S.tiled) {
+            // white subway tile to shoulder height, a green line, and the painted plaster above
+            g.fillStyle = '#eef6f2'; g.fillRect(0, FULLH * 0.42, L, FULLH * 0.58);
+            g.strokeStyle = 'rgba(40,70,60,0.16)'; g.lineWidth = 0.02; g.beginPath(); for (let v = FULLH * 0.42, r = 0; v < FULLH; v += 0.28, r++) { g.moveTo(0, v); g.lineTo(L, v); for (let s = (r % 2) * 0.28; s < L; s += 0.56) { g.moveTo(s, v); g.lineTo(s, v + 0.28); } } g.stroke();
+            g.fillStyle = S.acc; g.fillRect(0, FULLH * 0.42 - 0.08, L, 0.08);
+          }
           else if (S.fk === 'plates' || S.fk === 'grate') { g.strokeStyle = 'rgba(0,0,0,0.12)'; g.lineWidth = 0.025; g.beginPath(); for (let s = 1; s < L; s += 1.4) { g.moveTo(s, 0); g.lineTo(s, FULLH); } g.stroke(); }
           else if (S.fk === 'organic') { g.strokeStyle = alpha(S.acc, 0.22); g.lineWidth = 0.05; g.beginPath(); for (let k = 0; k * 1.6 < L; k++) { g.moveTo(k * 1.6, FULLH); g.bezierCurveTo(k * 1.6 + 0.6, FULLH - 1.5, k * 1.6 - 0.4, 1.4, k * 1.6 + 0.5, 0); } g.stroke(); }
           else { g.fillStyle = 'rgba(0,0,0,0.04)'; for (let s = 0; s < L; s += 0.5) g.fillRect(s, 0, 0.25, FULLH); }
@@ -5360,8 +5469,8 @@
         g.save();
         g.beginPath(); g.roundRect(s0, v0, s1 - s0, v1 - v0, 0.12); g.clip();
         const gr = g.createLinearGradient(0, v0, 0, v1);
-        const day = { space: ['#0a1433', '#1d2d63'], castle: ['#1a1633', '#3a2c55'], farm: ['#7cc6ff', '#d8f0ff'], cyber: ['#3a1862', '#7c2c80'], haunted: ['#0c0a20', '#2a1a40'], pumpkin: ['#2a1440', '#6a2a4a'], alien: ['#2a0f45', '#5f2a7a'], ocean: ['#0a5a85', '#1a8fb8'] }[skinId()] || ['#7cc6ff', '#d8f0ff'];
-        const night = { farm: ['#0b1433', '#28305a'], ocean: ['#031a2c', '#073a58'] }[skinId()] || day;
+        const day = { space: ['#0a1433', '#1d2d63'], castle: ['#1a1633', '#3a2c55'], farm: ['#7cc6ff', '#d8f0ff'], cyber: ['#3a1862', '#7c2c80'], haunted: ['#0c0a20', '#2a1a40'], pumpkin: ['#2a1440', '#6a2a4a'], alien: ['#2a0f45', '#5f2a7a'], ocean: ['#0a5a85', '#1a8fb8'], rocket: ['#3a4a8a', '#ff9a5a'], lab: ['#1a0c30', '#3a1a5a'], mafia: ['#6a3a5a', '#ffb070'], gamer: ['#1a0a3a', '#ff3fb8'] }[skinId()] || ['#7cc6ff', '#d8f0ff'];
+        const night = { farm: ['#0b1433', '#28305a'], ocean: ['#031a2c', '#073a58'], rocket: ['#070a1c', '#1a2248'], mafia: ['#0c0a1e', '#2a1a36'] }[skinId()] || day;
         gr.addColorStop(0, mixc(day[0], night[0], dark)); gr.addColorStop(1, mixc(day[1], night[1], dark));
         g.fillStyle = gr; g.fillRect(s0, v0, s1 - s0, v1 - v0);
         const k = S.sky, w = s1 - s0, h = v1 - v0;
@@ -5372,6 +5481,10 @@
           if (k === 'day') { g.fillStyle = dark < 0.5 ? '#fff6b0' : '#f4f0d0'; g.beginPath(); g.arc(s0 + w * 0.75, v0 + h * 0.28, h * 0.12, 0, 7); g.fill(); if (dark < 0.5) { g.fillStyle = 'rgba(255,255,255,0.9)'; const cx = s0 + ((tt * 0.05) % 1) * w; g.beginPath(); g.ellipse(cx, v0 + h * 0.3, 0.3, 0.1, 0, 0, 7); g.fill(); } g.fillStyle = mixc('#5fae4a', '#1e3a2a', dark); g.beginPath(); g.moveTo(s0, v1); g.quadraticCurveTo(s0 + w * 0.3, v0 + h * 0.55, s0 + w * 0.6, v0 + h * 0.8); g.quadraticCurveTo(s0 + w * 0.85, v0 + h * 0.62, s1, v0 + h * 0.75); g.lineTo(s1, v1); g.fill(); }
           if (k === 'city') { for (let i = 0; i < 6; i++) { const bx = s0 + i * w / 6, bh = h * (0.35 + (hsh(i * 11) % 50) / 100); g.fillStyle = '#120a22'; g.fillRect(bx, v1 - bh, w / 6 - 0.03, bh); g.fillStyle = i % 2 ? '#ff3fa4' : '#39e0ff'; for (let j = 0; j < 3; j++) if ((hsh(i * 7 + j) + Math.floor(tt)) % 3) g.fillRect(bx + 0.05, v1 - bh + 0.12 + j * 0.2, 0.05, 0.07); } }
           if (k === 'nebula') { const ng = g.createRadialGradient(s0 + w * 0.4, v0 + h * 0.5, 0, s0 + w * 0.4, v0 + h * 0.5, w * 0.7); ng.addColorStop(0, 'rgba(125,255,176,0.45)'); ng.addColorStop(1, 'rgba(125,255,176,0)'); g.fillStyle = ng; g.fillRect(s0, v0, w, h); }
+          if (k === 'launch') { g.fillStyle = mixc('#3a2a24', '#0c0a10', dark); g.fillRect(s0, v1 - h * 0.18, w, h * 0.18); g.fillStyle = mixc('#2a2f3c', '#0a0c14', dark); g.fillRect(s0 + w * 0.62, v1 - h * 0.7, 0.07, h * 0.52); g.fillRect(s0 + w * 0.6, v1 - h * 0.7, 0.14, 0.04); g.fillStyle = '#e8ebf1'; g.fillRect(s0 + w * 0.7, v1 - h * 0.62, 0.09, h * 0.44); g.beginPath(); g.moveTo(s0 + w * 0.7, v1 - h * 0.62); g.lineTo(s0 + w * 0.7 + 0.045, v1 - h * 0.74); g.lineTo(s0 + w * 0.7 + 0.09, v1 - h * 0.62); g.fill(); const lp = (tt * 0.02 + s0 * 0.1) % 1; if (lp < 0.25) { const ly = v1 - h * 0.2 - lp * 4 * h * 0.9; g.fillStyle = '#fff4d8'; g.beginPath(); g.arc(s0 + w * 0.25, ly, 0.05, 0, 7); g.fill(); g.strokeStyle = 'rgba(255,190,120,0.7)'; g.lineWidth = 0.05; g.beginPath(); g.moveTo(s0 + w * 0.25, ly); g.lineTo(s0 + w * 0.25, v1 - h * 0.18); g.stroke(); } }
+          if (k === 'storm') { g.fillStyle = '#0c0616'; g.beginPath(); g.moveTo(s0, v1); g.lineTo(s0 + w * 0.3, v1 - h * 0.35); g.lineTo(s0 + w * 0.55, v1 - h * 0.2); g.lineTo(s0 + w * 0.8, v1 - h * 0.45); g.lineTo(s1, v1 - h * 0.3); g.lineTo(s1, v1); g.fill(); const lt = (tt + s0) % 5; if (lt < 0.15) { g.fillStyle = 'rgba(220,210,255,0.45)'; g.fillRect(s0, v0, w, h); g.strokeStyle = '#f4f0ff'; g.lineWidth = 0.04; g.beginPath(); g.moveTo(s0 + w * 0.4, v0); g.lineTo(s0 + w * 0.34, v0 + h * 0.3); g.lineTo(s0 + w * 0.46, v0 + h * 0.35); g.lineTo(s0 + w * 0.38, v0 + h * 0.62); g.stroke(); } }
+          if (k === 'villa') { g.fillStyle = mixc('#4a3a2a', '#120c10', dark); g.beginPath(); g.moveTo(s0, v1); g.quadraticCurveTo(s0 + w * 0.4, v1 - h * 0.45, s1, v1 - h * 0.25); g.lineTo(s1, v1); g.fill(); g.fillStyle = mixc('#2a3a24', '#0a100a', dark); for (const f of [0.18, 0.3, 0.78]) { const cx = s0 + w * f, base = v1 - h * 0.1; g.beginPath(); g.ellipse(cx, base - h * 0.28, 0.07, h * 0.3, 0, 0, 7); g.fill(); } }
+          if (k === 'synth') { g.save(); g.beginPath(); g.rect(s0, v0, w, h * 0.62); g.clip(); const sy = v0 + h * 0.62, sr = h * 0.32; const sg = g.createLinearGradient(0, sy - sr, 0, sy); sg.addColorStop(0, '#ffe14a'); sg.addColorStop(1, '#ff3fb8'); g.fillStyle = sg; g.beginPath(); g.arc(s0 + w * 0.5, sy, sr, 0, 7); g.fill(); g.fillStyle = '#1a0a3a'; for (let k2 = 0; k2 < 4; k2++) g.fillRect(s0, sy - sr * (0.15 + k2 * 0.18), w, 0.035 + k2 * 0.012); g.restore(); g.fillStyle = '#12082a'; g.fillRect(s0, v0 + h * 0.62, w, h * 0.38); g.strokeStyle = 'rgba(41,231,255,0.7)'; g.lineWidth = 0.02; g.beginPath(); for (let k2 = 1; k2 < 4; k2++) { const yy = v0 + h * 0.62 + h * 0.38 * (k2 * k2) / 9; g.moveTo(s0, yy); g.lineTo(s1, yy); } for (let k2 = -3; k2 <= 3; k2++) { g.moveTo(s0 + w * 0.5 + k2 * w * 0.06, v0 + h * 0.62); g.lineTo(s0 + w * 0.5 + k2 * w * 0.3, v1); } g.stroke(); }
           if (k === 'water') { g.fillStyle = 'rgba(255,255,255,0.08)'; for (let i = 0; i < 3; i++) g.fillRect(s0 + ((tt * 0.1 + i * 0.33) % 1) * w, v0, 0.08, h); const fx2 = s0 + ((tt * 0.08) % 1.2) * w - 0.2, fy2 = v0 + h * 0.45; g.fillStyle = '#ffb454'; g.beginPath(); g.ellipse(fx2, fy2, 0.14, 0.07, 0, 0, 7); g.fill(); }
         }
         g.restore();
@@ -5416,6 +5529,16 @@
         g.fillStyle = scr; g.fillRect(s0, v0, w, h);
         if (LOD < 2) return;
         const acc = themeOf(rm.id).accent;
+        if (skinId() === 'gamer') {
+          // in the den a room's money is its high score, and every room can see its rank
+          const val = (o) => { const l = MODE() === 'race' && snap.race && snap.race.lanes.find((x) => x.id === o.id); return Math.round(l ? l.bankrollUsd : roomFlow(o).usd); };
+          const mine = val(rm), rank = 1 + rooms.filter((o) => o !== rm && val(o) > mine).length, fam = 'Bungee,Audiowide,sans-serif';
+          utext('HIGH SCORE', s0 + w / 2, v0 + 0.25, 0.18, { weight: 900, family: fam, align: 'center', base: 'middle', col: '#ffd23a' });
+          utext(String(mine).padStart(8, '0'), s0 + w / 2, v0 + 0.68, 0.27, { weight: 900, family: fam, align: 'center', base: 'middle', col: acc, glow: acc });
+          utext(rank === 1 ? 'RANK #1 · CHAMPION' : `RANK #${rank}`, s0 + w / 2, v0 + 1.1, 0.14, { weight: 800, family: fam, align: 'center', base: 'middle', col: rank === 1 ? '#39ff9e' : '#c8c4ee' });
+          g.fillStyle = 'rgba(255,255,255,0.05)'; for (let v = v0; v < v1; v += 0.06) g.fillRect(s0, v, w, 0.02);
+          return;
+        }
         if (MODE() === 'allowance') {
           utext('CHORE CHART · TODAY', s0 + 0.1, v0 + 0.22, 0.13, { col: '#ffe07a' });
           const kids = kidsList().slice(0, 4), d0 = new Date(); d0.setHours(0, 0, 0, 0);
@@ -5814,7 +5937,186 @@
     }
 
     // ---- the vault in the middle: a gem over a pedestal, rings with the level, gold stacked by what has been earned
+    // ---- the centre of the four newer worlds: a launch silo, a grand reactor, the don's office, a championship stage
+    // how far the station is toward its next level (0..1): the rocket gets built by it, the reactor fills with it
+    function levelProg() {
+      const L = snap && snap.level; if (!L) return 0; if (!L.next) return 1;
+      const prev = L.citations && L.citations.length ? L.citations[L.citations.length - 1].usd : 0;
+      return clamp((L.earnedUsd - prev) / Math.max(1, L.next.usd - prev), 0, 1);
+    }
+    // a vertical panel standing along x (s along it, v down from its top edge), in room-local units
+    function panelX(x0, y0, zTop, fn) { g.save(); const [ox, oy] = Pl(x0, y0, zTop); g.transform(u, 0.5 * u, 0, u, ox, oy); fn(); g.restore(); }
+    function hubScores() {
+      const race = MODE() === 'race' && snap.race;
+      return rooms.map((rm) => { const l = race && snap.race.lanes.find((x) => x.id === rm.id); return { name: shortName(rm.spec), acc: themeOf(rm.id).accent, score: l ? Math.round(l.bankrollUsd) : Math.round(roomFlow(rm).usd) }; }).sort((a, b) => b.score - a.score).slice(0, 6);
+    }
+    function layoutHubWorld(w) {
+      const items = [], add = (d, fp, fn) => items.push({ d, fp, fn }), prog = levelProg();
+      if (w === 'rocket') {
+        const parts = 1 + Math.min(5, Math.floor(prog * 6));
+        // the silo: a hazard-striped pit with the rocket rising out of it
+        add(0.3, null, () => {
+          const [a, b] = Pl(3.5, 3.5, 0), R1 = 1.55 * u;
+          g.fillStyle = '#ffc23a'; g.beginPath(); g.ellipse(a, b, R1 * 1.414 + u * 0.35, R1 * 0.707 + u * 0.18, 0, 0, 7); g.fill();
+          if (LOD) { g.save(); g.beginPath(); g.ellipse(a, b, R1 * 1.414 + u * 0.35, R1 * 0.707 + u * 0.18, 0, 0, 7); g.clip(); g.fillStyle = '#1d2433'; for (let k = 0; k < 36; k++) { const an = k / 36 * Math.PI * 2; g.beginPath(); g.moveTo(a, b); g.arc(a, b, R1 * 2, an, an + 0.09); g.fill(); } g.restore(); }
+          const gr = g.createRadialGradient(a, b, 0, a, b, R1 * 1.4); gr.addColorStop(0, '#05060a'); gr.addColorStop(1, '#2a2f3c'); g.fillStyle = gr; g.beginPath(); g.ellipse(a, b, R1 * 1.414, R1 * 0.707, 0, 0, 7); g.fill();
+          if (vaultFlash > 0.05) for (let k = 0; k < 6; k++) { const an = k * 1.05 + tt * 0.3, [va, vb] = [a + Math.cos(an) * R1 * 1.1, b + Math.sin(an) * R1 * 0.5]; g.fillStyle = `rgba(240,244,250,${(0.5 * vaultFlash).toFixed(3)})`; g.beginPath(); g.arc(va, vb - u * 0.4, u * (0.4 + (1 - vaultFlash) * 0.8), 0, 7); g.fill(); }
+        });
+        // the rocket, built part by part as the station earns toward its next level
+        add(7, [2.4, 2.4, 2.2, 2.2], () => {
+          const X = 3.5, Y = 3.5, r = 0.62;
+          const band = (z0, z1, col) => frustum(X, Y, z0, z1, r, r, col);
+          // engines under the thrust section
+          for (const [dx, dy] of [[-0.25, -0.1], [0.25, -0.1], [0, 0.25]]) frustum(X + dx, Y + dy, -0.7, -0.05, 0.2, 0.08, '#8a5a3a');
+          band(-0.1, 0.35, '#2a2f3c');
+          if (parts >= 2) { band(0.35, 3.1, '#eef1f6'); if (LOD) { const [a, b] = Pl(X, Y, 1.0); g.fillStyle = '#1d2433'; g.fillRect(a - r * u * 1.414, b - u * 0.08, r * u * 2.828, u * 0.16); } }
+          if (parts >= 3) { band(3.1, 3.55, '#1d2433'); if (LOD) for (const s2 of [-1, 1]) { const [a, b] = Pl(X + s2 * 0.6, Y, 3.3); g.fillStyle = '#5b6272'; g.fillRect(a - u * 0.18, b - u * 0.14, u * 0.36, u * 0.28); } }
+          if (parts >= 4) band(3.55, 5.1, '#eef1f6');
+          if (parts >= 5) { const bb = band(5.1, 5.25, '#ff6a1a'); void bb; }
+          if (parts >= 6) {
+            const [nx, ny] = Pl(X, Y, 5.25), [ax, ay] = Pl(X, Y, 6.7), rt = r * u * 1.414;
+            g.beginPath(); g.moveTo(nx - rt, ny); g.quadraticCurveTo(nx - rt * 0.95, ay + (ny - ay) * 0.25, ax, ay); g.quadraticCurveTo(nx + rt * 0.95, ay + (ny - ay) * 0.25, nx + rt, ny); g.ellipse(nx, ny, rt, r * u * 0.707, 0, 0, Math.PI, false); g.closePath();
+            const gr = g.createLinearGradient(nx - rt, 0, nx + rt, 0); gr.addColorStop(0, '#dfe3ea'); gr.addColorStop(0.35, '#ffffff'); gr.addColorStop(1, '#9aa4b4'); g.fillStyle = gr; g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); }
+            const bl = Math.sin(tt * 4) > 0; g.fillStyle = bl ? '#5fe39a' : '#1f5a3a'; g.beginPath(); g.arc(ax, ay - u * 0.1, u * 0.08, 0, 7); g.fill(); if (bl) lights.push([ax, ay, u * 2, '#5fe39a', 0.6]);
+          }
+          // the next part on its way: welding sparks where it will join
+          if (parts < 6) { const zTop = [0.35, 3.1, 3.55, 5.1, 5.25][parts - 1], [sa, sb] = Pl(X + 0.45, Y + 0.45, zTop); glowAt(sa, sb, u * (0.8 + Math.abs(Math.sin(tt * 20)) * 0.6), '#cfe8ff', 0.85); sparks(sa, sb, 12, '#fff0b0', 1.4); lights.push([sa, sb, u * 3, '#cfe8ff', 0.6]); }
+          const [la, lb] = Pl(X, Y, 1.8); lights.push([la, lb, u * 5, '#fff2d8', 0.35]);
+        });
+        // the assembly tower and its crane, a part swinging on the hook
+        add(7.6, [5.2, 1.4, 0.8, 0.8], () => {
+          const x0 = 5.2, y0 = 1.4, s2 = 0.8, H = 7.4;
+          for (const [dx, dy] of [[0, 0], [s2, 0], [0, s2], [s2, s2]]) box(x0 + dx - 0.05, y0 + dy - 0.05, 0.1, 0.1, H, 0, '#ff6a1a', { noInk: LOD < 2 });
+          if (LOD) { g.strokeStyle = '#b8501a'; g.lineWidth = lw(0.025); g.beginPath(); for (let z = 0; z < H - 0.3; z += 0.7) { g.moveTo(...Pl(x0, y0 + s2, z)); g.lineTo(...Pl(x0 + s2, y0 + s2, z + 0.7)); g.moveTo(...Pl(x0 + s2, y0 + s2, z)); g.lineTo(...Pl(x0 + s2, y0, z + 0.7)); g.moveTo(...Pl(x0, y0 + s2, z)); g.lineTo(...Pl(x0 + s2, y0 + s2, z)); g.lineTo(...Pl(x0 + s2, y0, z)); } g.stroke(); }
+          box(x0 - 0.1, y0 - 0.1, s2 + 0.2, s2 + 0.2, 0.15, H, '#5b6272');
+          const [ja, jb] = Pl(x0 + s2 / 2, y0 + s2 / 2, H + 0.3), [je, jf] = Pl(3.5, 3.5, H + 0.3);
+          g.strokeStyle = INK; g.lineWidth = u * 0.16; g.lineCap = 'round'; g.beginPath(); g.moveTo(ja, jb); g.lineTo(je - (ja - je) * 0.2, jf - (jb - jf) * 0.2); g.stroke(); g.strokeStyle = '#ffc23a'; g.lineWidth = u * 0.1; g.stroke();
+          if (parts < 6) {
+            const zTop = [0.35, 3.1, 3.55, 5.1, 5.25][parts - 1], sw = Math.sin(tt * 0.9) * u * 0.12, hookY = Pl(3.5, 3.5, zTop + 1.4)[1];
+            g.strokeStyle = '#1d2433'; g.lineWidth = Math.max(px1, u * 0.03); g.beginPath(); g.moveTo(je, jf); g.lineTo(je + sw, hookY); g.stroke();
+            g.fillStyle = parts === 5 ? '#ff6a1a' : parts === 3 ? '#1d2433' : '#eef1f6'; g.beginPath(); g.ellipse(je + sw, hookY + u * 0.3, 0.62 * u * 1.3, 0.62 * u * 0.55, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); }
+          }
+          const bl = Math.sin(tt * 3) > 0, [ba, bb] = Pl(x0 + s2 / 2, y0 + s2 / 2, H + 0.5); g.fillStyle = bl ? '#ff3a2a' : '#5a1a14'; g.beginPath(); g.arc(ba, bb, u * 0.1, 0, 7); g.fill(); if (bl) lights.push([ba, bb, u * 2.4, '#ff3a2a', 0.6]);
+        });
+        // the go/no-go console, where the flight director stands
+        add(10.4, [5.3, 4.5, 1.2, 0.6], () => { box(5.3, 4.5, 1.2, 0.6, 0.8, 0, '#262b36', { gloss: true }); for (let k = 0; k < 3; k++) box(5.38 + k * 0.38, 4.52, 0.3, 0.08, 0.35, 0.8, '#12151f', { lf: ['#6fd8ff', '#5fe39a', '#ff8a2a'][k] }); lights.push([...Pl(5.9, 4.6, 1.1), u * 2, '#6fd8ff', 0.4]); });
+        // flight-ready fuel cells stacking up with what has been earned
+        add(6.2, [0.8, 4.4, 0.9, 1.2], () => { const n = clamp(Math.ceil(Math.log10(1 + snap.state.earnedUsd) * 3), 0, 12); for (let i = 0; i < n; i++) { const lvl = Math.floor(i / 4), j = i % 4; cyl(1.0 + (j % 2) * 0.4, 4.6 + Math.floor(j / 2) * 0.5, 0.16, 0.34, lvl * 0.36, ['#eef1f6', '#ff6a1a'][(i + lvl) % 2]); } });
+      } else if (w === 'lab') {
+        // the grand reactor: a great flask over a burner, filling as the station earns, coils feeding it
+        const hueC = () => { const k = (tt * 0.08) % 1; return mixc(mixc('#7dff4a', '#39f0ff', clamp(k * 3, 0, 1)), '#ff4fb8', clamp(k * 3 - 1.5, 0, 1)); };
+        add(0.3, null, () => { const [a, b] = Pl(3.5, 3.5, 0); g.fillStyle = '#2a3a44'; g.beginPath(); g.ellipse(a, b, u * 2.6, u * 1.3, 0, 0, 7); g.fill(); g.strokeStyle = '#7dff4a'; g.lineWidth = lw(0.06); g.setLineDash([u * 0.3, u * 0.2]); g.lineDashOffset = -tt * u; g.beginPath(); g.ellipse(a, b, u * 2.4, u * 1.2, 0, 0, 7); g.stroke(); g.setLineDash([]); });
+        add(7, [2.3, 2.3, 2.4, 2.4], () => {
+          const X = 3.5, Y = 3.5, col = hueC();
+          for (const an of [0.6, 2.7, 4.8]) box(X + Math.cos(an) * 1.0 - 0.06, Y + Math.sin(an) * 1.0 - 0.06, 0.12, 0.12, 0.8, 0, '#b8863a', { noInk: LOD < 2 });
+          cyl(X, Y, 1.1, 0.08, 0.8, '#b8863a');
+          const [fa, fb] = Pl(X, Y, 0.35); g.fillStyle = alpha('#5fb4ff', 0.85); g.beginPath(); g.ellipse(fa, fb - u * 0.1, u * 0.3, u * 0.35 * (0.9 + Math.sin(tt * 18) * 0.1), 0, 0, 7); g.fill(); glowAt(fa, fb, u * 1, '#5fb4ff', 0.6);
+          const [a, b] = Pl(X, Y, 2.0), r = u * 1.35, lvl = 0.25 + prog * 0.6;
+          g.fillStyle = alpha('#eafff8', 0.28); g.beginPath(); g.arc(a, b, r, 0, 7); g.fill();
+          g.save(); g.beginPath(); g.arc(a, b, r * 0.96, 0, 7); g.clip(); const top = b + r - lvl * r * 2 + Math.sin(tt * 2) * u * 0.05; const lg = g.createLinearGradient(0, top, 0, b + r); lg.addColorStop(0, shade(col, 0.3)); lg.addColorStop(1, shade(col, -0.35)); g.fillStyle = lg; g.fillRect(a - r, top, r * 2, b + r - top);
+          if (LOD) for (let k = 0; k < 10; k++) { const p = (tt * (0.4 + (k % 3) * 0.15) + k / 10) % 1, bx2 = a + Math.sin(k * 2.3 + tt) * r * 0.6, by2 = b + r - p * (b + r - top); g.fillStyle = alpha('#ffffff', 0.55 * (1 - p)); g.beginPath(); g.arc(bx2, by2, u * (0.05 + (k % 3) * 0.03), 0, 7); g.fill(); }
+          g.restore();
+          g.fillStyle = alpha('#eafff8', 0.3); g.fillRect(a - u * 0.35, b - r - u * 1.8, u * 0.7, u * 1.9);
+          if (LOD) { g.strokeStyle = alpha('#ffffff', 0.8); g.lineWidth = lw(0.04); g.beginPath(); g.arc(a, b, r, -Math.PI / 2 + 0.3, Math.PI * 1.5 - 0.3); g.moveTo(a - u * 0.35, b - r + u * 0.1); g.lineTo(a - u * 0.35, b - r - u * 1.8); g.moveTo(a + u * 0.35, b - r + u * 0.1); g.lineTo(a + u * 0.35, b - r - u * 1.8); g.stroke(); g.fillStyle = alpha('#ffffff', 0.35); g.beginPath(); g.ellipse(a - r * 0.45, b - r * 0.45, r * 0.18, r * 0.32, -0.6, 0, 7); g.fill(); }
+          glowAt(a, b, r * 2, col, 0.45 + vaultFlash * 0.4); lights.push([a, b, u * 6, col, 0.6 + vaultFlash * 0.5]);
+          // steam out the neck, arcs when a win lands
+          if (LOD === 2) for (let k = 0; k < 4; k++) { const p = (tt * 0.35 + k / 4) % 1; g.fillStyle = alpha(shade(col, 0.6), 0.35 * (1 - p)); g.beginPath(); g.arc(a + Math.sin(tt + k) * u * 0.3, b - r - u * 1.8 - p * u * 1.4, u * (0.2 + p * 0.4), 0, 7); g.fill(); }
+          if (vaultFlash > 0.2) for (let k = 0; k < 3; k++) bolt(a, b - r - u * 1.8, a + (k - 1) * u * 1.4, b - r - u * 3, alpha('#e8d8ff', vaultFlash), k);
+        });
+        // two glass coils feeding the flask
+        for (const [cxp, cyp, c] of [[1.4, 2.4, '#ff4fb8'], [2.4, 1.4, '#39f0ff']]) add(cxp + cyp + 0.4, [cxp - 0.4, cyp - 0.4, 0.8, 0.8], () => {
+          cyl(cxp, cyp, 0.4, 0.15, 0, '#2a3a44'); box(cxp - 0.05, cyp - 0.05, 0.1, 0.1, 3.0, 0.15, '#8a95a8', { noInk: LOD < 2 });
+          const pts = []; for (let k = 0; k <= 60; k++) { const f = k / 60, an = f * Math.PI * 2 * 5, z = 2.9 - f * 2.5; pts.push(Pl(cxp + Math.cos(an) * 0.34, cyp + Math.sin(an) * 0.34, z)); }
+          g.lineCap = 'round'; g.strokeStyle = alpha('#eafff8', 0.45); g.lineWidth = u * 0.12; g.beginPath(); pts.forEach(([a, b], k) => (k ? g.lineTo(a, b) : g.moveTo(a, b))); g.stroke();
+          g.strokeStyle = c; g.lineWidth = u * 0.06; g.setLineDash([u * 0.3, u * 0.16]); g.lineDashOffset = -tt * u * 1.2; g.beginPath(); pts.forEach(([a, b], k) => (k ? g.lineTo(a, b) : g.moveTo(a, b))); g.stroke(); g.setLineDash([]);
+          const [t0, t1] = Pl(cxp, cyp, 3.0), [n0, n1] = Pl(3.5, 3.5, 4.0); g.strokeStyle = alpha('#eafff8', 0.5); g.lineWidth = u * 0.1; g.beginPath(); g.moveTo(t0, t1); g.quadraticCurveTo((t0 + n0) / 2, Math.min(t1, n1) - u * 0.8, n0, n1); g.stroke(); g.strokeStyle = c; g.lineWidth = u * 0.05; g.setLineDash([u * 0.25, u * 0.2]); g.lineDashOffset = -tt * u * 1.2; g.stroke(); g.setLineDash([]);
+          lights.push([t0, t1, u * 2.4, c, 0.4]);
+        });
+        // the potion shelf: a bottle for every win, as many as the station has earned
+        add(6.4, [0.7, 4.4, 1.0, 1.4], () => {
+          box(0.72, 4.45, 0.9, 1.3, 0.06, 0, '#5a3a2a'); for (const z of [0.7, 1.4]) box(0.72, 4.45, 0.9, 1.3, 0.05, z, '#6a4a3a', { noInk: true });
+          const n = clamp(Math.ceil(Math.log10(1 + snap.state.earnedUsd) * 4), 0, 18), cols = ['#7dff4a', '#ff4fb8', '#39f0ff', '#ffe14a', '#c46bff'];
+          for (let i = 0; i < n; i++) { const lvl = Math.floor(i / 6), j = i % 6, [a, b] = Pl(0.95 + (j % 2) * 0.4, 4.6 + Math.floor(j / 2) * 0.4, 0.06 + lvl * 0.7); potion(a, b, u * 0.18, cols[i % 5]); }
+        });
+      } else if (w === 'mafia') {
+        // the don's office: a rug, the big desk, the chair he sits in, bourbon, a cigar, a safe
+        add(0.2, null, () => {
+          const [a, b] = Pl(3.5, 3.6, 0); g.fillStyle = '#6a1a24'; g.beginPath(); g.ellipse(a, b, u * 3.3, u * 1.65, 0, 0, 7); g.fill();
+          if (LOD) { g.strokeStyle = '#e0b454'; g.lineWidth = lw(0.05); for (const k of [0.92, 0.7, 0.4]) { g.beginPath(); g.ellipse(a, b, u * 3.3 * k, u * 1.65 * k, 0, 0, 7); g.stroke(); } if (LOD === 2) { g.fillStyle = '#1a3a5a'; for (let k = 0; k < 16; k++) { const an = k / 16 * Math.PI * 2; g.beginPath(); g.arc(a + Math.cos(an) * u * 2.7, b + Math.sin(an) * u * 1.35, u * 0.1, 0, 7); g.fill(); } } }
+        });
+        // his chair, behind him
+        add(5.2, [2.55, 2.25, 0.8, 0.5], () => { box(2.6, 2.3, 0.72, 0.6, 0.45, 0, '#4a1812', { gloss: true }); box(2.6, 2.25, 0.72, 0.16, 1.55, 0.45, '#5a1c16', { gloss: true }); for (const s2 of [2.55, 3.25]) box(s2, 2.3, 0.1, 0.6, 0.3, 0.45, '#4a1812'); if (LOD) { for (let k = 0; k < 4; k++) { const [a, b] = Pl(2.72 + k * 0.16, 2.33, 1.7); g.fillStyle = '#e0b454'; g.beginPath(); g.arc(a, b, u * 0.03, 0, 7); g.fill(); } } });
+        // the desk, in front of him: mahogany and green leather, gold trim
+        add(7.7, [2.2, 3.35, 1.9, 0.7], () => {
+          box(2.2, 3.35, 1.9, 0.7, 0.78, 0, '#4a2412', { gloss: true }); box(2.15, 3.3, 2.0, 0.8, 0.07, 0.78, '#5a2c16', { gloss: true }); box(2.35, 3.45, 1.6, 0.5, 0.01, 0.85, '#1f4a2e');
+          if (LOD) { g.strokeStyle = '#e0b454'; g.lineWidth = lw(0.025); g.beginPath(); g.moveTo(...Pl(2.2, 4.05, 0.7)); g.lineTo(...Pl(4.1, 4.05, 0.7)); g.stroke(); }
+          // a banker's lamp
+          box(3.75, 3.5, 0.08, 0.08, 0.35, 0.86, '#c9a24a', { noInk: true }); const [la, lb] = Pl(3.79, 3.54, 1.25); g.fillStyle = '#1f6b3a'; g.beginPath(); g.ellipse(la, lb, u * 0.3, u * 0.12, 0, Math.PI, 0); g.fill(); g.fillStyle = '#ffe9b0'; g.fillRect(la - u * 0.26, lb - u * 0.02, u * 0.52, u * 0.04); lights.push([la, lb + u * 0.3, u * 2.6, '#ffe2a0', 0.7]);
+          // the decanter and a crystal glass of bourbon
+          const [da, db] = Pl(2.55, 3.55, 0.86); g.fillStyle = alpha('#e8f0ff', 0.45); g.beginPath(); g.moveTo(da - u * 0.14, db); g.lineTo(da - u * 0.16, db - u * 0.3); g.quadraticCurveTo(da, db - u * 0.46, da + u * 0.16, db - u * 0.3); g.lineTo(da + u * 0.14, db); g.closePath(); g.fill(); g.fillStyle = '#c8741a'; g.fillRect(da - u * 0.13, db - u * 0.2, u * 0.26, u * 0.18); g.fillStyle = alpha('#e8f0ff', 0.7); g.beginPath(); g.arc(da, db - u * 0.5, u * 0.06, 0, 7); g.fill();
+          const [ga, gb] = Pl(2.85, 3.75, 0.86); g.fillStyle = alpha('#eef4ff', 0.5); g.fillRect(ga - u * 0.1, gb - u * 0.22, u * 0.2, u * 0.22); g.fillStyle = '#d8842a'; g.fillRect(ga - u * 0.09, gb - u * 0.1, u * 0.18, u * 0.09); g.fillStyle = '#e8f4ff'; g.fillRect(ga - u * 0.05, gb - u * 0.16, u * 0.08, u * 0.06);
+          if (LOD === 2 && Math.sin(tt * 1.3) > 0.9) { g.fillStyle = '#ffffff'; g.beginPath(); g.arc(ga + u * 0.06, gb - u * 0.18, u * 0.03, 0, 7); g.fill(); glowAt(ga + u * 0.06, gb - u * 0.18, u * 0.3, '#ffffff', 0.6); }
+          // the cigar in its ashtray, smoke curling up
+          const [ca, cb] = Pl(3.35, 3.75, 0.86); g.fillStyle = '#2a2a30'; g.beginPath(); g.ellipse(ca, cb, u * 0.16, u * 0.07, 0, 0, 7); g.fill(); g.strokeStyle = '#6a3a1a'; g.lineWidth = u * 0.07; g.lineCap = 'round'; g.beginPath(); g.moveTo(ca - u * 0.05, cb - u * 0.02); g.lineTo(ca + u * 0.28, cb - u * 0.06); g.stroke(); const ember = 0.7 + Math.sin(tt * 2) * 0.3; g.fillStyle = `rgba(255,${120 + ember * 60},40,1)`; g.beginPath(); g.arc(ca + u * 0.3, cb - u * 0.06, u * 0.04, 0, 7); g.fill(); glowAt(ca + u * 0.3, cb - u * 0.06, u * 0.3, '#ff8a2a', 0.5 * ember);
+          if (LOD) for (let k = 0; k < 6; k++) { const p = (tt * 0.22 + k / 6) % 1, sx = ca + u * 0.3 + Math.sin(p * 7 + k) * u * 0.25 * p, sy = cb - u * 0.1 - p * u * 2.4; g.fillStyle = `rgba(220,215,210,${(0.3 * (1 - p)).toFixed(3)})`; g.beginPath(); g.arc(sx, sy, u * (0.06 + p * 0.28), 0, 7); g.fill(); }
+          // the day's takings in neat stacks
+          const n = clamp(Math.ceil(Math.log10(1 + snap.state.earnedUsd) * 2), 0, 8); for (let i = 0; i < n; i++) box(3.0 + (i % 2) * 0.28, 3.95 - 0.02, 0.24, 0.12, 0.05, 0.86 + Math.floor(i / 2) * 0.05, '#5a9a4a', { noInk: true });
+        });
+        // two guest chairs, facing him
+        for (const gx of [2.35, 3.55]) add(gx + 4.9 + 0.3, [gx, 4.75, 0.62, 0.6], () => { box(gx, 4.75, 0.62, 0.6, 0.42, 0, '#3a2418', { gloss: true }); box(gx, 5.25, 0.62, 0.14, 0.95, 0.42, '#4a2c1c'); });
+        // the safe: it swings open when money lands
+        add(3.2, [0.7, 1.5, 0.9, 0.8], () => { box(0.72, 1.55, 0.85, 0.75, 1.3, 0, '#2a2a30', { gloss: true }); const open = clamp(vaultFlash * 1.5, 0, 1); const [a, b] = Pl(1.15, 2.3, 0.65); if (open > 0.1) { g.fillStyle = '#e0b454'; g.fillRect(a - u * 0.3, b - u * 0.35, u * 0.6, u * 0.5); glowAt(a, b, u * 1.2, '#ffd98a', 0.7 * open); } g.fillStyle = '#c9a24a'; g.beginPath(); g.arc(a + (open > 0.1 ? u * 0.5 : 0), b, u * 0.12, 0, 7); g.fill(); });
+        // a globe bar and a palm
+        add(8.2, [5.6, 2.2, 0.7, 0.7], () => { cyl(5.95, 2.55, 0.12, 0.6, 0, '#4a2412'); const [a, b] = Pl(5.95, 2.55, 1.0); g.fillStyle = '#c8b07a'; g.beginPath(); g.arc(a, b, u * 0.34, 0, 7); g.fill(); if (LOD) { g.strokeStyle = '#6a4a2a'; g.lineWidth = lw(0.02); g.beginPath(); g.ellipse(a, b, u * 0.34, u * 0.12, 0.4, 0, 7); g.moveTo(a, b - u * 0.34); g.lineTo(a, b + u * 0.34); g.stroke(); g.fillStyle = '#5a8a4a'; g.beginPath(); g.ellipse(a - u * 0.08, b - u * 0.05, u * 0.12, u * 0.08, 0.5, 0, 7); g.fill(); } });
+        add(2.4 + 0.4, [0.7, 0.5, 0.7, 0.7], () => plant(1.05, 0.85, 1.6, '#8a6a4a'));
+      } else if (w === 'gamer') {
+        // the championship stage: a lit ring, a giant high-score board, the trophy turning, spotlights
+        const hue2 = (o) => { const k = (((tt * 50 + o) % 360) + 360) % 360 / 60, x2 = 1 - Math.abs((k % 2) - 1), [r, g2, b] = k < 1 ? [1, x2, 0] : k < 2 ? [x2, 1, 0] : k < 3 ? [0, 1, x2] : k < 4 ? [0, x2, 1] : k < 5 ? [x2, 0, 1] : [1, 0, x2]; return rgb(40 + 215 * r, 40 + 215 * g2, 40 + 215 * b); };
+        add(0.3, null, () => { cyl(3.5, 3.6, 2.5, 0.3, 0, '#12101f', { top: '#1a1830' }); const [a, b] = Pl(3.5, 3.6, 0.3); g.strokeStyle = hue2(0); g.lineWidth = lw(0.08); g.beginPath(); g.ellipse(a, b, 2.4 * u * 1.414, 2.4 * u * 0.707, 0, 0, 7); g.stroke(); lights.push([a, b, u * 5, hue2(0), 0.35]); });
+        // the board
+        add(1.4, [1.0, 0.3, 5.0, 0.3], () => {
+          box(1.0, 0.35, 5.0, 0.2, 0.25, 0, '#12101f'); for (const px of [1.2, 5.6]) box(px, 0.38, 0.14, 0.14, 1.3, 0.25, '#2a2748', { noInk: LOD < 2 });
+          box(1.0, 0.35, 5.0, 0.18, 2.4, 1.55, '#0a0914', { lf: '#0c0a22' });
+          panelX(1.0, 0.53, 3.95, () => {
+            g.fillStyle = '#0c0a22'; g.fillRect(0.1, 0.1, 4.8, 2.2);
+            g.font = '900 0.34px Bungee, Audiowide, system-ui, sans-serif'; g.textBaseline = 'middle';
+            g.fillStyle = '#ffd23a'; g.textAlign = 'center'; g.fillText('HIGH SCORES', 2.5, 0.38);
+            const rows = hubScores();
+            g.font = '800 0.22px Bungee, Audiowide, system-ui, sans-serif';
+            rows.forEach((r2, i) => { const v = 0.72 + i * 0.26, blink = i === 0 && Math.sin(tt * 5) > 0; g.textAlign = 'left'; g.fillStyle = blink ? '#ffffff' : r2.acc; g.fillText(`${i + 1}. ${r2.name.toUpperCase().slice(0, 12)}`, 0.3, v); g.textAlign = 'right'; g.fillStyle = i === 0 ? '#ffd23a' : '#e8e6ff'; g.fillText(String(r2.score).padStart(8, '0'), 4.7, v); });
+            g.fillStyle = 'rgba(255,255,255,0.05)'; for (let v = 0.12; v < 2.3; v += 0.06) g.fillRect(0.1, v, 4.8, 0.02);
+          });
+          lights.push([...Pl(3.5, 0.55, 2.7), u * 6, '#29e7ff', 0.5]);
+        });
+        // the trophy, turning, sparkling
+        add(7.2, [3.0, 3.1, 1.0, 1.0], () => {
+          box(3.1, 3.2, 0.8, 0.8, 0.9, 0.3, '#1a1830', { gloss: true }); if (LOD) { const [a, b] = Pl(3.5, 4.0, 0.7); g.fillStyle = '#ffd23a'; g.font = `900 ${(u * 0.22).toFixed(1)}px Bungee, system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('#1', a, b); }
+          const [a, b] = Pl(3.5, 3.6, 2.4 + Math.sin(tt * 1.5) * 0.08), sq = Math.abs(Math.cos(tt * 0.9)) * 0.6 + 0.4, r = u * 0.55;
+          g.fillStyle = '#b8862e'; g.fillRect(a - r * 0.5, b + r * 1.25, r, r * 0.3); g.fillStyle = '#ffd23a'; g.fillRect(a - r * 0.15, b + r * 0.7, r * 0.3, r * 0.6);
+          g.fillStyle = '#ffd23a'; g.beginPath(); g.moveTo(a - r * sq, b - r * 0.6); g.lineTo(a + r * sq, b - r * 0.6); g.quadraticCurveTo(a + r * sq, b + r * 0.6, a, b + r * 0.75); g.quadraticCurveTo(a - r * sq, b + r * 0.6, a - r * sq, b - r * 0.6); g.fill();
+          if (LOD) { g.strokeStyle = '#b8862e'; g.lineWidth = lw(0.03); g.stroke(); g.strokeStyle = '#ffd23a'; g.lineWidth = u * 0.08; g.beginPath(); g.arc(a - r * sq, b - r * 0.1, r * 0.35, Math.PI * 0.5, Math.PI * 1.5); g.stroke(); g.beginPath(); g.arc(a + r * sq, b - r * 0.1, r * 0.35, -Math.PI * 0.5, Math.PI * 0.5); g.stroke(); g.fillStyle = 'rgba(255,255,255,0.55)'; g.beginPath(); g.ellipse(a - r * sq * 0.4, b - r * 0.2, r * 0.1 * sq, r * 0.35, 0, 0, 7); g.fill(); }
+          glowAt(a, b, u * 2.2, '#ffd23a', 0.45 + vaultFlash * 0.5); lights.push([a, b, u * 5, '#ffd23a', 0.6 + vaultFlash * 0.5]);
+          if (LOD === 2) for (let k = 0; k < 5; k++) { const an = tt * 1.3 + k * 1.26, rr = u * (1.0 + Math.sin(tt * 2 + k) * 0.2); sparkleAt(a + Math.cos(an) * rr, b + Math.sin(an) * rr * 0.5, u * 0.12, '#ffffff'); }
+        });
+        // two pro stations on the stage
+        for (const [sx, sy] of [[1.6, 3.2], [4.6, 3.2]]) add(sx + sy + 0.6, [sx - 0.5, sy - 0.3, 1.0, 0.6], () => { box(sx - 0.5, sy - 0.3, 1.0, 0.55, 0.72, 0.3, '#12101f'); for (let k = -1; k <= 1; k++) box(sx + k * 0.3 - 0.13, sy - 0.25, 0.26, 0.05, 0.22, 1.02, '#0a0914', { lf: hue2(k * 90 + sx * 40) }); lights.push([...Pl(sx, sy, 1.2), u * 2, hue2(sx * 40), 0.4]); });
+        // spotlights sweeping from the truss
+        add(9.8, null, () => { if (!LOD) return; for (const [sx, k] of [[1.0, 0], [6.0, 1]]) { const [a, b] = Pl(sx, 6.0, 4.8), an = Math.sin(tt * 0.8 + k * 2) * 0.5, [ta, tb] = Pl(3.5 + Math.sin(tt * 0.8 + k * 2) * 1.5, 3.6, 0.3); g.fillStyle = alpha(k ? '#ff3fb8' : '#29e7ff', 0.12); g.beginPath(); g.moveTo(a, b); g.lineTo(ta - u * 1.2, tb); g.lineTo(ta + u * 1.2, tb); g.closePath(); g.fill(); g.fillStyle = '#2a2748'; g.beginPath(); g.arc(a, b, u * 0.16, 0, 7); g.fill(); void an; } });
+      }
+      return items;
+    }
+    // a little potion bottle: round belly, a neck, a cork, colored liquid
+    function potion(X, Y, r, col) {
+      g.fillStyle = alpha('#eafff8', 0.4); g.beginPath(); g.arc(X, Y - r, r, 0, 7); g.fill(); g.fillRect(X - r * 0.3, Y - r * 2.6, r * 0.6, r * 0.9);
+      g.fillStyle = col; g.beginPath(); g.arc(X, Y - r, r * 0.85, 0.15, Math.PI - 0.15); g.fill();
+      g.fillStyle = '#b8864a'; g.fillRect(X - r * 0.35, Y - r * 2.9, r * 0.7, r * 0.4);
+      g.fillStyle = 'rgba(255,255,255,0.6)'; g.beginPath(); g.ellipse(X - r * 0.35, Y - r * 1.35, r * 0.15, r * 0.3, -0.4, 0, 7); g.fill();
+      if (LOD) { g.strokeStyle = 'rgba(20,12,30,0.6)'; g.lineWidth = Math.max(px1, r * 0.08); g.beginPath(); g.arc(X, Y - r, r, 0, 7); g.stroke(); }
+    }
+    function sparkleAt(X, Y, r, col) { g.fillStyle = col; g.beginPath(); for (let i = 0; i < 8; i++) { const an = i * Math.PI / 4 - Math.PI / 2, rr = i % 2 ? r * 0.25 : r; g.lineTo(X + Math.cos(an) * rr, Y + Math.sin(an) * rr); } g.closePath(); g.fill(); }
     function layoutHub() {
+      const hw = skinId();
+      if (hw === 'rocket' || hw === 'lab' || hw === 'mafia' || hw === 'gamer') return layoutHubWorld(hw);
       const items = [], add = (d, fp, fn) => items.push({ d, fp, fn });
       add(7, [2.3, 2.3, 2.4, 2.4], () => {
         cyl(3.5, 3.5, 1.05, 0.25, 0, '#3a4262'); cyl(3.5, 3.5, 0.75, 0.55, 0.25, '#2d3550', { top: '#46506a' });
@@ -5876,15 +6178,25 @@
       alien: { body: '#62407f', dark: '#2a1640', trim: '#7a55a0', glow: '#7dffb0', warn: '#d8ff6a', belt: '#3a2352', crate: '#553570', wood: '#40295a', producer: 'vat', slots: ['pod', 'rack', 'vat', 'tank'], out: 'spire' },
       haunted: { body: '#4a3e4a', dark: '#1a1218', trim: '#6a5a6a', glow: '#9dff8a', warn: '#c9a24a', belt: '#2a1e24', crate: '#4a3222', wood: '#3a2618', producer: 'forge', slots: ['cauldron', 'rack', 'vat', 'grind'], out: 'chimney' },
       pumpkin: { body: '#c8641a', dark: '#3a2414', trim: '#6b4a2e', glow: '#ffb040', warn: '#ffcf3a', belt: '#4a3020', crate: '#e8741a', wood: '#8a5a32', producer: 'mill', slots: ['cauldron', 'rack', 'churn', 'press'], out: 'silo' },
+      // the new worlds: each kind of room has its own machines (bylook), so a weld bay, a card room and a VR arena differ
+      rocket: { body: '#e8ebf1', dark: '#262b36', trim: '#5b6272', glow: '#ff8a2a', glow2: '#6fd8ff', warn: '#ffc23a', belt: '#20242e', crate: '#c9ced8', wood: '#7a8290', producer: 'printer', slots: ['engine', 'arm', 'rack', 'tankseg'], out: 'gantry',
+        bylook: { engines: ['engine', 'engine', 'rack', 'arm'], avionics: ['server', 'console', 'rack', 'server'], tankfarm: ['tankseg', 'tank', 'rack', 'tankseg'], fairing: ['fairing', 'arm', 'rack', 'fairing'], weldbay: ['weldrig', 'weldrig', 'rack', 'arm'], mission: ['console', 'console', 'server', 'console'] } },
+      lab: { body: '#dfe8e4', dark: '#22303a', trim: '#5a6e76', glow: '#7dff4a', glow2: '#ff4fb8', warn: '#ffe14a', belt: '#26323a', crate: '#b8c8c0', wood: '#6a4a3a', producer: 'still', slots: ['flasks', 'coil', 'tesla', 'rack'], out: 'lightning',
+        bylook: { potions: ['flasks', 'flasks', 'rack', 'cauldron'], tesla: ['tesla', 'tesla', 'coil', 'rack'], specimens: ['jars', 'jars', 'vat', 'rack'], distillery: ['coil', 'coil', 'flasks', 'rack'], blast: ['boomer', 'flasks', 'rack', 'boomer'], clones: ['vat', 'vat', 'pod', 'rack'] } },
+      mafia: { body: '#6a4228', dark: '#2a1a12', trim: '#e0b454', glow: '#ffcf6a', warn: '#e0b454', belt: '#3a2a1e', crate: '#8a5a2e', wood: '#6b4226', producer: 'oven', slots: ['barrels', 'rack', 'press', 'display'], out: 'cypress',
+        bylook: { pizzeria: ['oven', 'display', 'rack', 'oven'], oliveoil: ['press', 'barrels', 'rack', 'tank'], vino: ['barrels', 'barrels', 'rack', 'barrels'], tailor: ['sewing', 'sewing', 'rack', 'sewing'], cardroom: ['cardtable', 'cardtable', 'rack', 'cardtable'], builders: ['mixer', 'arm', 'rack', 'mixer'], waste: ['dumpster', 'press', 'dumpster', 'rack'], bakery: ['oven', 'display', 'display', 'rack'] } },
+      gamer: { body: '#2a2748', dark: '#12101f', trim: '#3a3660', glow: '#39ff9e', glow2: '#ff3fb8', warn: '#ffd23a', belt: '#15132a', crate: '#3a3660', wood: '#2a2748', producer: 'server', slots: ['battlestation', 'arcadecab', 'rack', 'couch'], out: 'streamtower',
+        bylook: { pcrig: ['battlestation', 'battlestation', 'rack', 'battlestation'], vrarena: ['vrpad', 'vrpad', 'rack', 'vrpad'], couch: ['couch', 'couch', 'rack', 'arcadecab'], argame: ['arpad', 'arpad', 'rack', 'arpad'], aiarena: ['server', 'server', 'battlestation', 'server'], arcade: ['arcadecab', 'arcadecab', 'arcadecab', 'rack'] } },
       ocean: { body: '#86a2b6', dark: '#2f4a5e', trim: '#6d8797', glow: '#39e0ff', warn: '#ffcf5a', belt: '#1b2e3c', crate: '#9fb7c8', wood: '#5c7483', producer: 'aquarium', slots: ['tank', 'rack', 'press', 'arm'], out: 'pipe' },
     };
     const facCache = new Map(), NOOP = () => {};
     const BELT_AT = N + 1.3, BELT_W = 0.7, LANE = [N / 2 - 0.7, N / 2 + 0.7];
     // where everything goes in one building (box-local units), worked out once per cell, world and kind
     function factoryPlan(b, kind, world) {
-      const key = `${b.c},${b.r}|${kind}|${world}`;
+      const lkRoom = kind === 'path' ? rooms.find((m) => m.c === b.c && m.r === b.r) : null, lk = lkRoom && FAC[world] && FAC[world].bylook ? lookDef(lkRoom) : null;
+      const key = `${b.c},${b.r}|${kind}|${world}|${lk ? lk.id : ''}`;
       if (facCache.has(key)) return facCache.get(key);
-      const F = FAC[world] || FAC.space, W = b.w, D = b.d, [yw, yd] = b.yard || [0, 0], seed = hsh(key);
+      const F0 = FAC[world] || FAC.space, F = lk && F0.bylook[lk.id] ? { ...F0, slots: F0.bylook[lk.id] } : F0, W = b.w, D = b.d, [yw, yd] = b.yard || [0, 0], seed = hsh(key);
       const plan = { F, belts: [], machines: [], benches: [], crates: [], pallets: [], collector: null, crossings: [], lamps: [], spots: { work: [], pick: [], drop: [] }, walls: [], out: null };
       facCache.set(key, plan);
       if (b.round) {
@@ -6287,11 +6599,342 @@
           g.fillStyle = alpha(F.glow, 0.25 + p * 0.5); g.beginPath(); g.ellipse(a, c2 + u * 0.05, u * 0.2, u * 0.3, 0, 0, 7); g.fill();
           if (on) lights.push([a, c2, u * 1.4, F.glow, 0.25 * p]);
         }
+      } else if (NEWM.has(t)) {
+        newMachine(m, F, world, on, dim, { facePt, faceQuad, status, glow });
+      }
+    }
+    // ---- the four newer worlds' machines: a rocket works, a mad lab, a family's businesses, a gaming den
+    const NEWM = new Set(['engine', 'tankseg', 'weldrig', 'console', 'fairing', 'still', 'flasks', 'coil', 'tesla', 'jars', 'boomer', 'oven', 'barrels', 'display', 'sewing', 'cardtable', 'mixer', 'dumpster', 'battlestation', 'vrpad', 'couch', 'arcadecab', 'arpad']);
+    // a cone or a cylinder standing on the floor: z0 its foot, z1 its top, r0 and r1 their radii
+    function frustum(px, py, z0, z1, r0, r1, col, shine = true) {
+      const [bx, by] = Pl(px, py, z0), [tx, ty] = Pl(px, py, z1), rb = r0 * u * 1.414, rbY = r0 * u * 0.707, rt = r1 * u * 1.414, rtY = r1 * u * 0.707;
+      g.beginPath(); g.moveTo(tx - rt, ty); g.lineTo(bx - rb, by); g.ellipse(bx, by, rb, rbY, 0, Math.PI, 0, true); g.lineTo(tx + rt, ty); g.ellipse(tx, ty, rt, rtY, 0, 0, Math.PI, false); g.closePath();
+      if (LOD === 2 && shine) { const x0 = Math.min(bx - rb, tx - rt), x1 = Math.max(bx + rb, tx + rt), gr = g.createLinearGradient(x0, 0, x1, 0); gr.addColorStop(0, shade(col, -0.12)); gr.addColorStop(0.3, shade(col, 0.28)); gr.addColorStop(0.65, shade(col, -0.18)); gr.addColorStop(1, shade(col, -0.45)); g.fillStyle = gr; } else g.fillStyle = col;
+      g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); }
+      return { tx, ty, rt, rtY, bx, by, rb, rbY };
+    }
+    // sparks flying off a point: welding, grinding, a short circuit
+    function sparks(X, Y, n, col = '#fff4c8', spread = 1) {
+      if (LOD < 2) return;
+      for (let k = 0; k < n; k++) { const p = (tt * 2.6 + k / n) % 1, an = -Math.PI / 2 + (hsh(k * 17 + Math.floor(tt * 2.6)) % 100 / 100 - 0.5) * 2.6 * spread, d = p * u * 1.1; g.fillStyle = alpha(col, 1 - p); g.beginPath(); g.arc(X + Math.cos(an) * d, Y + Math.sin(an) * d + p * p * u * 0.9, u * (0.035 - p * 0.02), 0, 7); g.fill(); }
+    }
+    // a jagged bolt of light between two points
+    function bolt(X0, Y0, X1, Y1, col, seed) {
+      g.strokeStyle = col; g.lineWidth = Math.max(px1 * 1.5, u * 0.035); g.beginPath(); g.moveTo(X0, Y0);
+      for (let k = 1; k < 6; k++) { const f = k / 6, j = ((hsh(seed * 31 + k + Math.floor(tt * 12)) % 100) / 100 - 0.5) * u * 0.35; g.lineTo(X0 + (X1 - X0) * f + j, Y0 + (Y1 - Y0) * f + j * 0.5); }
+      g.lineTo(X1, Y1); g.stroke();
+    }
+    // a tiny colorful mushroom cloud: the mad lab's poof
+    function poof(X, Y, p, col, s = 1) {
+      if (p <= 0 || p >= 1) return;
+      const a = p < 0.2 ? p / 0.2 : 1 - (p - 0.2) / 0.8, r = u * s * (0.25 + p * 0.45), rise = u * s * p * 1.3;
+      g.fillStyle = alpha(shade(col, 0.2), 0.8 * a); g.beginPath(); g.ellipse(X, Y - rise * 0.45, r * 0.28, rise * 0.5 + r * 0.2, 0, 0, 7); g.fill();
+      for (const [dx, dy, rr] of [[0, 0, 1], [-0.55, 0.15, 0.7], [0.55, 0.15, 0.7], [-0.25, -0.35, 0.65], [0.3, -0.3, 0.6]]) { g.fillStyle = alpha(dy < 0 ? shade(col, 0.45) : col, 0.9 * a); g.beginPath(); g.arc(X + dx * r, Y - rise + dy * r, r * rr * 0.62, 0, 7); g.fill(); }
+      g.fillStyle = alpha('#ffffff', 0.5 * a); g.beginPath(); g.arc(X - r * 0.25, Y - rise - r * 0.3, r * 0.18, 0, 7); g.fill();
+      glowAt(X, Y - rise, r * 2, col, 0.35 * a);
+    }
+    function screenGlow(X, Y, col, a = 0.6) { glowAt(X, Y, u * 0.9, col, a); }
+    function newMachine(m, F, world, on, dim, h) {
+      const { x, y, w, d, side } = m, t = m.type, { facePt, faceQuad, status, glow } = h, R = side === 'R';
+      const cx = x + w / 2, cy = y + d / 2, seed = hsh(`${x},${y},${t}`), ph = (seed % 100) / 100;
+      // n places along the machine's length, centred
+      const along = (n) => Array.from({ length: n }, (_, i) => (R ? [x + (i + 0.5) * w / n, cy] : [cx, y + (i + 0.5) * d / n]));
+      const lng = R ? w : d;
+      // a color that cycles round the wheel, as rgb so the glow and alpha helpers can read it
+      const hue = (o = 0) => { const k = (((tt * 60 + o) % 360) + 360) % 360 / 60, x2 = 1 - Math.abs((k % 2) - 1), [r, g2, b] = k < 1 ? [1, x2, 0] : k < 2 ? [x2, 1, 0] : k < 3 ? [0, 1, x2] : k < 4 ? [0, x2, 1] : k < 5 ? [x2, 0, 1] : [1, 0, x2]; return rgb(40 + 215 * r, 40 + 215 * g2, 40 + 215 * b); };
+      // ---------------------------------------------------------------- rocket works
+      if (t === 'engine') {
+        // an engine on a test stand; now and then it test-fires
+        box(x + 0.05, y + 0.05, w - 0.1, d - 0.1, 0.12, 0, '#3a404e');
+        for (const [px, py] of along(lng > 2 ? 2 : 1)) {
+          for (const [dx, dy] of [[-0.45, -0.45], [0.45, -0.45], [-0.45, 0.45], [0.45, 0.45]]) box(px + dx - 0.04, py + dy - 0.04, 0.08, 0.08, 2.0, 0.12, '#5b6272', { noInk: LOD < 2 });
+          box(px - 0.5, py - 0.5, 1.0, 1.0, 0.08, 2.1, '#ff6a1a', { noInk: LOD < 2 });
+          cyl(px, py, 0.2, 0.45, 1.55, '#b8c0cc');
+          const b = frustum(px, py, 0.45, 1.55, 0.44, 0.16, '#b0643a');
+          if (LOD) { g.strokeStyle = alpha('#ffd08a', 0.5); g.lineWidth = lw(0.02); for (const z of [0.8, 1.15]) { const [ex, ey] = Pl(px, py, z), rr = (0.44 - (z - 0.45) / 1.1 * 0.28) * u; g.beginPath(); g.ellipse(ex, ey, rr * 1.414, rr * 0.707, 0, 0.2, Math.PI - 0.2); g.stroke(); } }
+          const fire = on && ((tt * 0.16 + ph) % 1) < 0.22;
+          if (fire) {
+            const fl = 0.85 + Math.sin(tt * 40) * 0.15, [fx, fy] = Pl(px, py, 0.45);
+            const gr = g.createLinearGradient(0, fy, 0, fy + u * 1.1); gr.addColorStop(0, 'rgba(255,255,255,0.95)'); gr.addColorStop(0.3, 'rgba(120,190,255,0.85)'); gr.addColorStop(1, 'rgba(255,140,40,0)');
+            g.fillStyle = gr; g.beginPath(); g.moveTo(fx - b.rb * 0.8, fy); g.quadraticCurveTo(fx, fy + u * 1.4 * fl, fx + b.rb * 0.8, fy); g.fill();
+            glowAt(fx, fy + u * 0.3, u * 2.2, '#ffb060', 0.8 * dim); lights.push([fx, fy, u * 4, '#ffb060', 0.8]);
+          } else if (on) { const [fx, fy] = Pl(px, py, 0.45); glowAt(fx, fy, u * 0.5, '#ff8a2a', 0.5 * dim); }
+        }
+        status();
+      } else if (t === 'tankseg') {
+        // stainless tank sections, welded ring by ring
+        for (const [px, py] of along(lng > 2 ? 2 : 1)) {
+          cyl(px, py, 0.66, 0.14, 0, '#2a2f3c');
+          frustum(px, py, 0.14, 2.3, 0.6, 0.6, '#d8dde6');
+          if (LOD) { g.strokeStyle = 'rgba(40,50,70,0.35)'; g.lineWidth = lw(0.02); for (let z = 0.6; z < 2.3; z += 0.55) { const [ex, ey] = Pl(px, py, z); g.beginPath(); g.ellipse(ex, ey, 0.6 * u * 1.414, 0.6 * u * 0.707, 0, 0.05, Math.PI - 0.05); g.stroke(); } }
+          const [tx, ty] = Pl(px, py, 2.3); g.fillStyle = '#eef1f6'; g.beginPath(); g.ellipse(tx, ty, 0.6 * u * 1.414, 0.6 * u * 0.707, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); g.fillStyle = '#9aa4b4'; g.beginPath(); g.ellipse(tx, ty, 0.42 * u * 1.414, 0.42 * u * 0.707, 0, 0, 7); g.fill(); }
+          if (LOD === 2) { const [lx, ly] = Pl(px + (R ? 0 : 0.6), py + (R ? 0.6 : 0), 1.3); g.font = `900 ${(u * 0.3).toFixed(1)}px Orbitron, system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#1d2433'; g.fillText((seed + Math.round(px)) % 2 ? 'LOX' : 'CH4', lx, ly); }
+        }
+      } else if (t === 'weldrig') {
+        // a ring section turning on a turntable, a welder's arc on the seam
+        box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.18, 0, '#262b36');
+        const [px, py] = along(1)[0], spin = on ? tt * 0.6 : 0;
+        cyl(px, py, 0.72, 0.1, 0.18, '#5b6272');
+        frustum(px, py, 0.28, 1.35, 0.62, 0.62, '#cfd5df');
+        if (LOD) { g.strokeStyle = 'rgba(40,50,70,0.4)'; g.lineWidth = lw(0.02); for (let k = 0; k < 6; k++) { const an = spin + k * Math.PI / 3; if (Math.sin(an) < 0) continue; const [a0, b0] = Pl(px + Math.cos(an) * 0.62, py + Math.sin(an) * 0.62, 0.28), [a1, b1] = Pl(px + Math.cos(an) * 0.62, py + Math.sin(an) * 0.62, 1.35); g.beginPath(); g.moveTo(a0, b0); g.lineTo(a1, b1); g.stroke(); } }
+        const [sx, sy] = Pl(px, py, 1.35); g.fillStyle = '#9aa4b4'; g.beginPath(); g.ellipse(sx, sy, 0.62 * u * 1.414, 0.62 * u * 0.707, 0, 0, 7); g.fill(); g.fillStyle = '#262b36'; g.beginPath(); g.ellipse(sx, sy, 0.5 * u * 1.414, 0.5 * u * 0.707, 0, 0, 7); g.fill();
+        // the welding arm and its arc
+        const ax = R ? x + w - 0.35 : cx + 0.5, ay = R ? cy + 0.45 : y + d - 0.35;
+        box(ax - 0.15, ay - 0.15, 0.3, 0.3, 1.1, 0, '#ffc23a');
+        const [a0, b0] = Pl(ax, ay, 1.2), [s0, s1] = Pl(px + 0.45, py + 0.45, 0.8);
+        g.strokeStyle = INK; g.lineWidth = u * 0.14; g.lineCap = 'round'; g.beginPath(); g.moveTo(a0, b0); g.lineTo(s0, s1); g.stroke(); g.strokeStyle = '#ffc23a'; g.lineWidth = u * 0.09; g.stroke();
+        if (on) { const f = 0.6 + 0.4 * Math.abs(Math.sin(tt * 23)); glowAt(s0, s1, u * 1.4 * f, '#cfe8ff', 0.95 * dim); g.fillStyle = '#ffffff'; g.beginPath(); g.arc(s0, s1, u * 0.09, 0, 7); g.fill(); sparks(s0, s1, 14, '#fff0b0', 1.2); lights.push([s0, s1, u * 3.5, '#cfe8ff', 0.7 * f]); }
+      } else if (t === 'console') {
+        // mission control: a sloped console with three screens, and a big board above
+        box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.75, 0, '#262b36', { gloss: true });
+        for (const [px, py] of along(3)) {
+          const sc = [F.glow2, '#5fe39a', F.glow][hsh(px * 7 + py) % 3];
+          box(px - 0.26, py - (R ? 0.1 : 0.26), R ? 0.52 : 0.2, R ? 0.2 : 0.52, 0.5, 0.75, '#12151f', { lf: on ? sc : '#1a1e2a', rf: '#161a24' });
+          if (on && LOD === 2) { const [a, b] = Pl(px + (R ? 0 : 0.12), py + (R ? 0.12 : 0), 1.0); g.strokeStyle = alpha('#ffffff', 0.7); g.lineWidth = lw(0.015); g.beginPath(); for (let k = 0; k < 6; k++) { const xx = a - u * 0.18 + k * u * 0.07, yy = b + Math.sin(tt * 3 + k + px) * u * 0.06; if (k) g.lineTo(xx, yy); else g.moveTo(xx, yy); } g.stroke(); }
+          if (on) glow(0.5, 1.0, 1.4, 0.3);
+        }
+        status();
+      } else if (t === 'fairing') {
+        // a payload fairing half on its cradle, and the layup table
+        box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.3, 0, '#5b6272');
+        const [px, py] = along(1)[0];
+        const b = frustum(px, py, 0.3, 1.5, 0.6, 0.58, '#f4f6fb');
+        const [nx, ny] = Pl(px, py, 1.5), [ax, ay] = Pl(px, py, 2.55);
+        g.beginPath(); g.moveTo(nx - b.rt, ny); g.quadraticCurveTo(nx - b.rt * 0.9, ay + (ny - ay) * 0.2, ax, ay); g.quadraticCurveTo(nx + b.rt * 0.9, ay + (ny - ay) * 0.2, nx + b.rt, ny); g.ellipse(nx, ny, b.rt, b.rtY, 0, 0, Math.PI, false); g.closePath();
+        const gr = g.createLinearGradient(nx - b.rt, 0, nx + b.rt, 0); gr.addColorStop(0, '#dfe3ea'); gr.addColorStop(0.35, '#ffffff'); gr.addColorStop(1, '#9aa4b4'); g.fillStyle = LOD === 2 ? gr : '#eef1f6'; g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); }
+        if (LOD) { g.fillStyle = F.glow; g.fillRect(nx - b.rt, ny - u * 0.05, b.rt * 2, u * 0.08); }
+        if (on && LOD === 2) sparks(nx + b.rt * 0.6, ny - u * 0.4, 6, '#ffe8b0', 0.6);
+      // ---------------------------------------------------------------- mad lab
+      } else if (t === 'still') {
+        // a copper still: pot, gooseneck, a condenser and a glowing flask
+        box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.3, 0, '#3a2a24');
+        const [px, py] = along(1)[0];
+        frustum(px, py, 0.3, 1.25, 0.55, 0.5, '#c87a3a');
+        const [dx2, dy2] = Pl(px, py, 1.25); g.fillStyle = '#d88a4a'; g.beginPath(); g.ellipse(dx2, dy2 - u * 0.1, 0.5 * u * 1.414, 0.5 * u * 0.9, 0, Math.PI, 0); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); }
+        const [gx, gy] = Pl(px + (R ? 0.9 : 0.5), py + (R ? 0.5 : 0.9), 0.8);
+        g.strokeStyle = '#b86a2a'; g.lineWidth = u * 0.1; g.lineCap = 'round'; g.beginPath(); g.moveTo(dx2, dy2 - u * 0.6); g.quadraticCurveTo(dx2 + u * 0.4, dy2 - u * 1.2, gx, gy - u * 0.3); g.stroke();
+        const liquid = on ? F.glow : '#4a6a3a'; g.fillStyle = alpha('#e8fff0', 0.5); g.beginPath(); g.arc(gx, gy, u * 0.3, 0, 7); g.fill(); g.fillStyle = liquid; g.beginPath(); g.arc(gx, gy + u * 0.06, u * 0.24, 0.2, Math.PI - 0.2); g.fill();
+        if (on) { screenGlow(gx, gy, F.glow, 0.5 * dim); lights.push([gx, gy, u * 2, F.glow, 0.5]); if (LOD === 2) for (let k = 0; k < 3; k++) { const p = (tt * 0.9 + k / 3) % 1; g.fillStyle = alpha('#eaffe0', 1 - p); g.beginPath(); g.arc(gx + Math.sin(k * 2 + tt) * u * 0.1, gy - p * u * 0.5, u * 0.04, 0, 7); g.fill(); } }
+        status();
+      } else if (t === 'flasks') {
+        // a bench of bubbling test tubes and round flasks over blue burners
+        box(x + 0.05, y + 0.05, w - 0.1, d - 0.1, 0.85, 0, '#e8ece6'); box(x, y, w, d, 0.08, 0.85, '#2a3a44', { gloss: true });
+        const cols = ['#7dff4a', '#ff4fb8', '#39f0ff', '#ffe14a', '#c46bff'];
+        along(lng > 2 ? 4 : 3).forEach(([px, py], i) => {
+          const col = cols[(seed + i) % cols.length];
+          if (i % 2) {
+            // a rack of tubes
+            for (let k = 0; k < 4; k++) { const [a, b] = Pl(px + (R ? (k - 1.5) * 0.12 : 0), py + (R ? 0 : (k - 1.5) * 0.12), 1.2); g.fillStyle = alpha('#eafff0', 0.55); g.fillRect(a - u * 0.04, b - u * 0.05, u * 0.08, u * 0.34); g.fillStyle = cols[(i + k) % cols.length]; g.fillRect(a - u * 0.035, b + u * 0.1, u * 0.07, u * 0.18); }
+          } else {
+            const [a, b] = Pl(px, py, 1.25), r = u * 0.26, lvl = on ? 0.05 + Math.sin(tt * 2 + i) * 0.03 : 0;
+            g.fillStyle = alpha('#eafff0', 0.35); g.beginPath(); g.arc(a, b, r, 0, 7); g.fill(); g.fillRect(a - u * 0.06, b - r - u * 0.3, u * 0.12, u * 0.3);
+            g.fillStyle = col; g.beginPath(); g.arc(a, b, r * 0.9, 0.1 - lvl * 6, Math.PI - 0.1 + lvl * 6); g.fill();
+            if (LOD) { g.strokeStyle = alpha('#ffffff', 0.75); g.lineWidth = lw(0.02); g.beginPath(); g.arc(a, b, r, 0, 7); g.stroke(); }
+            if (on) {
+              const [fa, fb] = Pl(px, py, 0.9); g.fillStyle = alpha('#5fb4ff', 0.8); g.beginPath(); g.ellipse(fa, fb - u * 0.04, u * 0.05, u * 0.1 * (0.8 + Math.sin(tt * 20 + i) * 0.2), 0, 0, 7); g.fill();
+              if (LOD === 2) for (let k = 0; k < 4; k++) { const p = (tt * 1.2 + k / 4 + i * 0.3) % 1; g.fillStyle = alpha(shade(col, 0.5), 1 - p); g.beginPath(); g.arc(a + Math.sin(k * 3 + tt * 2) * r * 0.4, b - r * 0.2 - p * u * 0.9, u * (0.03 + p * 0.03), 0, 7); g.fill(); }
+              screenGlow(a, b, col, 0.4 * dim); lights.push([a, b, u * 1.6, col, 0.4]);
+            }
+          }
+        });
+      } else if (t === 'coil') {
+        // a tall glass coil: colored liquid spiralling down into a beaker
+        box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.2, 0, '#2a3a44');
+        for (const [px, py] of along(lng > 2 ? 2 : 1)) {
+          box(px - 0.05, py - 0.05, 0.1, 0.1, 2.6, 0.2, '#8a95a8', { noInk: LOD < 2 });
+          const pts = []; for (let k = 0; k <= 64; k++) { const f = k / 64, an = f * Math.PI * 2 * 4.5 + (seed % 7), z = 2.5 - f * 1.9; pts.push(Pl(px + Math.cos(an) * 0.38, py + Math.sin(an) * 0.38, z)); }
+          g.lineCap = 'round'; g.lineJoin = 'round';
+          g.strokeStyle = alpha('#eafff8', 0.45); g.lineWidth = u * 0.12; g.beginPath(); pts.forEach(([a, b], k) => (k ? g.lineTo(a, b) : g.moveTo(a, b))); g.stroke();
+          const col = [F.glow, F.glow2, '#39f0ff'][seed % 3];
+          g.strokeStyle = col; g.lineWidth = u * 0.06; g.setLineDash([u * 0.25, u * 0.18]); g.lineDashOffset = on ? -tt * u * 0.9 : 0; g.beginPath(); pts.forEach(([a, b], k) => (k ? g.lineTo(a, b) : g.moveTo(a, b))); g.stroke(); g.setLineDash([]);
+          const [ba, bb] = Pl(px + 0.3, py + 0.3, 0.45); g.fillStyle = alpha('#eafff0', 0.4); g.fillRect(ba - u * 0.2, bb - u * 0.3, u * 0.4, u * 0.4); g.fillStyle = col; g.fillRect(ba - u * 0.18, bb - u * 0.12, u * 0.36, u * 0.2);
+          if (on) { screenGlow(ba, bb, col, 0.45 * dim); lights.push([ba, bb - u * 0.6, u * 2.2, col, 0.45]); }
+        }
+      } else if (t === 'tesla') {
+        // a tesla coil throwing arcs from its crown
+        const [px, py] = along(1)[0];
+        cyl(px, py, 0.55, 0.3, 0, '#2a2f3c'); frustum(px, py, 0.3, 2.1, 0.22, 0.16, '#c87a3a');
+        if (LOD) { g.strokeStyle = 'rgba(80,40,10,0.5)'; g.lineWidth = lw(0.015); for (let z = 0.45; z < 2.0; z += 0.09) { const [ex, ey] = Pl(px, py, z), rr = (0.22 - (z - 0.3) / 1.8 * 0.06) * u; g.beginPath(); g.ellipse(ex, ey, rr * 1.414, rr * 0.707, 0, 0.1, Math.PI - 0.1); g.stroke(); } }
+        const [ta, tb] = Pl(px, py, 2.3); g.fillStyle = '#b8c0cc'; g.beginPath(); g.ellipse(ta, tb, u * 0.6, u * 0.22, 0, 0, 7); g.fill(); g.fillStyle = '#e8edf4'; g.beginPath(); g.ellipse(ta, tb - u * 0.05, u * 0.5, u * 0.14, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.beginPath(); g.ellipse(ta, tb, u * 0.6, u * 0.22, 0, 0, 7); g.stroke(); }
+        if (on) {
+          const n = 2 + (Math.floor(tt * 8 + seed) % 3);
+          for (let k = 0; k < n; k++) { const an = ((hsh(k * 13 + Math.floor(tt * 8) + seed) % 628) / 100), L2 = u * (0.9 + (k % 2) * 0.6); bolt(ta + Math.cos(an) * u * 0.5, tb, ta + Math.cos(an) * L2, tb + Math.sin(an) * L2 * 0.6 - u * 0.3, alpha('#e8d8ff', 0.95), k + seed); }
+          glowAt(ta, tb, u * 2.4, '#c46bff', 0.6 * dim); lights.push([ta, tb, u * 4, '#c46bff', 0.6 + 0.3 * Math.sin(tt * 30)]);
+        }
+      } else if (t === 'jars') {
+        // a shelf of specimen jars, glowing green
+        const long = lng;
+        for (const e of [0.05, long - 0.12]) for (const f of [0.05, (R ? d : w) - 0.12]) box(R ? x + e : x + f, R ? y + f : y + e, 0.07, 0.07, 2.1, 0, '#5a6e76', { noInk: LOD < 2 });
+        for (const z of [0.1, 1.05]) {
+          box(x, y, w, d, 0.05, z, '#5a6e76', { noInk: true });
+          const n = Math.max(2, Math.floor(long / 0.6));
+          for (let i = 0; i < n; i++) {
+            const px = R ? x + 0.3 + i * (w - 0.6) / (n - 1) : cx, py = R ? cy : y + 0.3 + i * (d - 0.6) / (n - 1), [a, b] = Pl(px, py, z + 0.05), [, b2] = Pl(px, py, z + 0.75), rx = u * 0.22;
+            g.fillStyle = alpha(on ? '#9aff7a' : '#5a8a4a', 0.55); g.fillRect(a - rx, b2, rx * 2, b - b2);
+            const kind = hsh(i * 7 + z * 10 + seed) % 3;
+            g.fillStyle = 'rgba(40,20,40,0.7)'; g.beginPath(); if (kind === 0) g.ellipse(a, (b + b2) / 2, rx * 0.6, rx * 0.5, 0, 0, 7); else if (kind === 1) { g.arc(a, (b + b2) / 2, rx * 0.45, 0, 7); } else g.ellipse(a, (b + b2) / 2, rx * 0.3, rx * 0.8, 0.3, 0, 7); g.fill();
+            if (kind === 1) { g.fillStyle = '#fff'; g.beginPath(); g.arc(a, (b + b2) / 2, rx * 0.25, 0, 7); g.fill(); g.fillStyle = '#2a6ad8'; g.beginPath(); g.arc(a + Math.sin(tt + i) * rx * 0.08, (b + b2) / 2, rx * 0.12, 0, 7); g.fill(); }
+            g.fillStyle = '#8a95a8'; g.fillRect(a - rx * 1.05, b2 - u * 0.06, rx * 2.1, u * 0.08);
+            if (on && LOD) lights.push([a, (b + b2) / 2, u * 1.2, '#9aff7a', 0.25]);
+          }
+        }
+      } else if (t === 'boomer') {
+        // a blast chamber: a steel box with a round port, and every few seconds, a poof
+        box(x + 0.15, y + 0.15, w - 0.3, d - 0.3, 1.5, 0, '#5a6470', { gloss: true });
+        if (LOD) { faceQuad(0.08, 0.92, 0.1, 0.35); g.fillStyle = '#ffe14a'; g.fill(); const [a, b] = facePt(0.5, 0.95); g.fillStyle = '#1a1e28'; g.beginPath(); g.arc(a, b, u * 0.32, 0, 7); g.fill(); g.strokeStyle = '#8a95a8'; g.lineWidth = lw(0.06); g.stroke(); }
+        const p = on ? (tt * 0.28 + ph) % 1 : -1, [ta, tb] = Pl(cx, cy, 1.5);
+        if (p >= 0 && p < 0.6) poof(ta, tb, p / 0.6, ['#ff4fb8', '#7dff4a', '#39f0ff', '#ffe14a', '#c46bff'][(Math.floor(tt * 0.28 + ph) + seed) % 5], 1.1);
+        if (p >= 0 && p < 0.08) { const [a, b] = facePt(0.5, 0.95); glowAt(a, b, u * 1.2, '#ffe14a', 0.9); }
+        status();
+      // ---------------------------------------------------------------- the family businesses
+      } else if (t === 'oven') {
+        // a brick dome oven with the fire going
+        const [px, py] = along(1)[0];
+        box(x + 0.15, y + 0.15, w - 0.3, d - 0.3, 0.75, 0, '#8a4a32');
+        if (LOD === 2) { g.strokeStyle = 'rgba(40,16,8,0.35)'; g.lineWidth = lw(0.015); for (let z = 0.2; z < 0.75; z += 0.18) { g.beginPath(); g.moveTo(...facePt(0, z)); g.lineTo(...facePt(1, z)); g.stroke(); } }
+        const [dx2, dy2] = Pl(px, py, 0.75), rr = Math.min(w, d) * 0.42 * u;
+        const dg = g.createRadialGradient(dx2 - rr * 0.4, dy2 - rr * 0.8, rr * 0.1, dx2, dy2 - rr * 0.3, rr * 1.3); dg.addColorStop(0, '#c8785a'); dg.addColorStop(1, '#6a3222');
+        g.fillStyle = LOD === 2 ? dg : '#9a5a3a'; g.beginPath(); g.ellipse(dx2, dy2, rr * 1.35, rr * 0.7, 0, Math.PI, 0); g.lineTo(dx2 + rr * 1.35, dy2); g.ellipse(dx2, dy2, rr * 1.35, rr * 0.5, 0, 0, Math.PI); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); }
+        const [ma, mb] = facePt(0.5, 0.95); g.fillStyle = on ? `rgb(255,${130 + Math.sin(tt * 11) * 40},40)` : '#2a1a14'; g.beginPath(); g.ellipse(ma, mb, u * 0.34, u * 0.26, 0, Math.PI, 0); g.lineTo(ma + u * 0.34, mb + u * 0.05); g.lineTo(ma - u * 0.34, mb + u * 0.05); g.fill();
+        if (on) { glowAt(ma, mb, u * 1.4, '#ff9a4a', 0.7 * dim); glow(0.5, 0.9, 3, 0.6); smoke(px, py, 2.0, 'rgba(120,110,100,'); }
+        const [cxp, cyp] = Pl(px + 0.2, py - 0.2, 1.1); g.fillStyle = '#5a2a1a'; g.fillRect(cxp - u * 0.1, cyp - u * 0.7, u * 0.2, u * 0.7);
+      } else if (t === 'barrels') {
+        // oak barrels on cradles, two high
+        const n = Math.max(2, Math.floor(lng / 0.72));
+        for (const [row, z] of [[0, 0.1], [1, 0.72]]) for (let i = row; i < n - row * 0; i++) {
+          if (row && i >= n - 1) continue;
+          const px = R ? x + 0.36 + (i + row * 0.5) * (w - 0.72) / Math.max(1, n - 1) : cx, py = R ? cy : y + 0.36 + (i + row * 0.5) * (d - 0.72) / Math.max(1, n - 1);
+          const [a, b] = Pl(px, py, z + 0.3), fx = R ? 0 : 1;
+          g.fillStyle = '#7a4a26'; g.beginPath(); g.ellipse(a, b, u * 0.33, u * 0.3, 0, 0, 7); g.fill();
+          g.fillStyle = '#a0683a'; g.beginPath(); g.ellipse(a + (fx ? u * 0.12 : -u * 0.12), b + u * 0.06, u * 0.24, u * 0.27, fx ? 0.5 : -0.5, 0, 7); g.fill();
+          if (LOD) { g.strokeStyle = '#3a2a1a'; g.lineWidth = lw(0.03); g.beginPath(); g.ellipse(a + (fx ? u * 0.12 : -u * 0.12), b + u * 0.06, u * 0.24, u * 0.27, fx ? 0.5 : -0.5, 0, 7); g.stroke(); g.fillStyle = '#2a1a10'; g.beginPath(); g.arc(a + (fx ? u * 0.12 : -u * 0.12), b + u * 0.06, u * 0.04, 0, 7); g.fill(); }
+        }
+      } else if (t === 'display') {
+        // a glass counter of cannoli, sfogliatelle and a cake
+        box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.55, 0, '#6b4226'); box(x + 0.08, y + 0.08, w - 0.16, d - 0.16, 0.06, 0.55, '#e8dcc0');
+        const n = Math.max(3, Math.floor(lng / 0.35));
+        for (let i = 0; i < n; i++) { const f = (i + 0.5) / n, px = R ? x + 0.1 + f * (w - 0.2) : cx, py = R ? cy : y + 0.1 + f * (d - 0.2), [a, b] = Pl(px, py, 0.65); if (i % 3 === 2) { g.fillStyle = '#f4ecd8'; g.beginPath(); g.ellipse(a, b - u * 0.08, u * 0.14, u * 0.12, 0, 0, 7); g.fill(); g.fillStyle = '#c8323e'; g.beginPath(); g.arc(a, b - u * 0.18, u * 0.04, 0, 7); g.fill(); } else { g.fillStyle = '#d8a860'; g.beginPath(); g.ellipse(a, b, u * 0.14, u * 0.06, R ? 0.4 : -0.4, 0, 7); g.fill(); g.fillStyle = '#fff8ec'; for (const s2 of [-1, 1]) { g.beginPath(); g.arc(a + s2 * u * 0.12, b + s2 * u * (R ? 0.05 : -0.05), u * 0.05, 0, 7); g.fill(); } } }
+        box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.45, 0.61, 'rgba(220,240,255,0.18)', { lf: 'rgba(220,240,255,0.22)', rf: 'rgba(200,225,245,0.18)', top: 'rgba(230,245,255,0.14)', noInk: true });
+        if (on) glow(0.5, 0.8, 1.5, 0.25);
+      } else if (t === 'sewing') {
+        // a cutting table, a sewing machine going, a pinstripe jacket on a form
+        box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.78, 0, '#5a3a24'); box(x + 0.05, y + 0.05, w - 0.1, d - 0.1, 0.05, 0.78, '#2a2a36');
+        const [p1, p2] = along(2);
+        box(p1[0] - 0.25, p1[1] - 0.15, 0.5, 0.3, 0.25, 0.83, '#1a1a22', { gloss: true }); box(p1[0] - 0.25, p1[1] - 0.15, 0.1, 0.3, 0.35, 1.08, '#1a1a22');
+        if (on && LOD === 2) { const [a, b] = Pl(p1[0] + 0.15, p1[1], 0.9 + Math.abs(Math.sin(tt * 18)) * 0.08); g.strokeStyle = '#c8ccd4'; g.lineWidth = lw(0.02); g.beginPath(); g.moveTo(a, b); g.lineTo(a, b - u * 0.15); g.stroke(); }
+        const [ma, mb] = Pl(p2[0], p2[1], 0.83); g.strokeStyle = '#3a2a1a'; g.lineWidth = lw(0.04); g.beginPath(); g.moveTo(ma, mb); g.lineTo(ma, mb - u * 0.5); g.stroke();
+        g.fillStyle = '#2a2a30'; g.beginPath(); g.moveTo(ma - u * 0.3, mb - u * 0.5); g.lineTo(ma + u * 0.3, mb - u * 0.5); g.lineTo(ma + u * 0.22, mb - u * 1.35); g.quadraticCurveTo(ma, mb - u * 1.5, ma - u * 0.22, mb - u * 1.35); g.closePath(); g.fill();
+        if (LOD === 2) { g.strokeStyle = 'rgba(220,220,230,0.35)'; g.lineWidth = lw(0.01); g.beginPath(); for (let k = -3; k <= 3; k++) { g.moveTo(ma + k * u * 0.07, mb - u * 0.52); g.lineTo(ma + k * u * 0.055, mb - u * 1.3); } g.stroke(); g.fillStyle = '#f4f0e8'; g.beginPath(); g.moveTo(ma - u * 0.08, mb - u * 1.36); g.lineTo(ma, mb - u * 1.1); g.lineTo(ma + u * 0.08, mb - u * 1.36); g.fill(); g.fillStyle = '#8a1c2b'; g.fillRect(ma - u * 0.02, mb - u * 1.28, u * 0.04, u * 0.2); }
+        for (let k = 0; k < 3; k++) { const [ra, rb] = Pl(R ? x + 0.3 + k * 0.25 : x + 0.3, R ? y + 0.3 : y + 0.3 + k * 0.25, 0.9); g.fillStyle = ['#2a2a36', '#6a1a24', '#c8b48a'][k]; g.beginPath(); g.ellipse(ra, rb, u * 0.1, u * 0.06, 0, 0, 7); g.fill(); }
+      } else if (t === 'cardtable') {
+        // a green felt table, chips stacked, cards dealt, a lamp over it
+        const [px, py] = along(1)[0], rx = (R ? w : d) * 0.42, ry = (R ? d : w) * 0.38;
+        cyl(px, py, 0.2, 0.7, 0, '#2a1a12');
+        const [a, b] = Pl(px, py, 0.75); g.fillStyle = '#6a4226'; g.beginPath(); g.ellipse(a, b, rx * u * 1.1, ry * u * 0.8, 0, 0, 7); g.fill(); g.fillStyle = '#1f6b3a'; g.beginPath(); g.ellipse(a, b - u * 0.03, rx * u, ry * u * 0.72, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = '#e0b454'; g.lineWidth = lw(0.02); g.beginPath(); g.ellipse(a, b - u * 0.03, rx * u * 0.7, ry * u * 0.5, 0, 0, 7); g.stroke(); }
+        if (LOD) { for (let k = 0; k < 4; k++) { const cxk = a + (k - 1.5) * u * 0.3, cyk = b - u * 0.1 + (k % 2) * u * 0.08; g.fillStyle = '#fff'; g.fillRect(cxk - u * 0.06, cyk - u * 0.04, u * 0.12, u * 0.08); g.fillStyle = k % 2 ? '#c8323e' : '#1a1a1a'; g.fillRect(cxk - u * 0.02, cyk - u * 0.02, u * 0.04, u * 0.04); } for (let k = 0; k < 3; k++) for (let j = 0; j < 3 + k; j++) { g.fillStyle = ['#c8323e', '#2a6ad8', '#e8e0c8'][k]; g.beginPath(); g.ellipse(a + u * (0.45 - k * 0.12), b + u * 0.12 - j * u * 0.04, u * 0.07, u * 0.03, 0, 0, 7); g.fill(); } }
+        const [la, lb] = Pl(px, py, 2.1); g.strokeStyle = '#1a1a1a'; g.lineWidth = lw(0.02); g.beginPath(); g.moveTo(la, lb - u * 0.8); g.lineTo(la, lb); g.stroke(); g.fillStyle = '#1f5a3a'; g.beginPath(); g.moveTo(la - u * 0.35, lb + u * 0.12); g.lineTo(la + u * 0.35, lb + u * 0.12); g.lineTo(la + u * 0.16, lb - u * 0.08); g.lineTo(la - u * 0.16, lb - u * 0.08); g.closePath(); g.fill();
+        glowAt(a, b, u * 1.6, '#ffe2a0', 0.35); lights.push([la, lb + u * 0.3, u * 3, '#ffe2a0', 0.55]);
+      } else if (t === 'mixer') {
+        // a cement mixer turning, and sacks of sand
+        const [px, py] = along(1)[0];
+        box(px - 0.5, py - 0.3, 1.0, 0.6, 0.35, 0, '#ffc23a');
+        const [a, b] = Pl(px, py, 1.05), spin = on ? tt * 2.4 : 0;
+        g.fillStyle = '#ff8a2a'; g.beginPath(); g.ellipse(a, b, u * 0.62, u * 0.5, -0.5, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); g.strokeStyle = '#c85a1a'; g.lineWidth = lw(0.05); for (let k = 0; k < 3; k++) { const an = spin + k * 2.1; g.beginPath(); g.arc(a, b, u * 0.4, an, an + 0.8); g.stroke(); } g.fillStyle = '#3a2a1a'; g.beginPath(); g.ellipse(a + u * 0.45, b - u * 0.3, u * 0.18, u * 0.12, -0.5, 0, 7); g.fill(); }
+        for (let k = 0; k < 3; k++) { const [sa, sb] = Pl(R ? x + w - 0.5 : x + 0.4, R ? y + 0.4 + k * 0.3 : y + d - 0.5 - k * 0.3, 0.15 + (k % 2) * 0.2); g.fillStyle = '#d8c8a0'; g.beginPath(); g.ellipse(sa, sb, u * 0.22, u * 0.14, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = 'rgba(80,60,30,0.6)'; g.lineWidth = lw(0.015); g.stroke(); } }
+        status();
+      } else if (t === 'dumpster') {
+        // a green dumpster and recycling bins, sorted and on schedule
+        const [p1, p2] = along(2);
+        box(p1[0] - 0.5, p1[1] - 0.4, 1.0, 0.8, 0.9, 0, '#2f6b3a', { gloss: true }); box(p1[0] - 0.52, p1[1] - 0.42, 1.04, 0.84, 0.06, 0.9, '#24552e');
+        for (let k = 0; k < 3; k++) { const px = R ? p2[0] - 0.3 + k * 0.3 : p2[0], py = R ? p2[1] : p2[1] - 0.3 + k * 0.3; box(px - 0.13, py - 0.13, 0.26, 0.26, 0.55, 0, ['#2a6ad8', '#ffc23a', '#5a5a64'][k], { noInk: LOD < 2 }); }
+      // ---------------------------------------------------------------- the game den
+      } else if (t === 'battlestation') {
+        // a desk of monitors, an RGB tower, a racing-style chair; the screens play
+        box(x + 0.1, y + 0.1, w - 0.2, d - 0.2, 0.72, 0, '#12101f'); box(x + 0.05, y + 0.05, w - 0.1, d - 0.1, 0.05, 0.72, '#1a1830', { gloss: true });
+        along(lng > 2 ? 2 : 1).forEach(([px, py], i) => {
+          for (let k = -1; k <= 1; k++) { const mx = R ? px + k * 0.36 : px, my = R ? py : py + k * 0.36, col = on ? [F.glow, F.glow2, '#29e7ff'][(k + 1 + i + Math.floor(tt * 0.7)) % 3] : '#161428'; box(mx - (R ? 0.17 : 0.03), my - (R ? 0.03 : 0.17), R ? 0.34 : 0.06, R ? 0.06 : 0.34, 0.26, 0.9, '#0a0914', { lf: col, rf: col }); if (on && LOD === 2) { const [a, b] = Pl(mx, my, 1.03); g.fillStyle = alpha('#ffffff', 0.7); g.fillRect(a - u * 0.05 + Math.sin(tt * 3 + k) * u * 0.06, b - u * 0.03, u * 0.05, u * 0.05); } }
+          const tx = R ? px + 0.55 : px + 0.3, ty = R ? py + 0.3 : py + 0.55; box(tx - 0.12, ty - 0.2, 0.24, 0.4, 0.55, 0.77, '#0a0914', { lf: on ? hue(i * 60) : '#1a1830' });
+          if (on && LOD) { const [a, b] = Pl(tx, ty, 1.05); glowAt(a, b, u * 0.8, hue(i * 60), 0.4); }
+        });
+        if (on) glow(0.5, 1.0, 1.8, 0.35);
+      } else if (t === 'vrpad') {
+        // a VR pad: a glowing ring on the floor, tracker poles, a boundary grid when someone is in
+        const [px, py] = along(1)[0], r = Math.min(w, d) * 0.46;
+        const [a, b] = Pl(px, py, 0.02); g.fillStyle = '#12101f'; g.beginPath(); g.ellipse(a, b, r * u * 1.414, r * u * 0.707, 0, 0, 7); g.fill();
+        g.strokeStyle = on ? hue(seed) : '#3a3660'; g.lineWidth = lw(0.08); g.beginPath(); g.ellipse(a, b, r * u * 1.3, r * u * 0.65, 0, 0, 7); g.stroke();
+        if (on && LOD === 2) { const sweep = (tt * 0.8 + ph) % 1; g.strokeStyle = alpha(F.glow2, 0.5 * (1 - sweep)); g.lineWidth = lw(0.03); g.beginPath(); g.ellipse(a, b - sweep * u * 1.6, r * u * 1.3, r * u * 0.65, 0, 0, 7); g.stroke(); }
+        for (const [dx, dy] of [[-r, -r], [r, r]]) { const [pa, pb] = Pl(px + dx, py + dy, 0); g.strokeStyle = '#3a3660'; g.lineWidth = lw(0.05); g.beginPath(); g.moveTo(pa, pb); g.lineTo(pa, pb - u * 1.8); g.stroke(); g.fillStyle = on ? F.glow : '#2a2748'; g.beginPath(); g.arc(pa, pb - u * 1.85, u * 0.08, 0, 7); g.fill(); }
+        if (on) { glowAt(a, b, r * u * 1.4, F.glow2, 0.3 * dim); lights.push([a, b, u * 3, F.glow2, 0.35]); }
+      } else if (t === 'couch') {
+        // a couch facing a big TV: two controllers, one game, a lot of shouting
+        const [px, py] = along(1)[0];
+        box(R ? x + 0.2 : x + w - 0.6, R ? y + d - 0.6 : y + 0.2, R ? w - 0.4 : 0.4, R ? 0.4 : d - 0.4, 0.45, 0, '#5a2a8a', { gloss: true });
+        box(R ? x + 0.2 : x + w - 0.3, R ? y + d - 0.3 : y + 0.2, R ? w - 0.4 : 0.12, R ? 0.12 : d - 0.4, 0.4, 0.45, '#4a2278');
+        const tvx = R ? px : x + 0.2, tvy = R ? y + 0.2 : py;
+        box(tvx - (R ? 0.6 : 0.05), tvy - (R ? 0.05 : 0.6), R ? 1.2 : 0.1, R ? 0.1 : 1.2, 0.72, 0.5, '#0a0914', { lf: on ? '#1a2a5a' : '#12101f', rf: on ? '#1a2a5a' : '#12101f' });
+        if (on && LOD) { const [a, b] = Pl(tvx + (R ? 0 : 0.06), tvy + (R ? 0.06 : 0), 0.86); for (let k = 0; k < 2; k++) { g.fillStyle = [F.glow, F.glow2][k]; g.fillRect(a - u * 0.35 + ((tt * 0.4 + k * 0.5) % 1) * u * 0.6, b - u * 0.12 + k * u * 0.1, u * 0.1, u * 0.1); } screenGlow(a, b, '#5a7aff', 0.45 * dim); lights.push([a, b, u * 2.6, '#5a7aff', 0.45]); }
+        box(tvx - 0.35, tvy - 0.2, 0.7, 0.4, 0.5, 0, '#1a1830');
+      } else if (t === 'arcadecab') {
+        // retro arcade cabinets in a row, marquees lit
+        along(Math.max(2, Math.floor(lng / 0.72))).forEach(([px, py], i) => {
+          const col = ['#ff3fb8', '#29e7ff', '#ffd23a', '#39ff9e'][(i + seed) % 4];
+          box(px - 0.3, py - 0.28, 0.6, 0.56, 1.75, 0, '#1a1830', { gloss: true, lf: shade(col, -0.55), rf: '#12101f' });
+          box(px - 0.3, py - 0.28, 0.6, 0.56, 0.22, 1.75, col, { noInk: LOD < 2 });
+          if (LOD) { const [a, b] = facePt(0.5, 1.15); if (R) { const [sa, sb] = Pl(px, py + 0.28, 1.25); g.fillStyle = on ? '#0a1a2a' : '#0a0914'; g.fillRect(sa - u * 0.22, sb - u * 0.3, u * 0.44, u * 0.3); if (on) { g.fillStyle = col; g.fillRect(sa - u * 0.18 + ((tt * 0.6 + i * 0.3) % 1) * u * 0.3, sb - u * 0.2, u * 0.06, u * 0.06); screenGlow(sa, sb - u * 0.15, col, 0.5); } } void a; void b; }
+          if (on) lights.push([...Pl(px, py, 1.85), u * 2, col, 0.5]);
+        });
+      } else if (t === 'arpad') {
+        // an AR playground: markers on the floor, and a creature only the players' glasses (and you) can see
+        const [px, py] = along(1)[0];
+        for (let k = 0; k < 3; k++) { const [a, b] = Pl(px + (k - 1) * 0.6 * (R ? 1 : 0), py + (k - 1) * 0.6 * (R ? 0 : 1), 0.02); g.strokeStyle = on ? alpha(F.glow2, 0.8) : '#3a3660'; g.lineWidth = lw(0.04); g.beginPath(); g.ellipse(a, b, u * 0.35, u * 0.17, 0, 0, 7); g.stroke(); g.beginPath(); g.ellipse(a, b, u * 0.15, u * 0.07, 0, 0, 7); g.stroke(); }
+        if (on) {
+          const [a, b] = Pl(px, py, 1.0 + Math.sin(tt * 2 + ph * 6) * 0.15), col = ['#39ff9e', '#ff3fb8', '#ffd23a'][seed % 3];
+          g.globalAlpha *= 0.75; g.fillStyle = col; g.beginPath(); g.ellipse(a, b, u * 0.4, u * 0.34, 0, 0, 7); g.fill(); g.fillStyle = '#ffffff'; for (const s2 of [-1, 1]) { g.beginPath(); g.arc(a + s2 * u * 0.14, b - u * 0.06, u * 0.08, 0, 7); g.fill(); } g.fillStyle = '#12101f'; for (const s2 of [-1, 1]) { g.beginPath(); g.arc(a + s2 * u * 0.14, b - u * 0.05, u * 0.04, 0, 7); g.fill(); }
+          g.strokeStyle = alpha('#ffffff', 0.5); g.lineWidth = lw(0.02); g.beginPath(); for (let k = 0; k < 4; k++) { const yy = b - u * 0.3 + k * u * 0.2; g.moveTo(a - u * 0.4, yy); g.lineTo(a + u * 0.4, yy); } g.stroke();
+          g.globalAlpha /= 0.75; glowAt(a, b, u * 1.2, col, 0.5 * dim); lights.push([a, b, u * 2.4, col, 0.4]);
+        }
       }
     }
     // the tall thing outside the back corner: a mast, a chimney, a silo, a vent stack, a spire, a pipe stack
     function outside(o, F, world, on) {
       const x = -1.15, y = -1.15, H = o.tall;
+      if (world === 'rocket') {
+        // a launch gantry: orange lattice, a crane jib, a red beacon
+        const s2 = 0.9, x0 = x - s2 / 2, y0 = y - s2 / 2;
+        for (const [dx, dy] of [[0, 0], [s2, 0], [0, s2], [s2, s2]]) box(x0 + dx - 0.05, y0 + dy - 0.05, 0.1, 0.1, H, 0, '#ff6a1a', { noInk: LOD < 2 });
+        if (LOD) { g.strokeStyle = '#b8501a'; g.lineWidth = lw(0.03); g.beginPath(); for (let z = 0; z < H - 0.3; z += 0.6) { g.moveTo(...Pl(x0, y0 + s2, z)); g.lineTo(...Pl(x0 + s2, y0 + s2, z + 0.6)); g.moveTo(...Pl(x0 + s2, y0 + s2, z)); g.lineTo(...Pl(x0 + s2, y0, z + 0.6)); g.moveTo(...Pl(x0, y0 + s2, z)); g.lineTo(...Pl(x0 + s2, y0 + s2, z)); g.lineTo(...Pl(x0 + s2, y0, z)); } g.stroke(); }
+        box(x0 - 0.1, y0 - 0.1, s2 + 0.2, s2 + 0.2, 0.12, H, '#5b6272');
+        const [ja, jb] = Pl(x, y, H + 0.1), [je, jf] = Pl(x + 1.8, y + 0.2, H + 0.1); g.strokeStyle = INK; g.lineWidth = u * 0.14; g.lineCap = 'round'; g.beginPath(); g.moveTo(ja, jb); g.lineTo(je, jf); g.stroke(); g.strokeStyle = '#ffc23a'; g.lineWidth = u * 0.08; g.stroke();
+        const bl = Math.sin(tt * 3 + x) > 0, [ba, bb] = Pl(x, y, H + 0.4); g.fillStyle = bl ? '#ff3a2a' : '#5a1a14'; g.beginPath(); g.arc(ba, bb, u * 0.1, 0, 7); g.fill(); if (bl) lights.push([ba, bb, u * 2.4, '#ff3a2a', 0.6]);
+        if (on) smoke(x, y, 0.4, 'rgba(240,242,248,');
+        return;
+      }
+      if (world === 'lab') {
+        // a stone tower with a lightning rod: now and then the sky answers
+        box(x - 0.4, y - 0.4, 0.8, 0.8, H * 0.8, 0, '#4a4a62'); box(x - 0.5, y - 0.5, 1.0, 1.0, 0.2, H * 0.8, '#3a3a52');
+        if (LOD) { g.strokeStyle = 'rgba(10,8,20,0.3)'; g.lineWidth = lw(0.02); g.beginPath(); for (let z = 0.4; z < H * 0.8; z += 0.4) { g.moveTo(...Pl(x - 0.4, y + 0.4, z)); g.lineTo(...Pl(x + 0.4, y + 0.4, z)); g.lineTo(...Pl(x + 0.4, y - 0.4, z)); } g.stroke(); const [wa, wb] = Pl(x, y + 0.4, H * 0.55); g.fillStyle = on ? '#9aff7a' : '#2a3a2a'; g.fillRect(wa - u * 0.12, wb - u * 0.4, u * 0.24, u * 0.4); if (on) lights.push([wa, wb, u * 2, '#9aff7a', 0.5]); }
+        const [ra, rb] = Pl(x, y, H * 0.8 + 0.2), [ta, tb] = Pl(x, y, H + 1.2); g.strokeStyle = '#8a95a8'; g.lineWidth = lw(0.06); g.beginPath(); g.moveTo(ra, rb); g.lineTo(ta, tb); g.stroke(); g.fillStyle = '#c87a3a'; g.beginPath(); g.arc(ta, tb, u * 0.1, 0, 7); g.fill();
+        const lt = (tt * 0.14 + (o.seed % 7) / 7) % 1;
+        if (lt < 0.05) { bolt(ta + u * 1.5, tb - u * 6, ta, tb, '#f4f0ff', o.seed); glowAt(ta, tb, u * 3, '#c46bff', 0.9); lights.push([ta, tb, u * 8, '#e8d8ff', 1]); }
+        return;
+      }
+      if (world === 'mafia') {
+        // cypress trees, and a little bell tower
+        for (const [dx, dy, hh] of [[0, 0, H], [0.9, -0.5, H * 0.75], [-0.5, 0.9, H * 0.6]]) { const [a, b] = Pl(x + dx, y + dy, 0), r = u * 0.42; g.fillStyle = '#4a3a2a'; g.fillRect(a - u * 0.06, b - u * 0.5, u * 0.12, u * 0.5); const [, tb] = Pl(x + dx, y + dy, hh); g.fillStyle = '#1f3a24'; g.beginPath(); g.moveTo(a, tb); g.quadraticCurveTo(a + r * 1.4, (b + tb) / 2, a, b - u * 0.3); g.quadraticCurveTo(a - r * 1.4, (b + tb) / 2, a, tb); g.fill(); if (LOD) { g.fillStyle = 'rgba(120,160,90,0.25)'; g.beginPath(); g.moveTo(a, tb + u * 0.3); g.quadraticCurveTo(a - r * 1.1, (b + tb) / 2, a - u * 0.05, b - u * 0.5); g.quadraticCurveTo(a - r * 0.4, (b + tb) / 2, a, tb + u * 0.3); g.fill(); } }
+        box(x + 0.6, y + 0.6, 0.7, 0.7, H * 0.55, 0, '#c8a878'); box(x + 0.55, y + 0.55, 0.8, 0.8, 0.12, H * 0.55, '#8a5a3a');
+        const [ba, bb] = Pl(x + 0.95, y + 1.3, H * 0.45); g.fillStyle = '#2a1a12'; g.beginPath(); g.ellipse(ba, bb, u * 0.16, u * 0.26, 0, 0, 7); g.fill(); const sw = Math.sin(tt * 3) * vaultFlash; g.fillStyle = '#c9a24a'; g.beginPath(); g.arc(ba + sw * u * 0.1, bb, u * 0.1, 0, 7); g.fill();
+        return;
+      }
+      if (world === 'gamer') {
+        // a stream tower: a billboard that says LIVE, dishes, and a viewer count that never sits still
+        box(x - 0.2, y - 0.2, 0.4, 0.4, H, 0, '#2a2748');
+        const bw = 2.2, [a, b] = Pl(x + 0.3, y + 0.3, H - 0.4);
+        g.fillStyle = '#0a0914'; g.fillRect(a - u * bw * 0.7, b - u * 1.4, u * bw * 1.4, u * 1.1); g.strokeStyle = '#39ff9e'; g.lineWidth = lw(0.05); g.strokeRect(a - u * bw * 0.7, b - u * 1.4, u * bw * 1.4, u * 1.1);
+        if (LOD) { g.font = `900 ${(u * 0.42).toFixed(1)}px Bungee, system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; const live = Math.sin(tt * 4) > -0.3; g.fillStyle = live ? '#ff3a4a' : '#6a1a24'; g.beginPath(); g.arc(a - u * bw * 0.45, b - u * 0.85, u * 0.12, 0, 7); g.fill(); g.fillStyle = '#ffffff'; g.fillText('LIVE', a, b - u * 1.02); g.font = `800 ${(u * 0.26).toFixed(1)}px Bungee, system-ui, sans-serif`; g.fillStyle = '#29e7ff'; g.fillText(`${(1200 + Math.floor(tt * 7 + Math.sin(tt) * 30)).toLocaleString()} watching`, a, b - u * 0.58); }
+        lights.push([a, b - u * 0.85, u * 4, '#39ff9e', 0.5]);
+        const [da, db] = Pl(x - 0.1, y + 0.2, H * 0.6); g.fillStyle = '#c8ccd4'; g.beginPath(); g.ellipse(da - u * 0.3, db, u * 0.35, u * 0.25, -0.6, 0, 7); g.fill();
+        return;
+      }
       if (world === 'haunted') {
         box(x - 0.4, y - 0.4, 0.8, 0.8, H * 0.6, 0, '#3a2e3a'); box(x - 0.3, y - 0.34, 0.6, 0.6, H * 0.4, H * 0.6, '#443644'); box(x - 0.42, y - 0.46, 0.84, 0.84, 0.2, H, '#2a2230');
         if (on) smoke(x, y - 0.04, H + 0.3, 'rgba(157,255,138,');
@@ -6484,6 +7127,58 @@
         for (let s = 0; s < len - 0.1; s += 3) for (const t of [0.25, 0.5, 0.75]) { const sx = s + 3 * t, v = 0.6 + 1.4 * t * (1 - t); g.fillStyle = ['#ff8a1a', '#b06bff', '#9be15d'][Math.round(t * 4) % 3]; g.beginPath(); g.ellipse(sx, v + 0.2, 0.14, 0.18, 0, 0, 7); g.fill(); glow(sx, v + 0.2, 1.1, '#ffb040', 0.2 + dk * 0.2); }
         const mid = len / 2, dw = 3.0, dh = 3.4; g.fillStyle = '#2e1c10'; g.fillRect(mid - dw / 2, HB - dh, dw, dh); g.strokeStyle = '#8a5a32'; g.lineWidth = 0.1; g.strokeRect(mid - dw / 2, HB - dh, dw, dh); g.beginPath(); g.moveTo(mid - dw / 2, HB - dh); g.lineTo(mid + dw / 2, HB); g.moveTo(mid + dw / 2, HB - dh); g.lineTo(mid - dw / 2, HB); g.stroke();
         for (let s = 0.8; s < len - 0.6; s += 2.6) { if (Math.abs(s - mid) < dw / 2 + 0.6) continue; g.fillStyle = '#d8b04a'; g.beginPath(); g.roundRect(s - 0.55, HB - 0.75, 1.1, 0.7, 0.12); g.fill(); g.strokeStyle = 'rgba(120,80,20,0.6)'; g.lineWidth = 0.03; g.stroke(); g.fillStyle = '#e8741a'; g.beginPath(); g.ellipse(s, HB - 0.95, 0.3, 0.24, 0, 0, 7); g.fill(); g.fillStyle = '#ffe94a'; g.beginPath(); g.moveTo(s - 0.15, HB - 1.0); g.lineTo(s - 0.07, HB - 1.08); g.lineTo(s - 0.02, HB - 0.98); g.moveTo(s + 0.15, HB - 1.0); g.lineTo(s + 0.07, HB - 1.08); g.lineTo(s + 0.02, HB - 0.98); g.moveTo(s - 0.14, HB - 0.88); g.lineTo(s + 0.14, HB - 0.88); g.lineTo(s, HB - 0.8); g.fill(); glow(s, HB - 0.95, 1.2, '#ffb040', 0.3 + dk * 0.25); }
+      } else if (id === 'rocket') {
+        // a hangar: corrugated steel, a mission patch the size of a house, a lit gallery of windows
+        g.fillStyle = '#8f97a6'; g.fillRect(0, 0, len, HB); g.fillStyle = 'rgba(0,0,0,0.12)'; for (let s = 0; s < len; s += 0.3) g.fillRect(s, 0, 0.12, HB);
+        g.fillStyle = '#ff6a1a'; g.fillRect(0, HB * 0.62, len, 0.14);
+        for (let s = 1.5; s < len - 1; s += 2.2) { g.fillStyle = mixc('#ffd9a8', '#1a2240', dk); g.fillRect(s - 0.6, 0.5, 1.2, 0.8); g.strokeStyle = '#1d2433'; g.lineWidth = 0.08; g.strokeRect(s - 0.6, 0.5, 1.2, 0.8); glow(s, 0.9, 1.6, '#ffd9a8', 0.1 + dk * 0.15); }
+        const mid = len * (side === 'R' ? 0.55 : 0.4), R2 = 1.35, v = HB * 0.36;
+        g.fillStyle = '#1d2433'; g.beginPath(); g.arc(mid, v, R2 + 0.12, 0, 7); g.fill(); g.fillStyle = '#26345a'; g.beginPath(); g.arc(mid, v, R2, 0, 7); g.fill();
+        g.fillStyle = '#ffffff'; for (let k = 0; k < 9; k++) g.fillRect(mid - R2 * 0.7 + ((hsh(k * 17) % 100) / 100) * R2 * 1.4, v - R2 * 0.6 + ((hsh(k * 31) % 100) / 100) * R2 * 1.2, 0.05, 0.05);
+        g.strokeStyle = '#ff6a1a'; g.lineWidth = 0.12; g.beginPath(); g.ellipse(mid, v, R2 * 0.95, R2 * 0.35, -0.5, 0, 7); g.stroke();
+        g.fillStyle = '#eef1f6'; g.beginPath(); g.moveTo(mid, v - R2 * 0.8); g.lineTo(mid + 0.18, v + 0.3); g.lineTo(mid - 0.18, v + 0.3); g.closePath(); g.fill(); g.fillStyle = '#ffc23a'; g.beginPath(); g.moveTo(mid - 0.12, v + 0.32); g.lineTo(mid + 0.12, v + 0.32); g.lineTo(mid, v + 0.6 + Math.sin(tt * 20) * 0.05); g.closePath(); g.fill();
+        utext(side === 'R' ? 'PROXYFOLK AEROSPACE' : 'FLIGHT READY', mid, v + R2 + 0.45, 0.32, { weight: 900, family: 'Orbitron,Rajdhani,sans-serif', align: 'center', base: 'middle', col: '#1d2433' });
+        g.save(); g.beginPath(); g.rect(0, HB - 0.75, len, 0.35); g.clip(); g.fillStyle = '#ffc23a'; g.fillRect(0, HB - 0.75, len, 0.35); g.fillStyle = '#1d2433'; for (let s = -1; s < len + 1; s += 0.5) { g.beginPath(); g.moveTo(s, HB - 0.4); g.lineTo(s + 0.25, HB - 0.4); g.lineTo(s + 0.5, HB - 0.75); g.lineTo(s + 0.25, HB - 0.75); g.fill(); } g.restore();
+      } else if (id === 'lab') {
+        // the laboratory's old stone: pipes running the length, glowing tanks bolted on, chalkboards of equations
+        g.fillStyle = '#3a3a52'; g.fillRect(0, 0, len, HB); g.strokeStyle = 'rgba(10,8,20,0.35)'; g.lineWidth = 0.025; g.beginPath(); for (let v = 0.45, r = 0; v < HB; v += 0.45, r++) { g.moveTo(0, v); g.lineTo(len, v); for (let s = (r % 2) * 0.45; s < len; s += 0.9) { g.moveTo(s, v); g.lineTo(s, v + 0.45); } } g.stroke();
+        g.fillStyle = '#c87a3a'; g.fillRect(0, 0.45, len, 0.12); g.fillRect(0, 0.72, len, 0.08); g.fillStyle = 'rgba(255,255,255,0.2)'; g.fillRect(0, 0.46, len, 0.03);
+        for (let s = 2, k = 0; s < len - 1; s += 3.6, k++) {
+          const col = ['#7dff4a', '#ff4fb8', '#39f0ff'][(k + (side === 'L' ? 1 : 0)) % 3], v0 = 1.2, v1 = HB * 0.72;
+          g.fillStyle = '#1e1e2e'; g.beginPath(); g.roundRect(s - 0.55, v0 - 0.1, 1.1, v1 - v0 + 0.2, 0.3); g.fill();
+          g.fillStyle = alpha('#eafff8', 0.2); g.beginPath(); g.roundRect(s - 0.45, v0, 0.9, v1 - v0, 0.25); g.fill();
+          const lv = v0 + (v1 - v0) * (0.35 + Math.sin(tt * 0.5 + k) * 0.05); g.fillStyle = alpha(col, 0.75); g.beginPath(); g.roundRect(s - 0.43, lv, 0.86, v1 - lv - 0.02, [0, 0, 0.23, 0.23]); g.fill();
+          for (let b = 0; b < 4; b++) { const pp = (tt * 0.5 + b / 4 + k * 0.2) % 1; g.fillStyle = alpha('#ffffff', 0.5 * (1 - pp)); g.beginPath(); g.arc(s - 0.2 + b * 0.13, v1 - pp * (v1 - lv), 0.05, 0, 7); g.fill(); }
+          glow(s, (v0 + v1) / 2, 2.6, col, 0.3 + dk * 0.2);
+          const cs = s + 1.8; if (cs < len - 0.9) { g.fillStyle = '#6a4a2a'; g.fillRect(cs - 0.75, 1.1, 1.5, 1.1); g.fillStyle = '#1f2a24'; g.fillRect(cs - 0.65, 1.2, 1.3, 0.9); g.fillStyle = 'rgba(230,240,230,0.7)'; utext(['E=mc²', 'Δ≈∞', '∫ƒ(x)', 'H₂O+?'][k % 4], cs, 1.5, 0.2, { weight: 600, align: 'center', base: 'middle', col: 'rgba(230,240,230,0.75)' }); utext('√(-1)=!', cs, 1.85, 0.16, { weight: 600, align: 'center', base: 'middle', col: 'rgba(230,240,230,0.55)' }); }
+        }
+      } else if (id === 'mafia') {
+        // the mansion: damask above a panelled dado, oil portraits in gilt, sconces lit
+        g.fillStyle = '#5a241f'; g.fillRect(0, 0, len, HB);
+        g.fillStyle = 'rgba(224,180,84,0.1)'; g.beginPath(); for (let s = 0.45; s < len; s += 0.9) for (let v = 0.5; v < HB * 0.62; v += 0.8) { g.moveTo(s, v - 0.22); g.quadraticCurveTo(s + 0.2, v, s, v + 0.22); g.quadraticCurveTo(s - 0.2, v, s, v - 0.22); } g.fill();
+        g.fillStyle = '#3a2016'; g.fillRect(0, HB * 0.62, len, HB * 0.38); g.strokeStyle = '#e0b454'; g.lineWidth = 0.05; g.beginPath(); g.moveTo(0, HB * 0.62); g.lineTo(len, HB * 0.62); g.stroke();
+        g.strokeStyle = 'rgba(224,180,84,0.35)'; g.lineWidth = 0.03; for (let s = 0.3; s < len - 0.9; s += 1.3) g.strokeRect(s, HB * 0.68, 1.0, HB * 0.24);
+        for (let s = 2, k = 0; s < len - 1; s += 3.4, k++) {
+          const fw = 1.3, fh = 1.6, v0 = 0.8;
+          g.fillStyle = '#c9a24a'; g.fillRect(s - fw / 2 - 0.12, v0 - 0.12, fw + 0.24, fh + 0.24); g.fillStyle = '#8a6a2a'; g.fillRect(s - fw / 2 - 0.04, v0 - 0.04, fw + 0.08, fh + 0.08);
+          const bg = ['#2a3a2a', '#3a2a1a', '#1a2a3a'][(k + (side === 'L' ? 2 : 0)) % 3]; g.fillStyle = bg; g.fillRect(s - fw / 2, v0, fw, fh);
+          g.fillStyle = '#e8c8a0'; g.beginPath(); g.arc(s, v0 + 0.55, 0.26, 0, 7); g.fill(); g.fillStyle = '#1a1418'; g.beginPath(); g.moveTo(s - 0.5, v0 + fh); g.quadraticCurveTo(s - 0.45, v0 + 0.85, s, v0 + 0.82); g.quadraticCurveTo(s + 0.45, v0 + 0.85, s + 0.5, v0 + fh); g.fill(); g.fillStyle = '#f4ecd8'; g.beginPath(); g.moveTo(s - 0.1, v0 + 0.84); g.lineTo(s, v0 + 1.1); g.lineTo(s + 0.1, v0 + 0.84); g.fill(); g.fillStyle = '#6a6a6a'; g.beginPath(); g.ellipse(s, v0 + 0.36, 0.26, 0.1, 0, Math.PI, 0); g.fill();
+          const ss = s + 1.7; if (ss < len - 0.3) { g.fillStyle = '#c9a24a'; g.fillRect(ss - 0.04, 1.6, 0.08, 0.45); const fl = 0.85 + Math.sin(tt * 8 + ss) * 0.15; g.fillStyle = '#ffe9b0'; g.beginPath(); g.ellipse(ss, 1.5, 0.05, 0.1 * fl, 0, 0, 7); g.fill(); glow(ss, 1.5, 1.8, '#ffd98a', 0.3 + dk * 0.3); }
+        }
+      } else if (id === 'gamer') {
+        // the den's walls: giant screens playing, posters, RGB running along the top and bottom
+        g.fillStyle = '#12102a'; g.fillRect(0, 0, len, HB);
+        for (let s = 0; s < len; s += 0.25) { const c = `hsl(${((s * 30 + tt * 80 + (side === 'L' ? 90 : 0)) % 360).toFixed(0)},100%,60%)`; g.fillStyle = c; g.fillRect(s, 0.25, 0.26, 0.08); g.fillRect(s, HB - 0.5, 0.26, 0.06); }
+        for (let s = 2.2, k = 0; s < len - 1.5; s += 4.4, k++) {
+          const sw = 2.6, sh = 1.6, v0 = 0.8;
+          g.fillStyle = '#05040c'; g.fillRect(s - sw / 2 - 0.1, v0 - 0.1, sw + 0.2, sh + 0.2);
+          const kind = (k + (side === 'L' ? 1 : 0)) % 3, gr = g.createLinearGradient(0, v0, 0, v0 + sh); gr.addColorStop(0, ['#1a2a6a', '#3a0a3a', '#0a3a2a'][kind]); gr.addColorStop(1, ['#0a0a2a', '#1a0a2a', '#0a1a14'][kind]); g.fillStyle = gr; g.fillRect(s - sw / 2, v0, sw, sh);
+          if (kind === 0) { g.fillStyle = '#39ff9e'; for (let b = 0; b < 4; b++) g.fillRect(s - sw / 2 + ((tt * 0.3 + b * 0.25) % 1) * sw, v0 + sh * (0.3 + (b % 2) * 0.3), 0.14, 0.14); g.fillStyle = '#ff3fb8'; g.fillRect(s - 0.1, v0 + sh * 0.75, 0.2, 0.2); }
+          else if (kind === 1) { g.fillStyle = '#ffd23a'; utext('K.O.!', s, v0 + sh / 2, 0.55, { weight: 900, family: 'Bungee,Audiowide,sans-serif', align: 'center', base: 'middle', col: Math.sin(tt * 4) > 0 ? '#ffd23a' : '#ff3fb8' }); }
+          else { g.strokeStyle = '#29e7ff'; g.lineWidth = 0.04; g.beginPath(); for (let q = 0; q < 12; q++) { const xx = s - sw / 2 + 0.1 + q * (sw - 0.2) / 11, yy = v0 + sh * 0.8 - Math.abs(Math.sin(q * 0.8 + tt)) * sh * 0.5; if (q) g.lineTo(xx, yy); else g.moveTo(xx, yy); } g.stroke(); }
+          glow(s, v0 + sh / 2, 3, ['#5a7aff', '#ff3fb8', '#39ff9e'][kind], 0.35);
+          const ps = s + 2.2; if (ps < len - 0.6) { g.fillStyle = ['#ff3fb8', '#29e7ff', '#ffd23a'][k % 3]; g.fillRect(ps - 0.5, 1.0, 1.0, 1.4); g.fillStyle = '#12102a'; g.fillRect(ps - 0.42, 1.08, 0.84, 1.0); utext(['GG', 'PWN', 'LVL UP'][k % 3], ps, 2.25, 0.16, { weight: 900, family: 'Bungee,sans-serif', align: 'center', base: 'middle', col: '#12102a' }); }
+        }
       } else if (id === 'space') {
         g.strokeStyle = 'rgba(0,0,0,0.14)'; g.beginPath(); for (let s = 1.6; s < len; s += 1.6) { g.moveTo(s, 0); g.lineTo(s, HB); } g.moveTo(0, HB * 0.66); g.lineTo(len, HB * 0.66); g.stroke();
         for (let s = 1.6; s < len - 0.8; s += 3.2) {
@@ -6703,6 +7398,10 @@
     const PANTS = ['#2f3b5c', '#3a3f4b', '#4b3a2f', '#23304a', '#50445e'];
     // costumes in the castle, the city and the ship: the same person, dressed for the room they work
     const COSTUME = {
+      engines: { body: 'overalls', hair: 'cap' }, avionics: { eyes: 'glasses' }, tankfarm: { body: 'overalls' }, fairing: {}, weldbay: { body: 'apron' }, mission: { hair: 'headphones' },
+      potions: { body: 'robe' }, tesla: {}, specimens: { eyes: 'glasses' }, distillery: {}, blast: {}, clones: { skin: '#bff0cc', eyes: 'glow' },
+      pizzeria: { body: 'apron' }, oliveoil: {}, vino: {}, tailor: {}, cardroom: {}, builders: { body: 'overalls', hair: 'cap' }, waste: { body: 'overalls', hair: 'cap' }, bakery: { body: 'apron' },
+      pcrig: { body: 'hoodie', hair: 'headphones' }, vrarena: { eyes: 'glasses' }, couch: { body: 'hoodie' }, argame: { eyes: 'glasses' }, aiarena: {}, arcade: { hair: 'cap' },
       crypt: { skin: '#eeeadf', eyes: 'sockets', body: 'ribs', hair: 'none' }, forge: { skin: '#79b85a', ears: 'pointy', body: 'apron', hair: 'none' }, library: { ghost: true, skin: '#e8f0ff', eyes: 'hollow', hair: 'none' },
       den: { body: 'hoodie', hair: 'hood', eyes: 'glasses' }, bar: { skin: '#b9c6d8', eyes: 'glow', body: 'panels', hair: 'none' }, dojo: { body: 'robe', hair: 'topknot' }, garage: { body: 'overalls', hair: 'cap' }, club: { hair: 'headphones', body: 'neon' }, clinic: { eyes: 'cyborg', body: 'panels' },
       lab: { skin: '#b9c0c8', eyes: 'almond', hair: 'none' }, hatchery: { blob: true, skin: '#7dffb0' }, bridge: { skin: '#b07ad8', hair: 'tentacles' }, garden: { skin: '#e8d6b8', hair: 'mushroom' }, probe: { skin: '#9ccf5a', hair: 'antennae', eyes: 'bug' }, lounge: { skin: '#9aa6ff', eyes: 'cyclops', hair: 'none' },
@@ -6719,6 +7418,10 @@
       ocean: { top: 'wetsuit', legs: '#1d2a36', feet: '#1d2a36', head: 'mask' },
       haunted: { top: 'tunic', legs: '#1e1a24', feet: '#141018', head: 'crown' },
       pumpkin: { top: 'overalls', legs: '#3a2a4a', feet: '#4a2e24', head: 'straw' },
+      rocket: { top: 'suit', legs: '#e3e7ee', feet: '#2b2f3c', head: 'headset' },
+      lab: { top: 'suit', legs: '#3a3f58', feet: '#2a2a33', head: 'insignia' },
+      mafia: { top: 'jacket', legs: '#26262c', feet: '#1a1418', head: 'crown' },
+      gamer: { top: 'jacket', legs: '#23233a', feet: '#f0f0f5', head: 'headset' },
     };
     let curWorld = 'space';
     function lookFor(a, id) {
@@ -7130,7 +7833,8 @@
       else if (id.kind === 'extra') { let roll = (h >>> 11) % 20; for (const [sp, n] of CROWD_SPECIES[w] || []) { if (roll < n) { species = sp; break; } roll -= n; } }
       // the ship's greys run the busy floors: its best rooms get Brokers and Tycoons
       if (w === 'alien' && species === 'grey' && id.kind === 'extra' && a.path) { const rm = roomById(a.path); if (rm && roomTier(rm) >= 2 && h % 4 === 0) tier = 3 + (h % 8 === 0 ? 1 : 0); }
-      return { role, world: w, tier, species, skin: h % 6, hair: (h >>> 3) % 7, hairC: (h >>> 6) % 7, eyeC: (h >>> 9) % 6, tint, agent: false };
+      const gear = a.costume && KIT_GEAR[a.costume.id] && id.kind !== 'lead' ? KIT_GEAR[a.costume.id] : undefined;
+      return { role, world: w, tier, species, skin: h % 6, hair: (h >>> 3) % 7, hairC: w === 'lab' && h % 3 === 0 ? 4 : (h >>> 6) % 7, eyeC: (h >>> 9) % 6, tint, agent: false, ...(gear ? { gear } : {}) };
     }
     function kitPose(pose, a) {
       if (pose === 'walk') return Math.floor(a.t * 5.5) % 2 ? 'walk2' : 'walk';
@@ -7166,7 +7870,7 @@
         top = KIT_TOP * 0.45;
       } else {
         const look = NPC_LOOK[a.npc] || { role: 'crew', world: curWorld };
-        const pose = a.npc === 'cargo' || a.npc === 'courier' ? 'carry' : a.npc === 'dj' ? (Math.floor(a.t * 2) % 2 ? 'cheer' : 'idle') : a.npc === 'accountant' ? 'type' : moving ? (Math.floor(a.t * 5.5) % 2 ? 'walk2' : 'walk') : 'idle';
+        const pose = a.npc === 'cargo' || a.npc === 'courier' ? 'carry' : a.npc === 'don' ? 'type' : a.npc === 'dj' || a.npc === 'caster' ? (Math.floor(a.t * 2) % 2 ? 'cheer' : 'idle') : a.npc === 'accountant' ? 'type' : moving ? (Math.floor(a.t * 5.5) % 2 ? 'walk2' : 'walk') : 'idle';
         if (d.board) { g.save(); g.scale(1, 0.4); g.fillStyle = 'rgba(255,92,224,0.35)'; g.beginPath(); g.arc(0, 0, u * 0.9, 0, 7); g.fill(); g.restore(); g.fillStyle = '#1b1b28'; g.strokeStyle = '#ff5ce0'; g.lineWidth = u * 0.06; g.beginPath(); g.ellipse(0, -u * 0.35, u * 0.75, u * 0.2, 0, 0, 7); g.fill(); g.stroke(); g.translate(0, -u * 0.45); }
         ok = stamp('npc:' + a.npc + ':' + pose, () => folkSvg({ ...look, agent: false }, { id: 'k', pose, shadow: false }), 84.4, 42.2, 72.3);
       }
@@ -7308,6 +8012,10 @@
       ocean: { col: '#7fdcff', gold: '#fff4d8', z: 1.5, motes: '#cff4ff' },
       haunted: { col: '#9dff8a', gold: '#e9d9a8', z: 1.7, motes: '#b8ffb0' },
       pumpkin: { col: '#ff8a1a', gold: '#ffcf3a', z: 0.6, motes: '#ffb040' },
+      rocket: { col: '#ff8a2a', gold: '#ffc23a', z: 1.5, motes: '#ffd9b0' },
+      lab: { col: '#7dff4a', gold: '#ff4fb8', z: 1.3, motes: '#b8ff9a' },
+      mafia: { col: '#e0b454', gold: '#8ac27a', z: 1.2, motes: '#ffe2a0' },
+      gamer: { col: '#39ff9e', gold: '#ffd23a', z: 1.6, motes: '#29e7ff' },
     };
     function flowPos(t, w) {
       const th = FLOW_THEME[w] || FLOW_THEME.space, [hx, hy] = cellCenter(...HUB);
@@ -7334,6 +8042,29 @@
     function drawToken(t, w, X, Y, r, ang) {
       const th = FLOW_THEME[w] || FLOW_THEME.space, lead = t.kind === 'lead', s = t.seed, tt2 = T * 1 + s;
       const ink = (lw2) => { g.strokeStyle = 'rgba(20,12,30,0.85)'; g.lineWidth = r * lw2; g.stroke(); };
+      if (w === 'rocket') {
+        if (lead) { g.fillStyle = '#2a5ab8'; g.beginPath(); g.roundRect(X - r, Y - r * 0.4, r * 2, r * 0.8, r * 0.3); g.fill(); ink(0.14); g.strokeStyle = 'rgba(255,255,255,0.8)'; g.lineWidth = r * 0.08; g.beginPath(); g.moveTo(X - r * 0.6, Y); g.lineTo(X + r * 0.6, Y); g.moveTo(X, Y - r * 0.3); g.lineTo(X, Y + r * 0.3); g.stroke(); return; }
+        // a little rocket on its way to the silo, flame and all
+        g.save(); g.translate(X, Y); g.rotate(Math.sin(tt2 * 3) * 0.12 - 0.3);
+        const fl = 0.7 + Math.sin(tt2 * 30) * 0.3; g.fillStyle = `rgba(255,170,60,${0.9 * fl})`; g.beginPath(); g.moveTo(-r * 0.3, r * 0.9); g.lineTo(0, r * (1.5 + fl * 0.5)); g.lineTo(r * 0.3, r * 0.9); g.fill();
+        g.fillStyle = '#eef1f6'; g.beginPath(); g.moveTo(-r * 0.4, r * 0.9); g.lineTo(-r * 0.4, -r * 0.3); g.quadraticCurveTo(0, -r * 1.4, r * 0.4, -r * 0.3); g.lineTo(r * 0.4, r * 0.9); g.closePath(); g.fill(); ink(0.12);
+        g.fillStyle = '#ff6a1a'; g.beginPath(); g.moveTo(-r * 0.4, r * 0.5); g.lineTo(-r * 0.75, r * 1.0); g.lineTo(-r * 0.4, r * 0.9); g.fill(); g.beginPath(); g.moveTo(r * 0.4, r * 0.5); g.lineTo(r * 0.75, r * 1.0); g.lineTo(r * 0.4, r * 0.9); g.fill();
+        g.fillStyle = '#6fd8ff'; g.beginPath(); g.arc(0, 0, r * 0.18, 0, 7); g.fill(); g.restore(); return;
+      }
+      if (w === 'lab') {
+        if (lead) { g.fillStyle = 'rgba(234,255,248,0.3)'; g.beginPath(); g.arc(X, Y, r * 0.8, 0, 7); g.fill(); g.strokeStyle = 'rgba(234,255,248,0.85)'; g.lineWidth = r * 0.1; g.stroke(); g.fillStyle = 'rgba(255,255,255,0.8)'; g.beginPath(); g.ellipse(X - r * 0.3, Y - r * 0.35, r * 0.18, r * 0.1, -0.7, 0, 7); g.fill(); return; }
+        potion(X, Y + r, r * 0.7, ['#7dff4a', '#ff4fb8', '#39f0ff', '#ffe14a', '#c46bff'][s % 5]); return;
+      }
+      if (w === 'mafia') {
+        if (lead) { g.fillStyle = '#f4ecd8'; g.beginPath(); g.rect(X - r * 0.9, Y - r * 0.55, r * 1.8, r * 1.1); g.fill(); ink(0.1); g.strokeStyle = 'rgba(80,60,40,0.6)'; g.lineWidth = r * 0.08; g.beginPath(); g.moveTo(X - r * 0.9, Y - r * 0.55); g.lineTo(X, Y + r * 0.1); g.lineTo(X + r * 0.9, Y - r * 0.55); g.stroke(); g.fillStyle = '#8a1c2b'; g.beginPath(); g.arc(X, Y + r * 0.05, r * 0.24, 0, 7); g.fill(); return; }
+        if (s % 3) { g.save(); g.translate(X, Y); g.rotate(Math.sin(tt2 * 2) * 0.2); g.fillStyle = '#5a9a4a'; g.beginPath(); g.roundRect(-r, -r * 0.5, r * 2, r, r * 0.12); g.fill(); ink(0.1); g.fillStyle = '#8ac27a'; g.fillRect(-r * 0.85, -r * 0.38, r * 1.7, r * 0.76); g.fillStyle = '#e0b454'; g.fillRect(-r * 0.18, -r * 0.5, r * 0.36, r); g.fillStyle = '#2a4a2a'; g.beginPath(); g.arc(-r * 0.55, 0, r * 0.15, 0, 7); g.fill(); g.restore(); return; }
+        const sx = Math.abs(Math.cos(tt2 * 5)) * 0.85 + 0.15; g.fillStyle = th.col; g.beginPath(); g.ellipse(X, Y, r * sx, r, 0, 0, 7); g.fill(); ink(0.14); return;
+      }
+      if (w === 'gamer') {
+        if (lead) { glowAt(X, Y, r * 2.2, '#39ff9e', 0.45); g.fillStyle = '#39ff9e'; g.beginPath(); g.moveTo(X, Y - r); g.lineTo(X + r * 0.75, Y); g.lineTo(X, Y + r); g.lineTo(X - r * 0.75, Y); g.closePath(); g.fill(); ink(0.1); g.fillStyle = '#0a2a1a'; g.font = `900 ${(r * 0.6).toFixed(1)}px Bungee, system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('XP', X, Y + r * 0.05); return; }
+        if (s % 4 === 0) { g.fillStyle = th.gold; g.beginPath(); g.moveTo(X - r * 0.8, Y - r * 0.7); g.lineTo(X + r * 0.8, Y - r * 0.7); g.quadraticCurveTo(X + r * 0.7, Y + r * 0.3, X, Y + r * 0.4); g.quadraticCurveTo(X - r * 0.7, Y + r * 0.3, X - r * 0.8, Y - r * 0.7); g.fill(); ink(0.1); g.fillRect(X - r * 0.12, Y + r * 0.35, r * 0.24, r * 0.4); g.fillRect(X - r * 0.45, Y + r * 0.72, r * 0.9, r * 0.2); return; }
+        const sx = Math.abs(Math.cos(tt2 * 5)) * 0.85 + 0.15; g.fillStyle = th.gold; g.beginPath(); g.ellipse(X, Y, r * sx, r, 0, 0, 7); g.fill(); ink(0.14); if (sx > 0.5) sparkleAt(X, Y, r * 0.55 * sx, '#fff4b0'); return;
+      }
       if (w === 'castle') {
         if (lead) { g.fillStyle = '#efe2c0'; g.beginPath(); g.roundRect(X - r * 0.9, Y - r * 0.38, r * 1.8, r * 0.76, r * 0.3); g.fill(); ink(0.16); g.fillStyle = '#c9b48a'; g.fillRect(X - r * 0.9, Y - r * 0.38, r * 0.3, r * 0.76); g.fillStyle = '#a3202e'; g.beginPath(); g.arc(X + r * 0.15, Y + r * 0.12, r * 0.28, 0, 7); g.fill(); return; }
         const sx = Math.abs(Math.cos(tt2 * 5)) * 0.85 + 0.15;
@@ -7448,6 +8179,8 @@
       g.strokeStyle = alpha(th.col, 0.2 + pulse * 0.5); g.lineWidth = Math.max(px1 * 2, u * 0.06 * (1 + pulse));
       g.beginPath(); g.ellipse(X0, Y0, R, R * 0.5, 0, 0, 7); g.stroke();
       if (pulse > 0.05) { g.strokeStyle = alpha(th.gold, pulse * 0.6); g.lineWidth = Math.max(px1, u * 0.04); g.beginPath(); g.ellipse(X0, Y0, R * (1.1 + (1 - pulse) * 0.3), R * 0.5 * (1.1 + (1 - pulse) * 0.3), 0, 0, 7); g.stroke(); }
+      // the newer worlds have a centrepiece of their own (a rocket, a reactor, a desk, a stage): no spiral over it
+      if (w === 'rocket' || w === 'lab' || w === 'mafia' || w === 'gamer') return;
       // three spiral arms of light, turning faster with more coming in
       const spin = T * (0.8 + flowLevel * 1.6);
       for (let arm = 0; arm < 3; arm++) for (let i = 0; i < 18; i++) {
@@ -7468,9 +8201,24 @@
       glowAt(...P(hx, hy, 2.4 * u), u * (1.6 + pulse * 1.4), th.col, (0.18 + pulse * 0.35) * lvl);
     }
     // ---- sparks, coins on their way to the vault, rings, fireworks, dust in the rooms
+    function drawWorldFx() {
+      for (const f of worldFx) {
+        const k = (T - f.t0) / 2.4; if (k < 0 || k > 1) continue;
+        if (f.kind === 'poof') { const [X, Y] = P(f.x, f.y, f.z * u); poof(X, Y, k, f.col, f.s); }
+        else if (f.kind === 'launch') { const [X, Y] = P(f.x, f.y, (1 + k * k * 30) * u); g.fillStyle = `rgba(255,190,110,${(0.8 * (1 - k)).toFixed(3)})`; g.beginPath(); g.moveTo(X - u * 0.15, Y + u * 0.3); g.lineTo(X, Y + u * (1.2 + k * 3)); g.lineTo(X + u * 0.15, Y + u * 0.3); g.fill(); glowAt(X, Y + u * 0.4, u * 1.4, '#ffd08a', 0.7 * (1 - k)); g.fillStyle = '#eef1f6'; g.beginPath(); g.moveTo(X - u * 0.12, Y + u * 0.3); g.lineTo(X - u * 0.12, Y - u * 0.3); g.lineTo(X, Y - u * 0.55); g.lineTo(X + u * 0.12, Y - u * 0.3); g.lineTo(X + u * 0.12, Y + u * 0.3); g.closePath(); g.fill(); }
+        else if (f.kind === 'potion') {
+          // up out of the flask's neck, over, and down onto the shelf
+          const [hx, hy] = cellCenter(...HUB), [ox, oy] = cellOrigin(...HUB), x0 = hx, y0 = hy, x1 = ox + 1.15, y1 = oy + 4.9, kk = Math.min(1, k * 1.6);
+          const x = x0 + (x1 - x0) * kk, y = y0 + (y1 - y0) * kk, z = 4.2 + Math.sin(kk * Math.PI) * 3 - kk * 3.2, [X, Y] = P(x, y, z * u);
+          g.save(); g.translate(X, Y); g.rotate(kk * Math.PI * 2); potion(0, u * 0.2, u * 0.22, f.col); g.restore();
+          if (kk < 0.15) { const [nx, ny] = P(x0, y0, 4.2 * u); poof(nx, ny, kk / 0.15, f.col, 0.8); }
+        }
+      }
+    }
     function drawEffects() {
       drawFunnel();
       drawFlows();
+      drawWorldFx();
       const r0 = Math.max(0.9, cssPx(1.6));
       for (const m of motes) { if (LOD === 0) break; const [X, Y] = P(m.x, m.y, m.z); const a = 0.15 + 0.2 * (0.5 + 0.5 * Math.sin(T * 1.3 + m.p)); g.fillStyle = `rgba(230,238,255,${a.toFixed(3)})`; g.beginPath(); g.arc(X, Y, r0 * 0.7, 0, 7); g.fill(); }
       for (const p of particles) {
@@ -7595,6 +8343,56 @@
         hills(W, H, 0.88, 26, '#150c16', 5, par, 0.1);
         return;
       }
+      if (id === 'rocket') {
+        // dusk over a launch site: towers on the horizon, and now and then a launch
+        skyGrad(W, H, mixc('#1a2a6a', '#05070f', dk), mixc('#ff9a5a', '#2a1a3a', dk));
+        stars(W, H, 0.2 + dk * 0.8, par);
+        const sx = W * 0.72 - par.x * 0.02, sy = H * 0.62; glowAt(sx, sy, 260, '#ffb070', 0.45 * (1 - dk * 0.7)); g.fillStyle = mixc('#ffd08a', '#e8e0d0', dk); g.beginPath(); g.arc(sx, sy, 38, 0, 7); g.fill();
+        hills(W, H, 0.7, 26, mixc('#6a4a5a', '#141020', dk), 2, par, 0.04);
+        for (const [f, hh] of [[0.18, 0.2], [0.34, 0.14], [0.86, 0.17]]) { const tx = W * f - par.x * 0.05, ty = H * 0.74; g.fillStyle = mixc('#3a2a3a', '#0a0810', dk); g.fillRect(tx, ty - H * hh, 10, H * hh); g.fillRect(tx - 14, ty - H * hh, 38, 4); g.fillStyle = '#e8ebf1'; g.fillRect(tx + 16, ty - H * hh * 0.85, 8, H * hh * 0.85); const bl = Math.sin(tt * 2 + f * 9) > 0; if (bl) { g.fillStyle = '#ff3a2a'; g.beginPath(); g.arc(tx + 5, ty - H * hh - 4, 3, 0, 7); g.fill(); glowAt(tx + 5, ty - H * hh - 4, 16, '#ff3a2a', 0.6); } }
+        const lp = (tt * 0.025) % 1;
+        if (lp < 0.4) { const f = lp / 0.4, lx = W * 0.34 - par.x * 0.05 + 20 + f * f * 120, ly = H * 0.74 - H * 0.14 - f * H * 0.7; g.strokeStyle = `rgba(255,230,200,${(0.5 * (1 - f)).toFixed(3)})`; g.lineWidth = 6; g.beginPath(); g.moveTo(W * 0.34 - par.x * 0.05 + 20, H * 0.6); g.quadraticCurveTo(lx - 20, (ly + H * 0.6) / 2, lx, ly); g.stroke(); glowAt(lx, ly + 6, 40, '#ffd08a', 0.9); g.fillStyle = '#ffffff'; g.fillRect(lx - 2, ly - 12, 4, 12); }
+        hills(W, H, 0.82, 18, mixc('#4a3040', '#0c0a12', dk), 4, par, 0.08);
+        return;
+      }
+      if (id === 'lab') {
+        // a storm over the laboratory's hill: the tower's windows glow green, lightning finds the rod
+        skyGrad(W, H, '#07040f', '#2a1446');
+        stars(W, H, 0.15, par);
+        for (let i = 0; i < 5; i++) { const cx = ((tt * 0.01 * (1 + i * 0.2) + i * 0.23) % 1.4 - 0.2) * W, cy = H * (0.1 + (i % 3) * 0.06); g.fillStyle = 'rgba(20,10,36,0.85)'; for (const [dx, dy, rx, ry] of [[0, 0, 110, 22], [60, -10, 70, 18], [-60, -6, 64, 16]]) { g.beginPath(); g.ellipse(cx + dx, cy + dy, rx, ry, 0, 0, 7); g.fill(); } }
+        const lt = tt % 7; if (lt < 0.18) { g.fillStyle = `rgba(210,190,255,${(0.35 * (1 - lt / 0.18)).toFixed(3)})`; g.fillRect(0, 0, W, H); g.strokeStyle = 'rgba(240,235,255,0.95)'; g.lineWidth = 3; g.beginPath(); let x = W * (0.2 + (Math.floor(tt / 7) % 4) * 0.18), y = 0; g.moveTo(x, y); for (let k = 0; k < 9; k++) { x += (hsh('lab' + k + Math.floor(tt / 7)) % 70) - 35; y += H * 0.065; g.lineTo(x, y); } g.stroke(); }
+        hills(W, H, 0.64, 60, '#120a20', 3, par, 0.04);
+        const tx = W * 0.8 - par.x * 0.04, ty = H * 0.62; g.fillStyle = '#0c0616'; g.fillRect(tx - 22, ty - 120, 44, 130); g.beginPath(); g.moveTo(tx - 30, ty - 120); g.lineTo(tx, ty - 170); g.lineTo(tx + 30, ty - 120); g.fill(); g.strokeStyle = '#0c0616'; g.lineWidth = 3; g.beginPath(); g.moveTo(tx, ty - 170); g.lineTo(tx, ty - 205); g.stroke();
+        for (const [dx, dy] of [[-8, -95], [8, -70], [-8, -45]]) { g.fillStyle = Math.sin(tt * 3 + dy) > -0.6 ? '#9aff7a' : '#3a6a2a'; g.fillRect(tx + dx - 5, ty + dy, 10, 14); glowAt(tx + dx, ty + dy + 7, 26, '#9aff7a', 0.4); }
+        hills(W, H, 0.8, 34, '#0a0614', 5, par, 0.08);
+        g.strokeStyle = 'rgba(180,170,230,0.18)'; g.lineWidth = 1; for (let i = 0; i < 60; i++) { const y = ((hsh('lr' + i) % 1000) / 1000 + tt * (0.8 + (i % 5) * 0.1)) % 1 * H, x = ((hsh('lx' + i) % 1000) / 1000 * W - y * 0.2 + W) % W; g.beginPath(); g.moveTo(x, y); g.lineTo(x - 4, y + 16); g.stroke(); }
+        return;
+      }
+      if (id === 'mafia') {
+        // a Tuscan evening: cypress on the hills, a villa, vineyard rows, the first stars
+        skyGrad(W, H, mixc('#3a2a5a', '#07060f', dk), mixc('#ffb070', '#2a1a2a', dk));
+        stars(W, H, dk * 0.9, par);
+        const sx = W * 0.25 - par.x * 0.02, sy = H * 0.5; glowAt(sx, sy, 220, '#ffc080', 0.4 * (1 - dk)); g.fillStyle = mixc('#ffd8a0', '#e8e4d0', dk); g.beginPath(); g.arc(sx, sy, 30, 0, 7); g.fill();
+        hills(W, H, 0.6, 50, mixc('#7a6a5a', '#1a1418', dk), 1, par, 0.04);
+        const vx = W * 0.66 - par.x * 0.04, vy = H * 0.6; g.fillStyle = mixc('#e8d0a8', '#2a2226', dk); g.fillRect(vx - 60, vy - 34, 120, 34); g.fillStyle = mixc('#b8563a', '#2a1a1a', dk); g.beginPath(); g.moveTo(vx - 66, vy - 34); g.lineTo(vx, vy - 56); g.lineTo(vx + 66, vy - 34); g.fill(); for (let k = 0; k < 5; k++) { g.fillStyle = dk > 0.3 ? '#ffd98a' : '#3a2a2a'; g.fillRect(vx - 48 + k * 22, vy - 26, 8, 12); if (dk > 0.3) glowAt(vx - 44 + k * 22, vy - 20, 14, '#ffd98a', 0.5); }
+        for (let i = 0; i < 10; i++) { const cx = W * (0.04 + i * 0.1) - par.x * 0.06, base = H * 0.72 + Math.sin(i * 1.3) * 10, hh = 50 + (hsh('cy' + i) % 30); g.fillStyle = mixc('#2a4a2a', '#0a120a', dk); g.beginPath(); g.ellipse(cx, base - hh / 2, 9, hh / 2, 0, 0, 7); g.fill(); }
+        hills(W, H, 0.78, 26, mixc('#5a6a3a', '#10160c', dk), 3, par, 0.08);
+        g.strokeStyle = mixc('#3a4a2a', '#0a100a', dk); g.lineWidth = 2; for (let k = 0; k < 8; k++) { const y = H * (0.84 + k * 0.02); g.beginPath(); g.moveTo(0, y); g.lineTo(W, y + 10); g.stroke(); }
+        return;
+      }
+      if (id === 'gamer') {
+        // synthwave: a striped sun, wireframe mountains, a grid running to the horizon
+        skyGrad(W, H, '#0a0428', '#ff3fb8');
+        stars(W, H, 0.6, par);
+        const sx = W * 0.5 - par.x * 0.02, sy = H * 0.58, sr = Math.min(W, H) * 0.2;
+        const sg = g.createLinearGradient(0, sy - sr, 0, sy); sg.addColorStop(0, '#ffe14a'); sg.addColorStop(1, '#ff3fb8'); g.fillStyle = sg; g.beginPath(); g.arc(sx, sy, sr, Math.PI, 0); g.fill();
+        g.fillStyle = '#ff3fb8'; for (let k = 0; k < 6; k++) { const yy = sy - sr * (0.08 + k * 0.14); g.fillRect(sx - sr, yy, sr * 2, 3 + k); }
+        glowAt(sx, sy - sr * 0.4, sr * 2.2, '#ff3fb8', 0.25);
+        g.fillStyle = '#12082a'; g.strokeStyle = '#29e7ff'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(0, sy); for (let i = 0; i <= 12; i++) g.lineTo((i / 12) * W, sy - (hsh('m' + i) % 100) / 100 * H * 0.12 - (i % 3 === 1 ? H * 0.05 : 0)); g.lineTo(W, sy); g.closePath(); g.fill(); g.stroke();
+        g.fillStyle = '#0a0420'; g.fillRect(0, sy, W, H - sy);
+        g.strokeStyle = 'rgba(255,63,184,0.6)'; g.lineWidth = 1.2; g.beginPath(); for (let k = 1; k < 14; k++) { const f = ((k + (tt * 0.6) % 1) / 14), yy = sy + (H - sy) * f * f; g.moveTo(0, yy); g.lineTo(W, yy); } for (let k = -12; k <= 12; k++) { g.moveTo(W / 2 + k * 18, sy); g.lineTo(W / 2 + k * W * 0.16, H); } g.stroke();
+        return;
+      }
       if (id === 'cyber') {
         skyGrad(W, H, '#170a34', mixc('#6c2480', '#2a1040', dk * 0.5));
         stars(W, H, 0.3, par);
@@ -7624,9 +8422,9 @@
       g.save(); g.translate(px2, py2); g.rotate(-0.35); g.strokeStyle = 'rgba(255,220,180,0.55)'; g.lineWidth = 6; g.beginPath(); g.ellipse(0, 0, 110, 20, 0, Math.PI * 0.05, Math.PI * 0.95, true); g.stroke(); g.restore();
       const sh = (tt % 11) / 11; if (sh < 0.08) { const f = sh / 0.08, x = W * (0.2 + f * 0.4), y = H * (0.1 + f * 0.1); const gr = g.createLinearGradient(x, y, x - 90, y - 30); gr.addColorStop(0, `rgba(230,240,255,${1 - f})`); gr.addColorStop(1, 'rgba(230,240,255,0)'); g.strokeStyle = gr; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y); g.lineTo(x - 90, y - 30); g.stroke(); }
     }
-    const NIGHTK = { space: 0.35, castle: 0.3, farm: 0.55, cyber: 0.22, alien: 0.4, ocean: 0.45, haunted: 0.5, pumpkin: 0.42 };
+    const NIGHTK = { space: 0.35, castle: 0.3, farm: 0.55, cyber: 0.22, alien: 0.4, ocean: 0.45, haunted: 0.5, pumpkin: 0.42, rocket: 0.45, lab: 0.4, mafia: 0.45, gamer: 0.3 };
     // the Halloween worlds never quite see daylight: their gloom holds even at noon, so every lamp and pumpkin glows
-    const GLOOM = { haunted: 0.7, pumpkin: 0.55 };
+    const GLOOM = { haunted: 0.7, pumpkin: 0.55, lab: 0.35, gamer: 0.45, mafia: 0.2 };
 
     // ---- the silhouette of a cell (floor plus walls as they stand now), for outlines, focus and clicks
     function silhouetteOf(c, r) {
