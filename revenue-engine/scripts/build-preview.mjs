@@ -46,7 +46,7 @@ for (const p of CATALOG) {
 }
 
 // the engine files the browser runs, and the stand-ins for the Node built-ins they import
-const ENGINE = ['api.js', 'ledger.js', 'reduce.js', 'race.js', 'quests.js', 'level.js', 'paths.js', 'rooms.js', 'inbox.js', 'clients.js', 'sync.js', 'agent.js', 'cost.js', 'demo.js', 'harvest.js', 'scheduler.js'];
+const ENGINE = ['api.js', 'ledger.js', 'reduce.js', 'race.js', 'quests.js', 'level.js', 'paths.js', 'rooms.js', 'inbox.js', 'clients.js', 'sync.js', 'agent.js', 'cost.js', 'demo.js', 'harvest.js', 'scheduler.js', 'sim.js', 'sim-priors.js'];
 const MOCK = ['fs.js', 'path.js', 'crypto.js', 'sdk-tool.js', 'services.js', 'station.js'];
 const IMPORTS = { 'node:fs': '/engine/mock/fs.js', 'node:path': '/engine/mock/path.js', 'node:crypto': '/engine/mock/crypto.js', '@anthropic-ai/sdk/helpers/beta/json-schema': '/engine/mock/sdk-tool.js' };
 const shim = (station, prefix) => `<script type="importmap">${JSON.stringify({ imports: IMPORTS })}</script>
