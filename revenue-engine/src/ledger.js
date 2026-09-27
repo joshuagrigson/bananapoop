@@ -76,7 +76,7 @@ export const RACE_MONEY_MODES = Object.freeze({
 // how fast the simulated market runs, in simulated days per real day
 export const SIM_SPEEDS = Object.freeze({ 1: 'Real time: a day is a day', 7: 'A week every day', 30: 'A month every day', 24: 'A day every hour', 288: 'A day every 5 minutes', 1440: 'A day every minute' });
 // what an agent can find on the real web and log as research
-export const RESEARCH_TOPICS = Object.freeze({ trend: 'A trend', idea: 'A way to make money', price: 'What things sell for', demand: 'Proof people want it', competition: 'Who else sells it', channel: 'Where the buyers are', cost: 'What it costs', rule: 'A platform rule or limit', benchmark: 'A benchmark rate' });
+export const RESEARCH_TOPICS = Object.freeze({ trend: 'A trend', idea: 'A way to make money', price: 'What things sell for', demand: 'Proof people want it', competition: 'Who else sells it', channel: 'Where the buyers are', cost: 'What it costs', rule: 'A platform rule or limit', benchmark: 'A benchmark rate', gap: 'A gap nobody fills well', improvement: 'A better version of something that sells' });
 // what an agent does in the simulation: test variants, put one live in the simulated market, stop it, build the real
 // thing in the sandbox (an email, a site), or have a simulated panel of buyers read what it built
 export const SIM_ACTS = Object.freeze({ test: 'Tested variants', launch: 'Launched in the simulation', stop: 'Stopped in the simulation', build: 'Built in the sandbox', panel: 'Shown to a simulated panel' });

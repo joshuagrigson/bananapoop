@@ -40,3 +40,19 @@ test('a simulation race counts simulated money; real money in it is a rule break
   assert.equal(real.fromRace, 'gun');
   assert.ok(real.forecasts.red.plays.length === 1);
 });
+
+test('race run: a replayed room researches, tests, builds and launches through its tools only', async () => {
+  const { runRoom } = await import('../src/racerun.js');
+  const lines = [validate({ kind: 'race', id: 'gun', ts: at(0), stakeUsd: 250, evidence: 'simulated', horizons: [7, 30] })];
+  const ledger = { readAll: () => lines, append: (e) => { const x = validate(e); lines.push(x); return x; } };
+  const spec = { channel: 'marketplace', price: 12, volume: 10, competition: 'high', trend: 'rising' };
+  const r = await runRoom({ ledger, catalog: CAT, roomId: 'red', now: () => T0 + DAY, provider: { kind: 'replay', script: [{ calls: [
+    { name: 'log_research', input: { title: 'Planner gap', text: 'buyers ask for undated ADHD planners, few sellers', url: 'https://example.com/g', topic: 'gap' } },
+    { name: 'simulate', input: { variants: [{ label: 'a', spec }] } },
+    { name: 'build', input: { what: 'listing', title: 'Undated planner', content: 'Listing copy' } },
+    { name: 'launch', input: { play: 'planner', spec } },
+  ] }] } });
+  assert.equal(r.reason, 'done');
+  const kinds = lines.map((e) => e.act || e.kind);
+  for (const k of ['research', 'test', 'build', 'launch', 'agent.run.end']) assert.ok(kinds.includes(k), k);
+});

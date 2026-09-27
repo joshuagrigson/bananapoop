@@ -78,6 +78,8 @@ const HELP = `revenue-engine
             [--format html|markdown|text] [--to "who it would go to"] [--play ID]
                                                        the real thing, built in the sandbox: nothing is sent or published
   race panel <room> <play-id> --score 0.45 --n 20 [--notes N] [--build ID]   a simulated buyers' read of what a play built
+  race run [<room>|all] [--max-usd 1] [--model claude-sonnet-5]   one check-in: Claude researches the real web (trends, gaps,
+                                                       improvements), tests variants, builds in the sandbox, launches. Needs ANTHROPIC_API_KEY
   race real --evidence "where the real money sits" [--rooms a,b] [--stake 50] [--times 1h,1d | --days 7,30]
                                                        REAL MONEY: start a real-money race for the rooms you pick (default: the
                                                        simulation's podium), with the simulation's forecast fixed on the ledger
@@ -364,6 +366,16 @@ async function main(argv) {
       if (sub === 'panel') {
         const ev = ledger.append({ kind: 'sim', act: 'panel', path: room(rest[1]), play: rest[2], score: Number(v.score), n: Number(v.n), by, ...(v.notes ? { notes: v.notes } : {}), ...(v.build ? { build: v.build } : {}) });
         console.log(`panel on ${ev.play}: ${Math.round(ev.score * 100)}% of ${ev.n} would act, quality ${ev.quality}`); return;
+      }
+      if (sub === 'run') {
+        const { runRoom } = await import('./racerun.js');
+        const ids = v.rooms ? v.rooms.split(',') : rest[1] === 'all' || !rest[1] ? raceBoard(reduce(ledger.readAll(), CAT), CAT).lanes.map((l) => l.id) : [room(rest[1])];
+        const provider = await providerFrom(v);
+        for (const id of ids) {
+          const r = await runRoom({ ledger, catalog: CAT, roomId: id, provider, model: v.model || null, maxUsd: v['max-usd'] ? Number(v['max-usd']) : 1, log: (e) => e.type !== 'iteration' && console.log(`  ${id}: ${e.type}${e.act ? ' ' + e.act : ''}`) });
+          console.log(`${id}: ${r.reason}, ${r.iterations} steps, ${usd(r.usd)} of model use\n${r.summary}\n`);
+        }
+        return;
       }
       if (sub === 'real') {
         const times = v.times ? v.times.split(',').map((t) => durationMin(t)) : null;
