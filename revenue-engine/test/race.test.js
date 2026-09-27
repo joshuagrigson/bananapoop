@@ -129,9 +129,13 @@ test('the race template, mode and demo; the snapshot carries the board and not e
   assert.equal(snap.state.steps, undefined);
   assert.ok(snap.state.stepCount > 20);
   assert.equal(snap.race.day, 13);
-  assert.equal(snap.race.standings[0].winner, 'red');
-  assert.equal(snap.race.leaderId, 'blue');
-  assert.ok(snap.race.lanes.find((l) => l.id === 'violet').bankrollUsd < 250);
+  // the demo is a simulation: its money comes from the market model, its research from real pages
+  assert.equal(snap.race.simMode, true);
+  assert.ok(snap.race.standings[0].winner);
+  assert.ok(snap.race.leaderId);
+  assert.ok(snap.race.sim.totals.research >= 8 && snap.race.sim.totals.variants >= 16 && snap.race.sim.totals.live >= 8);
+  assert.ok(snap.race.lanes.some((l) => l.inUsd > 0));
+  assert.equal(snap.race.breakCount, 0);
   // every dollar in the demo carries evidence and a play
   assert.ok(ledger.readAll().filter((e) => e.kind === 'money.in').every((e) => e.evidence && e.play));
 });

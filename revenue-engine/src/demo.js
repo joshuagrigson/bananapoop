@@ -228,9 +228,9 @@ export function seedRaceDemo(ledger, dataDir, now = Date.now()) {
   let seed = 20260927;
   const rand = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
   const lines = [
-    { kind: 'note', demo: true, text: 'DEMO LEDGER: a fictional sandbox race. Every agent, plan, sale and dollar here is made up.', ts: new Date(t0 - 3600e3).toISOString() },
+    { kind: 'note', demo: true, text: 'DEMO LEDGER: a fictional simulation race. The agents and plans are made up; every dollar is simulated by the market model; the research links are real pages.', ts: new Date(t0 - 3600e3).toISOString() },
     { kind: 'race', stakeUsd: 250, name: 'The $250 Race', evidence: 'eight virtual cards, $250 on each (demo)', horizons: [7, 30, 90, 180], ts: at(0),
-      rules: { purpose: 'idea', moneyMode: 'real', places: 3, approveOverUsd: 50, maxSpendPerDayUsd: 40, knockoutUsd: 0, tiebreak: 'earliest', everyHours: 24,
+      rules: { purpose: 'idea', moneyMode: 'sim', places: 3, approveOverUsd: 50, maxSpendPerDayUsd: 40, knockoutUsd: 0, tiebreak: 'earliest', everyHours: 24,
         customRules: [{ kind: 'must', text: 'Show the price before anyone pays' }, { kind: 'mustnot', text: 'Sell anything to children' }],
         roomNotes: { gold: 'Put the review tool in front of three real businesses before building anything more.' },
         models: { red: 'claude-opus-5-5', orange: 'claude-sonnet-5', gold: 'claude-opus-5-5', green: 'claude-haiku-4-5', teal: 'claude-sonnet-5', blue: 'claude-opus-5-5', violet: 'claude-haiku-4-5', pink: 'claude-sonnet-5' },
@@ -258,13 +258,42 @@ export function seedRaceDemo(ledger, dataDir, now = Date.now()) {
     'meta-ads': { offer: 'Ads for the dog shirts', customer: 'Dog owners on Facebook and Instagram', channel: 'Meta ads', pricing: '$28 a shirt', costs: '$20 a day in ads' },
     'etsy-pod': { offer: 'The same shirts on Etsy', customer: 'Etsy shoppers', channel: 'Etsy search, no ads', pricing: '$28, about $8 margin', costs: '$0.20 a listing, Etsy fees on each sale' },
   };
-  const started = new Set();
+  const started = new Set(), live = new Set();
+  // each play's variant in the simulated market; cited rates point at the real benchmark pages
+  const E = 'https://instantly.ai/cold-email-benchmark-report-2026', UP = 'https://gigradar.io/blog/upwork-proposal-response-rate', ETSY = 'https://help.erank.com/blog/what-is-a-good-conversion-rate-on-etsy/';
+  const SPECS = {
+    'planner-shop': { channel: 'social', price: 14, volume: 4, platform: 'stripe', fixedPerMonth: 39, trend: 'rising', competition: 'high' },
+    'etsy-mirror': { channel: 'marketplace', price: 10, volume: 10, platform: 'etsy', competition: 'high', trend: 'rising', rates: { conv: 0.02 }, cites: { conv: ETSY } },
+    bundle: { channel: 'marketplace', price: 29, volume: 1, platform: 'stripe', competition: 'medium' },
+    'fiverr-gigs': { channel: 'marketplace', price: 150, volume: 3, platform: 'fiverr', capacityPerDay: 2, hoursPerSale: 2, competition: 'high' },
+    'upwork-proposals': { channel: 'freelance', price: 180, volume: 8, platform: 'upwork', capacityPerDay: 1, hoursPerSale: 3, rates: { interview: 0.15 }, cites: { interview: UP } },
+    retainer: { channel: 'email', price: 150, recurring: true, volume: 5, rates: { reply: 0.05 }, cites: { reply: E } },
+    'lead-lists': { channel: 'email', price: 120, volume: 30, platform: 'stripe', unitCost: 6, capacityPerDay: 3 },
+    'weekly-feed': { channel: 'email', price: 99, recurring: true, volume: 10, unitCost: 5 },
+    'site-rebuilds': { channel: 'email', price: 300, volume: 25, capacityPerDay: 1, hoursPerSale: 2, trend: 'flat' },
+    'care-plan': { channel: 'email', price: 49, recurring: true, volume: 5 },
+    sheets: { channel: 'marketplace', price: 12, volume: 8, platform: 'gumroad', competition: 'medium' },
+    'forum-posts': { channel: 'seo', price: 12, volume: 1, platform: 'gumroad' },
+    'ui-kits': { channel: 'marketplace', price: 24, volume: 2, platform: 'gumroad', competition: 'high' },
+    'canva-templates': { channel: 'marketplace', price: 12, volume: 6, feePct: 0.4, fixedPerMonth: 15, competition: 'high', trend: 'rising' },
+    'review-tool': { channel: 'social', price: 12, recurring: true, volume: 2, fixedPerMonth: 20, trend: 'rising', competition: 'medium' },
+    'launch-post': { channel: 'social', price: 12, recurring: true, volume: 1 },
+    'pod-shirts': { channel: 'social', price: 28, volume: 2, unitCost: 20, fixedPerMonth: 39, competition: 'high' },
+    'meta-ads': { channel: 'ads', price: 28, volume: 20, unitCost: 20, competition: 'high' },
+    'etsy-pod': { channel: 'marketplace', price: 28, volume: 12, unitCost: 20, platform: 'etsy', competition: 'high' },
+  };
   const leadOf = Object.fromEntries(LEADS.map((l) => [l.rooms[0], l.name]));
   let order = 1000;
   // a tiny script language per room: plan, play, step, in, out
   const S = {
     plan: (room, d, text) => lines.push({ kind: 'step', path: room, type: 'plan', text, by: 'agent', ts: at(d) }),
-    play: (room, d, play, name, status, extra = {}) => { const model = started.has(play) ? {} : MODELS[play] || {}; started.add(play); lines.push({ kind: 'play', path: room, play, name, status, by: 'agent', ...model, ...extra, ts: at(d) }); },
+    play: (room, d, play, name, status, extra = {}) => {
+      const model = started.has(play) ? {} : MODELS[play] || {}; started.add(play); lines.push({ kind: 'play', path: room, play, name, status, by: 'agent', ...model, ...extra, ts: at(d) });
+      // the simulation: a play that is trying or working runs in the simulated market; paused or dropped, it stops
+      const on = status === 'trying' || status === 'working';
+      if (on && SPECS[play] && !live.has(play)) { live.add(play); lines.push({ kind: 'sim', act: 'launch', path: room, play, spec: SPECS[play], label: name, by: 'agent', ts: at(d + 0.01) }); }
+      if (!on && live.has(play)) { live.delete(play); lines.push({ kind: 'sim', act: 'stop', path: room, play, why: extra.why || status, by: 'agent', ts: at(d + 0.01) }); }
+    },
     step: (room, d, type, text, play, url) => lines.push({ kind: 'step', path: room, type, text, by: 'agent', ...(play ? { play } : {}), ...(url ? { url } : {}), ts: at(d) }),
     in: (room, d, usd, play, item, source, evidence) => lines.push({ kind: 'money.in', path: room, usd, play, item, source, by: leadOf[room], evidence: evidence || `${source} order #${++order} (demo)`, ts: at(d) }),
     out: (room, d, usd, play, category, payee, evidence) => lines.push({ kind: 'money.out', path: room, usd, play, category, payee, evidence: evidence || `${payee} receipt (demo)`, ts: at(d) }),
@@ -413,6 +442,29 @@ export function seedRaceDemo(ledger, dataDir, now = Date.now()) {
   S.plan('violet', 11.5, 'Shirts alone will not climb back fast. Keep the Etsy shirts and add a second play with no ad spend.');
 
   lines.sort((a, b) => (a.ts < b.ts ? -1 : 1));
-  for (const l of lines) ledger.append(l);
+  // the rooms' web research (real pages), a round of tested variants and one thing built in the sandbox, per room
+  const R = (room, d, title, text, url, topic) => lines.push({ kind: 'research', path: room, title, text, url, topic, by: 'agent', ts: at(d) });
+  R('red', 0.05, 'Etsy conversion is 1-5%', 'eRank: a typical Etsy shop converts 1-5% of visits; planners sit in a crowded category.', ETSY, 'benchmark');
+  R('blue', 0.05, 'Upwork proposals: about 15% get a reply', 'GigRadar platform average: 15% of proposals get a client response; new freelancers do worse.', UP, 'benchmark');
+  R('blue', 0.06, 'Fiverr keeps 20%', 'Flat 20% seller fee on every order, tips included.', 'https://freelancecompare.com/blog/fiverr-fees-explained', 'cost');
+  R('teal', 0.05, 'Cold email averages 3.4% replies', 'Instantly 2026 benchmark report: 3.43% average reply rate across billions of emails.', E, 'benchmark');
+  R('orange', 0.05, 'Small deals close about 31% of the time', 'Median win rate for small deals under $10K.', 'https://salesmotion.io/blog/sales-win-rate-benchmarks-2026', 'benchmark');
+  R('gold', 0.05, 'Subscriptions lose about 4% a month', 'Recurly 2026 churn benchmarks: 3.2-5.0% a month.', 'https://recurly.com/research/churn-rate-benchmarks/', 'benchmark');
+  R('violet', 0.05, 'Facebook clicks cost about $0.60', 'LocalIQ benchmarks: average Facebook cost per click around $0.60.', 'https://localiq.com/blog/facebook-advertising-benchmarks/', 'benchmark');
+  R('green', 0.05, 'Gumroad keeps 10% plus 50 cents', 'Gumroad pricing: 10% + $0.50 a direct sale; 30% on Discover.', 'https://gumroad.com/pricing', 'cost');
+  R('pink', 0.05, 'Small accounts reach 4-7% of followers', 'Socialinsider 2026: 1-5K follower accounts reach 6.65% on Instagram, 4.35% on Facebook.', 'https://www.socialinsider.io/blog/social-media-reach/', 'benchmark');
+  const T = (room, d, play, variants) => lines.push({ kind: 'sim', act: 'test', path: room, play, variants, by: 'agent', ts: at(d) });
+  T('red', 0.08, 'planner-shop', [{ label: 'Planners on Etsy at $10', spec: SPECS['etsy-mirror'] }, { label: 'Planners on Pinterest to a store at $14', spec: SPECS['planner-shop'] }, { label: 'Planner bundle at $29', spec: SPECS.bundle }]);
+  T('blue', 0.08, 'fiverr-gigs', [{ label: 'Automation gigs on Fiverr at $150', spec: SPECS['fiverr-gigs'] }, { label: 'Upwork proposals at $180', spec: SPECS['upwork-proposals'] }, { label: 'Upwork proposals at $300', spec: { ...SPECS['upwork-proposals'], price: 300 } }]);
+  T('teal', 0.08, 'lead-lists', [{ label: 'Lead lists by cold email at $120', spec: SPECS['lead-lists'] }, { label: 'Weekly feed at $99 a month', spec: SPECS['weekly-feed'] }]);
+  T('orange', 0.08, 'site-rebuilds', [{ label: 'One-page sites at $300 by email', spec: SPECS['site-rebuilds'] }, { label: 'One-page sites at $500 by email', spec: { ...SPECS['site-rebuilds'], price: 500 } }]);
+  T('gold', 0.08, 'review-tool', [{ label: 'Review replies at $12 a month', spec: SPECS['review-tool'] }, { label: 'Review replies at $29 a month', spec: { ...SPECS['review-tool'], price: 29 } }]);
+  T('violet', 0.08, 'pod-shirts', [{ label: 'Dog shirts with $20 a day of ads', spec: SPECS['meta-ads'] }, { label: 'Dog shirts on Etsy', spec: SPECS['etsy-pod'] }]);
+  T('green', 0.08, 'sheets', [{ label: 'Budget sheets on Gumroad at $12', spec: SPECS.sheets }, { label: 'Forum answers to the sheets', spec: SPECS['forum-posts'] }]);
+  T('pink', 0.08, 'canva-templates', [{ label: 'Canva packs at $12', spec: SPECS['canva-templates'] }, { label: 'Figma kits at $24', spec: SPECS['ui-kits'] }]);
+  lines.push({ kind: 'sim', act: 'build', path: 'orange', play: 'site-rebuilds', what: 'email', title: 'Intro email with a preview link', to: 'owners of local businesses with no website', format: 'text', content: 'Subject: I built you a free preview site\n\nHi [owner name],\n\nI noticed [business name] has no website, so I built a one-page preview with your hours, photos and a call button: [preview link].\n\nIf you like it, it goes live for $300, half now and half at launch. If not, no charge and I will take it down.\n\n[signature]', by: 'agent', ts: at(0.2) });
+  lines.push({ kind: 'sim', act: 'build', path: 'gold', play: 'review-tool', what: 'site', title: 'Review-reply tool landing page', to: 'local business owners', format: 'html', content: '<div style="font-family:system-ui;max-width:560px;margin:40px auto;padding:0 16px"><h1>Reply to every Google review in your own voice</h1><p>Paste a review, get a warm, specific reply in seconds. $12 a month after a 7-day free trial.</p><button style="padding:12px 20px;font-size:16px">Start the free trial</button></div>', by: 'agent', ts: at(0.2) });
+  // the demo's money is simulated: its old made-up sales and receipts stay out
+  for (const l of lines) if (l.kind !== 'money.in' && l.kind !== 'money.out') ledger.append(l);
   return lines.length;
 }
