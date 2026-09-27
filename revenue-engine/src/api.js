@@ -8,7 +8,7 @@ import { raceBoard, raceBrief, racePlaybook } from './race.js';
 import { quests, summary } from './quests.js';
 import { commanderLevel } from './level.js';
 import { CATALOG, GATES, stagesFor } from './paths.js';
-import { LedgerError, RACE_METHODS, RACE_CONNECTORS, RACE_WORK_CONNECTORS, RACE_MODELS, RACE_SCORING, RACE_CONTACT, DEFAULT_HORIZONS, defaultRaceRules } from './ledger.js';
+import { LedgerError, validate, RACE_METHODS, RACE_CONNECTORS, RACE_WORK_CONNECTORS, RACE_MODELS, RACE_SCORING, RACE_CONTACT, RACE_PURPOSES, RACE_TIEBREAKS, RACE_POSTING, RACE_NAME_USE, RACE_ACCOUNTS, RACE_PENALTY, RACE_MONEY_MODES, RACE_EVIDENCE, RACE_VISIBILITY, SPEND_CATEGORIES, SIGNAL_TYPES, SIGNAL_PLURAL, RULE_KINDS, DEFAULT_HORIZONS, defaultRaceRules } from './ledger.js';
 import { ROLES, DEFAULT_MODEL } from './agent.js';
 import { addItem, listItems } from './inbox.js';
 import { addClient, listClients, updateClient, isDue } from './clients.js';
@@ -59,7 +59,11 @@ export function snapshot(ledger, catalog = CATALOG, dataDir = null, now = Date.n
     state: { ...lean, stepCount: steps.length },
     race,
     // the race setup's menu: every rule a race can set, and its default
-    raceMenu: { methods: RACE_METHODS, connectors: RACE_CONNECTORS, work: RACE_WORK_CONNECTORS, models: RACE_MODELS, scoring: RACE_SCORING, contact: RACE_CONTACT, horizons: DEFAULT_HORIZONS, defaults: defaultRaceRules() },
+    raceMenu: {
+      methods: RACE_METHODS, connectors: RACE_CONNECTORS, work: RACE_WORK_CONNECTORS, models: RACE_MODELS, scoring: RACE_SCORING, contact: RACE_CONTACT, horizons: DEFAULT_HORIZONS,
+      purposes: RACE_PURPOSES, tiebreaks: RACE_TIEBREAKS, posting: RACE_POSTING, nameUse: RACE_NAME_USE, accounts: RACE_ACCOUNTS, penalty: RACE_PENALTY, moneyModes: RACE_MONEY_MODES,
+      evidence: RACE_EVIDENCE, visibility: RACE_VISIBILITY, spendCategories: SPEND_CATEGORIES, signalTypes: SIGNAL_TYPES, signalPlural: SIGNAL_PLURAL, ruleKinds: RULE_KINDS, defaults: defaultRaceRules(),
+    },
     level: commanderLevel(state),
     quests: q,
     questSummary: summary(q),
@@ -106,6 +110,20 @@ export function createApi({ ledger, catalog: fixedCatalog = null, dataDir, runAg
         const station = dataDir ? stationInfo(dataDir) : null, lead = station && station.folk.find((f) => (f.rooms || []).includes(pb[1]));
         const text = racePlaybook(reduce(ledger.readAll(), catalog), catalog, pb[1], pb[2], Date.now(), { lead: lead ? lead.name : null });
         return text ? ok(200, { ok: true, markdown: text }) : ok(404, { ok: false, error: 'no such play in the race' });
+      }
+      // the brief a room's agent would get from a race still being set up: nothing is written
+      if (method === 'POST' && pathname === '/api/race/brief-preview') {
+        const body = await readBody();
+        try {
+          const ev = { ...validate({ kind: 'race', stakeUsd: body.stakeUsd, evidence: 'setup preview', horizonsMin: body.horizonsMin, rules: body.rules, ...(body.rooms ? { rooms: body.rooms } : {}), ...(body.name ? { name: body.name } : {}) }), id: 'preview', ts: new Date().toISOString() };
+          const station = dataDir ? stationInfo(dataDir) : null, room = catalog.find((p) => p.id === body.room) || catalog[0];
+          const lead = station && room && station.folk.find((f) => (f.rooms || []).includes(room.id));
+          const board = raceBoard(reduce([ev], catalog), catalog, Date.parse(ev.ts));
+          return ok(200, { ok: true, markdown: raceBrief(board, room.id, { roomName: room.name, lead: lead ? lead.name : null }) });
+        } catch (e) {
+          if (e instanceof LedgerError) return ok(400, { ok: false, error: e.message });
+          throw e;
+        }
       }
       if (method === 'GET' && pathname === '/api/runs') return ok(200, [...runs.values()]);
       if (method === 'GET' && pathname === '/api/outbox') return ok(200, listOutbox(dataDir, catalog));

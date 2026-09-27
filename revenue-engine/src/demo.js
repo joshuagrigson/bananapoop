@@ -230,7 +230,9 @@ export function seedRaceDemo(ledger, dataDir, now = Date.now()) {
   const lines = [
     { kind: 'note', demo: true, text: 'DEMO LEDGER: a fictional sandbox race. Every agent, plan, sale and dollar here is made up.', ts: new Date(t0 - 3600e3).toISOString() },
     { kind: 'race', stakeUsd: 250, name: 'The $250 Race', evidence: 'eight virtual cards, $250 on each (demo)', horizons: [7, 30, 90, 180], ts: at(0),
-      rules: { approveOverUsd: 50, maxSpendPerDayUsd: 40, knockoutUsd: 0, tiebreak: 'earliest', everyHours: 24,
+      rules: { purpose: 'idea', places: 3, approveOverUsd: 50, maxSpendPerDayUsd: 40, knockoutUsd: 0, tiebreak: 'earliest', everyHours: 24,
+        customRules: [{ kind: 'must', text: 'Show the price before anyone pays' }, { kind: 'mustnot', text: 'Sell anything to children' }],
+        roomNotes: { gold: 'Put the review tool in front of three real businesses before building anything more.' },
         models: { red: 'claude-opus-5-5', orange: 'claude-sonnet-5', gold: 'claude-opus-5-5', green: 'claude-haiku-4-5', teal: 'claude-sonnet-5', blue: 'claude-opus-5-5', violet: 'claude-haiku-4-5', pink: 'claude-sonnet-5' },
         notes: 'Keep each play small until it sells. Drop anything that has not made a sale in 10 days.' } },
   ];
@@ -266,7 +268,18 @@ export function seedRaceDemo(ledger, dataDir, now = Date.now()) {
     step: (room, d, type, text, play, url) => lines.push({ kind: 'step', path: room, type, text, by: 'agent', ...(play ? { play } : {}), ...(url ? { url } : {}), ts: at(d) }),
     in: (room, d, usd, play, item, source, evidence) => lines.push({ kind: 'money.in', path: room, usd, play, item, source, by: leadOf[room], evidence: evidence || `${source} order #${++order} (demo)`, ts: at(d) }),
     out: (room, d, usd, play, category, payee, evidence) => lines.push({ kind: 'money.out', path: room, usd, play, category, payee, evidence: evidence || `${payee} receipt (demo)`, ts: at(d) }),
+    // demand shown without a sale, with its evidence
+    sig: (room, d, type, count, play, evidence) => lines.push({ kind: 'signal', path: room, type, count, play, evidence: `${evidence} (demo)`, by: 'agent', ts: at(d) }),
   };
+  S.sig('red', 4.3, 'favorite', 140, 'planner-shop', 'Pinterest saves on the ADHD planner pin');
+  S.sig('teal', 3.4, 'reply', 6, 'lead-lists', 'agency replies to the intro emails');
+  S.sig('teal', 5.2, 'lead', 3, 'lead-lists', 'agencies that asked for a sample list');
+  S.sig('orange', 2.8, 'reply', 9, 'site-rebuilds', 'owners who answered the preview-link email');
+  S.sig('orange', 4.9, 'meeting', 2, 'site-rebuilds', 'calls booked on the calendar');
+  S.sig('gold', 6.5, 'signup', 23, 'review-tool', 'trial sign-ups in the tool\'s admin');
+  S.sig('gold', 9.1, 'signup', 18, 'review-tool', 'trial sign-ups in the tool\'s admin');
+  S.sig('green', 5.6, 'follower', 60, 'forum-posts', 'forum followers after three answers');
+  S.sig('violet', 3.0, 'favorite', 35, 'pod-shirts', 'saves on the shirt ads');
   // steady small sales: n a day on average between two days, one price list
   const drip = (room, play, from, to, perDay, menu, source) => {
     for (let d = from; d < to; d += 0.25) {

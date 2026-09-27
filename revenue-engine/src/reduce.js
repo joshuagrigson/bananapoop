@@ -48,6 +48,8 @@ export function reduce(events, catalog = CATALOG) {
     race: null,
     plays: {},
     steps: [],
+    signals: [],
+    judges: [],
     demo: false,
     tail: sorted.slice(-30),
     eventCount: sorted.length,
@@ -157,9 +159,18 @@ export function reduce(events, catalog = CATALOG) {
         Object.assign(pl, { name: ev.name, status: ev.status, updatedAt: ev.ts, why: ev.why || null });
         if (ev.plan) pl.plan = ev.plan;
         for (const k of ['offer', 'customer', 'channel', 'pricing', 'costs']) if (ev[k]) pl.model[k] = ev[k];
+        if (ev.method) pl.method = ev.method;
+        // when the play first had its model (what it sells and to whom): a rule can require it before any spend
+        if (!pl.modelAt && pl.model.offer && pl.model.customer) pl.modelAt = ev.ts;
         pl.history.push({ id: ev.id, ts: ev.ts, status: ev.status, why: ev.why || null, by: ev.by });
         break;
       }
+      case 'signal':
+        st.signals.push({ id: ev.id, ts: ev.ts, path: ev.path, play: ev.play || null, type: ev.type, count: ev.count, evidence: ev.evidence, note: ev.note || null, by: ev.by });
+        break;
+      case 'judge':
+        st.judges.push({ id: ev.id, ts: ev.ts, path: ev.path, play: ev.play || null, points: ev.points, why: ev.why });
+        break;
       case 'step':
         st.steps.push({ id: ev.id, ts: ev.ts, path: ev.path, play: ev.play || null, type: ev.type || 'did', text: ev.text, url: ev.url || null, by: ev.by });
         break;

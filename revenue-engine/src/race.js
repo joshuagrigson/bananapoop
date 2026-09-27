@@ -5,7 +5,7 @@
 // Pure: the reduced state and a clock in, the standings out. Nothing here invents a number. A bankroll is the stake
 // plus evidenced money in minus evidenced money out, counted only between the starting gun and the last horizon.
 // Holdings (stock, inventory, a coin) count at zero until they are sold, so a paper gain never wins a prize.
-import { RACE_METHODS, RACE_MODELS, RACE_SCORING, defaultRaceRules } from './ledger.js';
+import { RACE_METHODS, RACE_MODELS, RACE_SCORING, RACE_PURPOSES, SIGNAL_TYPES, SIGNAL_PLURAL, SPEND_CATEGORIES, RULE_KINDS, defaultRaceRules } from './ledger.js';
 
 const MIN = 60e3, HOUR = 3600e3, DAY = 86400e3;
 // 30 -> "30 min", 120 -> "2 hours", 10080 -> "1 week", 259200 -> "6 months"
@@ -34,6 +34,7 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
   const rules = { ...defaultRaceRules(), ...(race.rules || {}) };
   // a race set before check-ins were counted in minutes said everyHours
   if (race.rules && race.rules.everyMinutes === undefined && race.rules.everyHours) rules.everyMinutes = race.rules.everyHours * 60;
+  if (race.rules && race.rules.spendCategories === undefined && race.rules.ads === false) rules.spendCategories = rules.spendCategories.filter((c) => c !== 'ads');
   const known = catalog.map((p) => p.id);
   const ids = race.rooms ? race.rooms.filter((id) => known.includes(id)) : known;
   const t0 = Date.parse(race.startedAt), hz = race.horizonsMin || (race.horizons || []).map((d) => d * 1440), last = hz[hz.length - 1];
@@ -49,41 +50,167 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
   const stakeOf = (id) => rules.stakes[id] || race.stakeUsd;
   const inWindow = (ts) => { const t = Date.parse(ts); return t >= t0 && t <= tNow; };
   const dayOf = (ts) => Math.floor((Date.parse(ts) - t0) / DAY) + 1;
-  const score = (id, bankroll) => (rules.scoring === 'profit' ? r2(bankroll - stakeOf(id)) : rules.scoring === 'multiple' ? Math.round((bankroll / stakeOf(id)) * 1000) / 1000 : bankroll);
+  // the race's evidence standard: money below it is shown, but not counted
+  const meets = (e) => (rules.evidence === 'link' ? /https?:\/\//i.test(e.evidence || '') : rules.evidence === 'id' ? /\d/.test(e.evidence || '') : true);
 
   // each room's money inside the window, oldest first
-  const flows = new Map(ids.map((id) => [id, []]));
-  for (const e of state.moneyIn) if (flows.has(e.path) && inWindow(e.ts)) flows.get(e.path).push({ t: Date.parse(e.ts), usd: e.usd, e, dir: 'in' });
-  for (const e of state.moneyOut) if (flows.has(e.path) && inWindow(e.ts)) flows.get(e.path).push({ t: Date.parse(e.ts), usd: -e.usd, e, dir: 'out' });
+  const flows = new Map(ids.map((id) => [id, []])), uncounted = new Map(ids.map((id) => [id, []]));
+  const add = (e, dir) => { if (!flows.has(e.path) || !inWindow(e.ts)) return; (meets(e) ? flows : uncounted).get(e.path).push({ t: Date.parse(e.ts), usd: dir === 'in' ? e.usd : -e.usd, e, dir }); };
+  for (const e of state.moneyIn) add(e, 'in');
+  for (const e of state.moneyOut) add(e, 'out');
   for (const f of flows.values()) f.sort((a, b) => a.t - b.t);
-  const bankrollAt = (id, t) => r2(stakeOf(id) + flows.get(id).reduce((s, f) => (f.t <= t ? s + f.usd : s), 0));
-  // knocked out: the first moment a bankroll falls to the knockout line; out rooms win nothing after that
-  const outAt = new Map();
-  if (rules.knockoutUsd !== null) for (const id of ids) {
-    let b = stakeOf(id);
-    for (const f of flows.get(id)) { b = r2(b + f.usd); if (b <= rules.knockoutUsd) { outAt.set(id, f.t); break; } }
-  }
-  // when a room's score first reached a value (the earliest tie-break)
-  const reachedAt = (id, target) => {
-    let b = stakeOf(id);
-    if (score(id, b) >= target) return t0;
-    for (const f of flows.get(id)) { b = r2(b + f.usd); if (score(id, b) >= target) return f.t; }
-    return Infinity;
-  };
+  const sigs = new Map(ids.map((id) => [id, (state.signals || []).filter((s) => s.path === id && inWindow(s.ts)).map((s) => ({ ...s, t: Date.parse(s.ts) }))]));
+  const judged = new Map(ids.map((id) => [id, (state.judges || []).filter((j) => j.path === id && inWindow(j.ts)).map((j) => ({ ...j, t: Date.parse(j.ts) }))]));
   const playsOf = (id) => Object.values(state.plays || {}).filter((p) => p.path === id);
   const stepsOf = (id) => (state.steps || []).filter((s) => s.path === id && inWindow(s.ts));
+  const movesOf = (id) => [...stepsOf(id), ...playsOf(id).flatMap((p) => p.history.filter((h) => inWindow(h.ts)))].map((m) => Date.parse(m.ts)).sort((a, b) => a - b);
+
+  // ---- rule breaks the ledger can see: each one dated, so a penalty lands when it happened
+  const usd = (v) => '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: 2 });
+  const allowedMethods = new Set([...rules.methods, ...rules.customMethods.map((m) => m.toLowerCase())]);
+  const banned = rules.banned.map((w) => w.toLowerCase()).filter(Boolean);
+  const hasBanned = (txt) => { const t = String(txt || '').toLowerCase(); return banned.find((w) => t.includes(w)) || null; };
+  const clock = (t) => { const d = new Date(t); return d.getHours() * 60 + d.getMinutes(); };
+  const hm = (s) => Number(s.slice(0, 2)) * 60 + Number(s.slice(3));
+  const quiet = (t) => { if (!rules.quietHours) return false; const m = clock(t), a = hm(rules.quietHours.from), b = hm(rules.quietHours.to); return a <= b ? m >= a && m < b : m >= a || m < b; };
+  const breaksOf = (id) => {
+    const out = [], brk = (t, rule, text) => out.push({ t, ts: iso(t), day: dayOf(iso(t)), min: minOf(iso(t)), rule, text });
+    let spent = 0, bank = stakeOf(id);
+    const perDay = new Map(), plays = playsOf(id);
+    for (const f of flows.get(id)) {
+      bank = r2(bank + f.usd);
+      if (f.dir !== 'out') continue;
+      const e = f.e, amt = -f.usd;
+      spent = r2(spent + amt);
+      const d = Math.floor((f.t - t0) / DAY), today = r2((perDay.get(d) || 0) + amt); perDay.set(d, today);
+      if (!rules.spendCategories.includes(e.category)) brk(f.t, 'category', `${usd(amt)} spent on ${SPEND_CATEGORIES[e.category] || e.category}, which this race does not allow`);
+      if (rules.maxSpendPerDayUsd !== null && today > rules.maxSpendPerDayUsd && today - amt <= rules.maxSpendPerDayUsd) brk(f.t, 'dailyCap', `spent ${usd(today)} in a day, over the ${usd(rules.maxSpendPerDayUsd)} limit`);
+      if (rules.maxTotalSpendUsd !== null && spent > rules.maxTotalSpendUsd && spent - amt <= rules.maxTotalSpendUsd) brk(f.t, 'totalCap', `spent ${usd(spent)} in all, over the ${usd(rules.maxTotalSpendUsd)} limit`);
+      if (rules.approveOverUsd !== null && amt > rules.approveOverUsd && !e.approved) brk(f.t, 'approval', `a ${usd(amt)} purchase over ${usd(rules.approveOverUsd)} without Joshua's yes`);
+      if (rules.reserveUsd !== null && bank < rules.reserveUsd) brk(f.t, 'reserve', `the bankroll fell to ${usd(bank)}, under the ${usd(rules.reserveUsd)} it must keep`);
+      if (!rules.reinvest && spent > stakeOf(id) && spent - amt <= stakeOf(id)) brk(f.t, 'reinvest', 'spent money it made; this race allows spending only the stake');
+      if (rules.requireModel && e.play) { const p = plays.find((x) => x.id === e.play); if (!p || !p.modelAt || Date.parse(p.modelAt) > f.t) brk(f.t, 'model', `spent ${usd(amt)} on a play before logging what it sells and to whom`); }
+      const b = hasBanned(`${e.payee || ''} ${e.item || ''} ${e.evidence || ''}`); if (b) brk(f.t, 'banned', `money line mentions ${b}`);
+    }
+    // a paper race moves no real money at all
+    if (rules.moneyMode === 'paper') for (const f of flows.get(id)) brk(f.t, 'paper', `moved ${usd(Math.abs(f.usd))} of real money in a paper race`);
+    for (const f of flows.get(id)) if (f.dir === 'in') { const b = hasBanned(`${f.e.item || ''} ${f.e.source || ''}`); if (b) brk(f.t, 'banned', `sale through ${b}`); }
+    for (const p of plays) {
+      const h0 = p.history.find((h) => inWindow(h.ts)); if (!h0) continue;
+      if (p.method && !allowedMethods.has(String(p.method).toLowerCase())) brk(Date.parse(h0.ts), 'method', `"${p.name}" is ${RACE_METHODS[p.method] ? RACE_METHODS[p.method].split(':')[0].toLowerCase() : p.method}, which this race does not allow`);
+      const b = hasBanned(`${p.name} ${Object.values(p.model || {}).join(' ')} ${p.plan || ''}`); if (b) brk(Date.parse(h0.ts), 'banned', `"${p.name}" uses ${b}`);
+    }
+    for (const s of stepsOf(id)) {
+      const b = hasBanned(s.text); if (b) brk(Date.parse(s.ts), 'banned', `a step mentions ${b}`);
+      const t = Date.parse(s.ts);
+      if (s.by !== 'user' && quiet(t)) brk(t, 'quiet', `worked during quiet hours (${rules.quietHours.from}-${rules.quietHours.to})`);
+      if (s.by !== 'user' && rules.weekdaysOnly && [0, 6].includes(new Date(t).getDay())) brk(t, 'weekend', 'worked on a weekend');
+    }
+    // a day with no step at all, when every day needs a report
+    if (rules.dailyReport) { const st = stepsOf(id).map((s) => Date.parse(s.ts)); for (let d = 0; t0 + (d + 1) * DAY <= tNow; d++) if (!st.some((t) => t >= t0 + d * DAY && t < t0 + (d + 1) * DAY)) brk(t0 + (d + 1) * DAY - 1, 'report', `no report on day ${d + 1}`); }
+    return out.sort((a, b) => a.t - b.t);
+  };
+  const breaks = new Map(ids.map((id) => [id, breaksOf(id)]));
+  const finesAt = (id, t) => (rules.ruleBreak === 'fine' ? r2(breaks.get(id).filter((b) => b.t <= t).length * (rules.fineUsd || 0)) : 0);
+
+  // ---- the score, at any moment: what the race is judged on
+  const metricAt = (id, t) => {
+    const f = flows.get(id).filter((x) => x.t <= t), ins = f.filter((x) => x.dir === 'in');
+    const inU = sum(ins, (x) => x.usd), outU = sum(f.filter((x) => x.dir === 'out'), (x) => -x.usd), stake = stakeOf(id);
+    const bank = r2(stake + inU - outU - finesAt(id, t));
+    switch (rules.scoring) {
+      case 'profit': return r2(bank - stake);
+      case 'multiple': return Math.round((bank / stake) * 1000) / 1000;
+      case 'revenue': return r2(inU - finesAt(id, t));
+      case 'roi': return r2(inU / Math.max(outU, 1));
+      case 'sales': return ins.length;
+      case 'customers': return new Set(ins.map((x) => String(x.e.source || '').trim().toLowerCase())).size;
+      case 'signals': return r2(sigs.get(id).filter((s) => s.t <= t).reduce((a, s) => a + s.count * (rules.signalWeights[s.type] ?? 0), 0));
+      case 'judge': return r2(judged.get(id).filter((j) => j.t <= t).reduce((a, j) => a + j.points, 0));
+      case 'firstDollar': return ins.length ? -Math.round((ins[0].t - t0) / MIN) : -1e9;
+      case 'consistency': {
+        const n = Math.floor((t - t0) / step); if (n < 1) return 0;
+        let up = 0; for (let i = 0; i < n; i++) if (bankAt(id, t0 + (i + 1) * step) > bankAt(id, t0 + i * step)) up += 1;
+        return Math.round((up / n) * 1000) / 10;
+      }
+      default: return bank;
+    }
+  };
+  const bankAt = (id, t) => r2(stakeOf(id) + flows.get(id).reduce((s, f) => (f.t <= t ? s + f.usd : s), 0) - finesAt(id, t));
+  const scoreText = (v) => {
+    switch (rules.scoring) {
+      case 'multiple': return '×' + (v >= 10 ? v.toFixed(1) : v.toFixed(2));
+      case 'roi': return `$${v.toFixed(2)} per $1`;
+      case 'sales': return `${v} sale${v === 1 ? '' : 's'}`;
+      case 'customers': return `${v} customer${v === 1 ? '' : 's'}`;
+      case 'signals': return `${v} demand`;
+      case 'judge': return `${v} pts`;
+      case 'consistency': return `${v}% up`;
+      case 'firstDollar': return v <= -1e9 ? 'no sale yet' : `first sale ${short ? `${Math.floor(-v / 60)}:${String(-v % 60).padStart(2, '0')}` : `day ${Math.floor(-v / 1440) + 1}`}`;
+      case 'profit': return (v < 0 ? '-' : '+') + usd(Math.abs(Math.round(v)));
+      default: return usd(Math.round(v));
+    }
+  };
+  // when a room's score first reached a value, how much it had spent, how many sales: the tie-breaks
+  const reachedAt = (id, target) => {
+    const ts = [t0, ...flows.get(id).map((f) => f.t), ...sigs.get(id).map((s) => s.t), ...judged.get(id).map((j) => j.t)].filter((t) => t <= tNow).sort((a, b) => a - b);
+    for (const t of ts) if (metricAt(id, t) >= target) return t;
+    return Infinity;
+  };
+  const spentAt = (id, t) => sum(flows.get(id).filter((x) => x.dir === 'out' && x.t <= t), (x) => -x.usd);
+  const salesAt = (id, t) => flows.get(id).filter((x) => x.dir === 'in' && x.t <= t).length;
+
+  // ---- who is out, and when: the knockout line, going quiet, a rule break (if that knocks out), last place at a prize
+  const outAt = new Map(), outWhy = new Map();
+  const knock = (id, t, why) => { if (!outAt.has(id) || t < outAt.get(id)) { outAt.set(id, t); outWhy.set(id, why); } };
+  for (const id of ids) {
+    if (rules.knockoutUsd !== null) { let b = stakeOf(id); for (const f of flows.get(id)) { b = r2(b + f.usd); if (b <= rules.knockoutUsd) { knock(id, f.t, `bankroll fell to ${usd(b)}`); break; } } }
+    if (rules.idleOutMinutes) { const ts = [t0, ...movesOf(id), tNow]; for (let i = 1; i < ts.length; i++) if (ts[i] - ts[i - 1] > rules.idleOutMinutes * MIN) { knock(id, ts[i - 1] + rules.idleOutMinutes * MIN, `no move for ${spanLabel(rules.idleOutMinutes)}`); break; } }
+    if (rules.ruleBreak === 'out' && breaks.get(id).length) { const b = breaks.get(id)[0]; knock(id, b.t, `broke a rule: ${b.text}`); }
+  }
+  const isOut = (id, t) => outAt.has(id) && outAt.get(id) <= t;
+  const rankAt = (t) => ids.map((id) => ({ id, score: metricAt(id, t), bankrollUsd: bankAt(id, t), out: isOut(id, t) }))
+    .map((r) => ({ ...r, multiple: r2(r.bankrollUsd / stakeOf(r.id)), profitUsd: r2(r.bankrollUsd - stakeOf(r.id)), scoreText: scoreText(r.score) }))
+    .sort((a, b) => (a.out ? 1 : 0) - (b.out ? 1 : 0) || b.score - a.score || ids.indexOf(a.id) - ids.indexOf(b.id));
+  // among rooms tied on the score, the tie-break decides; a tie it cannot break stays a tie
+  const breakTie = (tied, t) => {
+    const key = rules.tiebreak === 'earliest' ? (r) => reachedAt(r.id, r.score) : rules.tiebreak === 'leastSpent' ? (r) => spentAt(r.id, t) : rules.tiebreak === 'mostSales' ? (r) => -salesAt(r.id, t) : null;
+    if (!key) return null;
+    const ks = tied.map((r) => ({ r, k: key(r) })).sort((a, b) => a.k - b.k);
+    return ks.length > 1 && ks[0].k === ks[1].k ? null : ks[0].r;
+  };
+
+  // one prize per time limit, locked the moment it passes; the last-place room goes out there if the race says so
+  let liveSet = false;
+  const standings = hz.map((h, hi) => {
+    const tH = t0 + h * MIN, done = now >= tH, at = Math.min(now, tH);
+    const ranking = rankAt(at), live = ranking.filter((r) => !r.out);
+    let tie = live.length > 1 && live[0].score === live[1].score, top = live[0] || null, tieBroken = false;
+    if (tie) { const w = breakTie(live.filter((r) => r.score === live[0].score), at); if (w) { top = w; tie = false; tieBroken = true; } }
+    // the podium: the top, then the next best, up to the race's number of places
+    const podium = top && !tie ? [top, ...live.filter((r) => r !== top)].slice(0, rules.places).map((r) => r.id) : [];
+    let eliminated = null;
+    if (done && rules.eliminateLast && hi < hz.length - 1 && live.length > 1) { eliminated = live[live.length - 1].id; knock(eliminated, tH, `last place at ${spanLabel(h)}`); }
+    const stateH = done ? 'done' : liveSet ? 'upcoming' : 'live';
+    if (!done) liveSet = true;
+    return {
+      mins: h, days: h / 1440, label: spanLabel(h), endsAt: iso(tH), state: stateH, minsLeft: done ? 0 : Math.ceil((tH - now) / MIN), daysLeft: done ? 0 : Math.ceil((tH - now) / DAY),
+      ranking, leader: !tie && top ? top.id : null, winner: done && !tie && top ? top.id : null, podium: done ? podium : [], tie, tieBroken, eliminated,
+    };
+  });
 
   const lanes = ids.map((id) => {
     const f = flows.get(id), stake = stakeOf(id);
     const ins = f.filter((x) => x.dir === 'in'), outs = f.filter((x) => x.dir === 'out');
-    const inUsd = sum(ins, (x) => x.usd), outUsd = sum(outs, (x) => -x.usd);
-    const bankrollUsd = r2(stake + inUsd - outUsd);
+    const inUsd = sum(ins, (x) => x.usd), outUsd = sum(outs, (x) => -x.usd), fines = finesAt(id, tNow);
+    const bankrollUsd = r2(stake + inUsd - outUsd - fines);
     // the rate: over the recent window, and since the gun
     const wR = Math.max(t0, tNow - recent);
-    const rateRecent = perUnit(bankrollUsd - bankrollAt(id, wR - 1), tNow - wR);
+    const rateRecent = perUnit(bankrollUsd - bankAt(id, wR - 1), tNow - wR);
     const rateAll = perUnit(bankrollUsd - stake, elapsed);
     const steps = stepsOf(id);
     const line = (x) => ({ ts: x.e.ts, day: dayOf(x.e.ts), min: minOf(x.e.ts), usd: Math.abs(x.usd), text: x.dir === 'in' ? (x.e.item || x.e.source) : (x.e.payee || x.e.category), source: x.e.source || null, category: x.e.category || null, evidence: x.e.evidence || null, id: x.e.id });
+    const psig = (pid) => sigs.get(id).filter((s) => s.play === pid);
     // the plays: every way this room tried to make money, and the business model behind each
     const plays = playsOf(id).map((p) => {
       const history = p.history.filter((h) => inWindow(h.ts));
@@ -92,7 +219,7 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
       const inP = sum(pin, (x) => x.usd), outP = sum(pout, (x) => -x.usd), from = Date.parse(history[0].ts), cur = history[history.length - 1];
       const psteps = steps.filter((s) => s.play === p.id);
       return {
-        id: p.id, name: p.name, status: cur.status, plan: p.plan, why: cur.why, model: { ...(p.model || {}) },
+        id: p.id, name: p.name, status: cur.status, plan: p.plan, why: cur.why, model: { ...(p.model || {}) }, method: p.method || null,
         startedAt: history[0].ts, updatedAt: cur.ts, startedDay: dayOf(history[0].ts), startedMin: minOf(history[0].ts),
         activeMin: Math.max(0, Math.round(((cur.status === 'dropped' ? Date.parse(cur.ts) : tNow) - from) / MIN)),
         inUsd: inP, outUsd: outP, netUsd: r2(inP - outP), sales: pin.length,
@@ -101,6 +228,7 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
         backPerDollar: outP > 0 ? r2(inP / outP) : null, firstSaleDay: pin.length ? dayOf(pin[0].e.ts) : null, firstSaleMin: pin.length ? minOf(pin[0].e.ts) : null,
         bySource: groupBy(pin.map((x) => ({ usd: x.usd, src: x.e.source })), (x) => x.src),
         byCategory: groupBy(pout.map((x) => ({ usd: -x.usd, cat: x.e.category })), (x) => x.cat),
+        signals: psig(p.id).reduce((a, s) => a + s.count, 0),
         history: history.map((h) => ({ ts: h.ts, day: dayOf(h.ts), min: minOf(h.ts), status: h.status, why: h.why })),
         steps: psteps.length, stepList: psteps.slice(-60).reverse().map((s) => ({ ts: s.ts, day: dayOf(s.ts), min: minOf(s.ts), type: s.type, text: s.text, url: s.url })),
         money: mine.slice(-50).reverse().map((x) => ({ ...line(x), dir: x.dir })),
@@ -113,25 +241,36 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
     const moves = [...steps, ...playsOf(id).flatMap((p) => p.history.filter((h) => inWindow(h.ts)))];
     const latest = moves.sort(byTs).pop() || null;
     const playName = (pid) => (plays.find((p) => p.id === pid) || {}).name || null;
+    const sg = sigs.get(id);
     // the full breakdown: every step, every play started or changed, every dollar in or out, newest first
     const items = [
       ...steps.map((s) => ({ ts: s.ts, kind: 'step', type: s.type, text: s.text, url: s.url, play: s.play, by: s.by, id: s.id })),
       ...playsOf(id).flatMap((p) => p.history.filter((h) => inWindow(h.ts)).map((h, i) => ({ ts: h.ts, kind: 'play', status: h.status, first: i === 0, text: p.name, why: h.why, play: p.id, by: h.by, id: h.id }))),
       ...f.map((x) => ({ ...line(x), kind: x.dir, play: x.e.play || null })),
+      ...sg.map((s) => ({ ts: s.ts, kind: 'signal', type: s.type, count: s.count, text: `${s.count} ${s.count === 1 ? SIGNAL_TYPES[s.type].toLowerCase() : SIGNAL_PLURAL[s.type]}`, evidence: s.evidence, play: s.play, id: s.id })),
+      ...judged.get(id).map((j) => ({ ts: j.ts, kind: 'judge', points: j.points, text: j.why, play: j.play, id: j.id })),
+      ...breaks.get(id).map((b) => ({ ts: b.ts, kind: 'break', rule: b.rule, text: b.text, id: 'break:' + b.rule + b.t })),
     ].map((x) => ({ ...x, day: dayOf(x.ts), min: minOf(x.ts), playName: x.play ? playName(x.play) : null })).sort((a, b) => -byTs(a, b));
-    const out = outAt.has(id) ? { ts: iso(outAt.get(id)), day: dayOf(iso(outAt.get(id))), min: minOf(iso(outAt.get(id))) } : null;
+    const out = outAt.has(id) && outAt.get(id) <= tNow ? { ts: iso(outAt.get(id)), day: dayOf(iso(outAt.get(id))), min: minOf(iso(outAt.get(id))), why: outWhy.get(id) } : null;
+    const score = metricAt(id, tNow);
     return {
-      id, stakeUsd: stake, bankrollUsd, inUsd, outUsd, netUsd: r2(inUsd - outUsd), profitUsd: r2(bankrollUsd - stake), multiple: r2(bankrollUsd / stake), score: score(id, bankrollUsd), rateRecent, rateAll,
-      sales: ins.length, backPerDollar: outUsd > 0 ? r2(inUsd / outUsd) : null, model: rules.models[id] || null, out,
+      id, stakeUsd: stake, bankrollUsd, inUsd, outUsd, netUsd: r2(inUsd - outUsd), profitUsd: r2(bankrollUsd - stake), multiple: r2(bankrollUsd / stake), score, scoreText: scoreText(score), rateRecent, rateAll,
+      sales: ins.length, customers: new Set(ins.map((x) => String(x.e.source || '').trim().toLowerCase())).size, backPerDollar: outUsd > 0 ? r2(inUsd / outUsd) : null, model: rules.models[id] || null, notes: rules.roomNotes[id] || null, out, fines,
       // where the money came from, and where it went
       bySource: groupBy(ins.map((x) => ({ usd: x.usd, src: x.e.source })), (x) => x.src),
       byCategory: groupBy(outs.map((x) => ({ usd: -x.usd, cat: x.e.category })), (x) => x.cat),
+      // demand shown without a sale, and the rule breaks the ledger saw
+      signals: Object.entries(sg.reduce((a, s) => { a[s.type] = (a[s.type] || 0) + s.count; return a; }, {})).map(([type, n]) => ({ type, n, weight: rules.signalWeights[type] ?? 0 })).sort((a, b) => b.n * b.weight - a.n * a.weight),
+      signalScore: r2(sg.reduce((a, s) => a + s.count * (rules.signalWeights[s.type] ?? 0), 0)),
+      judgePoints: r2(judged.get(id).reduce((a, j) => a + j.points, 0)),
+      breaks: breaks.get(id).filter((b) => b.t <= tNow).map(({ t, ...b }) => b),
+      uncounted: uncounted.get(id).map((x) => ({ ...line(x), dir: x.dir })),
       plays, loose: loose.length ? { inUsd: sum(loose.filter((x) => x.dir === 'in'), (x) => x.usd), outUsd: sum(loose.filter((x) => x.dir === 'out'), (x) => -x.usd), n: loose.length } : null,
       plan: planStep ? { text: planStep.text, ts: planStep.ts, day: dayOf(planStep.ts), min: minOf(planStep.ts) } : null,
       // the room's latest move is saying it is stuck and needs a person: shown until it makes any other move
       blocked: latest && latest.type === 'blocked' ? { text: latest.text, ts: latest.ts, day: dayOf(latest.ts), min: minOf(latest.ts) } : null,
       // the bankroll at each chart step so far (index 0 is the gun): what the room's chart draws
-      series: Array.from({ length: Math.max(1, Math.ceil(elapsed / step)) + 1 }, (_, i) => bankrollAt(id, Math.min(tNow, t0 + i * step))),
+      series: Array.from({ length: Math.max(1, Math.ceil(elapsed / step)) + 1 }, (_, i) => bankAt(id, Math.min(tNow, t0 + i * step))),
       lastAt: items.length ? items[0].ts : null,
       timeline: items.slice(0, timeline), timelineTotal: items.length,
     };
@@ -140,84 +279,134 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
   const rank = (a, b) => (a.out ? 1 : 0) - (b.out ? 1 : 0) || b.score - a.score;
   for (const l of lanes) l.place = 1 + lanes.filter((o) => rank(o, l) < 0).length;
   const order = lanes.slice().sort((a, b) => rank(a, b) || ids.indexOf(a.id) - ids.indexOf(b.id));
-
-  // one prize per horizon, locked the moment it passes
-  let liveSet = false;
-  const standings = hz.map((h) => {
-    const tH = t0 + h * MIN, done = now >= tH, at = Math.min(now, tH);
-    const ranking = ids.map((id) => { const b = bankrollAt(id, at); const o = outAt.has(id) && outAt.get(id) <= at; return { id, bankrollUsd: b, multiple: r2(b / stakeOf(id)), profitUsd: r2(b - stakeOf(id)), score: score(id, b), out: o }; })
-      .sort((a, b) => (a.out ? 1 : 0) - (b.out ? 1 : 0) || b.score - a.score || ids.indexOf(a.id) - ids.indexOf(b.id));
-    const live = ranking.filter((r) => !r.out);
-    let tie = live.length > 1 && live[0].score === live[1].score, top = live[0] || null, tieBroken = false;
-    if (tie && rules.tiebreak === 'earliest') {
-      const tied = live.filter((r) => r.score === live[0].score).map((r) => ({ r, t: reachedAt(r.id, r.score) })).sort((a, b) => a.t - b.t);
-      if (tied.length && tied[0].t < (tied[1] ? tied[1].t : Infinity)) { top = tied[0].r; tie = false; tieBroken = true; }
-    }
-    const stateH = done ? 'done' : liveSet ? 'upcoming' : 'live';
-    if (!done) liveSet = true;
-    return {
-      mins: h, days: h / 1440, label: spanLabel(h), endsAt: iso(tH), state: stateH, minsLeft: done ? 0 : Math.ceil((tH - now) / MIN), daysLeft: done ? 0 : Math.ceil((tH - now) / DAY),
-      ranking, leader: !tie && top ? top.id : null, winner: done && !tie && top ? top.id : null, tie, tieBroken,
-    };
-  });
+  let leaderId = order[0] && !order[0].out ? order[0].id : null;
+  if (order.length > 1 && !order[1].out && order[0].score === order[1].score) { const w = breakTie(order.filter((l) => !l.out && l.score === order[0].score).map((l) => ({ id: l.id, score: l.score })), tNow); leaderId = w ? w.id : null; }
   const sources = new Map();
   for (const l of lanes) for (const src of l.bySource) { const g = sources.get(src.key) || { key: src.key, usd: 0, n: 0, rooms: [] }; g.usd = r2(g.usd + src.usd); g.n += src.n; g.rooms.push(l.id); sources.set(src.key, g); }
   return {
     name: race.name, id: race.id, startedAt: race.startedAt, setAt: race.setAt || race.startedAt, endsAt: iso(tEnd), stakeUsd: race.stakeUsd, evidence: race.evidence, rules,
+    purpose: rules.purpose === 'custom' ? rules.purposeText || RACE_PURPOSES.custom : RACE_PURPOSES[rules.purpose] || '', paper: rules.moneyMode === 'paper',
     horizonsMin: hz, horizons: hz.map((m) => m / 1440), short, rateUnit: short ? 'hour' : 'day', recentLabel: short ? spanLabel(recent / MIN) : '7 days', stepMin: step / MIN,
     elapsedMin: Math.floor(elapsed / MIN), totalMin: last, startsInMin: now < t0 ? Math.ceil((t0 - now) / MIN) : 0,
     amendments: race.amendments || [],
     started: now >= t0, startsInDays: now < t0 ? Math.ceil((t0 - now) / DAY) : 0,
     day: now < t0 ? 0 : Math.min(Math.ceil(last / 1440), Math.floor((now - t0) / DAY) + 1), totalDays: Math.ceil(last / 1440), elapsedDays: r2(elapsed / DAY), over: now >= tEnd,
     stakedUsd: sum(ids, stakeOf), potUsd: sum(lanes, (l) => l.bankrollUsd), inUsd: sum(lanes, (l) => l.inUsd), outUsd: sum(lanes, (l) => l.outUsd),
-    leaderId: order.length > 1 && !order[1].out && order[0].score === order[1].score ? null : (order[0] || {}).id || null,
+    leaderId, breakCount: lanes.reduce((a, l) => a + l.breaks.length, 0),
     // every room's income sources added up: where the race's money is coming from
     bySource: [...sources.values()].sort((a, b) => b.usd - a.usd),
     lanes, standings,
   };
 }
 
-// The brief an agent gets, written from the race's rules. Paste it into the agent's session.
+// The brief an agent gets, written from the race's rules. Paste it into the agent's session. Every rule the setup
+// offers lands here in plain words, so a rule Joshua picked is a rule the agent reads.
 export function raceBrief(board, roomId, { roomName, lead, station = 'the station' } = {}) {
   if (!board) return '';
-  const r = board.rules, lane = board.lanes.find((l) => l.id === roomId);
+  const r = { ...defaultRaceRules(), ...board.rules }, lane = board.lanes.find((l) => l.id === roomId);
   const every = r.everyMinutes ?? (r.everyHours || 24) * 60;
   const stake = lane ? lane.stakeUsd : board.stakeUsd, name = roomName || roomId, usd = (v) => '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: 2 });
-  const allowed = r.methods.map((m) => `  - ${RACE_METHODS[m]}`).join('\n');
+  const paper = r.moneyMode === 'paper';
+  const allowed = [...r.methods.map((m) => RACE_METHODS[m]), ...r.customMethods].map((m) => `  - ${m}`).join('\n');
   const barred = Object.keys(RACE_METHODS).filter((m) => !r.methods.includes(m)).map((m) => `  - ${RACE_METHODS[m]}`).join('\n');
-  const rules = [
-    'Legal, honest, and inside every platform\'s terms. No fake reviews, no pretending to be anyone, no spam, no bought followers, no scraping behind a login.',
-    r.outreach === 'none' ? 'Do not contact any person, by any channel, for any reason.' : 'You never send, post or message a person yourself. Draft it, put it in the dock, and log a "blocked" step saying exactly what is waiting and why. Keep working on something else while you wait.',
-    r.posting === 'none' ? 'Nothing is posted publicly under Joshua\'s name, not even as a draft.' : 'Public posts are drafts too: Joshua publishes them or drops them.',
+  const cats = Object.keys(SPEND_CATEGORIES), noCats = cats.filter((c) => !r.spendCategories.includes(c));
+  const ul = (xs) => xs.filter(Boolean).map((t, i) => `${i + 1}. ${t}`).join('\n');
+  // the house rules: the same in every race, whatever the setup says
+  const house = ul([
+    'Legal, honest, and inside every platform\'s terms.',
+    'No fake reviews, no pretending to be anyone, no spam, no bought followers, no scraping behind a login.',
+    'Money counts only with evidence. A claim without it never scores.',
     'Anything that needs Joshua\'s identity (an ID check, a payment account, a tax form) is logged as a "blocked" step for him.',
-    `Spend only your own stake, and log every dollar out the same day with a receipt.${r.ads ? '' : ' No paid ads of any kind.'}`,
-    r.maxSpendPerDayUsd !== null ? `Spend at most ${usd(r.maxSpendPerDayUsd)} in any one day.` : null,
-    r.approveOverUsd !== null ? `Any single purchase over ${usd(r.approveOverUsd)} needs Joshua first: log it as "blocked" and wait.` : null,
-    r.knockoutUsd !== null ? `If your bankroll falls to ${usd(r.knockoutUsd)} you are out of the race.` : null,
-    `Use only these connectors: ${r.connectors.join(', ') || 'none'}.`,
+  ]);
+  const people = ul([
+    r.outreach === 'none' ? 'Do not contact any person, by any channel, for any reason.'
+      : r.outreach === 'direct' ? `You may message people yourself: honest, signed as an AI agent working for Joshua, with a clear way to opt out, and never the same person twice without a reply. At most ${r.maxMessagesPerDay ?? 'unlimited'} messages a day.`
+      : 'You never send or message a person yourself. Draft it, put it in the dock, and log a "blocked" step saying exactly what is waiting and why. Keep working on something else while you wait.',
+    r.posting === 'none' ? 'Nothing is posted publicly, not even as a draft.' : r.posting === 'direct' ? 'You may post publicly yourself, under the room\'s own name.' : 'Public posts are drafts: Joshua publishes them or drops them.',
+    r.useName === 'never' ? 'Never use Joshua\'s name, anywhere.' : r.useName === 'drafts' ? 'Joshua\'s name appears only in drafts he sends himself.' : 'You may use Joshua\'s name, honestly.',
+    r.personalNetwork ? 'You may reach Joshua\'s own contacts and network, through drafts he approves.' : 'Stay away from Joshua\'s own contacts, friends and family.',
+    r.newAccounts === 'never' ? 'Do not open any new account anywhere.' : r.newAccounts === 'allowed' ? 'You may open new accounts you need, in the room\'s own name.' : 'A new account anywhere is a "blocked" step: ask Joshua first.',
+  ]);
+  const money = paper
+    ? ul([
+      'This is a PAPER race: no real money moves. Do not buy, sell, charge or pay for anything. A real money line breaks the rules.',
+      'Prove the idea instead: what you would sell, to whom, at what price, and real demand for it (sign-ups, replies, waitlists, pre-order intent), each with evidence.',
+    ])
+    : ul([
+      `Spend only your own stake${r.reinvest ? ' and what you make' : '; money you make is not for spending'}, and log every dollar out the same day with a receipt.`,
+      noCats.length ? `Never spend on: ${noCats.map((c) => SPEND_CATEGORIES[c].toLowerCase()).join(', ')}.` : null,
+      r.maxSpendPerDayUsd !== null ? `Spend at most ${usd(r.maxSpendPerDayUsd)} in any one day.` : null,
+      r.maxTotalSpendUsd !== null ? `Spend at most ${usd(r.maxTotalSpendUsd)} in the whole race.` : null,
+      r.approveOverUsd !== null ? `Any single purchase over ${usd(r.approveOverUsd)} needs Joshua first: log it as "blocked" and wait. Log it with --approved once he says yes.` : null,
+      r.reserveUsd !== null ? `Always keep at least ${usd(r.reserveUsd)} in the bankroll.` : null,
+      r.knockoutUsd !== null ? `If your bankroll falls to ${usd(r.knockoutUsd)} you are out of the race.` : null,
+      r.requireModel ? 'Before a play spends anything, log what it sells and to whom (--offer and --customer).' : null,
+    ]);
+  const scoreLine = {
+    bankroll: 'bankroll = your stake + money in - money out', profit: 'profit = money in - money out', multiple: 'multiple = bankroll / stake',
+    revenue: 'money in, before anything you spend', roi: 'dollars in for every dollar spent', sales: 'number of sales', customers: 'number of different customers (by where each paid)',
+    signals: `demand: ${Object.entries(r.signalWeights).filter(([, w]) => w > 0).map(([k, w]) => `${SIGNAL_TYPES[k].toLowerCase()} ${w}`).join(', ')} points each`,
+    consistency: `share of ${spanLabel(board.stepMin)} periods your bankroll went up`, firstDollar: 'how soon your first evidenced sale lands', judge: 'Joshua\'s own points, given on the ledger with a reason',
+  }[r.scoring];
+  const outs = [
+    r.knockoutUsd !== null && !paper ? `a bankroll of ${usd(r.knockoutUsd)} or less` : null,
+    r.idleOutMinutes ? `${spanLabel(r.idleOutMinutes)} without a single move on the ledger` : null,
+    r.eliminateLast ? 'last place at any prize time but the final one' : null,
+    r.ruleBreak === 'out' ? 'breaking any rule the ledger can see' : null,
+  ].filter(Boolean);
+  const how = ul([
+    r.tiebreak !== 'none' ? `A tie goes to ${{ earliest: 'whoever got there first', leastSpent: 'whoever spent less', mostSales: 'whoever made more sales' }[r.tiebreak]}.` : 'A tie means nobody wins that prize.',
+    r.places > 1 ? `Each prize has ${r.places} places.` : null,
+    outs.length ? `You are out for: ${outs.join('; ')}.` : null,
+    r.ruleBreak === 'fine' ? `Each rule break the ledger sees costs you ${usd(r.fineUsd)}.` : r.ruleBreak === 'warn' ? 'A rule break is flagged on the board for everyone to see.' : null,
+    { any: 'Evidence can be any note that proves it.', id: 'Evidence must carry an order, charge or payout number.', link: 'Evidence must be a link to the proof.' }[r.evidence] + ' Lines below that standard are shown but never counted.',
+    paper ? null : 'Anything you bought and still hold counts as zero until you sell it. Claude is free to you.',
+  ]);
+  const work = ul([
+    every === 0 ? 'Work through the whole race in one session: keep going until the last prize time.' : `Check in every ${spanLabel(every).replace(/^1 (day|hour|week)$/, '$1')}.`,
+    r.maxSessionMinutes ? `Keep each session under ${spanLabel(r.maxSessionMinutes)}.` : null,
+    r.quietHours ? `Do no work between ${r.quietHours.from} and ${r.quietHours.to}.` : null,
+    r.weekdaysOnly ? 'Work on weekdays only.' : null,
+    r.dailyReport ? 'Log at least one step every day, even if it is "nothing moved, here is why".' : null,
+    r.visibility === 'blind' ? 'Look only at your own room: do not read other rooms\' plays or steps.' : 'You may read the whole board, every room\'s plays included.',
+    r.copying ? 'You may copy another room\'s idea; say so in the play\'s plan.' : 'Do not copy another room\'s play.',
     r.collab ? 'You may trade with other rooms, at fair prices, logged on both sides.' : 'Do not buy from, pay or split sales with another room.',
-    'No TikTok.',
-  ].filter(Boolean).map((t, i) => `${i + 1}. ${t}`).join('\n');
+  ]);
+  const custom = r.customRules.map((c) => `${RULE_KINDS[c.kind].toUpperCase()}: ${c.text}`);
+  const purpose = r.purpose === 'custom' ? r.purposeText || '' : RACE_PURPOSES[r.purpose] || '';
+  const roomNote = r.roomNotes[roomId];
   return `You are the room lead${lead ? ` (${lead})` : ''} for the ${name.toUpperCase()} room in a sandbox race run by Joshua Grigson${board.name ? `: ${board.name}` : ''}.
+${purpose ? `\nWhat this race is for: ${purpose}.${r.purpose === 'idea' ? ' The winning idea is the one Joshua will run for real, so an idea only you could pull off is worth less than one a person can repeat.' : ''}\n` : ''}
+You start with ${paper ? `a paper stake of ${usd(stake)} (no real money)` : `a stake of ${usd(stake)}`}. Your job is to ${r.scoring === 'signals' ? 'show as much real demand as you can' : r.scoring === 'judge' ? 'do the work Joshua will judge best' : 'turn it into as much as you can'}, any allowed way you choose, using Claude${lane && lane.model ? ` (${RACE_MODELS[lane.model] || lane.model})` : ''} and your connectors. Prizes: ${RACE_SCORING[r.scoring].split(':')[0].toLowerCase()} at ${board.horizonsMin.map(spanLabel).join(', ')} after the start. A strategy that wins the first prize can lose the last, so decide what you are playing for and say so in your plan.
 
-You start with a stake of ${usd(stake)}. Your job is to turn it into as much as you can, any allowed way you choose, using Claude${lane && lane.model ? ` (${RACE_MODELS[lane.model] || lane.model})` : ''} and your connectors. Prizes: ${RACE_SCORING[r.scoring].toLowerCase()} at ${board.horizonsMin.map(spanLabel).join(', ')} after the start${r.tiebreak === 'earliest' ? '; a tie goes to whoever got there first' : ''}. A strategy that wins the first prize can lose the last, so decide what you are playing for and say so in your plan.
-
-How you are scored: bankroll = your stake + money in - money out, logged on ${station}'s ledger since the starting gun. Money in counts only with evidence (an order number, a charge id, a payout line). Anything you bought and still hold counts as zero until you sell it. Claude is free to you; every other dollar you spend comes out of your stake.
+How you are scored: ${scoreLine}, logged on ${station}'s ledger since the starting gun.
+${how}
 
 Ways you may make money:
 ${allowed || '  - none (ask Joshua)'}
-${barred ? `Not allowed in this race:\n${barred}\n` : ''}
-Rules:
-${rules}
-${r.notes ? `\nMore from Joshua:\n${r.notes}\n` : ''}
+${r.methods.length ? `Name the kind on each play with --method: ${[...r.methods, ...r.customMethods].join(', ')}.\n` : ''}${barred ? `Not allowed in this race:\n${barred}\n` : ''}
+Tools and connectors you may use: ${r.connectors.join(', ') || 'none'}.
+${r.banned.length ? `Never use or mention: ${r.banned.join(', ')}.\n` : ''}
+House rules (every race):
+${house}
+
+Money:
+${money}
+
+People and posting:
+${people}
+
+How you work:
+${work}
+${custom.length ? `\nJoshua's own rules:\n${custom.map((c) => `- ${c}`).join('\n')}\n` : ''}${r.notes ? `\nMore from Joshua:\n${r.notes}\n` : ''}${roomNote ? `\nFor your room only:\n${roomNote}\n` : ''}
 Report everything on the ledger, as it happens:
 - your plan, whenever it changes: race step ${roomId} --type plan --text "..."
-- each way you try to make money, with its business model: race play ${roomId} <play-id> --name "..." --status trying --plan "..." --offer "what you sell" --customer "who buys" --channel "how they find it" --pricing "what it costs them" --costs "what it costs you"
+- each way you try, with its business model: race play ${roomId} <play-id> --name "..." --status trying --method <kind> --plan "..." --offer "what you sell" --customer "who buys" --channel "how they find it" --pricing "what it costs them" --costs "what it costs you"
 - each thing you did, learned or are stuck on: race step ${roomId} --type did|learned|blocked --text "..." --play <play-id>
-- every dollar: log-in / log-out --path ${roomId} --evidence "..." --play <play-id>
+${paper ? '' : `- every dollar: log-in / log-out --path ${roomId} --evidence "..." --play <play-id>\n`}- demand without a sale: race signal ${roomId} --type ${Object.keys(SIGNAL_TYPES).join('|')} --count N --evidence "..." --play <play-id>
 - change a play's status with --why when it starts working, stalls or you drop it.
 
-${every === 0 ? 'Work through the whole race in one session: keep going until the last prize time.' : `Check in every ${spanLabel(every).replace(/^1 (day|hour|week)$/, '$1')}.`} Start by reading the board (node src/cli.js race), then log your plan and your first play before you do anything else.`;
+Start by reading the board (node src/cli.js race), then log your plan and your first play before you do anything else.`;
 }
 
 // A play's playbook: everything a person needs to run the same idea for real, in the order the agent did it. Built

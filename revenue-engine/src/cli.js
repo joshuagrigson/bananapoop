@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { Ledger, LedgerError } from './ledger.js';
+import { Ledger, LedgerError, RACE_SCORING } from './ledger.js';
 import { reduce } from './reduce.js';
 import { raceBoard, raceBrief, racePlaybook, spanLabel } from './race.js';
 import { quests, summary } from './quests.js';
@@ -51,19 +51,22 @@ const HELP = `revenue-engine
   rooms mode <agents|service|allowance|race>           what the screens lead with
   race                                                 standings: day, bankrolls, rates, each horizon's winner
   race start --stake 250 --evidence "where the money sits" [--times 30m,1h,2h | --days 7,30,90,180] [--name N] [--rules rules.json]
-                                                       fire the starting gun; rules.json holds any of: methods, connectors,
-                                                       ads, maxSpendPerDayUsd, approveOverUsd, knockoutUsd, outreach, posting,
-                                                       collab, everyMinutes (0 = one session all race), scoring, tiebreak,
-                                                       stakes, models, notes
+                                                       fire the starting gun; rules.json holds any rule (RACE.md lists them all):
+                                                       purpose, moneyMode, scoring, places, methods, connectors, banned,
+                                                       spendCategories, spend caps, outreach, posting, everyMinutes, stakes...
+                                                       [--at 2026-10-01T09:00] starts the clock later
   race amend --rules rules.json --evidence "why"       change the rules of the race under way
   race brief <room>                                    the brief to paste into that room's agent session
   race playbook <room> <play-id>                       everything to run that play for real: model, steps in order, every dollar
   race play <room> <play-id> --name N --status trying|working|paused|dropped [--plan P] [--why W] [--by user]
-            [--offer O] [--customer C] [--channel H] [--pricing P] [--costs X]
+            [--method digital|services|...] [--offer O] [--customer C] [--channel H] [--pricing P] [--costs X]
                                                        a way a room is trying to make money, and its business model
   race step <room> --text T [--type did|plan|learned|blocked] [--play ID] [--url U] [--by user]
                                                        one thing a room's agent did, planned, learned or is stuck on
-  (tie money to a play with log-in/log-out --play ID)
+  race signal <room> --type signup|preorder|reply|lead|meeting|follower|favorite|view --evidence E [--count N] [--play ID]
+                                                       demand shown without a sale, with its evidence
+  race judge <room> --points N --why "..." [--play ID] your own score for a room, when the race is judged by you
+  (tie money to a play with log-in/log-out --play ID; log-out --payee WHO --approved marks a purchase Joshua said yes to)
   rooms reset                                          back to the built-in money paths
   connections                                          income links and when each last synced
   connect <stripe|square|paypal|gumroad> --path P --key K [--secret S] [--label L] [--since 2026-06-01]
@@ -144,7 +147,7 @@ async function main(argv) {
       name: { type: 'string' }, city: { type: 'string' }, category: { type: 'string' }, website: { type: 'string' },
       monthly: { type: 'string' }, notes: { type: 'string' }, services: { type: 'string' }, 'harvest-daily': { type: 'boolean' }, open: { type: 'boolean' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
       key: { type: 'string' }, secret: { type: 'string' }, item: { type: 'string' }, label: { type: 'string' }, since: { type: 'string' }, 'dry-run': { type: 'boolean' }, 'sync-every': { type: 'string' }, barber: { type: 'boolean' }, family: { type: 'boolean' }, skin: { type: 'string' }, mode: { type: 'string' },
-      race: { type: 'boolean' }, stake: { type: 'string' }, times: { type: 'string' }, rules: { type: 'string' }, offer: { type: 'string' }, customer: { type: 'string' }, channel: { type: 'string' }, pricing: { type: 'string' }, costs: { type: 'string' }, play: { type: 'string' }, status: { type: 'string' }, plan: { type: 'string' }, why: { type: 'string' }, text: { type: 'string' }, by: { type: 'string' },
+      race: { type: 'boolean' }, stake: { type: 'string' }, times: { type: 'string' }, rules: { type: 'string' }, offer: { type: 'string' }, customer: { type: 'string' }, channel: { type: 'string' }, pricing: { type: 'string' }, costs: { type: 'string' }, play: { type: 'string' }, status: { type: 'string' }, method: { type: 'string' }, approved: { type: 'boolean' }, payee: { type: 'string' }, count: { type: 'string' }, points: { type: 'string' }, at: { type: 'string' }, plan: { type: 'string' }, why: { type: 'string' }, text: { type: 'string' }, by: { type: 'string' },
     },
   });
   const [cmd, ...rest] = pos;
@@ -166,7 +169,7 @@ async function main(argv) {
       console.log(`appended money.in ${ev.id}: ${usd(ev.usd)} on ${ev.path} from ${ev.source}`); return;
     }
     case 'log-out': {
-      const ev = ledger.append({ kind: 'money.out', usd: Number(rest[0]), category: v.category, path: v.path, evidence: v.evidence, ...(v.play ? { play: v.play } : {}) });
+      const ev = ledger.append({ kind: 'money.out', usd: Number(rest[0]), category: v.category, path: v.path, evidence: v.evidence, ...(v.play ? { play: v.play } : {}), ...(v.payee ? { payee: v.payee } : {}), ...(v.approved ? { approved: true } : {}) });
       console.log(`appended money.out ${ev.id}: ${usd(ev.usd)} ${ev.category} on ${ev.path}`); return;
     }
     case 'outcome': {
@@ -266,7 +269,7 @@ async function main(argv) {
         const rules = v.rules ? JSON.parse(fs.readFileSync(path.resolve(v.rules), 'utf8')) : undefined;
         const times = v.times ? v.times.split(',').map((t) => durationMin(t)) : null;
         if (times && times.some((m) => !m)) throw new LedgerError('--times takes durations like 30m, 1h, 2h, 3d, 2w');
-        const ev = ledger.append({ kind: 'race', stakeUsd: Number(v.stake || 250), evidence: v.evidence, ...(times ? { horizonsMin: times } : v.days ? { horizons: v.days.split(',').map((d) => Number(d.trim())) } : {}), ...(v.name ? { name: v.name } : {}), ...(rules ? { rules } : {}) });
+        const ev = ledger.append({ kind: 'race', stakeUsd: Number(v.stake || 250), evidence: v.evidence, ...(times ? { horizonsMin: times } : v.days ? { horizons: v.days.split(',').map((d) => Number(d.trim())) } : {}), ...(v.name ? { name: v.name } : {}), ...(rules ? { rules } : {}), ...(v.at ? { startsAt: new Date(v.at).toISOString() } : {}) });
         const mins = ev.horizonsMin || ev.horizons.map((d) => d * 1440);
         console.log(`starting gun ${ev.id}: ${CAT.length} rooms at ${usd(ev.stakeUsd)} each, prizes at ${mins.map(spanLabel).join(', ')}. Only money logged from now on counts.`); return;
       }
@@ -289,25 +292,34 @@ async function main(argv) {
       }
       if (sub === 'play') {
         const model = Object.fromEntries(['offer', 'customer', 'channel', 'pricing', 'costs'].filter((k) => v[k]).map((k) => [k, v[k]]));
-        const ev = ledger.append({ kind: 'play', path: room(rest[1]), play: rest[2], name: v.name, status: v.status || 'trying', by, ...(v.plan ? { plan: v.plan } : {}), ...(v.why ? { why: v.why } : {}), ...model });
+        const ev = ledger.append({ kind: 'play', path: room(rest[1]), play: rest[2], name: v.name, status: v.status || 'trying', by, ...(v.plan ? { plan: v.plan } : {}), ...(v.why ? { why: v.why } : {}), ...(v.method ? { method: v.method } : {}), ...model });
         console.log(`play ${ev.play} in ${ev.path}: ${ev.status}`); return;
       }
       if (sub === 'step') {
         const ev = ledger.append({ kind: 'step', path: room(rest[1]), text: v.text, by, ...(v.type ? { type: v.type } : {}), ...(v.play ? { play: v.play } : {}), ...(v.url ? { url: v.url } : {}) });
         console.log(`step ${ev.id} in ${ev.path} (${ev.type})`); return;
       }
-      if (sub !== 'status') throw new LedgerError('race needs start, amend, brief, playbook, play, step or nothing (standings)');
+      if (sub === 'signal') {
+        const ev = ledger.append({ kind: 'signal', path: room(rest[1]), type: v.type, count: v.count ? Number(v.count) : 1, evidence: v.evidence, by, ...(v.play ? { play: v.play } : {}) });
+        console.log(`signal ${ev.id} in ${ev.path}: ${ev.count} ${ev.type}`); return;
+      }
+      if (sub === 'judge') {
+        const ev = ledger.append({ kind: 'judge', path: room(rest[1]), points: Number(v.points), why: v.why, ...(v.play ? { play: v.play } : {}) });
+        console.log(`judged ${ev.path}: ${ev.points > 0 ? '+' : ''}${ev.points} points`); return;
+      }
+      if (sub !== 'status') throw new LedgerError('race needs start, amend, brief, playbook, play, step, signal, judge or nothing (standings)');
       const b = raceBoard(reduce(ledger.readAll(), CAT), CAT);
       if (!b) { console.log('no race yet. Start one: node src/cli.js race start --stake 250 --evidence "8 virtual cards, $250 each"'); return; }
+      if (b.purpose) console.log(`for: ${b.purpose} · scored on ${RACE_SCORING[b.rules.scoring].split(':')[0].toLowerCase()}${b.paper ? ' · PAPER race, no real money' : ''}`);
       console.log(`${b.name || 'Sandbox race'} · ${b.short ? `${spanLabel(Math.max(1, b.elapsedMin))} of ${spanLabel(b.totalMin)}` : `day ${b.day} of ${b.totalDays}`} · ${usd(b.stakeUsd)} a room · ${usd(b.potUsd)} across ${b.lanes.length} rooms (staked ${usd(b.stakedUsd)})`);
       for (const l of b.lanes.slice().sort((x, y) => x.place - y.place)) {
         const nm = (CAT.find((p) => p.id === l.id) || {}).name || l.id;
-        console.log(`  ${String(l.place).padStart(2)}. ${nm.padEnd(14)} ${usd(l.bankrollUsd).padStart(10)}  ×${l.multiple.toFixed(2)}  ${usd(l.rateRecent)}/${b.rateUnit} (last ${b.recentLabel})  ${l.plays.length} plays${l.blocked ? '  BLOCKED: ' + l.blocked.text : ''}`);
+        console.log(`  ${String(l.place).padStart(2)}. ${nm.padEnd(14)} ${l.scoreText.padStart(12)}  ${usd(l.bankrollUsd).padStart(10)}  ×${l.multiple.toFixed(2)}  ${usd(l.rateRecent)}/${b.rateUnit} (last ${b.recentLabel})  ${l.plays.length} plays${l.breaks.length ? `  ${l.breaks.length} rule break${l.breaks.length === 1 ? '' : 's'}` : ''}${l.out ? '  OUT: ' + l.out.why : ''}${l.blocked ? '  BLOCKED: ' + l.blocked.text : ''}`);
         for (const p of l.plays) console.log(`        ${p.status.padEnd(8)} ${p.name}: ${usd(p.netUsd)} net, ${usd(p.rate)}/${b.rateUnit}`);
       }
       for (const s of b.standings) {
         const who = (id) => (CAT.find((p) => p.id === id) || {}).name || id;
-        console.log(`  ${s.label}: ${s.state === 'done' ? (s.winner ? `WON by ${who(s.winner)} (${usd(s.ranking[0].bankrollUsd)})` : 'tied, no winner') : s.state === 'live' ? `${s.minsLeft < 1440 ? spanLabel(s.minsLeft) : Math.ceil(s.minsLeft / 1440) + ' days'} left, ${s.leader ? who(s.leader) + ' leads' : 'tied'}` : `in ${s.minsLeft < 1440 ? spanLabel(s.minsLeft) : Math.ceil(s.minsLeft / 1440) + ' days'}`}`);
+        console.log(`  ${s.label}: ${s.state === 'done' ? (s.winner ? `WON by ${who(s.winner)} (${(s.ranking.find((x) => x.id === s.winner) || {}).scoreText})${s.podium.length > 1 ? `, then ${s.podium.slice(1).map(who).join(', ')}` : ''}${s.eliminated ? `; ${who(s.eliminated)} out` : ''}` : 'tied, no winner') : s.state === 'live' ? `${s.minsLeft < 1440 ? spanLabel(s.minsLeft) : Math.ceil(s.minsLeft / 1440) + ' days'} left, ${s.leader ? who(s.leader) + ' leads' : 'tied'}` : `in ${s.minsLeft < 1440 ? spanLabel(s.minsLeft) : Math.ceil(s.minsLeft / 1440) + ' days'}`}`);
       }
       return;
     }

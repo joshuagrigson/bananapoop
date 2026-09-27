@@ -204,7 +204,7 @@ test('the brief is written from the rules', () => {
   assert.match(text, /Claude Opus 5\.5/);
   assert.match(text, /Freelance services and gigs/);
   assert.match(text, /Not allowed in this race:[\s\S]*Betting/);
-  assert.match(text, /No paid ads/);
+  assert.match(text, /Never spend on: ads/);
   assert.match(text, /over \$25 needs Joshua/);
   assert.match(text, /Shopify, Canva\./);
   assert.match(text, /Be kind\./);
@@ -278,4 +278,82 @@ test('a play\'s playbook: the model, every step and dollar in order, where it ne
   assert.equal(r.code, 200);
   assert.match(r.body.markdown, /Planner shop/);
   assert.equal((await handle('GET', '/api/race/playbook/red/none', () => ({}))).code, 404);
+});
+
+test('every rule the setup offers is validated, and left-out rules take their defaults', () => {
+  const r = validate(gun({ rules: { purpose: 'demand', moneyMode: 'paper', scoring: 'signals', places: 3, customRules: [{ kind: 'must', text: 'fruit names' }], quietHours: { from: '22:00', to: '07:00' }, signalWeights: { signup: 3 } } })).rules;
+  assert.equal(r.purpose, 'demand'); assert.equal(r.places, 3); assert.equal(r.signalWeights.signup, 3); assert.equal(r.signalWeights.preorder, 10);
+  assert.deepEqual(r.banned, ['TikTok']); assert.equal(r.ruleBreak, 'warn');
+  assert.throws(() => validate(gun({ rules: { scoring: 'vibes' } })), /scoring must be one of/);
+  assert.throws(() => validate(gun({ rules: { places: 4 } })), /places/);
+  assert.throws(() => validate(gun({ rules: { quietHours: { from: '25:00', to: '07:00' } } })), /quietHours/);
+  assert.throws(() => validate(gun({ rules: { customRules: [{ kind: 'should', text: 'x' }] } })), /customRules/);
+  assert.equal(validate(gun({ rules: { ads: false } })).rules.spendCategories.includes('ads'), false);
+  assert.throws(() => validate({ kind: 'signal', path: 'red', type: 'signup', by: 'agent', evidence: '' }), /evidence/);
+  assert.throws(() => validate({ kind: 'signal', path: 'red', type: 'like', by: 'agent', evidence: 'list' }), /signal type/);
+  assert.throws(() => validate({ kind: 'judge', path: 'red', points: 5000, why: 'x' }), /points/);
+});
+
+test('scoring can be demand, judge points, sales, profit or return per dollar; each prize has places', () => {
+  const sig = (room, d, type, count) => ({ kind: 'signal', id: `s${room}${d}${type}`, ts: at(d), path: room, type, count, evidence: 'waitlist', by: 'agent' });
+  const judge = (room, d, points) => ({ kind: 'judge', id: `j${room}${d}`, ts: at(d), path: room, points, why: 'good' });
+  const base = [sig('red', 1, 'signup', 30), sig('blue', 1, 'preorder', 2), sig('gold', 2, 'view', 100), judge('gold', 3, 7), judge('red', 3, 2)];
+  let b = raceBoard(reduce([gun({ rules: { scoring: 'signals', places: 3 } }), ...base]), CAT, T0 + 8 * DAY);
+  assert.equal(b.lanes.find((l) => l.id === 'red').score, 30);
+  assert.equal(b.lanes.find((l) => l.id === 'blue').score, 20);
+  assert.equal(b.standings[0].winner, 'red');
+  assert.deepEqual(b.standings[0].podium, ['red', 'blue', 'gold']);
+  assert.equal(b.lanes.find((l) => l.id === 'red').scoreText, '30 demand');
+  b = raceBoard(reduce([gun({ rules: { scoring: 'judge' } }), ...base]), CAT, T0 + 8 * DAY);
+  assert.equal(b.standings[0].winner, 'gold');
+  const money = [sale('red', 1, 100), sale('red', 2, 10), spend('red', 1, 100), sale('blue', 1, 60), spend('blue', 1, 10)];
+  b = raceBoard(reduce([gun({ rules: { scoring: 'sales' } }), ...money]), CAT, T0 + 8 * DAY);
+  assert.equal(b.standings[0].winner, 'red');
+  b = raceBoard(reduce([gun({ rules: { scoring: 'profit' } }), ...money]), CAT, T0 + 8 * DAY);
+  assert.equal(b.standings[0].winner, 'blue'); assert.equal(b.lanes.find((l) => l.id === 'blue').scoreText, '+$50');
+  b = raceBoard(reduce([gun({ rules: { scoring: 'roi' } }), ...money]), CAT, T0 + 8 * DAY);
+  assert.equal(b.standings[0].winner, 'blue');
+  b = raceBoard(reduce([gun({ rules: { scoring: 'firstDollar', tiebreak: 'earliest' } }), sale('red', 2, 1), sale('blue', 1, 1)]), CAT, T0 + 8 * DAY);
+  assert.equal(b.standings[0].winner, 'blue');
+});
+
+test('the ledger flags the rule breaks it can see, and fines or knocks out as the race says', () => {
+  const rules = { maxSpendPerDayUsd: 20, approveOverUsd: 15, spendCategories: ['tool', 'api'], banned: ['TikTok'], ruleBreak: 'fine', fineUsd: 10 };
+  const ev = [gun({ rules }), spend('red', 1, 18, { category: 'tool' }), spend('red', 1.1, 5, { category: 'tool' }), spend('blue', 1, 5), spend('gold', 1, 16, { category: 'tool', approved: true }),
+    { kind: 'step', id: 'st1', ts: at(2), path: 'teal', text: 'posted the video on TikTok', by: 'agent' }];
+  const b = raceBoard(reduce(ev), CAT, T0 + 8 * DAY), br = (id) => b.lanes.find((l) => l.id === id).breaks.map((x) => x.rule);
+  assert.deepEqual(br('red').sort(), ['approval', 'dailyCap']);
+  assert.deepEqual(br('blue'), ['category']);
+  assert.deepEqual(br('gold'), []);
+  assert.deepEqual(br('teal'), ['banned']);
+  assert.equal(b.lanes.find((l) => l.id === 'red').bankrollUsd, 250 - 23 - 20);
+  assert.equal(b.breakCount, 4);
+  const out = raceBoard(reduce([gun({ rules: { ...rules, ruleBreak: 'out' } }), ...ev.slice(1)]), CAT, T0 + 8 * DAY);
+  assert.match(out.lanes.find((l) => l.id === 'teal').out.why, /broke a rule/);
+  assert.equal(out.lanes.find((l) => l.id === 'teal').place, 8 - 3 + 1);
+  const paper = raceBoard(reduce([gun({ rules: { moneyMode: 'paper', scoring: 'signals' } }), sale('red', 1, 5)]), CAT, T0 + 8 * DAY);
+  assert.equal(paper.paper, true); assert.deepEqual(paper.lanes.find((l) => l.id === 'red').breaks.map((x) => x.rule), ['paper']);
+});
+
+test('last place goes out at each prize but the final one; a quiet room goes out; weak evidence is shown, not counted', () => {
+  const ev = [gun({ horizons: [7, 30], rules: { eliminateLast: true } }), ...CAT.filter((p) => p.id !== 'pink').map((p, i) => sale(p.id, 1, 10 + i))];
+  let b = raceBoard(reduce(ev), CAT, T0 + 8 * DAY);
+  assert.equal(b.standings[0].eliminated, 'pink');
+  assert.match(b.lanes.find((l) => l.id === 'pink').out.why, /last place at 1 week/);
+  assert.equal(b.standings[1].ranking.at(-1).id, 'pink');
+  const idle = [gun({ rules: { idleOutMinutes: 3 * 1440 } }), { kind: 'step', id: 'x', ts: at(1), path: 'red', text: 'working', by: 'agent' }];
+  b = raceBoard(reduce(idle), CAT, T0 + 8 * DAY);
+  assert.match(b.lanes.find((l) => l.id === 'red').out.why, /no move for 3 days/);
+  assert.equal(b.lanes.find((l) => l.id === 'red').out.day, 5);
+  b = raceBoard(reduce([gun({ rules: { evidence: 'link' } }), sale('red', 1, 50), sale('blue', 1, 50, { evidence: 'https://stripe.com/x' })]), CAT, T0 + 8 * DAY);
+  assert.equal(b.lanes.find((l) => l.id === 'red').bankrollUsd, 250);
+  assert.equal(b.lanes.find((l) => l.id === 'red').uncounted.length, 1);
+  assert.equal(b.lanes.find((l) => l.id === 'blue').bankrollUsd, 300);
+});
+
+test('the brief carries every rule: purpose, paper money, contact, custom rules and the room\'s own note', () => {
+  const b = raceBoard(reduce([gun({ rules: { purpose: 'idea', moneyMode: 'paper', scoring: 'signals', outreach: 'direct', maxMessagesPerDay: 9, customRules: [{ kind: 'mustnot', text: 'sell to kids' }], roomNotes: { red: 'B2B only' }, banned: ['TikTok', 'Etsy'], visibility: 'blind' } })]), CAT, T0 + DAY);
+  const t = raceBrief(b, 'red', { roomName: 'Red' });
+  for (const want of [/Find an idea I can run for real/, /PAPER race/, /At most 9 messages a day/, /MUST NOT: sell to kids/, /For your room only:\nB2B only/, /Never use or mention: TikTok, Etsy/, /only at your own room/, /race signal red/]) assert.match(t, want);
+  assert.doesNotMatch(raceBrief(b, 'blue', { roomName: 'Blue' }), /B2B only/);
 });

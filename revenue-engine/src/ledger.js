@@ -7,7 +7,7 @@ import crypto from 'node:crypto';
 
 export const KINDS = Object.freeze([
   'money.in', 'money.out', 'outcome', 'post', 'job', 'agent.run.start', 'agent.run.end', 'path.status', 'gate', 'note',
-  'race', 'play', 'step',
+  'race', 'play', 'step', 'signal', 'judge',
 ]);
 export const STAGES = Object.freeze(['prospect', 'conversation', 'demo', 'pilot', 'paid', 'retained']);
 export const OUT_CATEGORIES = Object.freeze(['api', 'tool', 'ads', 'capital', 'other']);
@@ -37,16 +37,59 @@ export const RACE_CONNECTORS = Object.freeze(['Shopify', 'Wix', 'Canva', 'Figma'
 // Joshua's day-job accounts: off unless a race turns them on
 export const RACE_WORK_CONNECTORS = Object.freeze(['HubSpot', 'Microsoft 365', 'Slack']);
 export const RACE_MODELS = Object.freeze({ 'claude-opus-5-5': 'Claude Opus 5.5', 'claude-sonnet-5': 'Claude Sonnet 5', 'claude-haiku-4-5': 'Claude Haiku 4.5', 'claude-fable-5-1': 'Claude Fable 5.1' });
-export const RACE_SCORING = Object.freeze({ bankroll: 'Biggest bankroll', profit: 'Most profit (bankroll minus stake)', multiple: 'Biggest multiple (bankroll divided by stake)' });
-export const RACE_CONTACT = Object.freeze({ drafts: 'Agents draft; Joshua sends or publishes', none: 'No contact with people and no public posts at all' });
+// what the race is for: the board and every brief lead with it
+export const RACE_PURPOSES = Object.freeze({
+  idea: 'Find an idea I can run for real',
+  money: 'Make the most money',
+  demand: 'Prove demand without spending',
+  models: 'See which model does best',
+  consistency: 'Find the most consistent agent',
+  learn: 'Learn what works, fast',
+  custom: 'Something else (in my own words)',
+});
+// what wins a prize
+export const RACE_SCORING = Object.freeze({
+  bankroll: 'Biggest bankroll',
+  profit: 'Most profit (bankroll minus stake)',
+  multiple: 'Biggest multiple (bankroll divided by stake)',
+  revenue: 'Most money in, before spending',
+  roi: 'Most back for every dollar spent',
+  sales: 'Most sales',
+  customers: 'Most different customers',
+  signals: 'Most demand shown: sign-ups, pre-orders, replies...',
+  consistency: 'Steadiest growth: most periods up',
+  firstDollar: 'Fastest to a first sale',
+  judge: 'Your own scores',
+});
+export const RACE_TIEBREAKS = Object.freeze({ none: 'Nobody wins that prize', earliest: 'Whoever got there first', leastSpent: 'Whoever spent less', mostSales: 'Whoever made more sales' });
+export const RACE_CONTACT = Object.freeze({ drafts: 'Agents draft; Joshua sends', none: 'No contact with people at all', direct: 'Agents send messages themselves (honest, signed, with an opt-out)' });
+export const RACE_POSTING = Object.freeze({ drafts: 'Agents draft; Joshua publishes', none: 'No public posts at all', direct: 'Agents post publicly themselves' });
+export const RACE_NAME_USE = Object.freeze({ never: 'Never', drafts: 'Only in drafts Joshua sends', allowed: 'Allowed' });
+export const RACE_ACCOUNTS = Object.freeze({ ask: 'Ask Joshua first', allowed: 'Allowed', never: 'Never' });
+export const RACE_PENALTY = Object.freeze({ warn: 'Flag it on the board', fine: 'Fine the room', out: 'Knock the room out' });
+export const RACE_MONEY_MODES = Object.freeze({ real: 'Real money', paper: 'Paper money: nothing real is bought or sold' });
+export const RACE_EVIDENCE = Object.freeze({ any: 'Any note', id: 'An order or charge number', link: 'A link to the proof' });
+export const RACE_VISIBILITY = Object.freeze({ open: 'Agents can see every room', blind: 'Agents see only their own room' });
+export const SPEND_CATEGORIES = Object.freeze({ api: 'API and AI use', tool: 'Tools and software', ads: 'Ads', capital: 'Stock and inventory', other: 'Fees and other' });
+// demand the agents can prove without a sale; each has a weight in the demand score
+export const SIGNAL_TYPES = Object.freeze({ signup: 'Sign-up', preorder: 'Pre-order', reply: 'Reply', lead: 'Qualified lead', meeting: 'Meeting booked', follower: 'Follower', favorite: 'Save or favorite', view: 'View' });
+export const SIGNAL_PLURAL = Object.freeze({ signup: 'sign-ups', preorder: 'pre-orders', reply: 'replies', lead: 'qualified leads', meeting: 'meetings booked', follower: 'followers', favorite: 'saves or favorites', view: 'views' });
+export const DEFAULT_SIGNAL_WEIGHTS = Object.freeze({ signup: 1, preorder: 10, reply: 2, lead: 5, meeting: 8, follower: 0.2, favorite: 0.5, view: 0.01 });
+export const RULE_KINDS = Object.freeze({ must: 'Must', mustnot: 'Must not', may: 'May' });
 export function defaultRaceRules() {
   return {
-    methods: Object.keys(RACE_METHODS).filter((k) => k !== 'trading' && k !== 'betting'),
-    connectors: RACE_CONNECTORS.filter((c) => !RACE_WORK_CONNECTORS.includes(c)),
-    ads: true, maxSpendPerDayUsd: null, approveOverUsd: null, knockoutUsd: null,
+    purpose: 'idea', purposeText: '', moneyMode: 'real',
+    methods: Object.keys(RACE_METHODS).filter((k) => k !== 'trading' && k !== 'betting'), customMethods: [],
+    connectors: RACE_CONNECTORS.filter((c) => !RACE_WORK_CONNECTORS.includes(c)), banned: ['TikTok'],
+    spendCategories: Object.keys(SPEND_CATEGORIES), ads: true,
+    maxSpendPerDayUsd: null, maxTotalSpendUsd: null, approveOverUsd: null, reserveUsd: null, reinvest: true, knockoutUsd: null,
+    outreach: 'drafts', posting: 'drafts', maxMessagesPerDay: 20, useName: 'drafts', personalNetwork: false, newAccounts: 'ask',
+    collab: false, visibility: 'open', copying: true,
     // how often each agent checks in, in minutes; 0 means one session that works through the whole race
-    outreach: 'drafts', posting: 'drafts', collab: false, everyMinutes: 1440,
-    scoring: 'bankroll', tiebreak: 'none', stakes: {}, models: {}, notes: '',
+    everyMinutes: 1440, maxSessionMinutes: null, quietHours: null, weekdaysOnly: false,
+    scoring: 'bankroll', tiebreak: 'none', places: 1, eliminateLast: false, idleOutMinutes: null, signalWeights: { ...DEFAULT_SIGNAL_WEIGHTS },
+    ruleBreak: 'warn', fineUsd: 0, evidence: 'any', requireModel: false, dailyReport: false,
+    stakes: {}, models: {}, roomNotes: {}, customRules: [], notes: '',
   };
 }
 
@@ -63,32 +106,48 @@ function raceRules(input) {
   if (input === undefined || input === null) return d;
   if (typeof input !== 'object' || Array.isArray(input)) fail('race rules must be an object');
   const r = { ...d };
+  const pick = (k, set) => { if (input[k] !== undefined) { if (!set[input[k]]) fail(`race rules: ${k} must be one of ${Object.keys(set).join(', ')}`); r[k] = input[k]; } };
+  const bool = (k) => { if (input[k] !== undefined) { if (typeof input[k] !== 'boolean') fail(`race rules: ${k} must be true or false`); r[k] = input[k]; } };
+  const text = (k, max) => { if (input[k] !== undefined) { if (typeof input[k] !== 'string' || input[k].length > max) fail(`race rules: ${k} must be text, up to ${max} characters`); r[k] = input[k].trim(); } };
+  const mins = (k, lo, hi) => { if (input[k] !== undefined) { if (input[k] === null || input[k] === '') { r[k] = null; return; } if (!Number.isInteger(input[k]) || input[k] < lo || input[k] > hi) fail(`race rules: ${k} must be a whole number from ${lo} to ${hi}, or left out`); r[k] = input[k]; } };
+  const words = (k, maxN, maxLen) => { if (input[k] !== undefined) { if (!Array.isArray(input[k]) || input[k].length > maxN || !input[k].every((c) => isText(c) && c.trim().length <= maxLen)) fail(`race rules: ${k} must be a list of up to ${maxN} short names`); r[k] = [...new Set(input[k].map((c) => c.trim()))]; } };
+  const roomMap = (k, ok, what) => { if (input[k] !== undefined) { if (!input[k] || typeof input[k] !== 'object' || Array.isArray(input[k]) || !Object.entries(input[k]).every(([id, v]) => isRoomId(id) && ok(v))) fail(`race rules: ${k} must map room ids to ${what}`); r[k] = { ...input[k] }; } };
+  pick('purpose', RACE_PURPOSES); text('purposeText', 600); pick('moneyMode', RACE_MONEY_MODES);
   if (input.methods !== undefined) {
     if (!Array.isArray(input.methods) || !input.methods.every((m) => RACE_METHODS[m])) fail(`race rules: methods must be from ${Object.keys(RACE_METHODS).join(', ')}`);
     r.methods = [...new Set(input.methods)];
   }
-  if (input.connectors !== undefined) {
-    if (!Array.isArray(input.connectors) || input.connectors.length > 60 || !input.connectors.every((c) => isText(c) && c.length <= 40)) fail('race rules: connectors must be a list of connector names');
-    r.connectors = [...new Set(input.connectors.map((c) => c.trim()))];
-  }
-  for (const k of ['ads', 'collab']) if (input[k] !== undefined) { if (typeof input[k] !== 'boolean') fail(`race rules: ${k} must be true or false`); r[k] = input[k]; }
-  r.maxSpendPerDayUsd = input.maxSpendPerDayUsd === undefined ? d.maxSpendPerDayUsd : optUsd(input.maxSpendPerDayUsd, 'maxSpendPerDayUsd');
-  r.approveOverUsd = input.approveOverUsd === undefined ? d.approveOverUsd : optUsd(input.approveOverUsd, 'approveOverUsd');
-  r.knockoutUsd = input.knockoutUsd === undefined ? d.knockoutUsd : optUsd(input.knockoutUsd, 'knockoutUsd');
-  for (const [k, set] of [['outreach', RACE_CONTACT], ['posting', RACE_CONTACT], ['scoring', RACE_SCORING], ['tiebreak', { none: 1, earliest: 1 }]]) {
-    if (input[k] !== undefined) { if (!set[input[k]]) fail(`race rules: ${k} must be one of ${Object.keys(set).join(', ')}`); r[k] = input[k]; }
-  }
+  words('customMethods', 30, 80); words('connectors', 60, 40); words('banned', 60, 60);
+  if (input.spendCategories !== undefined) {
+    if (!Array.isArray(input.spendCategories) || !input.spendCategories.every((c) => SPEND_CATEGORIES[c])) fail(`race rules: spendCategories must be from ${Object.keys(SPEND_CATEGORIES).join(', ')}`);
+    r.spendCategories = [...new Set(input.spendCategories)];
+  } else if (input.ads === false) r.spendCategories = r.spendCategories.filter((c) => c !== 'ads');
+  r.ads = r.spendCategories.includes('ads');
+  for (const k of ['maxSpendPerDayUsd', 'maxTotalSpendUsd', 'approveOverUsd', 'reserveUsd', 'knockoutUsd']) if (input[k] !== undefined) r[k] = optUsd(input[k], k);
+  if (input.fineUsd !== undefined) r.fineUsd = optUsd(input.fineUsd, 'fineUsd') || 0;
+  for (const k of ['reinvest', 'personalNetwork', 'collab', 'copying', 'weekdaysOnly', 'eliminateLast', 'requireModel', 'dailyReport']) bool(k);
+  pick('outreach', RACE_CONTACT); pick('posting', RACE_POSTING); pick('useName', RACE_NAME_USE); pick('newAccounts', RACE_ACCOUNTS);
+  pick('visibility', RACE_VISIBILITY); pick('scoring', RACE_SCORING); pick('tiebreak', RACE_TIEBREAKS); pick('ruleBreak', RACE_PENALTY); pick('evidence', RACE_EVIDENCE);
+  mins('maxMessagesPerDay', 0, 10000); mins('maxSessionMinutes', 1, 10080); mins('idleOutMinutes', 5, 525600); mins('places', 1, 3);
   if (input.everyMinutes !== undefined) { if (!Number.isInteger(input.everyMinutes) || input.everyMinutes < 0 || input.everyMinutes > 10080) fail('race rules: everyMinutes must be a whole number of minutes, 0 (all the time) to 10080 (a week)'); r.everyMinutes = input.everyMinutes; }
   else if (input.everyHours !== undefined) { if (!Number.isInteger(input.everyHours) || input.everyHours < 1 || input.everyHours > 168) fail('race rules: everyHours must be a whole number of hours, 1 to 168'); r.everyMinutes = input.everyHours * 60; }
-  if (input.stakes !== undefined) {
-    if (!input.stakes || typeof input.stakes !== 'object' || !Object.entries(input.stakes).every(([k, v]) => isRoomId(k) && isUsd(v) && v > 0 && v <= 1e6)) fail('race rules: stakes must map room ids to dollar amounts above zero');
-    r.stakes = { ...input.stakes };
+  if (input.quietHours !== undefined) {
+    const q = input.quietHours, hm = (v) => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v);
+    if (q !== null && !(q && typeof q === 'object' && hm(q.from) && hm(q.to))) fail('race rules: quietHours must be { from: "22:00", to: "07:00" }, or left out');
+    r.quietHours = q ? { from: q.from, to: q.to } : null;
   }
-  if (input.models !== undefined) {
-    if (!input.models || typeof input.models !== 'object' || !Object.entries(input.models).every(([k, v]) => isRoomId(k) && typeof v === 'string' && /^claude-[a-z0-9.-]{2,40}$/.test(v))) fail('race rules: models must map room ids to Claude model ids');
-    r.models = { ...input.models };
+  if (input.signalWeights !== undefined) {
+    if (!input.signalWeights || typeof input.signalWeights !== 'object' || !Object.entries(input.signalWeights).every(([k, v]) => SIGNAL_TYPES[k] && isUsd(v) && v >= 0 && v <= 1e6)) fail(`race rules: signalWeights must give ${Object.keys(SIGNAL_TYPES).join(', ')} a weight of 0 or more`);
+    r.signalWeights = { ...DEFAULT_SIGNAL_WEIGHTS, ...input.signalWeights };
   }
-  if (input.notes !== undefined) { if (typeof input.notes !== 'string' || input.notes.length > 2000) fail('race rules: notes must be text, up to 2000 characters'); r.notes = input.notes.trim(); }
+  roomMap('stakes', (v) => isUsd(v) && v > 0 && v <= 1e6, 'dollar amounts above zero');
+  roomMap('models', (v) => typeof v === 'string' && /^claude-[a-z0-9.-]{2,40}$/.test(v), 'Claude model ids');
+  roomMap('roomNotes', (v) => typeof v === 'string' && v.length <= 1000, 'instructions of up to 1000 characters');
+  if (input.customRules !== undefined) {
+    if (!Array.isArray(input.customRules) || input.customRules.length > 60 || !input.customRules.every((c) => c && RULE_KINDS[c.kind] && isText(c.text) && c.text.length <= 300)) fail('race rules: customRules must be up to 60 rules, each { kind: must | mustnot | may, text }');
+    r.customRules = input.customRules.map((c) => ({ kind: c.kind, text: c.text.trim() }));
+  }
+  text('notes', 4000);
   return r;
 }
 
@@ -147,6 +206,7 @@ export function validate(input) {
       if (!isText(ev.evidence) && !isText(ev.runId)) fail('money.out needs evidence or a runId');
       if (ev.payee !== undefined && !(isText(ev.payee) && ev.payee.length <= 40)) fail('money.out payee must be the name of who was paid');
       if (ev.play !== undefined && !isPlayId(ev.play)) fail('money.out play must be a play id (lowercase letters, digits and dashes)');
+      if (ev.approved !== undefined && typeof ev.approved !== 'boolean') fail('money.out approved must be true or false: Joshua said yes to this purchase');
       break;
     case 'outcome':
       if (!isText(ev.path)) fail('outcome needs a path id');
@@ -215,7 +275,26 @@ export function validate(input) {
       if (ev.why !== undefined && !(isText(ev.why) && ev.why.length <= 500)) fail('play why must be 1-500 characters');
       // the business model: what it sells, to whom, how they find it, what it charges, what it costs to run
       for (const k of ['offer', 'customer', 'channel', 'pricing', 'costs']) if (ev[k] !== undefined && !(isText(ev[k]) && ev[k].length <= 400)) fail(`play ${k} must be 1-400 characters`);
+      // which kind of money-making it is (a race rule can allow or bar each kind)
+      if (ev.method !== undefined && !(isText(ev.method) && ev.method.length <= 80)) fail('play method must be a kind of money-making, e.g. digital or services');
       if (!isBy(ev.by)) fail('play.by must be "user" or "agent"');
+      break;
+    case 'signal':
+      // demand shown without a sale: sign-ups, pre-orders, replies... evidence required, like money
+      if (!isRoomId(ev.path)) fail('signal needs the room id (path) it belongs to');
+      if (!SIGNAL_TYPES[ev.type]) fail(`signal type must be one of ${Object.keys(SIGNAL_TYPES).join(', ')}`);
+      if (ev.count === undefined) ev.count = 1;
+      if (!Number.isInteger(ev.count) || ev.count < 1 || ev.count > 1e6) fail('signal count must be a whole number, 1 or more');
+      if (!isText(ev.evidence, 3)) fail('signal needs evidence (a sign-up list link, an order number, a reply subject). No evidence, no signal.');
+      if (ev.play !== undefined && !isPlayId(ev.play)) fail('signal play must be a play id');
+      if (!isBy(ev.by)) fail('signal.by must be "user" or "agent"');
+      break;
+    case 'judge':
+      // Joshua's own score for a room, when the race is judged by him
+      if (!isRoomId(ev.path)) fail('judge needs the room id (path) it scores');
+      if (!isUsd(ev.points) || ev.points < -1000 || ev.points > 1000) fail('judge points must be a number from -1000 to 1000');
+      if (!isText(ev.why)) fail('judge needs a why');
+      if (ev.play !== undefined && !isPlayId(ev.play)) fail('judge play must be a play id');
       break;
     case 'step':
       if (!isRoomId(ev.path)) fail('step needs the room id (path) it belongs to');

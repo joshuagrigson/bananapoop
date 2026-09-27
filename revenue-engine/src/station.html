@@ -752,10 +752,10 @@
   .bm:last-child:nth-child(odd) { grid-column: 1 / -1; }
   #racebox { position: absolute; inset: 0; z-index: 25; display: grid; place-items: center; background: rgba(2, 3, 8, .66); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
   #racebox[hidden] { display: none; }
-  #racebox .box { position: relative; width: min(1060px, 96vw); max-height: 92vh; overflow: auto; padding: 20px 22px 0; --c: #ffcf5a; animation: tin .4s cubic-bezier(.2,.9,.3,1.2) both; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+  #racebox .box { position: relative; width: min(1240px, 97vw); max-height: 94vh; overflow: auto; padding: 20px 22px 0; --c: #ffcf5a; animation: tin .4s cubic-bezier(.2,.9,.3,1.2) both; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
   #racebox .x { position: absolute; right: 14px; top: 12px; z-index: 2; }
   #racebox textarea { font: 12.5px/1.4 var(--f-ui); background: var(--field); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; width: 100%; outline: none; resize: vertical; }
-  #racebox input[type=checkbox] { width: auto; }
+  #racebox input[type=checkbox], #racebox input[type=radio] { width: auto; }
   .rs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; margin-top: 14px; }
   .rs-sec { display: grid; gap: 9px; align-content: start; min-width: 0; } .rs-sec.wide { grid-column: 1 / -1; }
   .rs-sec > h3 { display: flex; align-items: center; gap: 8px; margin: 0; font: 600 10px/1 var(--f-display); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
@@ -779,6 +779,42 @@
   .presets { display: flex; flex-wrap: wrap; gap: 6px; }
   .presets .btn { flex-direction: column; align-items: flex-start; gap: 3px; padding: 8px 12px; } .presets .btn small { font: 500 10px/1 var(--f-num); letter-spacing: 0; text-transform: none; color: var(--muted); }
   .presets .btn.on { border-color: var(--gold); color: var(--gold); }
+  .rb-for { display: flex; gap: 9px; align-items: flex-start; margin: 10px 0 2px; padding: 9px 11px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent); background: color-mix(in srgb, var(--gold) 7%, transparent); font: 600 12.5px/1.35 var(--f-ui); color: #fff; }
+  .rb-for .i { width: 16px; height: 16px; color: var(--gold); flex: none; margin-top: 2px; } .rb-for small { display: block; font: 600 9px/1.2 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+  .hz .s.out { color: #ff9a4a; }
+  .rs-wrap { display: grid; grid-template-columns: 188px minmax(0, 1fr); gap: 18px; margin-top: 14px; align-items: start; }
+  .rs-nav { position: sticky; top: 0; display: grid; gap: 2px; padding: 4px 0; z-index: 1; }
+  .rs-nav button { all: unset; display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 9px; cursor: pointer; font: 600 11.5px/1.2 var(--f-ui); color: var(--ink2); border: 1px solid transparent; }
+  .rs-nav button .i { width: 14px; height: 14px; flex: none; opacity: .8; } .rs-nav button:hover { color: #fff; background: var(--tile); }
+  .rs-nav button.on { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 45%, transparent); background: color-mix(in srgb, var(--gold) 8%, transparent); }
+  .rs-main { display: grid; gap: 14px; min-width: 0; }
+  .rs-card { display: grid; gap: 10px; padding: 14px 16px 16px; border-radius: 14px; border: 1px solid var(--line); background: color-mix(in srgb, var(--tile) 55%, transparent); min-width: 0; scroll-margin-top: 70px; }
+  .rs-h { display: flex; align-items: center; gap: 10px; margin: 0 0 2px; font: 700 13px/1.2 var(--f-display); letter-spacing: .06em; color: #fff; }
+  .rs-h .i { width: 18px; height: 18px; color: var(--gold); flex: none; } .rs-h small { display: block; margin-top: 3px; font: 500 11px/1.3 var(--f-ui); letter-spacing: 0; color: var(--muted); }
+  .rs-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; } .rs-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 14px; align-items: start; }
+  .rs-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; } .rs-cards.two { grid-template-columns: 1fr 1fr; } .rs-cards .ck { width: 100%; box-sizing: border-box; }
+  .rs-setups { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 8px; }
+  .rs-setup { all: unset; box-sizing: border-box; display: grid; gap: 4px; padding: 10px 12px; border-radius: 11px; border: 1px solid var(--line); background: var(--tile); cursor: pointer; transition: border-color .15s, transform .15s; }
+  .rs-setup:hover { border-color: var(--gold); transform: translateY(-1px); } .rs-setup.on { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 10%, var(--tile)); }
+  .rs-setup b { font: 700 12.5px/1.2 var(--f-ui); color: #fff; } .rs-setup small { font-size: 11px; line-height: 1.35; color: var(--ink2); } .rs-setup i { font: 500 10px/1.2 var(--f-num); font-style: normal; color: var(--gold); }
+  .rs-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; } .rs-lbl { font: 600 11px/1 var(--f-ui); color: var(--ink2); margin-right: 4px; }
+  .rs-saved { display: inline-flex; border: 1px solid var(--line2); border-radius: 8px; overflow: hidden; } .rs-saved button { all: unset; cursor: pointer; padding: 5px 9px; font: 600 11px/1 var(--f-ui); color: var(--ink); } .rs-saved button + button { padding: 5px 6px; border-left: 1px solid var(--line2); color: var(--muted); } .rs-saved button:hover { color: var(--gold); } .rs-saved .i { width: 10px; height: 10px; }
+  .rs-inline { display: flex; align-items: center; gap: 6px; } .rs-inline input[type=time] { width: 118px; } .rs-inline select { width: auto; } .rs-inline input[type=datetime-local] { flex: 1; min-width: 0; }
+  .rs-weights { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px; } .rs-weights label { display: grid; gap: 3px; } .rs-weights small { font-size: 10px; color: var(--muted); } .rs-weights input { padding: 5px 7px; font-size: 11.5px; }
+  .rs-quickrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .rs-tag { display: inline-block; margin-left: 6px; padding: 2px 6px; border-radius: 6px; font: 600 8.5px/1.2 var(--f-ui); font-style: normal; letter-spacing: .08em; text-transform: uppercase; vertical-align: 1px; }
+  .rs-tag.chk { color: #7dffb0; background: rgba(60, 220, 140, .12); border: 1px solid rgba(60, 220, 140, .35); } .rs-tag.tell { color: #9ec7ff; background: rgba(90, 150, 255, .12); border: 1px solid rgba(90, 150, 255, .35); }
+  .rs-crs { display: grid; gap: 6px; } .crow { display: grid; grid-template-columns: 110px 1fr 30px; gap: 6px; align-items: center; } .crow select, .crow input { padding: 6px 8px; font-size: 12px; } .rs-del { all: unset; box-sizing: border-box; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line2); color: var(--muted); cursor: pointer; } .rs-del:hover { color: var(--bad); border-color: var(--bad); } .rs-del .i { width: 12px; height: 12px; }
+  .rs-ex { all: unset; cursor: pointer; padding: 4px 8px; border-radius: 7px; border: 1px dashed var(--line2); font-size: 10.5px; color: var(--ink2); } .rs-ex:hover { color: var(--gold); border-color: var(--gold); }
+  .rs-house { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 12px; line-height: 1.45; color: var(--ink2); }
+  .rr { grid-template-columns: minmax(0, 1fr) 72px 110px minmax(0, 1.3fr); }
+  @media (max-width: 900px) {
+    .rs-wrap { grid-template-columns: 1fr; gap: 10px; }
+    .rs-nav { display: flex; overflow-x: auto; gap: 4px; margin: 0 -12px; padding: 6px 12px; background: var(--tip-b); border-bottom: 1px solid var(--line); scrollbar-width: none; }
+    .rs-nav button { white-space: nowrap; padding: 6px 9px; } .rs-grid2, .rs-grid3, .rs-cards.two { grid-template-columns: 1fr; }
+    .rr { grid-template-columns: minmax(0, 1fr) 64px 96px; } .rr > input[name^="note_"] { grid-column: 1 / -1; }
+    .rs-foot .rs-sum { max-height: 4.4em; overflow: auto; font-size: 11px; } .rs-foot > .field > span { display: none; }
+  }
   @media (max-width: 900px) {
     #racebox { position: fixed; top: var(--mockH, 0px); z-index: 60; }
     #racebox .box { width: 100vw; max-width: none; height: 100%; max-height: none; border-radius: 0; padding: 14px 12px 0; }
@@ -2728,6 +2764,8 @@
       case 'race': return e.amend ? ['flag', '#ffcf5a', `race rules changed: ${esc(e.evidence)}`] : ['flag', '#ffcf5a', `starting gun: <b style="color:var(--gold)">${usd(e.stakeUsd)}</b> a room, prizes at ${(e.horizonsMin || (e.horizons || []).map((d) => d * 1440)).map(spanLabel).join(', ')}`];
       case 'play': return ['target', PLAYCOL[e.status] || '#8fb0ff', `${esc(shortOf(e.path))} play ${esc(e.status)}: ${esc(e.name)}`];
       case 'step': { const [icn, c] = STEPIC[e.type] || STEPIC.did; return [icn, c, `${esc(shortOf(e.path))}${e.type === 'did' ? '' : ' ' + esc(e.type)}: ${esc(e.text)}`]; }
+      case 'signal': return ['trend', '#5ad8ff', `${esc(shortOf(e.path))} showed demand: <b style="color:var(--cyan)">${e.count}</b> ${esc(e.count === 1 ? ((snap.raceMenu || {}).signalTypes || {})[e.type] || e.type : ((snap.raceMenu || {}).signalPlural || {})[e.type] || e.type)}`];
+      case 'judge': return ['crown', '#ffcf5a', `you gave ${esc(shortOf(e.path))} <b style="color:var(--gold)">${e.points > 0 ? '+' : ''}${e.points}</b> points: ${esc(e.why)}`];
       default: return ['note', '#7c88a6', esc(e.text || e.kind)];
     }
   }
@@ -3202,6 +3240,8 @@
     });
   }
   // ---- the sandbox race: the board (no room selected) and a contestant room
+  // scorings that come from money: a paper race cannot be judged on them
+  const MONEY_SCORES = ['bankroll', 'profit', 'multiple', 'revenue', 'roi', 'sales', 'customers', 'consistency', 'firstDollar'];
   const PLAYCOL = { trying: 'var(--cyan)', working: 'var(--good)', paused: 'var(--muted)', dropped: 'var(--bad)' };
   const STEPIC = { did: ['check', 'var(--good)'], plan: ['compass', 'var(--cyan)'], learned: ['bolt', 'var(--gold)'], blocked: ['warn', '#ff9a4a'] };
   let raceH = null, raceAll = false;
@@ -3218,6 +3258,9 @@
       const [icn, c] = STEPIC[x.type] || STEPIC.did;
       return `<div class="e" style="--tc:${c}"><span class="ic">${ic(icn)}</span><span>${esc(x.text)}<small>${x.type === 'did' ? 'did' : esc(x.type)}${pl} · ${clock(x.ts)}${x.by === 'user' ? ' · logged by you' : ''}${x.url ? ` · <a href="${esc(x.url)}" target="_blank" rel="noopener">link</a>` : ''}</small></span><span></span></div>`;
     }
+    if (x.kind === 'signal') return `<div class="e" style="--tc:var(--cyan)"><span class="ic">${ic('trend')}</span><span>Demand: ${esc(x.text)}<small>${esc(x.evidence || '')}${pl} · ${clock(x.ts)}</small></span><span class="u in">+${x.count}</span></div>`;
+    if (x.kind === 'judge') return `<div class="e" style="--tc:var(--gold)"><span class="ic">${ic('crown')}</span><span>Your score: ${esc(x.text)}<small>${pl ? pl.slice(3) + ' · ' : ''}${clock(x.ts)}</small></span><span class="u ${x.points < 0 ? 'out' : 'in'}">${x.points > 0 ? '+' : ''}${x.points} pts</span></div>`;
+    if (x.kind === 'break') return `<div class="e" style="--tc:#ff9a4a"><span class="ic">${ic('warn')}</span><span>Rule broken: ${esc(x.text)}<small>${clock(x.ts)}</small></span><span></span></div>`;
     if (x.kind === 'play') return `<div class="e" style="--tc:${PLAYCOL[x.status]}"><span class="ic">${ic('target')}</span><span>${x.first ? 'Started a play' : 'Play now ' + esc(x.status)}: <b style="color:var(--ink);font-weight:600">${esc(x.text)}</b><small>${x.why ? esc(x.why) + ' · ' : ''}${clock(x.ts)}</small></span><span></span></div>`;
     return `<div class="e" style="--tc:${x.kind === 'in' ? 'var(--good)' : 'var(--bad)'}"><span class="ic">${ic(x.kind === 'in' ? 'coin' : 'flame')}</span><span>${esc(x.text || '')}${x.kind === 'in' && x.source && x.source !== x.text ? ' · ' + esc(x.source) : ''}<small>${esc(x.evidence || '')}${pl}</small></span><span class="u ${x.kind}">${x.kind === 'in' ? '+' : '−'}${usd2(x.usd)}</span></div>`;
   }
@@ -3235,6 +3278,11 @@
     const max = Math.max(1e-9, ...list.map((x) => x.usd));
     return `<div class="mbars">${list.map((x) => `<div class="mb" style="--c:${col}"><span class="k">${esc(name(x.key))}</span><span class="n">${x.n} ${unit}${x.n === 1 ? '' : 's'}</span><span class="u">${usd(x.usd)}</span><i style="width:${(100 * x.usd / max).toFixed(1)}%"></i></div>`).join('')}</div>`;
   }
+  // the same bars, for demand: points, not dollars
+  function moneyBarsN(list, col, name = (k) => k) {
+    const max = Math.max(1e-9, ...list.map((x) => x.usd));
+    return `<div class="mbars">${list.map((x) => `<div class="mb" style="--c:${col}"><span class="k">${esc(name(x.key))}</span><span class="n">${x.n}</span><span class="u">${Math.round(x.usd * 100) / 100} pts</span><i style="width:${(100 * x.usd / max).toFixed(1)}%"></i></div>`).join('')}</div>`;
+  }
   // made against spent, and what each dollar spent brought back
   function spentMade(inUsd, outUsd, back) {
     const max = Math.max(1e-9, inUsd, outUsd);
@@ -3248,15 +3296,26 @@
     else prompt('Copy the brief:', text);
   }
   function rulesHtml(r, M) {
-    const lim = [r.maxSpendPerDayUsd !== null ? `at most ${usd(r.maxSpendPerDayUsd)} a day` : null, r.approveOverUsd !== null ? `purchases over ${usd(r.approveOverUsd)} need you` : null, r.knockoutUsd !== null ? `out at ${usd(r.knockoutUsd)}` : null, r.ads ? 'ads allowed' : 'no paid ads', r.collab ? 'rooms may trade' : 'no trading between rooms'].filter(Boolean);
+    const nm = (o, k) => (o && o[k]) || k, low = (t) => String(t).split(':')[0].replace(/\s*\(.*\)$/, '');
+    const lim = [r.moneyMode === 'paper' ? 'paper money: nothing real is bought or sold' : null, r.spendCategories && r.spendCategories.length < Object.keys(M.spendCategories || {}).length ? `may spend on ${r.spendCategories.map((c) => nm(M.spendCategories, c).toLowerCase()).join(', ') || 'nothing'}` : null,
+      r.maxSpendPerDayUsd !== null ? `at most ${usd(r.maxSpendPerDayUsd)} a day` : null, r.maxTotalSpendUsd !== null ? `at most ${usd(r.maxTotalSpendUsd)} in all` : null, r.approveOverUsd !== null ? `purchases over ${usd(r.approveOverUsd)} need you` : null,
+      r.reserveUsd !== null ? `keep ${usd(r.reserveUsd)}` : null, r.reinvest === false ? 'only the stake may be spent' : null, r.knockoutUsd !== null ? `out at ${usd(r.knockoutUsd)}` : null, r.collab ? 'rooms may trade' : 'no trading between rooms'].filter(Boolean);
+    const outs = [r.eliminateLast ? 'last place at each prize' : null, r.idleOutMinutes ? `no move for ${spanLabel(r.idleOutMinutes)}` : null, r.ruleBreak === 'out' ? 'any rule break' : null].filter(Boolean);
+    const every = r.everyMinutes ?? (r.everyHours || 24) * 60;
     return `<dl class="rules">
-      <dt>Scored by</dt><dd>${esc(M.scoring[r.scoring] || r.scoring)}${r.tiebreak === 'earliest' ? '; a tie goes to whoever got there first' : ''}</dd>
-      <dt>May make money by</dt><dd>${r.methods.length ? r.methods.map((m) => esc((M.methods[m] || m).split(':')[0])).join(' · ') : 'nothing yet'}</dd>
-      <dt>Not allowed</dt><dd>${Object.keys(M.methods).filter((m) => !r.methods.includes(m)).map((m) => esc(M.methods[m].split(':')[0])).join(' · ') || 'nothing ruled out'}</dd>
-      <dt>Connectors</dt><dd>${esc(r.connectors.join(', ') || 'none')}</dd>
-      <dt>Money</dt><dd>${esc(lim.join(' · '))}</dd>
-      <dt>People</dt><dd>${esc(M.contact[r.outreach] || r.outreach)}; posts ${r.posting === 'none' ? 'not allowed' : 'drafted for you'}; check in every ${r.everyHours === 24 ? 'day' : r.everyHours + ' hours'}</dd>
+      ${r.purpose ? `<dt>For</dt><dd>${esc(r.purpose === 'custom' ? r.purposeText || 'in your own words' : nm(M.purposes, r.purpose))}${r.purpose !== 'custom' && r.purposeText ? ' · ' + esc(r.purposeText) : ''}</dd>` : ''}
+      <dt>Scored by</dt><dd>${esc(low(nm(M.scoring, r.scoring)))}${r.places > 1 ? ` · top ${r.places} place` : ''}${r.tiebreak && r.tiebreak !== 'none' ? ` · a tie goes to ${esc(nm(M.tiebreaks, r.tiebreak).toLowerCase())}` : ''}${r.evidence && r.evidence !== 'any' ? ` · money needs ${esc(nm(M.evidence, r.evidence).toLowerCase())}` : ''}</dd>
+      ${outs.length ? `<dt>Out for</dt><dd>${esc(outs.join(' · '))}</dd>` : ''}
+      <dt>May make money by</dt><dd>${[...r.methods.map((m) => esc(low(M.methods[m] || m))), ...(r.customMethods || []).map(esc)].join(' · ') || 'nothing yet'}</dd>
+      <dt>Not allowed</dt><dd>${Object.keys(M.methods).filter((m) => !r.methods.includes(m)).map((m) => esc(low(M.methods[m]))).join(' · ') || 'nothing ruled out'}${(r.banned || []).length ? ` · never ${esc(r.banned.join(', '))}` : ''}</dd>
+      <dt>Tools</dt><dd>${esc(r.connectors.join(', ') || 'none')}</dd>
+      <dt>Money</dt><dd>${esc(lim.join(' · '))}${r.requireModel ? ' · a business model before spending' : ''}</dd>
+      <dt>People</dt><dd>${esc(nm(M.contact, r.outreach))}${r.outreach === 'direct' && r.maxMessagesPerDay !== null && r.maxMessagesPerDay !== undefined ? ` (at most ${r.maxMessagesPerDay} a day)` : ''}; posts: ${esc(nm(M.posting, r.posting).toLowerCase())}; your name: ${esc(nm(M.nameUse, r.useName || 'drafts').toLowerCase())}; new accounts: ${esc(nm(M.accounts, r.newAccounts || 'ask').toLowerCase())}${r.personalNetwork ? '; may reach your contacts' : ''}</dd>
+      <dt>Agents</dt><dd>check in ${every ? 'every ' + esc(spanLabel(every)) : 'all the time'}${r.maxSessionMinutes ? `, sessions under ${esc(spanLabel(r.maxSessionMinutes))}` : ''}${r.quietHours ? `, quiet ${esc(r.quietHours.from)}-${esc(r.quietHours.to)}` : ''}${r.weekdaysOnly ? ', weekdays only' : ''}${r.dailyReport ? ', a step every day' : ''} · ${esc(nm(M.visibility, r.visibility || 'open').toLowerCase())}${r.copying === false ? ' · no copying' : ''}</dd>
+      <dt>A rule break</dt><dd>${esc(nm(M.penalty, r.ruleBreak || 'warn'))}${r.ruleBreak === 'fine' ? `: ${usd(r.fineUsd || 0)} each` : ''}</dd>
       ${Object.keys(r.models || {}).length ? `<dt>Models</dt><dd>${Object.entries(r.models).map(([id, m]) => `${esc(raceNm(id))}: ${esc((M.models[m] || m).replace(/^Claude /, ''))}`).join(' · ')}</dd>` : ''}
+      ${(r.customRules || []).length ? `<dt>Your rules</dt><dd>${r.customRules.map((c) => `<b>${esc(nm(M.ruleKinds, c.kind))}</b> ${esc(c.text)}`).join('<br>')}</dd>` : ''}
+      ${Object.keys(r.roomNotes || {}).length ? `<dt>Per room</dt><dd>${Object.entries(r.roomNotes).map(([id, t]) => `${esc(raceNm(id))}: ${esc(t)}`).join('<br>')}</dd>` : ''}
       ${r.notes ? `<dt>Also</dt><dd>${esc(r.notes)}</dd>` : ''}</dl>`;
   }
   function renderRaceBoard(el) {
@@ -3271,21 +3330,35 @@
     }
     const hs = r.standings, cur = hs.find((s) => s.mins === raceH) || hs.find((s) => s.state === 'live') || hs[hs.length - 1];
     const leadName = (id) => { const f = leadOf(id); return f ? f.name : ''; };
-    const metric = (x) => (r.rules.scoring === 'multiple' ? multFmt(x.multiple) : r.rules.scoring === 'profit' ? (x.profitUsd < 0 ? '−' : '+') + usd(Math.abs(Math.round(x.profitUsd))) : usd(Math.round(x.bankrollUsd)));
-    const max = Math.max(1e-9, ...cur.ranking.map((x) => x.bankrollUsd));
+    const metric = (x) => (x ? x.scoreText : '');
+    const moneyScore = MONEY_SCORES.includes(r.rules.scoring) && r.rules.scoring !== 'firstDollar' && r.rules.scoring !== 'consistency';
+    const real = cur.ranking.filter((x) => x.score > -1e8), lo = Math.min(0, ...real.map((x) => x.score)), hi = Math.max(1e-9, ...real.map((x) => x.score));
+    const barW = (x) => (x.score <= -1e8 ? 0 : (100 * (x.score - lo)) / Math.max(1e-9, hi - lo));
+    const breaks = r.lanes.flatMap((l) => l.breaks.map((b) => ({ ...b, room: l.id }))).sort((a, b) => (a.ts < b.ts ? 1 : -1));
+    const sigLanes = r.lanes.filter((l) => l.signals.length).sort((a, b) => b.signalScore - a.signalScore), sigMax = Math.max(1e-9, ...sigLanes.map((l) => l.signalScore));
+    const uncounted = r.lanes.reduce((a, l) => a + l.uncounted.length, 0);
     const needs = r.lanes.filter((l) => l.blocked);
     const sm = r.lanes.slice().sort((a, b) => b.inUsd - a.inUsd), smMax = Math.max(1e-9, ...sm.map((l) => Math.max(l.inUsd, l.outUsd)));
-    el.innerHTML = `${head(`<span class="pill cyan">${!r.started ? `starts in ${leftLabel(r.startsInMin)}` : r.over ? 'finished' : raceNow(r)}</span><span class="pill gold">${usd(r.stakeUsd)} a room</span><span class="pill">${r.lanes.length} rooms</span>`)}
+    el.innerHTML = `${head(`<span class="pill cyan">${!r.started ? `starts in ${leftLabel(r.startsInMin)}` : r.over ? 'finished' : raceNow(r)}</span><span class="pill gold">${r.paper ? 'paper money' : usd(r.stakeUsd) + ' a room'}</span><span class="pill">${r.lanes.length} rooms</span>${r.breakCount ? `<span class="pill warn">${r.breakCount} rule break${r.breakCount === 1 ? '' : 's'}</span>` : ''}`)}
+      ${r.purpose ? `<div class="rb-for">${ic('target')}<span><small>What this race is for</small>${esc(r.purpose)}</span></div>` : ''}
       <div class="row2" style="margin:10px 0 2px"><button class="btn" type="button" data-rsopen="amend">${ic('sliders')}Rules and limits</button><button class="btn" type="button" data-rsopen="restart">${ic('flag')}New race</button></div>
-      <div class="muted small">A bankroll is the stake plus evidenced money in minus money out since the gun; anything bought but not yet sold counts as zero. ${esc(M.scoring[r.rules.scoring] || '')} at each time limit wins a prize.</div>
-      <div class="sec"><h3>Prizes</h3><div class="hz">${hs.map((s) => `<button type="button" class="${s.state}${s === cur ? ' on' : ''}" data-hz="${s.mins}"><span class="k">${esc(s.label)}</span><span class="w">${s.state === 'done' ? (s.winner ? ic('crown') + esc(raceNm(s.winner)) : 'tie, no winner') : s.state === 'live' ? (s.leader ? esc(raceNm(s.leader)) + ' leads' : 'tied') : 'not yet'}</span><span class="s">${s.state === 'done' ? (s.winner ? `won with ${metric(s.ranking.find((x) => x.id === s.winner))}${s.tieBroken ? ' · got there first' : ''}` : 'nobody ahead') : s.state === 'live' ? `${leftLabel(s.minsLeft)} left` : `in ${leftLabel(s.minsLeft)}`}</span></button>`).join('')}</div></div>
+      <div class="muted small">${r.paper ? 'A paper race: no real money moves; rooms prove their ideas with demand. ' : 'A bankroll is the stake plus evidenced money in minus money out since the gun; anything bought but not yet sold counts as zero. '}${esc((M.scoring[r.rules.scoring] || '').split(':')[0])} at each time limit wins a prize${r.rules.places > 1 ? `, with ${r.rules.places} places` : ''}.</div>
+      <div class="sec"><h3>Prizes</h3><div class="hz">${hs.map((s) => `<button type="button" class="${s.state}${s === cur ? ' on' : ''}" data-hz="${s.mins}"><span class="k">${esc(s.label)}</span><span class="w">${s.state === 'done' ? (s.winner ? ic('crown') + esc(raceNm(s.winner)) : 'tie, no winner') : s.state === 'live' ? (s.leader ? esc(raceNm(s.leader)) + ' leads' : 'tied') : 'not yet'}</span><span class="s">${s.state === 'done' ? (s.winner ? `won with ${esc(metric(s.ranking.find((x) => x.id === s.winner)))}${s.tieBroken ? ' · tie broken' : ''}` : 'nobody ahead') : s.state === 'live' ? `${leftLabel(s.minsLeft)} left` : `in ${leftLabel(s.minsLeft)}`}</span>${s.podium.length > 1 ? `<span class="s">then ${s.podium.slice(1).map((id) => esc(raceNm(id))).join(', ')}</span>` : ''}${s.eliminated ? `<span class="s out">${esc(raceNm(s.eliminated))} out</span>` : ''}</button>`).join('')}</div></div>
       ${hs.some((s) => s.winner) ? `<div class="sec"><h3>Winning ideas</h3><div class="muted small">The best play of each prize's winner. Open it for the business model and the playbook to run it for real.</div>
-        ${hs.filter((s) => s.winner).map((s) => { const wl = laneOf(s.winner), best = wl && wl.plays.slice().sort((a, b) => b.netUsd - a.netUsd)[0]; return best ? `<button type="button" class="cf" data-winplay="${esc(s.winner)}|${esc(best.id)}" style="--c:${themeOf(s.winner).accent}"><span class="t"><b>${ic('crown')} ${esc(best.name)}</b><small>${esc(s.label)} · ${esc(raceNm(s.winner))}${best.model && best.model.offer ? ' · ' + esc(best.model.offer) : ''}</small></span><span class="u">${best.netUsd < 0 ? '−' : '+'}${usd(Math.abs(Math.round(best.netUsd)))}<small>net</small></span>${ic('chevR')}</button>` : ''; }).join('')}</div>` : ''}
+        ${hs.filter((s) => s.winner).map((s) => { const wl = laneOf(s.winner), byDemand = r.paper || r.rules.scoring === 'signals', best = wl && wl.plays.slice().sort((a, b) => (byDemand ? b.signals - a.signals : 0) || b.netUsd - a.netUsd)[0]; return best ? `<button type="button" class="cf" data-winplay="${esc(s.winner)}|${esc(best.id)}" style="--c:${themeOf(s.winner).accent}"><span class="t"><b>${ic('crown')} ${esc(best.name)}</b><small>${esc(s.label)} · ${esc(raceNm(s.winner))}${best.model && best.model.offer ? ' · ' + esc(best.model.offer) : ''}</small></span><span class="u">${byDemand ? `${best.signals}<small>demand</small>` : `${best.netUsd < 0 ? '−' : '+'}${usd(Math.abs(Math.round(best.netUsd)))}<small>net</small>`}</span>${ic('chevR')}</button>` : ''; }).join('')}</div>` : ''}
       ${needs.length ? `<div class="sec"><h3>Waiting on you · ${needs.length}</h3>${needs.map((l) => `<div class="need" data-sel="${esc(l.id)}"><b>${ic('warn')}${esc(raceNm(l.id))}${leadName(l.id) ? ' · ' + esc(leadName(l.id)) : ''} · ${raceWhen(l.blocked)}</b>${esc(l.blocked.text)}</div>`).join('')}</div>` : ''}
       <div class="sec"><h3>${cur.state === 'done' ? `Final at ${esc(cur.label)}` : `Standings · ${r.short ? spanLabel(Math.max(1, r.elapsedMin)) + ' in' : 'day ' + r.day}`}</h3>
         ${cur.ranking.map((x, i) => { const l = laneOf(x.id), acc = themeOf(x.id).accent, first = i === 0 && (cur.winner === x.id || (cur.state !== 'done' && cur.leader === x.id));
-          return `<div class="rank${first ? ' top' : ''}${x.out ? ' out' : ''}" data-sel="${esc(x.id)}" style="--c:${acc}"><span class="no">${first ? ic('crown') : i + 1}</span><span class="nm">${esc(raceNm(x.id))}${leadName(x.id) ? ` <span style="color:var(--muted);font-weight:500">· ${esc(leadName(x.id))}</span>` : ''}<small>${x.out ? 'knocked out' : cur.state === 'done' ? `at ${esc(cur.label)}` : `${rateFmt(l.rateRecent)} · ${l.plays.filter((p) => p.status !== 'dropped').length} plays${l.blocked ? ' · needs you' : ''}`}</small></span><span class="v${x.bankrollUsd < l.stakeUsd ? ' dn' : ''}">${metric(x)}<small>${r.rules.scoring === 'multiple' ? usd(Math.round(x.bankrollUsd)) : multFmt(x.multiple)}</small></span><i class="bg" style="width:${(100 * x.bankrollUsd / max).toFixed(1)}%"></i></div>`; }).join('')}
+          const pod = cur.podium.indexOf(x.id);
+          return `<div class="rank${first ? ' top' : ''}${x.out ? ' out' : ''}" data-sel="${esc(x.id)}" style="--c:${acc}"><span class="no">${first ? ic('crown') : i + 1}</span><span class="nm">${esc(raceNm(x.id))}${leadName(x.id) ? ` <span style="color:var(--muted);font-weight:500">· ${esc(leadName(x.id))}</span>` : ''}<small>${x.out ? `out: ${esc(l.out ? l.out.why : 'knocked out')}` : cur.state === 'done' ? `${pod > 0 ? nth(pod + 1) + ' place · ' : ''}at ${esc(cur.label)}` : `${r.paper ? `${l.signalScore} demand` : rateFmt(l.rateRecent)} · ${l.plays.filter((p) => p.status !== 'dropped').length} plays${l.breaks.length ? ` · ${l.breaks.length} break${l.breaks.length === 1 ? '' : 's'}` : ''}${l.blocked ? ' · needs you' : ''}`}</small></span><span class="v${moneyScore && x.bankrollUsd < l.stakeUsd ? ' dn' : ''}">${esc(metric(x))}<small>${r.paper ? `${l.plays.length} idea${l.plays.length === 1 ? '' : 's'}` : r.rules.scoring === 'bankroll' ? multFmt(x.multiple) : usd(Math.round(x.bankrollUsd))}</small></span><i class="bg" style="width:${barW(x).toFixed(1)}%"></i></div>`; }).join('')}
         <div class="muted small" style="margin-top:6px">Rate is net dollars ${r.rateUnit === 'hour' ? 'an hour' : 'a day'} over the last ${esc(r.recentLabel)}. Click a room for every play it ran, and the business model behind each.</div></div>
+      ${breaks.length ? `<div class="sec"><h3>Rule breaks the ledger saw · ${breaks.length}</h3><div class="tl">${breaks.slice(0, 12).map((b) => `<div class="e" style="--tc:#ff9a4a" data-sel="${esc(b.room)}"><span class="ic">${ic('warn')}</span><span><b style="color:var(--ink);font-weight:600">${esc(raceNm(b.room))}</b>: ${esc(b.text)}<small>${raceWhen(b)}</small></span><span></span></div>`).join('')}</div><div class="muted small" style="margin-top:6px">${r.rules.ruleBreak === 'fine' ? `Each break costs the room ${usd(r.rules.fineUsd || 0)}.` : r.rules.ruleBreak === 'out' ? 'A break knocks the room out.' : 'Breaks are flagged here; nothing else happens.'} Change it in the rules.</div></div>` : ''}
+      ${sigLanes.length ? `<div class="sec"><h3>Demand shown</h3>${sigLanes.map((l) => `<div class="smrow" data-sel="${esc(l.id)}" style="--c:${themeOf(l.id).accent}"><span class="nm">${esc(raceNm(l.id))}</span><span class="bars"><i class="in" style="width:${(100 * l.signalScore / sigMax).toFixed(1)}%;background:var(--cyan)"></i></span><span class="v">${l.signalScore}<small>${l.signals.slice(0, 3).map((g) => `${g.n} ${esc(g.n === 1 ? (M.signalTypes[g.type] || g.type).toLowerCase() : (M.signalPlural || {})[g.type] || g.type)}`).join(' · ')}</small></span></div>`).join('')}
+        <div class="muted small" style="margin-top:6px">Sign-ups, pre-orders, replies and the like, each with evidence, weighted by the race's demand weights.</div></div>` : ''}
+      ${r.rules.scoring === 'judge' ? `<div class="sec"><h3>Your scores</h3><form id="f-judge" class="pane on"><div class="row2"><label class="field"><span>Room</span><select name="room">${r.lanes.map((l) => `<option value="${esc(l.id)}">${esc(raceNm(l.id))}</option>`).join('')}</select></label><label class="field"><span>Points (−1000 to 1000)</span><input name="points" type="number" step="1" min="-1000" max="1000" required placeholder="10"></label></div>
+        <label class="field"><span>Why</span><input name="why" maxlength="300" required placeholder="e.g. the cleanest idea to run for real"></label><button class="btn go">${ic('crown')}Give the points</button><div class="msg"></div></form>
+        <div class="muted small">${r.lanes.map((l) => `${esc(raceNm(l.id))} ${l.judgePoints}`).join(' · ')}</div></div>` : ''}
+      ${uncounted ? `<div class="muted small" style="margin:8px 0">${uncounted} money line${uncounted === 1 ? '' : 's'} fell short of the race's evidence standard: shown in each room, not counted.</div>` : ''}
       <div class="sec"><h3>Spent vs made</h3>${sm.map((l) => `<div class="smrow" data-sel="${esc(l.id)}" style="--c:${themeOf(l.id).accent}"><span class="nm">${esc(raceNm(l.id))}</span><span class="bars"><i class="in" style="width:${(100 * l.inUsd / smMax).toFixed(1)}%"></i><i class="out" style="width:${(100 * l.outUsd / smMax).toFixed(1)}%"></i></span><span class="v">${usd(Math.round(l.inUsd))}<small>spent ${usd(Math.round(l.outUsd))}${l.backPerDollar !== null ? ` · $${l.backPerDollar.toFixed(2)} per $1` : ''}</small></span></div>`).join('')}
         <div class="muted small" style="margin-top:6px">Green is money made, red is money spent. Per $1 is what each dollar spent brought back.</div></div>
       <div class="sec"><h3>Where the money comes from</h3>${moneyBars(r.bySource, '#3ddc97')}</div>
@@ -3296,6 +3369,7 @@
     el.querySelectorAll('[data-hz]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); raceH = Number(b.dataset.hz); panelSig = ''; renderPanel(); }));
     el.querySelectorAll('[data-brief]').forEach((b) => b.addEventListener('click', () => copyText((r.briefs || {})[b.dataset.brief] || '', b)));
     el.querySelectorAll('[data-winplay]').forEach((b) => b.addEventListener('click', () => { const [roomId, play] = b.dataset.winplay.split('|'); racePlay = { room: roomId, play }; panelSig = ''; select(roomId); renderPanel(true); }));
+    if (el.querySelector('#f-judge')) wire('#f-judge', (d) => post('api/events', { kind: 'judge', path: d.room, points: Number(d.points), why: d.why.trim() }).then(() => `${raceNm(d.room)} ${Number(d.points) > 0 ? '+' : ''}${Number(d.points)} points`));
   }
   let racePlay = null;
   function renderRace(el, room) {
@@ -3306,7 +3380,7 @@
       return;
     }
     const f = leadOf(room.id), M = snap.raceMenu;
-    const chips = `<span class="pill gold">${nth(l.place)} of ${r.lanes.length}</span><span class="pill ${l.multiple >= 1 ? 'good' : 'bad'}">${multFmt(l.multiple)}</span>${r.leaderId === room.id ? `<span class="pill gold">${ic('crown')}leading</span>` : ''}${l.out ? `<span class="pill bad">out · ${raceWhen(l.out)}</span>` : ''}${l.blocked ? '<span class="pill warn">needs you</span>' : ''}`;
+    const chips = `<span class="pill gold">${nth(l.place)} of ${r.lanes.length}</span><span class="pill cyan">${esc(l.scoreText)}</span>${r.paper ? '' : `<span class="pill ${l.multiple >= 1 ? 'good' : 'bad'}">${multFmt(l.multiple)}</span>`}${l.breaks.length ? `<span class="pill warn">${l.breaks.length} rule break${l.breaks.length === 1 ? '' : 's'}</span>` : ''}${r.leaderId === room.id ? `<span class="pill gold">${ic('crown')}leading</span>` : ''}${l.out ? `<span class="pill bad">out · ${raceWhen(l.out)}</span>` : ''}${l.blocked ? '<span class="pill warn">needs you</span>' : ''}`;
     const tl = raceAll ? l.timeline : l.timeline.slice(0, 40);
     let lastDay = null;
     const group = (x) => (r.short ? `Hour ${Math.floor((x.min || 0) / 60) + 1}` : `Day ${x.day}`);
@@ -3315,7 +3389,10 @@
     el.innerHTML = `
       ${hubHead(room, chips)}
       ${f ? `<div class="muted small" style="margin-top:8px">Room lead: <b style="color:${f.color}">${esc(f.name)}</b>${f.role && !/^room lead/i.test(f.role) ? ' · ' + esc(f.role) : /agent/i.test(f.role || '') ? ', an AI agent' : ''}${l.model ? ` · runs on ${esc(M.models[l.model] || l.model)}` : ''}</div>` : ''}
+      ${l.out ? `<div class="need" style="margin-top:8px"><b>${ic('warn')}Out of the race · ${raceWhen(l.out)}</b>${esc(l.out.why)}</div>` : ''}
+      ${l.notes ? `<div class="muted small" style="margin-top:8px">Its own instruction: <b style="color:var(--ink)">${esc(l.notes)}</b></div>` : ''}
       <div class="stats" style="margin-top:12px">
+        ${['bankroll', 'multiple'].includes(r.rules.scoring) ? '' : `<div class="st"><div><div class="k">Score · ${esc((M.scoring[r.rules.scoring] || '').split(':')[0].replace(/\s*\(.*\)$/, '').toLowerCase())}</div><div class="v gold">${esc(l.scoreText)}</div><div class="s">${nth(l.place)} of ${r.lanes.length}${l.fines ? ` · fined ${usd(l.fines)}` : ''}</div></div></div>`}
         <div class="st"><div><div class="k">Bankroll</div><div class="v gold">${usd2(l.bankrollUsd)}</div><div class="s">started with ${usd(l.stakeUsd)}</div></div></div>
         <div class="st"><div><div class="k">Multiple</div><div class="v"${l.multiple < 1 ? ' style="color:var(--bad)"' : ''}>${multFmt(l.multiple)}</div><div class="s">${nth(l.place)} of ${r.lanes.length} · ${r.short ? spanLabel(Math.max(1, r.elapsedMin)) + ' in' : 'day ' + r.day}</div></div></div>
         <div class="st"><div><div class="k">Rate · last ${esc(r.recentLabel)}</div><div class="v"${l.rateRecent < 0 ? ' style="color:var(--bad)"' : ''}>${rateFmt(l.rateRecent)}</div><div class="s">${rateFmt(l.rateAll)} since the gun</div></div></div>
@@ -3324,6 +3401,10 @@
       <div class="sec"><h3>${r.short ? 'Bankroll over time' : 'Bankroll by day'}</h3>${sparkSvg(l.series, l.stakeUsd, accent)}<div class="spk"><span>gun · ${usd(l.stakeUsd)}</span><span>${r.short ? spanLabel(Math.max(1, r.elapsedMin)) + ' in' : 'day ' + r.day} · ${usd(Math.round(l.bankrollUsd))}</span></div></div>
       <div class="sec"><h3>Prizes</h3><div class="hzrow">${r.standings.map((s) => { const x = s.ranking.find((y) => y.id === room.id) || {}, pos = 1 + s.ranking.filter((y) => !y.out && y.score > x.score).length, won = s.winner === room.id; return `<span class="${won ? 'won' : ''}">${won ? ic('crown') : ''}${esc(s.label)}: ${x.out ? 'out' : s.state === 'done' ? (won ? 'won' : nth(pos)) : s.state === 'live' ? nth(pos) + ' so far' : 'not yet'}</span>`; }).join('')}</div></div>
       ${l.blocked ? `<div class="sec"><div class="need"><b>${ic('warn')}Waiting on you · ${raceWhen(l.blocked)}</b>${esc(l.blocked.text)}</div></div>` : ''}
+      ${l.breaks.length ? `<div class="sec"><h3>Rule breaks · ${l.breaks.length}</h3><div class="tl">${l.breaks.slice().reverse().map((b) => `<div class="e" style="--tc:#ff9a4a"><span class="ic">${ic('warn')}</span><span>${esc(b.text)}<small>${raceWhen(b)}</small></span><span></span></div>`).join('')}</div>${l.fines ? `<div class="muted small" style="margin-top:6px">Fined ${usd(l.fines)} in all.</div>` : ''}</div>` : ''}
+      ${l.signals.length ? `<div class="sec"><h3>Demand shown · ${l.signalScore}</h3>${moneyBarsN(l.signals.map((g) => ({ key: g.type, usd: g.n * g.weight, n: g.n })), 'var(--cyan)', (k) => M.signalTypes[k] || k)}</div>` : ''}
+      ${l.judgePoints ? `<div class="sec"><h3>Your points · ${l.judgePoints}</h3><div class="muted small">Every score you gave this room is in the breakdown below.</div></div>` : ''}
+      ${l.uncounted.length ? `<div class="sec"><h3>Not counted · ${l.uncounted.length}</h3><div class="muted small">Below the race's evidence standard (${esc((M.evidence[r.rules.evidence] || '').toLowerCase())}), so they do not score.</div><div class="tl">${l.uncounted.slice(-10).reverse().map((x) => `<div class="e" style="--tc:var(--muted)"><span class="ic">${ic(x.dir === 'in' ? 'coin' : 'flame')}</span><span>${esc(x.text || '')}<small>${raceWhen(x)} · ${esc(x.evidence || 'no evidence')}</small></span><span class="u">${x.dir === 'in' ? '+' : '−'}${usd2(x.usd)}</span></div>`).join('')}</div></div>` : ''}
       <div class="sec"><h3>Spent vs made</h3>${spentMade(l.inUsd, l.outUsd, l.backPerDollar || 0)}
         ${l.byCategory.length ? `<div class="sub-h">Where the money went</div>${moneyBars(l.byCategory, '#ff7a8a', (k) => CAT_NAME[k] || k, 'payment')}` : ''}</div>
       <div class="sec"><h3>Where the money comes from</h3>
@@ -3336,11 +3417,13 @@
         ${l.timelineTotal > l.timeline.length ? `<div class="muted small" style="margin-top:6px">The ${l.timelineTotal - l.timeline.length} oldest lines are on the ledger (node src/cli.js race, or the money dashboard).</div>` : ''}</div>
       <div class="sec"><h3>Its brief</h3><div class="muted small">What this room's agent is told, written from the race's rules.</div><div class="row2" style="margin-top:7px"><button class="btn" type="button" data-brief="${esc(room.id)}">${ic('note')}Copy the brief</button><button class="btn" type="button" data-briefshow>${ic('eye')}Read it</button></div><pre class="brief" hidden>${esc((r.briefs || {})[room.id] || '')}</pre></div>
       <div class="sec"><h3>Log for this room</h3><form id="f-rlog" class="pane on">
-        <div class="row2"><label class="field"><span>What</span><select name="what"><option value="did">A step it did</option><option value="plan">A new plan</option><option value="learned">Something learned</option><option value="blocked">Stuck, needs you</option><option value="in">Money in</option><option value="out">Money out</option></select></label>
+        <div class="row2"><label class="field"><span>What</span><select name="what"><option value="did">A step it did</option><option value="plan">A new plan</option><option value="learned">Something learned</option><option value="blocked">Stuck, needs you</option><option value="in">Money in</option><option value="out">Money out</option><option value="signal">Demand (no sale)</option></select></label>
         <label class="field"><span>Play</span><select name="play"><option value="">none</option>${l.plays.map((p) => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</select></label></div>
         <label class="field"><span>What happened, or who paid</span><input name="text" maxlength="600" required placeholder="e.g. listed ten planners on Etsy"></label>
-        <div class="row2"><label class="field"><span>Amount (money only)</span><input name="usd" type="number" step="0.01" min="0" placeholder="0.00"></label><label class="field"><span>Evidence (money only)</span><input name="evidence" placeholder="order #, receipt, charge id"></label></div>
-        <div class="muted small">Agents log the same lines themselves. Money needs evidence or it is not counted.</div>
+        <div class="row2"><label class="field"><span>Amount (money) or count (demand)</span><input name="usd" type="number" step="0.01" min="0" placeholder="0.00"></label><label class="field"><span>Evidence (money and demand)</span><input name="evidence" placeholder="order #, receipt, sign-up list link"></label></div>
+        <div class="row2"><label class="field"><span>Spent on (money out)</span><select name="category">${Object.entries(M.spendCategories).map(([k, t]) => `<option value="${k}"${k === 'other' ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label><label class="field"><span>Demand type</span><select name="sigtype">${Object.entries(M.signalTypes).map(([k, t]) => `<option value="${k}">${esc(t)}</option>`).join('')}</select></label></div>
+        <label class="ck" style="margin-top:2px"><input type="checkbox" name="approved" value="1"><span><b>I said yes to this purchase</b><small>money out over the approval limit needs this, or it counts as a rule break</small></span></label>
+        <div class="muted small">Agents log the same lines themselves. Money and demand need evidence or they are not counted.</div>
         <button class="btn go">${ic('plus')}Log it</button><div class="msg"></div></form></div>`;
     const all = el.querySelector('[data-tlall]');
     if (all) all.addEventListener('click', () => { raceAll = !raceAll; panelSig = ''; renderPanel(); });
@@ -3353,8 +3436,12 @@
         const v = Math.round((Number(d.usd) || 0) * 100) / 100;
         const ev = d.what === 'in'
           ? { kind: 'money.in', path: spec.id, usd: v, source: text.slice(0, 120), item: text.slice(0, 120), evidence: d.evidence.trim(), ...(play ? { play } : {}), ...(f ? { by: f.name } : {}) }
-          : { kind: 'money.out', path: spec.id, usd: v, category: 'other', payee: text.slice(0, 40), evidence: d.evidence.trim(), ...(play ? { play } : {}) };
+          : { kind: 'money.out', path: spec.id, usd: v, category: d.category || 'other', payee: text.slice(0, 40), evidence: d.evidence.trim(), ...(play ? { play } : {}), ...(d.approved ? { approved: true } : {}) };
         return post('api/events', ev).then(() => `logged ${d.what === 'in' ? '+' : '−'}${usd2(v)}`);
+      }
+      if (d.what === 'signal') {
+        const n = Math.max(1, Math.round(Number(d.usd) || 1));
+        return post('api/events', { kind: 'signal', path: spec.id, type: d.sigtype, count: n, evidence: [d.evidence.trim(), text].filter(Boolean).join(' · '), by: 'user', ...(play ? { play } : {}) }).then(() => `logged ${n} ${n === 1 ? (M.signalTypes[d.sigtype] || d.sigtype).toLowerCase() : (M.signalPlural || {})[d.sigtype] || d.sigtype}`);
       }
       return post('api/events', { kind: 'step', path: spec.id, type: d.what, text, by: 'user', ...(play ? { play } : {}) }).then(() => 'logged');
     });
@@ -3393,122 +3480,332 @@
     el.querySelector('[data-pbsave]').addEventListener('click', () => getPb().then((t) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([t], { type: 'text/markdown' })); a.download = `playbook-${room.id}-${p.id}.md`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }, fail));
     el.querySelector('[data-pbread]').addEventListener('click', () => getPb().then((t) => { const pre = el.querySelector('[data-pbtext]'); pre.textContent = t; pre.hidden = !pre.hidden; }, fail));
   }
-  // ---- race setup: every rule of the race, chosen before the gun and written on the ledger with it
-  let rsMode = 'new';
+  // ---- race setup: every rule of the race, chosen before the gun and written on the ledger with it. Nothing is fixed
+  // but the house rules; a ready-made setup is only a starting point, and a setup can be saved, exported and loaded.
+  let rsMode = 'new', rsPreset = null;
   // prize times on offer, in minutes, and three ready-made sets
-  const RTIMES = [30, 60, 120, 360, 1440, 10080, 20160, 43200, 86400, 129600, 259200, 525600];
+  const RTIMES = [30, 60, 120, 240, 360, 720, 1440, 4320, 10080, 20160, 43200, 86400, 129600, 259200, 525600];
   const RPRESETS = { quick: { t: 'Quick test', times: [30, 60, 120], every: 10 }, day: { t: 'One day', times: [60, 360, 1440], every: 30 }, long: { t: 'Long race', times: [10080, 43200, 129600, 259200], every: 1440 } };
   const REVERY = [[0, 'All the time (one session for the whole race)'], [5, 'Every 5 minutes'], [10, 'Every 10 minutes'], [15, 'Every 15 minutes'], [30, 'Every 30 minutes'], [60, 'Every hour'], [120, 'Every 2 hours'], [360, 'Every 6 hours'], [720, 'Every 12 hours'], [1440, 'Every day'], [2880, 'Every 2 days'], [10080, 'Every week']];
-  function openRaceSetup(mode = 'new') {
+  const RSESSION = [[0, 'No limit'], [15, '15 minutes'], [30, '30 minutes'], [60, '1 hour'], [120, '2 hours'], [240, '4 hours'], [480, '8 hours']];
+  const RIDLE = [[0, 'Never'], [30, '30 minutes'], [60, '1 hour'], [120, '2 hours'], [360, '6 hours'], [1440, '1 day'], [2880, '2 days'], [4320, '3 days'], [10080, '1 week']];
+  // ready-made setups: each one sets every rule it names, and everything you wrote yourself stays
+  const RSETUPS = {
+    idea: { t: 'Idea tournament', d: 'No money moves. Each room proves demand for an idea; the idea you would run for real wins.', mins: [360, 1440, 4320], every: 60, stake: 250,
+      rules: { purpose: 'idea', moneyMode: 'paper', scoring: 'signals', places: 3, tiebreak: 'earliest', requireModel: true, copying: false, visibility: 'blind' } },
+    sprint: { t: 'Demand sprint', d: 'Two hours, no money: the most sign-ups, replies and pre-orders wins.', mins: [30, 60, 120], every: 10, stake: 100,
+      rules: { purpose: 'demand', moneyMode: 'paper', scoring: 'signals', places: 3, tiebreak: 'earliest' } },
+    quick: { t: 'Quick test', d: '30 min, 1 hour, 2 hours on $50 a room: watch the whole loop work before anything bigger.', mins: [30, 60, 120], every: 10, stake: 50,
+      rules: { purpose: 'learn', scoring: 'bankroll', maxSpendPerDayUsd: 20, approveOverUsd: 10 } },
+    real: { t: 'Real-money race', d: '$250 a room, prizes from 1 week to 6 months, receipts with order numbers, big buys need you.', mins: [10080, 43200, 129600, 259200], every: 1440, stake: 250,
+      rules: { purpose: 'idea', scoring: 'bankroll', places: 3, tiebreak: 'earliest', approveOverUsd: 50, maxSpendPerDayUsd: 40, evidence: 'id', requireModel: true, dailyReport: true, ruleBreak: 'fine', fineUsd: 10 } },
+    models: { t: 'Model shootout', d: 'Same stake, same rules, a different Claude model in each room. Scored on the multiple.', mins: [60, 360, 1440], every: 30, stake: 100, eachModel: true,
+      rules: { purpose: 'models', scoring: 'multiple', tiebreak: 'leastSpent', copying: false, visibility: 'blind' } },
+    royale: { t: 'Battle royale', d: 'Last place goes out at every prize time. Go quiet for 2 hours or break a rule and you are out.', mins: [60, 120, 240, 480, 960, 1440], every: 15, stake: 100,
+      rules: { purpose: 'money', scoring: 'bankroll', eliminateLast: true, knockoutUsd: 0, idleOutMinutes: 120, ruleBreak: 'out' } },
+    law: { t: 'Only the law', d: 'Every way, every tool, agents may message and post themselves. Only the house rules hold.', mins: [1440, 10080, 43200], every: 60, stake: 250, all: true,
+      rules: { purpose: 'money', banned: [], outreach: 'direct', maxMessagesPerDay: null, posting: 'direct', useName: 'allowed', personalNetwork: true, newAccounts: 'allowed', collab: true, copying: true, ruleBreak: 'warn', maxSpendPerDayUsd: null, maxTotalSpendUsd: null, approveOverUsd: null, reserveUsd: null, knockoutUsd: null, reinvest: true } },
+    locked: { t: 'Locked down', d: 'Digital products and content only, no ads, no contact, $50 cap, proof links. Any break is out.', mins: [1440, 4320, 10080], every: 360, stake: 50,
+      rules: { purpose: 'consistency', scoring: 'consistency', methods: ['digital', 'content'], spendCategories: ['api', 'tool'], maxTotalSpendUsd: 50, approveOverUsd: 10, outreach: 'none', posting: 'none', useName: 'never', newAccounts: 'never', requireModel: true, dailyReport: true, evidence: 'link', ruleBreak: 'out' } },
+  };
+  const RSECS = [['setups', 'Start from', 'bolt'], ['purpose', 'Purpose', 'target'], ['time', 'Time', 'clock'], ['score', 'Scoring and prizes', 'crown'], ['rooms', 'Contestants', 'folk'], ['ways', 'Ways to make money', 'coin'], ['tools', 'Tools', 'grid'], ['money', 'Money', 'vault'], ['people', 'People and posting', 'mail'], ['agents', 'How agents work', 'sliders'], ['penalty', 'Breaking a rule', 'warn'], ['own', 'Your own rules', 'pencil'], ['house', 'House rules', 'lock'], ['preview', 'Preview a brief', 'eye']];
+  const RS_KEY = 'pf.raceSetups';
+  const rsSaved = () => { try { const o = JSON.parse(localStorage.getItem(RS_KEY) || '{}'); return o && typeof o === 'object' ? o : {}; } catch { return {}; } };
+  const rsStore = (o) => { try { localStorage.setItem(RS_KEY, JSON.stringify(o)); return true; } catch { return false; } };
+  const RS_EXAMPLES = [['must', 'Show the price before anyone pays'], ['mustnot', 'Sell anything to children'], ['must', 'Keep every product under $30'], ['mustnot', 'Resell anyone else\'s work'], ['may', 'Give away free samples to get sign-ups'], ['mustnot', 'Use faces of real people in anything made with AI']];
+  // what the ledger checks for itself, and what only the agents are told
+  const TAGC = '<em class="rs-tag chk" title="The ledger checks this itself and flags a break on the board">ledger checks</em>';
+  const TAGT = '<em class="rs-tag tell" title="Written into every agent\'s brief. The ledger cannot see it, so it is on trust">in the brief</em>';
+  // the setup as it stands: from a draft, the race under way, or the defaults
+  function rsBase(mode) {
+    const M = snap.raceMenu, cur = snap.race;
+    if (cur && mode !== 'new') return { name: cur.name || '', stake: cur.stakeUsd, mins: cur.horizonsMin, racing: cur.lanes.map((x) => x.id), rules: { ...M.defaults, ...cur.rules }, evidence: mode === 'restart' ? cur.evidence || '' : '' };
+    return { name: '', stake: 250, mins: M.horizons.map((d) => d * 1440), racing: rooms.map((x) => x.id), rules: { ...M.defaults }, evidence: '' };
+  }
+  function openRaceSetup(mode = 'new', draft = null, keepScroll = false) {
     if (!snap || !snap.raceMenu) return;
     rsMode = mode;
+    if (!draft) rsPreset = null;
     const M = snap.raceMenu, cur = snap.race, amend = mode === 'amend' && cur;
-    const R = cur && mode !== 'new' ? cur.rules : M.defaults, stake = cur && mode !== 'new' ? cur.stakeUsd : 250, hz = cur && mode !== 'new' ? cur.horizonsMin : M.horizons.map((d) => d * 1440);
+    const D = draft || rsBase(mode), R = { ...M.defaults, ...D.rules }, stake = D.stake, hz = D.mins;
     const every = R.everyMinutes ?? (R.everyHours || 24) * 60;
-    const racing = new Set(cur && mode !== 'new' ? cur.lanes.map((x) => x.id) : rooms.map((x) => x.id));
+    const racing = new Set(D.racing);
     const lock = amend ? ' disabled' : '';
     const ck = (name, value, on, label, sub, extra = '') => `<label class="ck${on ? ' on' : ''}"><input type="checkbox" name="${name}" value="${esc(value)}"${on ? ' checked' : ''}${extra}><span><b>${esc(label)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span></label>`;
-    const sel = (name, opts, v) => `<select name="${name}">${Object.entries(opts).map(([k, t]) => `<option value="${k}"${v === k ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
+    const rc = (name, value, on, label, sub) => `<label class="ck rc${on ? ' on' : ''}"><input type="radio" name="${name}" value="${esc(value)}"${on ? ' checked' : ''}><span><b>${esc(label)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span></label>`;
+    const sel = (name, opts, v, extra = '') => `<select name="${name}"${extra}>${(Array.isArray(opts) ? opts : Object.entries(opts)).map(([k, t]) => `<option value="${k}"${String(v) === String(k) ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
+    const numf = (name, label, v, ph, tag = '', extra = '') => `<label class="field"><span>${esc(label)}${tag}</span><input name="${name}" type="number" min="0" step="1" placeholder="${esc(ph)}" value="${v ?? ''}"${extra}></label>`;
+    const sec = (key, sub, body) => { const s = RSECS.find((x) => x[0] === key); return `<section class="rs-card" id="rs-s-${key}" data-rssec="${key}"><h3 class="rs-h">${ic(s[2])}<span>${esc(s[1])}<small>${sub}</small></span></h3>${body}</section>`; };
     const list = rooms.slice().sort((a, b) => a.spec.rank - b.spec.rank);
-    $('#racebox .box').innerHTML = `<button class="cbtn glass x" data-rsclose title="Close (Esc)">${ic('close')}</button>
-      <div class="sy-head"><div class="rd-ic">${ic('flag')}</div><div style="min-width:0"><h2>${amend ? 'Change the rules' : mode === 'restart' ? 'Start a new race' : 'Set up the race'}</h2><p class="lead">${amend ? "The stake, prize days and contestants stay; everything else can change. The change goes on the ledger with why, and every agent's brief is written again." : `Every rule of the race, written on the ledger with the starting gun. Each agent's brief is written from these. Nothing here moves money.${mode === 'restart' ? ' A new race starts the count again from its own gun.' : ''}`}</p></div></div>
-      <form id="f-rs"><div class="rs-grid">
-        <section class="rs-sec wide"><h3>Your rules, in your own words</h3>
-          <textarea name="notes" maxlength="2000" rows="3" placeholder="Type any rules you want, in plain words. They go into every agent's brief, word for word. e.g. Keep each idea small until it sells. Nothing with our real names on it.">${esc(R.notes || '')}</textarea>
-        </section>
-        <section class="rs-sec wide"><h3>Time limits · the best score at each one wins a prize</h3>
-          ${amend ? '' : `<div class="presets">${Object.entries(RPRESETS).map(([k, p]) => `<button type="button" class="btn sm2" data-rspreset="${k}">${esc(p.t)}<small>${p.times.map(spanLabel).join(' · ')}</small></button>`).join('')}</div>`}
-          <div class="chips">${RTIMES.map((m) => ck('hz', m, hz.includes(m), spanLabel(m), '', lock)).join('')}</div>
-          <div class="row2"><label class="field"><span>Or type your own times</span><input name="hzOther" placeholder="e.g. 45m, 3h, 10d" value="${esc(hz.filter((m) => !RTIMES.includes(m)).map((m) => (m % 1440 === 0 ? m / 1440 + 'd' : m % 60 === 0 ? m / 60 + 'h' : m + 'm')).join(', '))}"${lock}></label>
-          <label class="field"><span>Each agent checks in</span><select name="everyMinutes">${REVERY.map(([m, t]) => `<option value="${m}"${m === every ? ' selected' : ''}>${esc(t)}</option>`).join('')}${REVERY.some(([m]) => m === every) ? '' : `<option value="${every}" selected>Every ${esc(spanLabel(every))}</option>`}</select></label></div>
-        </section>
-        <section class="rs-sec"><h3>The basics</h3>
-          <div class="row2"><label class="field"><span>Race name</span><input name="name" maxlength="60" value="${esc((cur && mode !== 'new' && cur.name) || '')}" placeholder="The $250 Race"></label>
-          <label class="field"><span>Stake per room (USD)</span><input name="stake" type="number" min="1" step="1" value="${stake}" required${lock}></label></div>
-          <div class="row2"><label class="field"><span>Scored by</span>${sel('scoring', M.scoring, R.scoring)}</label>
-          <label class="field"><span>A tie at the top</span>${sel('tiebreak', { none: 'Nobody wins that prize', earliest: 'Goes to whoever got there first' }, R.tiebreak)}</label></div>
-          ${amend ? '' : `<div class="row2"><label class="field"><span>Start</span>${sel('start', { now: 'Now', later: 'Later' }, 'now')}</label><label class="field"><span>Start at (if later)</span><input name="startAt" type="datetime-local"></label></div>`}
-        </section>
-        <section class="rs-sec"><h3>Contestants</h3>
-          <div class="rs-rooms">${list.map((mm) => { const fl = leadOf(mm.id); return `<div class="rr" style="--c:${themeOf(mm.id).accent}"><label class="rrn"><input type="checkbox" name="race_${esc(mm.id)}"${racing.has(mm.id) ? ' checked' : ''}${lock}><i></i><b>${esc(shortName(mm.spec))}</b><small>${fl ? esc(fl.name) : 'no lead yet'}</small></label>
-            <input name="stake_${esc(mm.id)}" type="number" min="1" step="1" placeholder="${stake}" value="${R.stakes && R.stakes[mm.id] ? R.stakes[mm.id] : ''}" title="This room's own stake (blank: the race stake)"${lock}>
-            <select name="model_${esc(mm.id)}" title="The Claude model this room's agent runs on"><option value="">Any model</option>${Object.entries(M.models).map(([k, t]) => `<option value="${k}"${R.models && R.models[mm.id] === k ? ' selected' : ''}>${esc(t.replace(/^Claude /, ''))}</option>`).join('')}</select></div>`; }).join('')}</div>
-          <div class="muted small">A blank stake uses the race stake. Give one room more to handicap it, or put a different model in each room to see which does best.</div>
-        </section>
-        <section class="rs-sec wide"><h3>Ways they may make money <span class="rs-quick"><button type="button" data-rsall="method">all</button><button type="button" data-rsnone="method">none</button></span></h3>
-          <div class="meths">${Object.entries(M.methods).map(([k, t]) => ck('method', k, R.methods.includes(k), t.split(':')[0], t.includes(':') ? t.split(':').slice(1).join(':').trim() : '')).join('')}</div>
-        </section>
-        <section class="rs-sec wide"><h3>Tools and connectors they may use <span class="rs-quick"><button type="button" data-rsall="conn">all</button><button type="button" data-rsnone="conn">none</button></span></h3>
-          <div class="chips">${M.connectors.map((c) => ck('conn', c, R.connectors.includes(c), c, M.work.includes(c) ? 'work account' : '')).join('')}</div>
-          <input name="connOther" placeholder="Other tools, comma separated" value="${esc(R.connectors.filter((c) => !M.connectors.includes(c)).join(', '))}">
-        </section>
-        <section class="rs-sec"><h3>Money</h3>
-          <div class="chips">${ck('ads', '1', R.ads, 'Paid ads allowed', 'from their own stake')}${ck('collab', '1', R.collab, 'Rooms may trade', 'with each other, at fair prices')}</div>
-          <div class="row2"><label class="field"><span>Most a room spends a day</span><input name="maxDay" type="number" min="0" step="1" placeholder="no limit" value="${R.maxSpendPerDayUsd ?? ''}"></label>
-          <label class="field"><span>Purchases over this need you</span><input name="approveOver" type="number" min="0" step="1" placeholder="none" value="${R.approveOverUsd ?? ''}"></label></div>
-          <label class="field"><span>Knocked out at a bankroll of</span><input name="knockout" type="number" min="0" step="1" placeholder="never" value="${R.knockoutUsd ?? ''}"></label>
-        </section>
-        <section class="rs-sec"><h3>People and posting</h3>
-          <label class="field"><span>Contacting people</span>${sel('outreach', M.contact, R.outreach)}</label>
-          <label class="field"><span>Public posts</span>${sel('posting', { drafts: 'Agents draft; Joshua publishes', none: 'No public posts at all' }, R.posting)}</label>
-          <div class="muted small">Agents never send, post or message anyone themselves: a draft waits in the dock for you.</div>
-        </section>
-      </div>
+    const saved = rsSaved();
+    const scoringSub = { bankroll: 'stake + money in − money out', profit: 'money in − money out', multiple: 'bankroll ÷ stake: fair when stakes differ', revenue: 'money in, before spending', roi: 'dollars back per dollar spent', sales: 'the count of evidenced sales', customers: 'different payers', signals: 'sign-ups, pre-orders, replies, weighted below', consistency: 'share of periods the bankroll went up', firstDollar: 'the soonest evidenced sale', judge: 'points you give on the ledger, with a reason' };
+    const purposeSub = { idea: 'the winner\'s idea is the one you run for real', money: 'pure profit, any allowed way', demand: 'real interest, no money spent', models: 'the same race, a model per room', consistency: 'steady beats lucky', learn: 'many small tries, fast', custom: 'type it below' };
+    const sections = [
+      sec('setups', 'a ready-made race, your saved setups, or a file', `
+        <div class="rs-setups">${Object.entries(RSETUPS).map(([k, p]) => `<button type="button" class="rs-setup${rsPreset === k ? ' on' : ''}" data-rssetup="${k}"><b>${esc(p.t)}</b><small>${esc(p.d)}</small><i>${p.mins.map(spanLabel).join(' · ')}${p.rules.moneyMode === 'paper' ? ' · no money' : ` · $${p.stake} a room`}</i></button>`).join('')}</div>
+        <div class="rs-row"><b class="rs-lbl">Your saved setups</b>${Object.keys(saved).length ? Object.keys(saved).map((n) => `<span class="rs-saved"><button type="button" data-rsload="${esc(n)}">${esc(n)}</button><button type="button" data-rsdel="${esc(n)}" title="Forget this setup">${ic('close')}</button></span>`).join('') : '<span class="muted small">None yet. Set the race up the way you like it, then save it here.</span>'}</div>
+        <div class="rs-row"><input name="saveAs" maxlength="40" placeholder="Name this setup, e.g. Friday sprint" style="flex:1;min-width:160px"><button type="button" class="btn sm2" data-rssave>${ic('check')}Save setup</button>
+          <button type="button" class="btn sm2" data-rsexport>${ic('chevD')}Export file</button><label class="btn sm2" style="cursor:pointer">${ic('plus')}Import file<input type="file" accept=".json,application/json" data-rsimport hidden></label>
+          <button type="button" class="btn sm2" data-rsjson>${ic('term')}Copy rules.json</button><button type="button" class="btn sm2" data-rsreset>${ic('replay')}Back to defaults</button></div>`),
+      sec('purpose', 'what this race is for: every brief leads with it', `
+        <div class="rs-cards">${Object.entries(M.purposes).map(([k, t]) => rc('purpose', k, R.purpose === k, t, purposeSub[k] || '')).join('')}</div>
+        <label class="field"><span>In your own words (for "something else", or to add to any purpose)</span><input name="purposeText" maxlength="600" value="${esc(R.purposeText || '')}" placeholder="e.g. Find a side business I can run in 5 hours a week"></label>
+        <label class="field"><span>Your rules, in plain words ${TAGT}</span><textarea name="notes" maxlength="4000" rows="3" placeholder="Anything at all. It goes into every agent's brief, word for word. e.g. Keep each idea small until it sells. Nothing with our real names on it.">${esc(R.notes || '')}</textarea></label>`),
+      sec('time', 'each time limit is a prize, won by the best score at that moment', `
+        ${amend ? '<div class="muted small">The prize times are fixed once the race starts.</div>' : `<div class="presets">${Object.entries(RPRESETS).map(([k, p]) => `<button type="button" class="btn sm2" data-rspreset="${k}">${esc(p.t)}<small>${p.times.map(spanLabel).join(' · ')}</small></button>`).join('')}</div>`}
+        <div class="chips">${RTIMES.map((m) => ck('hz', m, hz.includes(m), spanLabel(m), '', lock)).join('')}</div>
+        <div class="rs-grid3"><label class="field"><span>Or type your own times</span><input name="hzOther" placeholder="e.g. 45m, 3h, 10d" value="${esc(hz.filter((m) => !RTIMES.includes(m)).map((m) => (m % 1440 === 0 ? m / 1440 + 'd' : m % 60 === 0 ? m / 60 + 'h' : m + 'm')).join(', '))}"${lock}></label>
+          <label class="field"><span>Each agent checks in ${TAGT}</span>${sel('everyMinutes', REVERY.some(([m]) => m === every) ? REVERY : [...REVERY, [every, 'Every ' + spanLabel(every)]], every)}</label>
+          <label class="field"><span>Longest session ${TAGT}</span>${sel('maxSession', RSESSION, R.maxSessionMinutes || 0)}</label></div>
+        <div class="rs-grid3"><div class="field"><span>Quiet hours: no work between ${TAGC}</span><div class="rs-inline">${ck('quietOn', '1', Boolean(R.quietHours), 'On', '')}<input name="quietFrom" type="time" value="${esc(R.quietHours ? R.quietHours.from : '22:00')}"><span class="muted">to</span><input name="quietTo" type="time" value="${esc(R.quietHours ? R.quietHours.to : '07:00')}"></div></div>
+          <div class="field"><span>Days ${TAGC}</span>${ck('weekdaysOnly', '1', R.weekdaysOnly, 'Weekdays only', 'no work on Saturday or Sunday')}</div>
+          ${amend ? '<div></div>' : `<div class="field"><span>Start</span><div class="rs-inline">${sel('start', { now: 'Now', later: 'Later' }, D.startAt ? 'later' : 'now')}<input name="startAt" type="datetime-local" value="${esc(D.startAtLocal || '')}"></div></div>`}</div>`),
+      sec('score', 'what wins a prize, how many places, who goes out', `
+        <div class="rs-cards">${Object.entries(M.scoring).map(([k, t]) => rc('scoring', k, R.scoring === k, t.split(':')[0].replace(/\s*\(.*\)$/, ''), scoringSub[k] || '')).join('')}</div>
+        <div class="rs-grid3"><label class="field"><span>A tie at the top</span>${sel('tiebreak', M.tiebreaks, R.tiebreak)}</label>
+          <label class="field"><span>Places per prize</span>${sel('places', [[1, 'Winner only'], [2, 'Top 2'], [3, 'Top 3']], R.places)}</label>
+          <label class="field"><span>Money counts with ${TAGC}</span>${sel('evStd', M.evidence, R.evidence)}</label></div>
+        <div class="rs-grid3">${numf('knockout', 'Out at a bankroll of', R.knockoutUsd, 'never', TAGC)}
+          <label class="field"><span>Out after no move for ${TAGC}</span>${sel('idleOut', RIDLE.some(([m]) => m === (R.idleOutMinutes || 0)) ? RIDLE : [...RIDLE, [R.idleOutMinutes, spanLabel(R.idleOutMinutes)]], R.idleOutMinutes || 0)}</label>
+          <div class="field"><span>Elimination ${TAGC}</span>${ck('eliminateLast', '1', R.eliminateLast, 'Last place goes out', 'at every prize time but the last')}</div></div>
+        <div class="field"><span>Demand weights: points per signal, when scored on demand</span><div class="rs-weights">${Object.entries(M.signalTypes).map(([k, t]) => `<label><small>${esc(t)}</small><input name="sig_${k}" type="number" min="0" step="any" value="${R.signalWeights && R.signalWeights[k] !== undefined ? R.signalWeights[k] : M.defaults.signalWeights[k]}"></label>`).join('')}</div></div>`),
+      sec('rooms', 'who races, on what stake, with which model, told what', `
+        <div class="rs-grid3"><label class="field"><span>Race name</span><input name="name" maxlength="60" value="${esc(D.name || '')}" placeholder="The $250 Race"></label>
+          <label class="field"><span>Stake per room (USD)</span><input name="stake" type="number" min="1" step="1" value="${stake}" required${lock}></label>
+          <label class="field"><span>Same model in every room</span><select data-rsallmodel><option value="">Choose to set all…</option><option value="-">Any model</option>${Object.entries(M.models).map(([k, t]) => `<option value="${k}">${esc(t)}</option>`).join('')}<option value="*">A different one in each</option></select></label></div>
+        <div class="rs-rooms">${list.map((mm) => { const fl = leadOf(mm.id); return `<div class="rr" style="--c:${themeOf(mm.id).accent}"><label class="rrn"><input type="checkbox" name="race_${esc(mm.id)}"${racing.has(mm.id) ? ' checked' : ''}${lock}><i></i><b>${esc(shortName(mm.spec))}</b><small>${fl ? esc(fl.name) : 'no lead yet'}</small></label>
+          <input name="stake_${esc(mm.id)}" type="number" min="1" step="1" placeholder="${stake}" value="${R.stakes && R.stakes[mm.id] ? R.stakes[mm.id] : ''}" title="This room's own stake (blank: the race stake)"${lock}>
+          <select name="model_${esc(mm.id)}" title="The Claude model this room's agent runs on"><option value="">Any model</option>${Object.entries(M.models).map(([k, t]) => `<option value="${k}"${R.models && R.models[mm.id] === k ? ' selected' : ''}>${esc(t.replace(/^Claude /, ''))}</option>`).join('')}</select>
+          <input name="note_${esc(mm.id)}" maxlength="1000" placeholder="Only for this room, e.g. B2B only" value="${esc((R.roomNotes || {})[mm.id] || '')}" title="Goes into this room's brief only"></div>`; }).join('')}</div>
+        <div class="muted small">A blank stake uses the race stake. Give one room more to handicap it, a different model to compare them, or its own instruction to test a theory.</div>`),
+      sec('ways', 'the kinds of money-making allowed; each play names its kind', `
+        <div class="rs-quickrow">${TAGC}<span class="rs-quick"><button type="button" data-rsall="method">all</button><button type="button" data-rsnone="method">none</button></span></div>
+        <div class="meths">${Object.entries(M.methods).map(([k, t]) => ck('method', k, R.methods.includes(k), t.split(':')[0], t.includes(':') ? t.split(':').slice(1).join(':').trim() : '')).join('')}</div>
+        <div class="rs-grid2"><label class="field"><span>More ways, your own words (comma separated)</span><input name="customMethods" value="${esc((R.customMethods || []).join(', '))}" placeholder="e.g. tutoring, event planning"></label>
+          <label class="field"><span>Never use or mention (comma separated) ${TAGC}</span><input name="banned" value="${esc((R.banned || []).join(', '))}" placeholder="e.g. TikTok, dropshipping"></label></div>
+        ${ck('requireModel', '1', R.requireModel, 'A business model before any spending', 'a play must log what it sells and to whom before it spends a dollar')}`),
+      sec('tools', 'the connectors and apps each agent may use', `
+        <div class="rs-quickrow">${TAGT}<span class="rs-quick"><button type="button" data-rsall="conn">all</button><button type="button" data-rsnone="conn">none</button></span></div>
+        <div class="chips">${M.connectors.map((c) => ck('conn', c, R.connectors.includes(c), c, M.work.includes(c) ? 'work account' : '')).join('')}</div>
+        <input name="connOther" placeholder="Other tools, comma separated" value="${esc(R.connectors.filter((c) => !M.connectors.includes(c)).join(', '))}">`),
+      sec('money', 'real or paper, what they may spend on, and every limit', `
+        <div class="rs-cards two">${Object.entries(M.moneyModes).map(([k, t]) => rc('moneyMode', k, R.moneyMode === k, t.split(':')[0], k === 'paper' ? 'nothing is bought or sold; scored on demand or your points' : 'every dollar in and out is real, with a receipt')).join('')}</div>
+        <div class="field"><span>They may spend on ${TAGC}</span><div class="chips">${Object.entries(M.spendCategories).map(([k, t]) => ck('cat', k, R.spendCategories.includes(k), t, '')).join('')}</div></div>
+        <div class="rs-grid3">${numf('maxDay', 'Most a room spends a day', R.maxSpendPerDayUsd, 'no limit', TAGC)}${numf('maxTotal', 'Most a room spends in all', R.maxTotalSpendUsd, 'no limit', TAGC)}${numf('approveOver', 'Purchases over this need you', R.approveOverUsd, 'none', TAGC)}</div>
+        <div class="rs-grid3">${numf('reserve', 'Always keep at least', R.reserveUsd, 'nothing', TAGC)}
+          <div class="field"><span>Reinvesting ${TAGC}</span>${ck('reinvest', '1', R.reinvest, 'May spend what they make', 'off: only the stake may be spent')}</div>
+          <div class="field"><span>Between rooms ${TAGT}</span>${ck('collab', '1', R.collab, 'Rooms may trade', 'with each other, at fair prices')}</div></div>`),
+      sec('people', 'who they may contact, what they may post, whose name they use', `
+        <div class="rs-grid2"><label class="field"><span>Contacting people ${TAGT}</span>${sel('outreach', M.contact, R.outreach)}</label>
+          ${numf('maxMsgs', 'Most messages a day (when they send)', R.maxMessagesPerDay, 'no limit', TAGT)}</div>
+        <div class="rs-grid2"><label class="field"><span>Public posts ${TAGT}</span>${sel('posting', M.posting, R.posting)}</label>
+          <label class="field"><span>Your name ${TAGT}</span>${sel('useName', M.nameUse, R.useName)}</label></div>
+        <div class="rs-grid2"><label class="field"><span>New accounts anywhere ${TAGT}</span>${sel('newAccounts', M.accounts, R.newAccounts)}</label>
+          <div class="field"><span>Your people ${TAGT}</span>${ck('personalNetwork', '1', R.personalNetwork, 'May reach your own contacts', 'through drafts you approve')}</div></div>
+        <div class="muted small">Agents sending or posting themselves is off until you switch it on. Whatever you pick, every message must be honest, signed as an AI agent, and easy to opt out of.</div>`),
+      sec('agents', 'what each agent may see, copy and must report', `
+        <div class="rs-grid3"><label class="field"><span>What they see ${TAGT}</span>${sel('visibility', M.visibility, R.visibility)}</label>
+          <div class="field"><span>Copying ${TAGT}</span>${ck('copying', '1', R.copying, 'May copy another room\'s idea', 'and must say so in the plan')}</div>
+          <div class="field"><span>Reports ${TAGC}</span>${ck('dailyReport', '1', R.dailyReport, 'A step every day', 'a day with no step is a break')}</div></div>`),
+      sec('penalty', 'what happens when the ledger sees a rule broken', `
+        <div class="rs-grid2"><label class="field"><span>A rule break</span>${sel('ruleBreak', M.penalty, R.ruleBreak)}</label>${numf('fineUsd', 'Fine per break (USD)', R.fineUsd || '', '0')}</div>
+        <div class="muted small">The ledger checks every rule marked ${TAGC}: spending categories and limits, approvals, the reserve, reinvesting, the banned list, allowed ways, quiet hours, weekends, daily reports, going quiet, paper money and the evidence standard. Rules marked ${TAGT} are on trust: the agents read them, and the board cannot see them.</div>`),
+      sec('own', 'any rule you like: must, must not, or may', `
+        <div class="rs-crs" data-rscrs>${(R.customRules || []).map((c) => rsRuleRow(c.kind, c.text)).join('')}</div>
+        <div class="rs-row"><button type="button" class="btn sm2" data-rsaddrule>${ic('plus')}Add a rule</button><span class="muted small">Ideas:</span>${RS_EXAMPLES.map(([k, t]) => `<button type="button" class="rs-ex" data-rsex="${k}" data-text="${esc(t)}">${esc(M.ruleKinds[k])}: ${esc(t)}</button>`).join('')}</div>`),
+      sec('house', 'the same in every race, whatever the rest says', `
+        <ol class="rs-house"><li>Legal, honest, and inside every platform's terms.</li><li>No fake reviews, no pretending to be anyone, no spam, no bought followers, no scraping behind a login.</li><li>Money counts only with evidence. A claim without it never scores.</li><li>Anything that needs your identity (an ID check, a payment account, a tax form) waits for you.</li></ol>`),
+      sec('preview', 'exactly what an agent will read, from the rules above', `
+        <div class="rs-row"><select data-rsprevroom>${list.map((mm) => `<option value="${esc(mm.id)}">${esc(shortName(mm.spec))}</option>`).join('')}</select><button type="button" class="btn sm2" data-rsprev>${ic('eye')}Write the brief</button><button type="button" class="btn sm2" data-rsprevcopy hidden>${ic('note')}Copy</button></div>
+        <pre class="brief" data-rsprevtext hidden></pre>`),
+    ];
+    const box = $('#racebox .box'), top = keepScroll ? box.scrollTop : 0;
+    box.innerHTML = `<button class="cbtn glass x" data-rsclose title="Close (Esc)">${ic('close')}</button>
+      <div class="sy-head"><div class="rd-ic">${ic('flag')}</div><div style="min-width:0"><h2>${amend ? 'Change the rules' : mode === 'restart' ? 'Start a new race' : 'Set up the race'}</h2><p class="lead">${amend ? "The stake, prize times and contestants stay; everything else can change. The change goes on the ledger with why, and every agent's brief is written again." : `Every option there is, yours to set or leave open. It is all written on the ledger with the starting gun, and each agent's brief is written from it. Nothing here moves money.${mode === 'restart' ? ' A new race starts the count again from its own gun.' : ''}`}</p></div></div>
+      <form id="f-rs"><div class="rs-wrap"><nav class="rs-nav">${RSECS.map(([k, t, i]) => `<button type="button" data-rsgo="${k}">${ic(i)}<span>${esc(t)}</span></button>`).join('')}</nav>
+      <div class="rs-main">${sections.join('')}</div></div>
       <div class="rs-foot">
-        <label class="field"><span>${amend ? 'Why the rules changed' : 'Where the stake money sits'}</span><input name="evidence" minlength="3" required placeholder="${amend ? 'e.g. ads were burning money, so ads are off' : 'e.g. eight virtual cards, $250 on each'}" value="${!amend && cur && mode === 'restart' ? esc(cur.evidence || '') : ''}"></label>
+        <label class="field"><span>${amend ? 'Why the rules changed' : 'Where the stake money sits'}</span><input name="evidence" minlength="3" required placeholder="${amend ? 'e.g. ads were burning money, so ads are off' : 'e.g. eight virtual cards, $250 on each'}" value="${esc(D.evidence || '')}"></label>
         <div class="rs-sum" data-rssum></div>
-        <button class="btn go" type="submit">${ic('flag')}<span data-rsgo>${amend ? 'Save the new rules' : 'Start the race'}</span></button><div class="msg"></div>
+        <button class="btn go" type="submit">${ic('flag')}<span data-rsgobtn>${amend ? 'Save the new rules' : 'Start the race'}</span></button><div class="msg"></div>
       </div></form>`;
     $('#racebox').hidden = false;
-    $('#racebox .box').scrollTop = 0;
-    rsSummary();
+    box.scrollTop = top;
+    rsSummary(); rsNav();
+  }
+  function rsRuleRow(kind = 'must', text = '') {
+    return `<div class="crow"><select name="cr_kind">${Object.entries(snap.raceMenu.ruleKinds).map(([k, t]) => `<option value="${k}"${k === kind ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select><input name="cr_text" maxlength="300" value="${esc(text)}" placeholder="e.g. Name every product after a fruit"><button type="button" class="rs-del" data-crdel title="Remove this rule">${ic('close')}</button></div>`;
   }
   const closeRaceSetup = () => { $('#racebox').hidden = true; };
   document.addEventListener('click', (e) => { const b = e.target.closest('[data-rsopen]'); if (b && !b.closest('#racebox')) { e.preventDefault(); openRaceSetup(b.dataset.rsopen); } });
   function rsRead(f) {
-    const fd = new FormData(f), cur = snap.race, amend = rsMode === 'amend' && cur;
-    const num = (k) => { const v = String(fd.get(k) ?? '').trim(); return v === '' ? null : Number(v); };
-    const typed = String(fd.get('hzOther') || '').split(',').map((x) => x.trim()).filter(Boolean);
-    const bad = typed.filter((x) => !durMin(x));
+    const fd = new FormData(f), cur = snap.race, amend = rsMode === 'amend' && cur, M = snap.raceMenu;
+    const str = (k) => String(fd.get(k) ?? '').trim();
+    const num = (k) => { const v = str(k); return v === '' || !Number.isFinite(Number(v)) ? null : Number(v); };
+    const int = (k) => { const v = num(k); return v === null ? null : Math.round(v); };
+    const words = (k) => [...new Set(str(k).split(',').map((x) => x.trim()).filter(Boolean))];
+    const typed = words('hzOther'), bad = typed.filter((x) => !durMin(x));
     const mins = amend ? cur.horizonsMin : [...new Set([...fd.getAll('hz').map(Number), ...typed.map(durMin).filter(Boolean)])].sort((a, b) => a - b);
     const racing = amend ? cur.lanes.map((x) => x.id) : rooms.map((x) => x.id).filter((id) => f.elements['race_' + id] && f.elements['race_' + id].checked);
-    const stakes = {}, models = {};
-    for (const id of racing) { const sv = amend ? (cur.rules.stakes || {})[id] : num('stake_' + id); if (sv) stakes[id] = sv; const mv = fd.get('model_' + id); if (mv) models[id] = mv; }
+    const stakes = {}, models = {}, roomNotes = {};
+    for (const id of rooms.map((x) => x.id)) {
+      if (!racing.includes(id)) continue;
+      const sv = amend ? (cur.rules.stakes || {})[id] : num('stake_' + id); if (sv) stakes[id] = sv;
+      const mv = str('model_' + id); if (mv) models[id] = mv;
+      const nv = str('note_' + id); if (nv) roomNotes[id] = nv.slice(0, 1000);
+    }
+    const kinds = fd.getAll('cr_kind'), texts = fd.getAll('cr_text').map((t) => String(t).trim());
+    const customRules = texts.map((text, i) => ({ kind: kinds[i] || 'must', text: text.slice(0, 300) })).filter((c) => c.text).slice(0, 60);
+    const signalWeights = Object.fromEntries(Object.keys(M.signalTypes).map((k) => [k, Math.max(0, num('sig_' + k) ?? M.defaults.signalWeights[k])]));
+    const hm = (v) => /^\d\d:\d\d$/.test(v);
     const rules = {
-      methods: fd.getAll('method'), connectors: [...new Set([...fd.getAll('conn'), ...String(fd.get('connOther') || '').split(',').map((x) => x.trim()).filter(Boolean)])],
-      ads: fd.has('ads'), collab: fd.has('collab'), maxSpendPerDayUsd: num('maxDay'), approveOverUsd: num('approveOver'), knockoutUsd: num('knockout'),
-      outreach: fd.get('outreach'), posting: fd.get('posting'), everyMinutes: Math.min(10080, Math.max(0, Math.round(num('everyMinutes') ?? 1440))), scoring: fd.get('scoring'), tiebreak: fd.get('tiebreak'),
-      stakes, models, notes: String(fd.get('notes') || ''),
+      purpose: str('purpose') || 'idea', purposeText: str('purposeText').slice(0, 600), moneyMode: str('moneyMode') || 'real',
+      methods: fd.getAll('method'), customMethods: words('customMethods').slice(0, 30), banned: words('banned').slice(0, 60),
+      connectors: [...new Set([...fd.getAll('conn'), ...words('connOther')])].slice(0, 60), spendCategories: fd.getAll('cat'),
+      maxSpendPerDayUsd: num('maxDay'), maxTotalSpendUsd: num('maxTotal'), approveOverUsd: num('approveOver'), reserveUsd: num('reserve'), knockoutUsd: num('knockout'),
+      reinvest: fd.has('reinvest'), collab: fd.has('collab'),
+      outreach: str('outreach') || 'drafts', maxMessagesPerDay: int('maxMsgs'), posting: str('posting') || 'drafts', useName: str('useName') || 'drafts', personalNetwork: fd.has('personalNetwork'), newAccounts: str('newAccounts') || 'ask',
+      visibility: str('visibility') || 'open', copying: fd.has('copying'), dailyReport: fd.has('dailyReport'), requireModel: fd.has('requireModel'),
+      everyMinutes: Math.min(10080, Math.max(0, Math.round(num('everyMinutes') ?? 1440))), maxSessionMinutes: int('maxSession') || null,
+      quietHours: fd.has('quietOn') && hm(str('quietFrom')) && hm(str('quietTo')) ? { from: str('quietFrom'), to: str('quietTo') } : null, weekdaysOnly: fd.has('weekdaysOnly'),
+      scoring: str('scoring') || 'bankroll', tiebreak: str('tiebreak') || 'none', places: Number(str('places')) || 1, eliminateLast: fd.has('eliminateLast'), idleOutMinutes: int('idleOut') || null, signalWeights,
+      ruleBreak: str('ruleBreak') || 'warn', fineUsd: num('fineUsd') || 0, evidence: str('evStd') || 'any',
+      stakes, models, roomNotes, customRules, notes: str('notes').slice(0, 4000),
     };
     const stake = amend ? cur.stakeUsd : num('stake') || 250;
-    const startAt = !amend && fd.get('start') === 'later' && fd.get('startAt') ? new Date(fd.get('startAt')).toISOString() : null;
-    return { name: String(fd.get('name') || '').trim(), stake, mins, bad, racing, rules, startAt, evidence: String(fd.get('evidence') || '').trim() };
+    const startAtLocal = !amend && str('start') === 'later' ? str('startAt') : '';
+    const startAt = startAtLocal ? new Date(startAtLocal).toISOString() : null;
+    let evidence = str('evidence');
+    if (!evidence && !amend && rules.moneyMode === 'paper') evidence = 'Paper race: no real money';
+    return { name: str('name'), stake, mins, bad, racing, rules, startAt, startAtLocal, evidence };
   }
   function rsSummary() {
     const f = $('#f-rs'); if (!f) return;
-    const d = rsRead(f), staked = d.racing.reduce((s, id) => s + (d.rules.stakes[id] || d.stake), 0);
-    const ev = d.rules.everyMinutes, first = d.mins[0];
-    const warn = [d.bad.length ? `can't read "${esc(d.bad.join('", "'))}" (try 45m, 3h, 10d)` : '', !d.mins.length ? 'pick at least one time limit' : '', ev && first && ev > first ? `agents check in every ${spanLabel(ev)}, but the first prize is at ${spanLabel(first)}` : ''].filter(Boolean);
-    f.querySelector('[data-rssum]').innerHTML = `<b>${d.racing.length}</b> room${d.racing.length === 1 ? '' : 's'} · <b>${usd(staked)}</b> staked · prizes at ${d.mins.length ? d.mins.map(spanLabel).join(', ') : '…'} · agents ${ev ? `check in every <b>${spanLabel(ev)}</b>` : '<b>work all the time</b>'} · <b>${d.rules.methods.length}</b> of ${Object.keys(snap.raceMenu.methods).length} ways to make money · <b>${d.rules.connectors.length}</b> tools${d.startAt ? ` · starts ${esc(new Date(d.startAt).toLocaleString())}` : ''}${warn.length ? `<div class="rs-warn">${ic('warn')}${warn.join('; ')}</div>` : ''}`;
-    const go = f.querySelector('[data-rsgo]'); if (go && rsMode !== 'amend') go.textContent = d.startAt ? 'Schedule the race' : 'Start the race';
+    const d = rsRead(f), r = d.rules, M = snap.raceMenu, staked = d.racing.reduce((s, id) => s + (r.stakes[id] || d.stake), 0);
+    const ev = r.everyMinutes, first = d.mins[0], paper = r.moneyMode === 'paper';
+    // the rules the ledger will check in this race
+    const checks = [r.methods.length < Object.keys(M.methods).length, r.banned.length, r.spendCategories.length < Object.keys(M.spendCategories).length, r.maxSpendPerDayUsd !== null, r.maxTotalSpendUsd !== null, r.approveOverUsd !== null, r.reserveUsd !== null, !r.reinvest, r.knockoutUsd !== null, r.requireModel, r.quietHours, r.weekdaysOnly, r.dailyReport, r.idleOutMinutes, r.eliminateLast, paper, r.evidence !== 'any'].filter(Boolean).length;
+    const warn = [
+      d.bad.length ? `can't read "${esc(d.bad.join('", "'))}" (try 45m, 3h, 10d)` : '',
+      !d.mins.length ? 'pick at least one time limit' : '',
+      !d.racing.length ? 'pick at least one room' : '',
+      ev && first && ev > first ? `agents check in every ${spanLabel(ev)}, but the first prize is at ${spanLabel(first)}` : '',
+      paper && MONEY_SCORES.includes(r.scoring) ? 'a paper race moves no money: score it on demand or your own points' : '',
+      r.scoring === 'signals' && !Object.values(r.signalWeights).some((w) => w > 0) ? 'every demand weight is 0, so nobody can score' : '',
+      r.eliminateLast && d.mins.length < 2 ? 'elimination needs at least two prize times' : '',
+      r.places > d.racing.length ? `${r.places} places, but only ${d.racing.length} room${d.racing.length === 1 ? '' : 's'}` : '',
+      r.outreach === 'direct' ? 'agents will message people themselves' : '',
+      r.posting === 'direct' ? 'agents will post publicly themselves' : '',
+      r.ruleBreak === 'fine' && !r.fineUsd ? 'fines are on, but the fine is $0' : '',
+      !r.methods.length && !r.customMethods.length ? 'no way to make money is allowed' : '',
+      r.purpose === 'custom' && !r.purposeText ? 'say what the race is for, in your own words' : '',
+    ].filter(Boolean);
+    const scoreName = (M.scoring[r.scoring] || '').split(':')[0].replace(/\s*\(.*\)$/, '').toLowerCase();
+    f.querySelector('[data-rssum]').innerHTML = `<b>${d.racing.length}</b> room${d.racing.length === 1 ? '' : 's'} · ${paper ? '<b>paper</b> money' : `<b>${usd(staked)}</b> staked`} · prizes at ${d.mins.length ? d.mins.map(spanLabel).join(', ') : '…'} · scored on <b>${esc(scoreName)}</b>${r.places > 1 ? ` · top <b>${r.places}</b>` : ''} · agents ${ev ? `check in every <b>${spanLabel(ev)}</b>` : '<b>work all the time</b>'} · <b>${r.methods.length + r.customMethods.length}</b> ways · <b>${r.connectors.length}</b> tools · <b>${checks}</b> rules the ledger checks · <b>${r.customRules.length}</b> of your own${d.startAt ? ` · starts ${esc(new Date(d.startAt).toLocaleString())}` : ''}${warn.length ? `<div class="rs-warn">${ic('warn')}${warn.join('; ')}</div>` : ''}`;
+    const go = f.querySelector('[data-rsgobtn]'); if (go && rsMode !== 'amend') go.textContent = d.startAt ? 'Schedule the race' : 'Start the race';
   }
+  // the section nav follows the scroll
+  function rsNav() {
+    const box = $('#racebox .box'), secs = [...box.querySelectorAll('[data-rssec]')];
+    if (!secs.length) return;
+    const y = box.scrollTop + 90;
+    let on = secs[0].dataset.rssec;
+    for (const s of secs) if (s.offsetTop <= y) on = s.dataset.rssec;
+    if (box.scrollTop + box.clientHeight >= box.scrollHeight - 4) on = secs[secs.length - 1].dataset.rssec;
+    box.querySelectorAll('[data-rsgo]').forEach((b) => b.classList.toggle('on', b.dataset.rsgo === on));
+  }
+  // a setup from a ready-made one, a saved one or a file: every rule it names, and everything you wrote yourself kept
+  function rsApply(setup, key = null) {
+    const f = $('#f-rs'), M = snap.raceMenu, now = rsRead(f), amend = rsMode === 'amend' && snap.race;
+    const own = { notes: now.rules.notes, customRules: now.rules.customRules, roomNotes: now.rules.roomNotes, purposeText: now.rules.purposeText };
+    const rules = { ...M.defaults, ...(setup.replace ? {} : own), ...(setup.all ? { methods: Object.keys(M.methods), connectors: [...M.connectors], spendCategories: Object.keys(M.spendCategories) } : {}), ...setup.rules };
+    if (setup.every !== undefined) rules.everyMinutes = setup.every;
+    const racing = amend ? now.racing : setup.racing ? setup.racing.filter((id) => rooms.some((x) => x.id === id)) : now.racing;
+    if (setup.eachModel) { const ms = Object.keys(M.models); rules.models = Object.fromEntries(racing.map((id, i) => [id, ms[i % ms.length]])); }
+    rsPreset = key;
+    openRaceSetup(rsMode, { name: setup.name !== undefined ? setup.name : now.name, stake: amend ? now.stake : setup.stake || now.stake, mins: amend ? now.mins : setup.mins || now.mins, racing, rules, evidence: now.evidence, startAt: now.startAt, startAtLocal: now.startAtLocal }, true);
+  }
+  // a setup to save or export: everything but where the money sits and when it starts
+  const rsSetupOf = (d) => ({ proxyfolkRaceSetup: 1, name: d.name, stake: d.stake, mins: d.mins, racing: d.racing, rules: d.rules });
   {
     const rb = $('#racebox');
     rb.addEventListener('click', (e) => {
       if (e.target.id === 'racebox' || e.target.closest('[data-rsclose]')) { closeRaceSetup(); return; }
+      const f = $('#f-rs'); if (!f) return;
+      const go = e.target.closest('[data-rsgo]');
+      if (go) { const s = rb.querySelector(`#rs-s-${go.dataset.rsgo}`); if (s) $('#racebox .box').scrollTo({ top: s.offsetTop - 70, behavior: 'smooth' }); return; }
       const pre = e.target.closest('[data-rspreset]');
       if (pre) {
-        const p = RPRESETS[pre.dataset.rspreset], f = $('#f-rs');
+        const p = RPRESETS[pre.dataset.rspreset];
         f.querySelectorAll('input[name="hz"]').forEach((i) => { i.checked = p.times.includes(Number(i.value)); i.closest('.ck').classList.toggle('on', i.checked); });
         f.hzOther.value = ''; f.everyMinutes.value = String(p.every);
         rb.querySelectorAll('[data-rspreset]').forEach((b) => b.classList.toggle('on', b === pre));
         rsSummary(); return;
       }
+      const su = e.target.closest('[data-rssetup]');
+      if (su) { rsApply(RSETUPS[su.dataset.rssetup], su.dataset.rssetup); toast('status', RSETUPS[su.dataset.rssetup].t, 'every rule it names is set; change anything', '#ffcf5a', 'bolt'); return; }
+      const ld = e.target.closest('[data-rsload]');
+      if (ld) { const s = rsSaved()[ld.dataset.rsload]; if (s) { rsApply({ ...s, replace: true }); toast('status', 'Setup loaded', ld.dataset.rsload, '#ffcf5a', 'check'); } return; }
+      const dl = e.target.closest('[data-rsdel]');
+      if (dl) { const o = rsSaved(); delete o[dl.dataset.rsdel]; rsStore(o); rsApply({ rules: rsRead(f).rules, replace: true }, rsPreset); return; }
+      if (e.target.closest('[data-rssave]')) {
+        const n = String(f.saveAs.value || '').trim() || `Setup ${new Date().toLocaleDateString()}`, o = rsSaved();
+        o[n] = rsSetupOf(rsRead(f));
+        if (!rsStore(o)) { toast('status', 'Could not save', 'this browser is not keeping anything; use Export file', '#ff5c6c', 'warn'); return; }
+        rsApply({ rules: rsRead(f).rules, replace: true }, rsPreset); toast('status', 'Setup saved', `"${n}" is in Your saved setups, in this browser`, '#ffcf5a', 'check'); return;
+      }
+      if (e.target.closest('[data-rsexport]')) {
+        const d = rsRead(f), a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(rsSetupOf(d), null, 2)], { type: 'application/json' }));
+        a.download = `race-setup-${(d.name || 'race').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'race'}.json`;
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); return;
+      }
+      const js = e.target.closest('[data-rsjson]');
+      if (js) { copyText(JSON.stringify(rsRead(f).rules, null, 2), js); return; }
+      if (e.target.closest('[data-rsreset]')) { rsPreset = null; openRaceSetup(rsMode, rsMode === 'new' ? null : { ...rsBase(rsMode), rules: { ...snap.raceMenu.defaults } }, true); return; }
+      if (e.target.closest('[data-rsaddrule]')) { const list = f.querySelector('[data-rscrs]'); if (list.children.length >= 60) return; list.insertAdjacentHTML('beforeend', rsRuleRow()); list.lastElementChild.querySelector('input').focus(); rsSummary(); return; }
+      const ex = e.target.closest('[data-rsex]');
+      if (ex) { const list = f.querySelector('[data-rscrs]'), have = [...list.querySelectorAll('input[name="cr_text"]')].some((i) => i.value.trim().toLowerCase() === ex.dataset.text.toLowerCase()); if (!have && list.children.length < 60) list.insertAdjacentHTML('beforeend', rsRuleRow(ex.dataset.rsex, ex.dataset.text)); rsSummary(); return; }
+      const cd = e.target.closest('[data-crdel]');
+      if (cd) { cd.closest('.crow').remove(); rsSummary(); return; }
+      const pv = e.target.closest('[data-rsprev]');
+      if (pv) {
+        const d = rsRead(f), pre = f.querySelector('[data-rsprevtext]'), cp = f.querySelector('[data-rsprevcopy]');
+        pv.disabled = true;
+        post('api/race/brief-preview', { stakeUsd: d.stake, horizonsMin: d.mins.length ? d.mins : [60], rules: d.rules, rooms: d.racing.length ? d.racing : undefined, name: d.name || undefined, room: f.querySelector('[data-rsprevroom]').value })
+          .then((j) => { pre.textContent = j.markdown; pre.hidden = false; cp.hidden = false; }, (err) => { pre.textContent = 'This setup has a problem: ' + err.message; pre.hidden = false; })
+          .finally(() => { pv.disabled = false; });
+        return;
+      }
+      const pc = e.target.closest('[data-rsprevcopy]');
+      if (pc) { copyText(f.querySelector('[data-rsprevtext]').textContent, pc); return; }
       const all = e.target.closest('[data-rsall], [data-rsnone]');
       if (all) { const name = all.dataset.rsall || all.dataset.rsnone, on = Boolean(all.dataset.rsall); rb.querySelectorAll(`input[name="${name}"]`).forEach((i) => { i.checked = on; i.closest('.ck').classList.toggle('on', on); }); rsSummary(); }
     });
-    rb.addEventListener('change', (e) => { const c = e.target.closest('.ck'); if (c) c.classList.toggle('on', e.target.checked); rsSummary(); });
+    rb.addEventListener('change', (e) => {
+      const t = e.target;
+      if (t.matches('[data-rsimport]')) {
+        const file = t.files && t.files[0]; if (!file) return;
+        file.text().then((txt) => {
+          const o = JSON.parse(txt);
+          if (!o || typeof o !== 'object') throw new Error('not a setup');
+          // a setup exported here, or a bare rules.json from the command line
+          rsApply(o.rules ? { ...o, replace: true } : { rules: o, replace: true });
+          toast('status', 'Setup imported', file.name, '#ffcf5a', 'check');
+        }).catch((err) => toast('status', 'Could not read that file', err.message, '#ff5c6c', 'warn'));
+        return;
+      }
+      if (t.matches('[data-rsallmodel]')) {
+        const v = t.value, ms = Object.keys(snap.raceMenu.models);
+        if (v) $('#f-rs').querySelectorAll('select[name^="model_"]').forEach((s, i) => { s.value = v === '-' ? '' : v === '*' ? ms[i % ms.length] : v; });
+        t.value = ''; rsSummary(); return;
+      }
+      if (t.type === 'radio') rb.querySelectorAll(`input[name="${t.name}"]`).forEach((i) => i.closest('.ck') && i.closest('.ck').classList.toggle('on', i.checked));
+      else { const c = t.closest('.ck'); if (c) c.classList.toggle('on', t.checked); }
+      rsSummary();
+    });
     rb.addEventListener('input', rsSummary);
+    $('#racebox .box').addEventListener('scroll', rsNav, { passive: true });
     rb.addEventListener('submit', async (e) => {
       e.preventDefault();
       const f = e.target, msg = f.querySelector('.msg'), d = rsRead(f), amend = rsMode === 'amend' && snap.race;
@@ -3993,7 +4290,7 @@
       <div class="sy-head"><div class="rd-ic">${ic('rooms')}</div><div style="flex:1;min-width:0"><h2>Customize the world</h2><p class="lead">What it's for, what world it lives in, who works in it, and every room. Closing saves your changes. ${chores ? 'Each room is one chore with a price; kids earn it when a parent checks it off.' : 'A synced sale lands in the first room whose keyword appears in its item name, so Square\'s "Skin Fade" goes to the room that claims <i>fade</i>.'} Every dollar still totals in the vault.</p></div></div>
       <div class="rd-top">
         <div><h3>What it's for</h3><div class="modes">${modeTiles(dr.mode, 'data-mode', false)}</div>
-          ${dr.mode === 'race' ? `<div class="callout" style="margin-top:8px"><b>The race itself</b>The stake, the time limits, your rules and the start button are in the race setup.<button class="btn go wide" type="button" data-rsfromrooms style="margin-top:8px">${ic('flag')}${snap && snap.race ? 'Race rules and limits' : 'Set up the race'}</button></div>` : ''}</div>
+          ${dr.mode === 'race' ? `<div class="callout" style="margin-top:8px"><b>The race itself</b>Every option is in the race setup: what it's for, how it's scored and how many places, time limits, stakes and models per room, ways to make money, tools, spending limits, contact and posting, penalties, your own rules, ready-made setups you can save and load, and the start button.<button class="btn go wide" type="button" data-rsfromrooms style="margin-top:8px">${ic('sliders')}${snap && snap.race ? 'Open race setup: change any rule' : 'Open race setup: every option'}</button></div>` : ''}</div>
         <div><h3>World <span class="muted" style="letter-spacing:0;text-transform:none;font-weight:400">· click to try it on</span></h3><div class="skins">${skinTiles(dr.skin, 'data-skin')}</div>
           <label class="muted small" style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;cursor:pointer"><input type="checkbox" data-seasonal ${seasonalOn() ? 'checked' : ''} style="margin-top:3px;width:auto;flex:none"><span>Halloween in October: the pumpkin patch until the 23rd, then the haunted mansion to the end of the month. Your chosen world comes back in November. This browser only.</span></label></div>
       </div>
