@@ -56,7 +56,9 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
   const dayOf = (ts) => Math.floor((Date.parse(ts) - t0) / DAY) + 1;
   // the race's evidence standard: money below it is shown, but not counted
   const meets = (e) => (rules.evidence === 'link' ? /https?:\/\//i.test(e.evidence || '') : rules.evidence === 'id' ? /\d/.test(e.evidence || '') : true);
-  const sim = rules.moneyMode === 'sim', speed = Number(rules.simSpeed) || 1;
+  // a short simulation compresses the market: a race of under a week plays about three months of simulated trading,
+  // unless the setup chose its own speed
+  const sim = rules.moneyMode === 'sim', speed = Number(rules.simSpeed) > 1 ? Number(rules.simSpeed) : last < 7 * 1440 ? Math.max(1, Math.round(129600 / last)) : 1;
   // the race's own limits hold in the simulation too: no more messages or ad dollars a day than the rules allow
   const capSpec = (s) => {
     if ((s.channel === 'email' || s.channel === 'dm') && rules.maxMessagesPerDay !== null && rules.outreach !== 'none') s.volume = Math.min(s.volume, rules.maxMessagesPerDay);
@@ -79,7 +81,9 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
   for (const e of state.moneyOut) add(e, 'out');
   // the simulated market: each launched play, from its launch (or the gun), with every panel's read as it came in
   const simOf = new Map(ids.map((id) => [id, { plays: new Map(), signals: [] }]));
-  const simEvents = (state.sims || []).filter((e) => simOf.has(e.path) && Date.parse(e.ts) <= Math.min(tEnd, now));
+  // only this race's moves: a play launched for an earlier race does not carry into a new one
+  const tSet = Math.min(t0, Date.parse(race.setAt || race.startedAt));
+  const simEvents = (state.sims || []).filter((e) => simOf.has(e.path) && Date.parse(e.ts) >= tSet && Date.parse(e.ts) <= Math.min(tEnd, now));
   if (sim) {
     for (const id of ids) {
       const byPlay = new Map();
@@ -387,7 +391,7 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
     mode: rules.moneyMode, simMode: sim, apiUsd: sum(ids, (id) => apiUsd.get(id)),
     // everything the simulation found and tried, across every room: the web research, and the best ideas it has tested
     sim: sim || simEvents.length || (state.research || []).some((x) => ids.includes(x.path) && inWindow(x.ts)) ? {
-      speed, speedLabel: SIM_SPEEDS[speed] || `${speed} simulated days a day`,
+      speed, speedLabel: SIM_SPEEDS[speed] || `about ${Math.round((speed * last) / 1440)} simulated days over the whole race`,
       research: (state.research || []).filter((x) => ids.includes(x.path) && inWindow(x.ts)).slice(-80).reverse().map(({ id: rid, ts, path: room, title, url, topic, text, numbers }) => ({ id: rid, ts, room, title, url, topic, topicLabel: RESEARCH_TOPICS[topic], text, numbers })),
       topIdeas: variantsOf(simEvents.filter((e) => inWindow(e.ts))).sort((a, b) => netAt(b.result).p50 - netAt(a.result).p50).slice(0, 12).map(slimVariant),
       totals: {

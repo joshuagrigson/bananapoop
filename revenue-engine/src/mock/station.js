@@ -14,6 +14,7 @@ import { reduce } from '../reduce.js';
 import { loadCatalog, roomForItem } from '../rooms.js';
 import { syncAll } from '../sync.js';
 import { seedDemo, seedBarberDemo, seedAllowanceDemo, seedRaceDemo } from '../demo.js';
+import { RESEARCHED_IDEAS } from '../demo-ideas.js';
 import { makeServices } from './services.js';
 
 const CFG = window.__PF_MOCK || {};
@@ -203,6 +204,29 @@ function raceSale() {
   if (!last) return;
   ledger.append({ kind: 'money.in', path: p.path, play: p.id, usd: last.usd, item: last.item, source: last.source, ...(last.by ? { by: last.by } : {}), evidence: `mock sale in the preview (demo)` });
 }
+// the race's agents, in the preview: a simulation race you start here has no Claude session behind it, so each room
+// takes one of the ideas researched on the real web (demo-ideas.js), logs its sources, tests three prices, builds the
+// email or listing and launches it in the simulated market. Two rooms a tick. New research needs a real agent run.
+function raceAgents() {
+  const cat = loadCatalog(DATA), st = reduce(ledger.readAll(), cat);
+  const race = st.race;
+  if (!race || !race.rules || race.rules.moneyMode !== 'sim') return;
+  const ids = (race.rooms || cat.map((c) => c.id)).filter((id) => cat.some((c) => c.id === id));
+  const t0 = Date.parse(race.startedAt);
+  if (Date.now() < t0) return;
+  const played = new Set((st.sims || []).filter((e) => e.act === 'launch' && Date.parse(e.ts) >= t0).map((e) => e.path));
+  const todo = ids.filter((id) => !played.has(id)).slice(0, 2);
+  for (const room of todo) {
+    const k = ids.indexOf(room), x = RESEARCHED_IDEAS.find((i) => i.room === room) || RESEARCHED_IDEAS[k % RESEARCHED_IDEAS.length];
+    const play = ('r-' + x.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')).slice(0, 32).replace(/-$/, '');
+    for (const r of x.research) ledger.append({ kind: 'research', path: room, play, title: r.title.slice(0, 120), text: (r.text + ' (researched 2026-09-27)').slice(0, 1500), url: r.url, topic: r.topic, by: 'agent' });
+    ledger.append({ kind: 'play', path: room, play, name: x.title.slice(0, 80), status: 'working', by: 'agent', plan: x.summary.slice(0, 2000), offer: x.summary.slice(0, 400) });
+    const sp = x.spec;
+    ledger.append({ kind: 'sim', act: 'test', path: room, play, by: 'agent', variants: [0.7, 1, 1.4].map((f) => ({ label: `${x.title.slice(0, 60)} at $${Math.max(1, Math.round(sp.price * f))}`, spec: { ...sp, price: Math.max(1, Math.round(sp.price * f)) } })) });
+    ledger.append({ kind: 'sim', act: 'build', path: room, play, what: x.build.what, title: x.build.title.slice(0, 120), content: x.build.content, format: 'text', by: 'agent' });
+    ledger.append({ kind: 'sim', act: 'launch', path: room, play, spec: sp, label: x.title.slice(0, 120), by: 'agent' });
+  }
+}
 let ticks = 0;
 async function autopilot() {
   beat();
@@ -213,12 +237,15 @@ async function autopilot() {
     if (ticks % 3 === 1) await syncAll({ ledger, dataDir: DATA, fetchImpl: services });
     if (STATION === 'family' && ticks % 4 === 2) await chore();
     if (STATION === 'race' && ticks % 3 === 2) raceSale();
+    raceAgents();
     if (ticks % 3 === 0) sweepAbandoned();
   } catch (e) { console.warn('mock autopilot:', e.message); }
   flush();
 }
 setInterval(autopilot, 20e3);
 setTimeout(autopilot, 3500);
+// a race just started: its rooms get to work within seconds, not on the next 20-second beat
+setInterval(() => { if (auto) { try { raceAgents(); flush(); } catch (e) { console.warn('mock race agents:', e.message); } } }, 6e3);
 
 // another mock tab changed the disk: pick it up
 window.addEventListener('storage', (e) => { if (e.key === KEY && !running.size) { mount(KEY); ledger = new Ledger(DATA + '/ledger.jsonl'); } });

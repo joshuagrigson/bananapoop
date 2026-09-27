@@ -317,3 +317,11 @@ test('allowance demo: labeled, kids earn by chore, Sunday payouts leave this wee
   assert.ok(paid > 0 && paid < st.earnedUsd, 'some is paid out, this week is still owed');
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+test('a room keeps its own setup: desk layout, building size and yard; anything else is dropped', async () => {
+  const { normalizeConfig, catalogFrom } = await import('../src/rooms.js');
+  const cfg = normalizeConfig({ rooms: [{ name: 'Cuts', layout: 'pods', size: 'wide', yard: 'large' }, { name: 'Color', layout: 'maze', size: 'huge', yard: '' }] });
+  assert.deepEqual([cfg.rooms[0].layout, cfg.rooms[0].size, cfg.rooms[0].yard], ['pods', 'wide', 'large']);
+  assert.deepEqual([cfg.rooms[1].layout, cfg.rooms[1].size, cfg.rooms[1].yard], [undefined, undefined, undefined]);
+  assert.equal(catalogFrom(cfg)[0].size, 'wide');
+});

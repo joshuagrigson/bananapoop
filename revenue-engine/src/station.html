@@ -1161,6 +1161,17 @@
     gamer: PLAN(['2,0', '0,1'], [[12, 12], [15, 10], [10, 15], [14, 14, [5, 5]], [10, 10], [15, 12, [6, 3]], [12, 15], [15, 15, [6, 6]], [10, 12], [13, 10]]),
   };
   let geomFor = null;
+  // a room's own setup, chosen in Customize, overrides its world's shape for that building
+  const ROOM_SIZE = { small: [10, 10], medium: [12, 12], large: [15, 15], wide: [15, 10], deep: [10, 15] };
+  let cellSpec = new Map();
+  function roomShape(key, f) {
+    const sp = cellSpec.get(key);
+    if (!sp || f.round || (!sp.size && !sp.yard)) return f;
+    const [w, d] = ROOM_SIZE[sp.size] || [f.w, f.d], out = { w, d };
+    const yard = sp.yard === 'none' ? null : sp.yard === 'small' ? [3, 3] : sp.yard === 'large' ? [5, 4] : f.yard;
+    if (yard) { const y = [Math.min(yard[0], w - 8), Math.min(yard[1], d - 8)]; if (y[0] >= 2 && y[1] >= 2) out.yard = y; }
+    return out;
+  }
   // switch the station's buildings to a world's plan; true when anything changed
   function setGeometry(skin) {
     if (geomFor === skin) return false;
@@ -1209,7 +1220,7 @@
     let b = boxCache.get(key);
     if (!b) {
       // cx, cy: the middle of the grid square, where the walkways run; the department is centered on it
-      const f = FOOT[key] || { w: 11, d: 11 }, [cx, cy] = cellCenter(c, r), round = Boolean(f.round), R = round ? f.w / 2 : 0;
+      const f = roomShape(key, FOOT[key] || { w: 11, d: 11 }), [cx, cy] = cellCenter(c, r), round = Boolean(f.round), R = round ? f.w / 2 : 0;
       const x0 = round ? cx - R : cx - ROOM / 2, y0 = round ? cy - R : cy - ROOM / 2;
       b = { c, r, w: f.w, d: f.d, x0, y0, x1: x0 + f.w, y1: y0 + f.d, cx, cy, round, R, yard: f.yard || null, ox: round ? R - ROOM / 2 : 0, oy: round ? R - ROOM / 2 : 0 };
       boxCache.set(key, b);
@@ -1448,6 +1459,8 @@
 
   function buildRooms() {
     setGeometry(skinId());
+    cellSpec = new Map(snap.catalog.slice(0, PATH_CELLS.length).map((spec, i) => [PATH_CELLS[i].join(','), spec]));
+    boxCache.clear();
     rooms.length = 0; cells.clear();
     cells.set(HUB.join(','), 'hub'); cells.set(DOCK.join(','), 'dock');
     snap.catalog.slice(0, PATH_CELLS.length).forEach((spec, i) => {
@@ -2001,7 +2014,7 @@
   }
 
 
-  const catSig = (cat) => JSON.stringify((cat || []).map((p) => [p.id, p.name, p.short, p.kind, p.accent, p.style, p.screen, p.prop, p.rank]));
+  const catSig = (cat) => JSON.stringify((cat || []).map((p) => [p.id, p.name, p.short, p.kind, p.accent, p.style, p.screen, p.prop, p.rank, p.layout, p.size, p.yard]));
 
   // ---- service rooms: what sold, what it earned, what it cost in supplies and time. All read from the ledger.
   const DAY = 86400e3;
@@ -3654,18 +3667,18 @@
   const RIDLE = [[0, 'Never'], [30, '30 minutes'], [60, '1 hour'], [120, '2 hours'], [360, '6 hours'], [1440, '1 day'], [2880, '2 days'], [4320, '3 days'], [10080, '1 week']];
   // ready-made setups: each one sets every rule it names, and everything you wrote yourself stays
   const RSETUPS = {
-    idea: { t: 'Idea tournament', d: 'No money moves. Each room proves demand for an idea; the idea you would run for real wins.', mins: [360, 1440, 4320], every: 60, stake: 250,
-      rules: { purpose: 'idea', moneyMode: 'paper', scoring: 'signals', places: 3, tiebreak: 'earliest', requireModel: true, copying: false, visibility: 'blind' } },
+    idea: { t: 'Idea tournament', d: 'A simulation: each room researches the real web, tests its ideas in the simulated market, and the idea you would run for real wins.', mins: [360, 1440, 4320], every: 60, stake: 250,
+      rules: { purpose: 'idea', moneyMode: 'sim', scoring: 'bankroll', places: 3, tiebreak: 'earliest', requireModel: true, copying: false, visibility: 'blind' } },
     sprint: { t: 'Demand sprint', d: 'Two hours, no money: the most sign-ups, replies and pre-orders wins.', mins: [30, 60, 120], every: 10, stake: 100,
       rules: { purpose: 'demand', moneyMode: 'paper', scoring: 'signals', places: 3, tiebreak: 'earliest' } },
     quick: { t: 'Quick test', d: '30 min, 1 hour, 2 hours on $50 a room: watch the whole loop work before anything bigger.', mins: [30, 60, 120], every: 10, stake: 50,
-      rules: { purpose: 'learn', scoring: 'bankroll', maxSpendPerDayUsd: 20, approveOverUsd: 10 } },
+      rules: { purpose: 'learn', moneyMode: 'sim', scoring: 'bankroll', maxSpendPerDayUsd: 20, approveOverUsd: 10 } },
     real: { t: 'Real-money race', d: '$250 a room, prizes from 1 week to 6 months, receipts with order numbers, big buys need you.', mins: [10080, 43200, 129600, 259200], every: 1440, stake: 250,
-      rules: { purpose: 'idea', scoring: 'bankroll', places: 3, tiebreak: 'earliest', approveOverUsd: 50, maxSpendPerDayUsd: 40, evidence: 'id', requireModel: true, dailyReport: true, ruleBreak: 'fine', fineUsd: 10 } },
+      rules: { purpose: 'idea', moneyMode: 'real', scoring: 'bankroll', places: 3, tiebreak: 'earliest', approveOverUsd: 50, maxSpendPerDayUsd: 40, evidence: 'id', requireModel: true, dailyReport: true, ruleBreak: 'fine', fineUsd: 10 } },
     models: { t: 'Model shootout', d: 'Same stake, same rules, a different Claude model in each room. Scored on the multiple.', mins: [60, 360, 1440], every: 30, stake: 100, eachModel: true,
-      rules: { purpose: 'models', scoring: 'multiple', tiebreak: 'leastSpent', copying: false, visibility: 'blind' } },
+      rules: { purpose: 'models', moneyMode: 'sim', scoring: 'multiple', tiebreak: 'leastSpent', copying: false, visibility: 'blind' } },
     royale: { t: 'Battle royale', d: 'Last place goes out at every prize time. Go quiet for 2 hours or break a rule and you are out.', mins: [60, 120, 240, 480, 960, 1440], every: 15, stake: 100,
-      rules: { purpose: 'money', scoring: 'bankroll', eliminateLast: true, knockoutUsd: 0, idleOutMinutes: 120, ruleBreak: 'out' } },
+      rules: { purpose: 'money', moneyMode: 'sim', scoring: 'bankroll', eliminateLast: true, knockoutUsd: 0, idleOutMinutes: 120, ruleBreak: 'out' } },
     law: { t: 'Only the law', d: 'Every way, every tool, agents may message and post themselves. Only the house rules hold.', mins: [1440, 10080, 43200], every: 60, stake: 250, all: true,
       rules: { purpose: 'money', banned: [], outreach: 'direct', maxMessagesPerDay: null, posting: 'direct', useName: 'allowed', personalNetwork: true, newAccounts: 'allowed', collab: true, copying: true, ruleBreak: 'warn', maxSpendPerDayUsd: null, maxTotalSpendUsd: null, approveOverUsd: null, reserveUsd: null, knockoutUsd: null, reinvest: true } },
     locked: { t: 'Locked down', d: 'Digital products and content only, no ads, no contact, $50 cap, proof links. Any break is out.', mins: [1440, 4320, 10080], every: 360, stake: 50,
@@ -4307,7 +4320,7 @@
     const cfg = d.config || {};
     const base = { name: cfg.name || 'Proxyfolk', mode: cfg.mode || 'agents', skin: cfg.skin || 'space', kids: (cfg.folk || cfg.kids || []).map((k) => ({ ...k, rooms: k.rooms ? [...k.rooms] : undefined })) };
     if (cfg.rooms) return { ...base, template: cfg.template, rooms: cfg.rooms.map((r) => ({ ...r, match: [...(r.match || [])], looks: { ...(r.looks || {}) } })) };
-    return { ...base, template: 'paths', rooms: d.catalog.map((c) => { const t = THEME[c.id] || {}; return { base: c.id, name: c.name, short: c.short, accent: t.accent || '#8fb0ff', style: 'office', screen: t.screen, prop: t.prop, match: [], looks: {} }; }) };
+    return { ...base, template: 'paths', rooms: d.catalog.map((c) => { const t = THEME[c.id] || {}; return { base: c.id, name: c.name, short: c.short, layout: c.layout, size: c.size, yard: c.yard, accent: t.accent || '#8fb0ff', style: 'office', screen: t.screen, prop: t.prop, match: [], looks: {} }; }) };
   }
   async function openRooms(opts = {}) {
     rd.welcome = Boolean(opts.welcome); rd.armed = null; rd.msg = ''; rd.err = false; rd.step = 1; rd.wmode = null; rd.wtpl = null; rd.wskin = null;
@@ -4416,6 +4429,9 @@
       ${looks ? `<div class="field" style="margin-top:10px"><span>${COSTUME_SKINS.has(dr.skin) ? 'What the folk here become' : 'What lives here'} · ${esc((d.skins[dr.skin] || {}).title || dr.skin)}</span><div class="looks">${looks.map((l) => `<button type="button" class="tile${curLook === l.id ? ' on' : ''}" data-look="${l.id}" style="--c:${r.accent}"><span><b>${esc(l.resident)}</b><small>${esc(l.title)}</small></span></button>`).join('')}</div></div>`
         : `<div class="field" style="margin-top:10px"><span>Furniture</span><div class="styles">${Object.entries(d.styles).map(([k, t]) => `<button type="button" class="tile${(r.style || 'office') === k ? ' on' : ''}" data-style="${k}" style="--c:${r.accent}">${ic(STYLE_ICON[k] || 'rooms')}<span><b>${esc(k[0].toUpperCase() + k.slice(1))}</b><small>${esc(t)}</small></span></button>`).join('')}</div></div>
       <div class="row2" style="margin-top:10px"><label class="field"><span>Wall sign</span><select data-f="screen">${opt(d.screens, SCREEN_NAME, r.screen || 'none')}</select></label><label class="field"><span>Corner prop</span><select data-f="prop">${opt(d.props, PROP_NAME, r.prop || 'plant')}</select></label></div>`}
+      ${d.layouts ? `<div class="field" style="margin-top:12px"><span>Room setup · the building and how it's laid out</span></div>
+      <div class="row2"><label class="field"><span>Desk layout</span><select data-f="layout"><option value="">The world's pick</option>${opt(Object.keys(d.layouts), d.layouts, r.layout || '')}</select></label><label class="field"><span>Building size</span><select data-f="size"><option value="">The world's pick</option>${opt(Object.keys(d.sizes), d.sizes, r.size || '')}</select></label></div>
+      <div class="row2" style="margin-top:8px"><label class="field"><span>Yard</span><select data-f="yard"><option value="">The world's pick</option>${opt(Object.keys(d.yards), d.yards, r.yard || '')}</select></label><span></span></div>` : ''}
       ${chores ? '' : `<div class="field" style="margin-top:12px"><span>Claims sales whose item name contains</span>
         <div class="chipin">${r.match.map((m, k) => `<span>${esc(m)}<button type="button" data-unkw="${k}" title="Remove">×</button></span>`).join('')}<input id="rd-kw" placeholder="${r.match.length ? 'add another, press Enter' : 'e.g. fade, taper (press Enter)'}" maxlength="40"></div>
         <div class="claims">${mine.length ? `Claims now: ${mine.slice(0, 8).map((x) => `<b>${esc(x.item)}</b> ×${x.n}`).join(' · ')}${mine.length > 8 ? ` · and ${mine.length - 8} more` : ''}` : 'Claims nothing on the ledger yet. Sales you log in this room by hand still land here.'}</div>

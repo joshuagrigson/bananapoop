@@ -14,7 +14,7 @@ import { ROLES, DEFAULT_MODEL } from './agent.js';
 import { addItem, listItems } from './inbox.js';
 import { addClient, listClients, updateClient, isDue } from './clients.js';
 import { harvest as runHarvest } from './harvest.js';
-import { loadCatalog, loadConfig, saveConfig, resetConfig, fromTemplate, stationInfo, unclaimedItems, TEMPLATES, STYLES, SCREENS, PROPS, PALETTE, MAX_ROOMS, MODES, SKINS, KID_COLORS, MAX_KIDS, FOLK_COLORS, MAX_FOLK } from './rooms.js';
+import { ROOM_LAYOUTS, ROOM_SIZES, ROOM_YARDS, loadCatalog, loadConfig, saveConfig, resetConfig, fromTemplate, stationInfo, unclaimedItems, TEMPLATES, STYLES, SCREENS, PROPS, PALETTE, MAX_ROOMS, MODES, SKINS, KID_COLORS, MAX_KIDS, FOLK_COLORS, MAX_FOLK } from './rooms.js';
 import { connectorSpecs, CSV_SOURCES, listConnections, upsertConnection, removeConnection, publicConnection, syncConnection, syncAll, syncing, testConnection, csvRecords, classify, knownExt, importRecords } from './sync.js';
 
 // Count real files an agent wrote to each path's outbox. The station's dock draws exactly this many papers.
@@ -91,7 +91,7 @@ export function roomsInfo(ledger, catalog, dataDir) {
     templates: Object.fromEntries(Object.entries(TEMPLATES).map(([k, t]) => { const c = fromTemplate(k); return [k, { title: t.title, blurb: t.blurb, rooms: t.rooms ? t.rooms.length : CATALOG.length, mode: c.mode, skin: c.skin, name: c.name, list: c.rooms }]; })),
     modes: MODES, skins: SKINS, kidColors: KID_COLORS, maxKids: MAX_KIDS, folkColors: FOLK_COLORS, maxFolk: MAX_FOLK,
     builtIn: CATALOG.map((p) => ({ id: p.id, name: p.name, short: p.short })),
-    styles: STYLES, screens: SCREENS, props: PROPS, palette: PALETTE, maxRooms: MAX_ROOMS,
+    styles: STYLES, screens: SCREENS, props: PROPS, palette: PALETTE, maxRooms: MAX_ROOMS, layouts: ROOM_LAYOUTS, sizes: ROOM_SIZES, yards: ROOM_YARDS,
     unclaimed: unclaimedItems(ledger.readAll(), catalog),
   };
 }
