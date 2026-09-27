@@ -33,6 +33,7 @@ export const RACE_METHODS = Object.freeze({
   resale: 'Buying and reselling',
   trading: 'Trading and investing: stocks, crypto',
   betting: 'Betting and prediction markets',
+  venture: 'Long shots: any bet on a big outcome',
 });
 export const RACE_CONNECTORS = Object.freeze(['Shopify', 'Wix', 'Canva', 'Figma', 'Adobe', 'Netlify', 'Cloudflare', 'Render', 'Zapier', 'Google Drive', 'GitHub', 'Hugging Face', 'Supermetrics', 'Web search', 'HubSpot', 'Microsoft 365', 'Slack']);
 // Joshua's day-job accounts: off unless a race turns them on
@@ -91,7 +92,8 @@ export const RULE_KINDS = Object.freeze({ must: 'Must', mustnot: 'Must not', may
 export function defaultRaceRules() {
   return {
     purpose: 'idea', purposeText: '', moneyMode: 'sim', simSpeed: 1,
-    methods: Object.keys(RACE_METHODS).filter((k) => k !== 'trading' && k !== 'betting'), customMethods: [],
+    // any way to make money the agent's research supports, long shots included; a race can narrow it to a list
+    anyMethod: true, methods: Object.keys(RACE_METHODS), customMethods: [],
     connectors: RACE_CONNECTORS.filter((c) => !RACE_WORK_CONNECTORS.includes(c)), banned: ['TikTok'],
     spendCategories: Object.keys(SPEND_CATEGORIES), ads: true,
     maxSpendPerDayUsd: null, maxTotalSpendUsd: null, approveOverUsd: null, reserveUsd: null, reinvest: true, knockoutUsd: null,
@@ -138,7 +140,7 @@ function raceRules(input) {
   r.ads = r.spendCategories.includes('ads');
   for (const k of ['maxSpendPerDayUsd', 'maxTotalSpendUsd', 'approveOverUsd', 'reserveUsd', 'knockoutUsd']) if (input[k] !== undefined) r[k] = optUsd(input[k], k);
   if (input.fineUsd !== undefined) r.fineUsd = optUsd(input.fineUsd, 'fineUsd') || 0;
-  for (const k of ['reinvest', 'personalNetwork', 'collab', 'copying', 'weekdaysOnly', 'eliminateLast', 'requireModel', 'dailyReport']) bool(k);
+  for (const k of ['reinvest', 'personalNetwork', 'collab', 'copying', 'weekdaysOnly', 'eliminateLast', 'requireModel', 'dailyReport', 'anyMethod']) bool(k);
   pick('outreach', RACE_CONTACT); pick('posting', RACE_POSTING); pick('useName', RACE_NAME_USE); pick('newAccounts', RACE_ACCOUNTS);
   pick('visibility', RACE_VISIBILITY); pick('scoring', RACE_SCORING); pick('tiebreak', RACE_TIEBREAKS); pick('ruleBreak', RACE_PENALTY); pick('evidence', RACE_EVIDENCE);
   mins('maxMessagesPerDay', 0, 10000); mins('maxSessionMinutes', 1, 10080); mins('idleOutMinutes', 5, 525600); mins('places', 1, 3);

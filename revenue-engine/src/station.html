@@ -3482,8 +3482,8 @@
       ${r.purpose ? `<dt>For</dt><dd>${esc(r.purpose === 'custom' ? r.purposeText || 'in your own words' : nm(M.purposes, r.purpose))}${r.purpose !== 'custom' && r.purposeText ? ' · ' + esc(r.purposeText) : ''}</dd>` : ''}
       <dt>Scored by</dt><dd>${esc(low(nm(M.scoring, r.scoring)))}${r.places > 1 ? ` · top ${r.places} place` : ''}${r.tiebreak && r.tiebreak !== 'none' ? ` · a tie goes to ${esc(nm(M.tiebreaks, r.tiebreak).toLowerCase())}` : ''}${r.evidence && r.evidence !== 'any' ? ` · money needs ${esc(nm(M.evidence, r.evidence).toLowerCase())}` : ''}</dd>
       ${outs.length ? `<dt>Out for</dt><dd>${esc(outs.join(' · '))}</dd>` : ''}
-      <dt>May make money by</dt><dd>${[...r.methods.map((m) => esc(low(M.methods[m] || m))), ...(r.customMethods || []).map(esc)].join(' · ') || 'nothing yet'}</dd>
-      <dt>Not allowed</dt><dd>${Object.keys(M.methods).filter((m) => !r.methods.includes(m)).map((m) => esc(low(M.methods[m]))).join(' · ') || 'nothing ruled out'}${(r.banned || []).length ? ` · never ${esc(r.banned.join(', '))}` : ''}</dd>
+      <dt>May make money by</dt><dd>${r.anyMethod !== false ? 'any legal way their research supports, long shots included' : [...r.methods.map((m) => esc(low(M.methods[m] || m))), ...(r.customMethods || []).map(esc)].join(' · ') || 'nothing yet'}</dd>
+      <dt>Not allowed</dt><dd>${(r.anyMethod !== false ? '' : Object.keys(M.methods).filter((m) => !r.methods.includes(m)).map((m) => esc(low(M.methods[m]))).join(' · ')) || 'nothing ruled out'}${(r.banned || []).length ? ` · never ${esc(r.banned.join(', '))}` : ''}</dd>
       <dt>Tools</dt><dd>${esc(r.connectors.join(', ') || 'none')}</dd>
       <dt>Money</dt><dd>${esc(lim.join(' · '))}${r.requireModel ? ' · a business model before spending' : ''}</dd>
       <dt>People</dt><dd>${esc(nm(M.contact, r.outreach))}${r.outreach === 'direct' && r.maxMessagesPerDay !== null && r.maxMessagesPerDay !== undefined ? ` (at most ${r.maxMessagesPerDay} a day)` : ''}; posts: ${esc(nm(M.posting, r.posting).toLowerCase())}; your name: ${esc(nm(M.nameUse, r.useName || 'drafts').toLowerCase())}; new accounts: ${esc(nm(M.accounts, r.newAccounts || 'ask').toLowerCase())}${r.personalNetwork ? '; may reach your contacts' : ''}</dd>
@@ -3755,6 +3755,7 @@
           <input name="note_${esc(mm.id)}" maxlength="1000" placeholder="Only for this room, e.g. B2B only" value="${esc((R.roomNotes || {})[mm.id] || '')}" title="Goes into this room's brief only"></div>`; }).join('')}</div>
         <div class="muted small">A blank stake uses the race stake. Give one room more to handicap it, a different model to compare them, or its own instruction to test a theory.</div>`),
       sec('ways', 'the kinds of money-making allowed; each play names its kind', `
+        ${ck('anyMethod', '1', R.anyMethod !== false, 'Anything they choose (no list)', 'agents pick any legal way their research supports, long shots included; uncheck to limit them to the kinds below')}
         <div class="rs-quickrow">${TAGC}<span class="rs-quick"><button type="button" data-rsall="method">all</button><button type="button" data-rsnone="method">none</button></span></div>
         <div class="meths">${Object.entries(M.methods).map(([k, t]) => ck('method', k, R.methods.includes(k), t.split(':')[0], t.includes(':') ? t.split(':').slice(1).join(':').trim() : '')).join('')}</div>
         <div class="rs-grid2"><label class="field"><span>More ways, your own words (comma separated)</span><input name="customMethods" value="${esc((R.customMethods || []).join(', '))}" placeholder="e.g. tutoring, event planning"></label>
@@ -3836,7 +3837,7 @@
     const hm = (v) => /^\d\d:\d\d$/.test(v);
     const rules = {
       purpose: str('purpose') || 'idea', purposeText: str('purposeText').slice(0, 600), moneyMode: str('moneyMode') || 'sim',
-      methods: fd.getAll('method'), customMethods: words('customMethods').slice(0, 30), banned: words('banned').slice(0, 60),
+      anyMethod: fd.has('anyMethod'), methods: fd.getAll('method'), customMethods: words('customMethods').slice(0, 30), banned: words('banned').slice(0, 60),
       connectors: [...new Set([...fd.getAll('conn'), ...words('connOther')])].slice(0, 60), spendCategories: fd.getAll('cat'),
       maxSpendPerDayUsd: num('maxDay'), maxTotalSpendUsd: num('maxTotal'), approveOverUsd: num('approveOver'), reserveUsd: num('reserve'), knockoutUsd: num('knockout'),
       reinvest: fd.has('reinvest'), collab: fd.has('collab'),
@@ -3874,7 +3875,7 @@
       r.outreach === 'direct' ? 'agents will message people themselves' : '',
       r.posting === 'direct' ? 'agents will post publicly themselves' : '',
       r.ruleBreak === 'fine' && !r.fineUsd ? 'fines are on, but the fine is $0' : '',
-      !r.methods.length && !r.customMethods.length ? 'no way to make money is allowed' : '',
+      !r.anyMethod && !r.methods.length && !r.customMethods.length ? 'no way to make money is allowed' : '',
       r.purpose === 'custom' && !r.purposeText ? 'say what the race is for, in your own words' : '',
     ].filter(Boolean);
     const scoreName = (M.scoring[r.scoring] || '').split(':')[0].replace(/\s*\(.*\)$/, '').toLowerCase();

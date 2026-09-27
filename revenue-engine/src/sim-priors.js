@@ -44,6 +44,10 @@ export const PRIORS = {
     ramp: P(30, 180, 365, ['https://ahrefs.com/blog/how-long-does-it-take-to-rank/'], 'Ahrefs: pages that reach the top take months to a year; typical is an assumption', 'low'),
     conv: P(0.01, 0.02, 0.03, ['https://wecantrack.com/insights/affiliate-conversion-statistics/'], 'affiliate click to sale 1-3%, used for content visitors'),
   } },
+  venture: { feePct: 0, rates: {
+    win: P(0.01, 0.05, 0.2, [], NONE + ' for a long shot: cite the base rate for your kind of bet'),
+    spread: P(0.5, 1, 1.5, [], 'assumption: how widely a win\'s payoff varies around its price (lognormal sigma)', 'low'),
+  } },
   recurring: { churn: P(0.032, 0.0425, 0.08, ['https://recurly.com/research/churn-rate-benchmarks/'], 'monthly subscription churn, Recurly 2026 3.2-5.0%; high end widened for small new products', 'low') },
 };
 

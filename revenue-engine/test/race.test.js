@@ -143,7 +143,9 @@ test('the race template, mode and demo; the snapshot carries the board and not e
 test('race rules: defaults are written on the ledger, bad rules are refused, amendments change only the rules', () => {
   const ev = validate({ kind: 'race', stakeUsd: 250, evidence: 'cards' });
   assert.ok(ev.rules.methods.includes('digital'));
-  assert.ok(!ev.rules.methods.includes('betting'));
+  // no list by default: any legal way the agent's research supports, long shots included
+  assert.equal(ev.rules.anyMethod, true);
+  assert.ok(ev.rules.methods.includes('betting'));
   assert.ok(!ev.rules.connectors.includes('Microsoft 365'));
   assert.equal(ev.rules.outreach, 'drafts');
   assert.throws(() => validate({ kind: 'race', stakeUsd: 250, evidence: 'cards', rules: { methods: ['crime'] } }), /methods must be from/);
@@ -207,8 +209,7 @@ test('the brief is written from the rules', () => {
   assert.match(text, /RED room/);
   assert.match(text, /\(Ada\)/);
   assert.match(text, /Claude Opus 5\.5/);
-  assert.match(text, /Freelance services and gigs/);
-  assert.match(text, /Not allowed in this race:[\s\S]*Betting/);
+  assert.match(text, /ANY legal way your research supports/);
   assert.match(text, /Never spend on: ads/);
   assert.match(text, /over \$25 needs Joshua/);
   assert.match(text, /Shopify, Canva\./);

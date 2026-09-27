@@ -38,6 +38,8 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
   const rules = { ...defaultRaceRules(), ...(race.rules || {}) };
   // a race set before check-ins were counted in minutes said everyHours
   if (race.rules && race.rules.everyMinutes === undefined && race.rules.everyHours) rules.everyMinutes = race.rules.everyHours * 60;
+  // a race set before "anything they choose" existed keeps the list it was run on
+  if (race.rules && race.rules.anyMethod === undefined) rules.anyMethod = false;
   if (race.rules && race.rules.spendCategories === undefined && race.rules.ads === false) rules.spendCategories = rules.spendCategories.filter((c) => c !== 'ads');
   const known = catalog.map((p) => p.id);
   const ids = race.rooms ? race.rooms.filter((id) => known.includes(id)) : known;
@@ -156,7 +158,7 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
     for (const f of flows.get(id)) if (f.dir === 'in') { const b = hasBanned(`${f.e.item || ''} ${f.e.source || ''}`); if (b) brk(f.t, 'banned', `sale through ${b}`); }
     for (const p of plays) {
       const h0 = p.history.find((h) => inWindow(h.ts)); if (!h0) continue;
-      if (p.method && !allowedMethods.has(String(p.method).toLowerCase())) brk(Date.parse(h0.ts), 'method', `"${p.name}" is ${RACE_METHODS[p.method] ? RACE_METHODS[p.method].split(':')[0].toLowerCase() : p.method}, which this race does not allow`);
+      if (!rules.anyMethod && p.method && !allowedMethods.has(String(p.method).toLowerCase())) brk(Date.parse(h0.ts), 'method', `"${p.name}" is ${RACE_METHODS[p.method] ? RACE_METHODS[p.method].split(':')[0].toLowerCase() : p.method}, which this race does not allow`);
       const b = hasBanned(`${p.name} ${Object.values(p.model || {}).join(' ')} ${p.plan || ''}`); if (b) brk(Date.parse(h0.ts), 'banned', `"${p.name}" uses ${b}`);
     }
     for (const s of stepsOf(id)) {
@@ -535,9 +537,10 @@ How you are scored: ${sim ? 'simulated ' : ''}${scoreLine}, ${sim ? 'from the si
 ${how}
 ${simBlock}
 
-Ways you may make money:
+${r.anyMethod ? `Ways you may make money: ANY legal way your research supports. There is no list. Judge from what you find once the race starts: a steady business, a service, a product, or a high-risk, high-reward long shot if the research makes the case. Name the kind on each play with --method, in a word of your own (e.g. ${Object.keys(RACE_METHODS).slice(0, 6).join(', ')}, venture).
+` : `Ways you may make money:
 ${allowed || '  - none (ask Joshua)'}
-${r.methods.length ? `Name the kind on each play with --method: ${[...r.methods, ...r.customMethods].join(', ')}.\n` : ''}${barred ? `Not allowed in this race:\n${barred}\n` : ''}
+${r.methods.length ? `Name the kind on each play with --method: ${[...r.methods, ...r.customMethods].join(', ')}.\n` : ''}${barred ? `Not allowed in this race:\n${barred}\n` : ''}`}
 Tools and connectors you may use: ${r.connectors.join(', ') || 'none'}.
 ${r.banned.length ? `Never use or mention: ${r.banned.join(', ')}.\n` : ''}
 House rules (every race):

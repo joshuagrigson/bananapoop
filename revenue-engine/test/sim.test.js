@@ -73,3 +73,12 @@ test('sourced demand sizes the market: growth, a fair share of views, job posts 
   const fast = normalizeSpec({ channel: 'freelance', price: 45, volume: 10, demand: { growth: 9, cites: { growth: U } } });
   assert.equal(fast.spec.demand.growth, 2);
 });
+
+test('any way to make money: no method is barred by default, and a long shot simulates with a wide spread', () => {
+  const r = validate({ kind: 'race', stakeUsd: 250, evidence: 'simulated' }).rules;
+  assert.equal(r.anyMethod, true);
+  const { spec } = normalizeSpec({ channel: 'venture', price: 5000, volume: 4, unitCost: 50, rates: { win: 0.03 } });
+  const nets = Array.from({ length: 200 }, (_, k) => simulate(spec, 90, k).days.reduce((a, d) => a + d.netUsd, 0)).sort((a, b) => a - b);
+  assert.ok(nets[20] < 0, 'most long shots lose');
+  assert.ok(nets[190] > 2000, 'a few win big');
+});

@@ -22,6 +22,9 @@ export const SIM_CHANNELS = Object.freeze({
   ads: { title: 'Paid ads to a sales page', unit: 'dollars of ads a day', volMax: 5000, stages: ['cpc', 'conv'], signals: { cpc: 'view' }, lag: [0, 1], audience: 1e7, spend: true },
   social: { title: 'Organic social posts', unit: 'posts a day', volMax: 12, stages: ['reach', 'follow', 'ctr', 'conv'], signals: { reach: 'view', follow: 'follower' }, lag: [0, 2], audience: 1e7, growth: true },
   seo: { title: 'Search: articles and pages', unit: 'new pages a day', volMax: 8, stages: ['visits', 'conv'], signals: { visits: 'view' }, lag: [0, 0], audience: 1e7, ramp: true },
+  // anything the channels above don't fit, long shots included: attempts a month, each costing unitCost, each with a
+  // chance to win; a win pays around price, spread wide (a lognormal), after a wait
+  venture: { title: 'A long shot: any bet on a big outcome', unit: 'attempts a month', volMax: 300, stages: ['win', 'spread'], signals: {}, lag: [7, 45], audience: 1e9 },
 });
 export const SIM_COMPETITION = Object.freeze({ low: 1.15, medium: 1, high: 0.75 });
 export const SIM_TREND = Object.freeze({ rising: 1.15, flat: 1, falling: 0.8 });
@@ -242,6 +245,13 @@ export function simulate(spec, days, seed, start = null) {
         buyers = binomial(r, clicks, R.conv * buy);
         break;
       }
+      case 'venture': {
+        const tries = poisson(r, (spec.volume / 30) * gm);
+        row.reach = tries; row.engaged = tries;
+        row.tryCostUsd = r2(tries * spec.unitCost);
+        buyers = binomial(r, tries, Math.min(1, R.win * buy));
+        break;
+      }
       case 'seo': {
         // every page ever written keeps drawing visits once search trusts it, after a slow start
         st.pages += spec.volume;
@@ -262,15 +272,17 @@ export function simulate(spec, days, seed, start = null) {
     st.pending = keep;
     if (spec.capacityPerDay !== null && today > spec.capacityPerDay) { row.lost = today - Math.floor(spec.capacityPerDay); today = Math.floor(spec.capacityPerDay); }
     row.sales = today; st.sales += today;
+    // a long shot's wins pay around its price, spread wide: most small, a few huge
+    if (spec.channel === 'venture') { let pay = 0; for (let w = 0; w < today; w++) pay += spec.price * Math.exp(R.spread * normal(r) - (R.spread * R.spread) / 2); row.payUsd = r2(pay); }
     st.reached += row.reach;
     if (spec.recurring) {
       // each subscriber pays the monthly price spread over its days; some leave every day
       st.subs = st.subs - binomial(r, st.subs, spec.churn / 30) + today;
       row.subs = st.subs;
       row.grossUsd = r2((st.subs * spec.price) / 30);
-    } else row.grossUsd = r2(today * spec.price);
+    } else row.grossUsd = spec.channel === 'venture' ? row.payUsd : r2(today * spec.price);
     row.feesUsd = r2(row.grossUsd * fee);
-    row.costUsd = r2(today * spec.unitCost);
+    row.costUsd = spec.channel === 'venture' ? row.tryCostUsd : r2(today * spec.unitCost);
     if (spec.fixedPerMonth && d % 30 === 0) row.toolUsd = r2(spec.fixedPerMonth);
     row.netUsd = r2(row.grossUsd - row.feesUsd - row.costUsd - row.adsUsd - row.toolUsd);
     row.hours = r2(today * spec.hoursPerSale);
