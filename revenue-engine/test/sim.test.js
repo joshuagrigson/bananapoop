@@ -56,3 +56,20 @@ test('race run: a replayed room researches, tests, builds and launches through i
   const kinds = lines.map((e) => e.act || e.kind);
   for (const k of ['research', 'test', 'build', 'launch', 'agent.run.end']) assert.ok(kinds.includes(k), k);
 });
+
+test('sourced demand sizes the market: growth, a fair share of views, job posts cap proposals; uncited demand is ignored', () => {
+  const U = 'https://example.com/source';
+  const none = normalizeSpec({ channel: 'freelance', price: 45, volume: 10, demand: { growth: 1 } });
+  assert.equal(none.spec.demand, null);
+  assert.match(none.flags.join(' '), /no source/);
+  const cap = normalizeSpec({ channel: 'freelance', price: 45, volume: 20, demand: { monthly: 30, kind: 'posts', cites: { monthly: U } } });
+  const days = simulate(cap.spec, 60, 3).days;
+  assert.ok(days.every((d) => d.reach <= 1), 'no more proposals than the job posts that exist');
+  const fair = normalizeSpec({ channel: 'marketplace', price: 12, volume: 10, demand: { monthly: 3e6, sellers: 1000, kind: 'views', cites: { monthly: U, sellers: U } } });
+  const bench = normalizeSpec({ channel: 'marketplace', price: 12, volume: 10 });
+  const views = (sp) => simulate(sp, 90, 5).days.slice(60).reduce((a, d) => a + d.reach, 0);
+  assert.ok(views(fair.spec) > views(bench.spec) * 2, 'a big sourced market brings far more views than the benchmark guess');
+  assert.ok(fair.drivers.some((t) => /fair share/.test(t)));
+  const fast = normalizeSpec({ channel: 'freelance', price: 45, volume: 10, demand: { growth: 9, cites: { growth: U } } });
+  assert.equal(fast.spec.demand.growth, 2);
+});

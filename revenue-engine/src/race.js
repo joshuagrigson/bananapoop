@@ -260,7 +260,7 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
 
   // ---- the simulation's record for a room: variants tested (the best of them), what it built, what it found on the web
   const netAt = (r) => r.net.find((x) => x.days === 30) || r.net[r.net.length - 1];
-  const slimVariant = (v) => ({ label: v.label, line: specLine(v.spec), channel: v.spec.channel, price: v.spec.price, recurring: v.spec.recurring, net: v.result.net, pProfit: v.result.pProfit, breakEvenDay: v.result.breakEvenDay, sales: v.result.sales, hours: v.result.hours, flags: v.flags, cited: v.cited, set: v.set, ts: v.ts, play: v.play, horizons: v.result.horizons, room: v.room });
+  const slimVariant = (v) => ({ label: v.label, line: specLine(v.spec), channel: v.spec.channel, price: v.spec.price, recurring: v.spec.recurring, net: v.result.net, pProfit: v.result.pProfit, breakEvenDay: v.result.breakEvenDay, sales: v.result.sales, hours: v.result.hours, flags: v.flags, drivers: v.drivers || [], cited: v.cited, set: v.set, ts: v.ts, play: v.play, horizons: v.result.horizons, room: v.room });
   const variantsOf = (acts) => acts.filter((e) => e.act === 'test').flatMap((e) => e.variants.map((v) => ({ ...v, ts: e.ts, play: e.play || null, room: e.path })));
   const simLane = (id, acts, research) => {
     const variants = variantsOf(acts);
@@ -295,7 +295,7 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
       const live = L ? L.live : !(stopped && stopped.ts > last.ts);
       const panel = acts.filter((e) => e.play === pid && e.act === 'panel').pop();
       return {
-        live, launches: launches.length, since: launches[0].ts, spec: last.spec, line: specLine(last.spec), label: last.label || null, flags: last.flags || [], cited: last.cited || 0, set: last.set || 0,
+        live, launches: launches.length, since: launches[0].ts, spec: last.spec, line: specLine(last.spec), label: last.label || null, flags: last.flags || [], drivers: last.drivers || [], cited: last.cited || 0, set: last.set || 0,
         forecast: last.forecast || null, simDays: L && L.days.length ? L.days[L.days.length - 1].simDay : 0,
         reach: L ? L.days.reduce((a, d) => a + d.reach, 0) : 0, lost: L ? L.days.reduce((a, d) => a + d.lost, 0) : 0, hours: L ? r2(L.days.reduce((a, d) => a + d.hours, 0)) : 0,
         subs: L && L.state ? L.state.subs : 0, panel: panel ? { score: panel.score, n: panel.n, quality: panel.quality, notes: panel.notes || null, ts: panel.ts } : null,
@@ -525,6 +525,7 @@ A variant file is a JSON list, e.g.
 [{"label": "Etsy planner at $12", "spec": {"channel": "marketplace", "platform": "etsy", "price": 12, "volume": 10, "marketPrice": 9.5, "competition": "high", "trend": "rising", "cites": {"marketPrice": "https://..."}}},
  {"label": "Setup service by cold email", "spec": {"channel": "email", "price": 300, "volume": 40, "capacityPerDay": 1, "hoursPerSale": 3, "rates": {"reply": 0.05}, "cites": {"reply": "https://..."}}}]
 Other spec fields: recurring (true for a monthly price) with churn, unitCost, feePct or platform, fixedPerMonth, capacityPerDay, hoursPerSale (a person's hours per sale), audience (how many buyers there are in all).
+The market itself, from your research, is what the forecast should stand on: demand: {"monthly": attention the niche gets a month, "kind": "views"|"searches"|"posts"|"buyers", "sellers": how many compete for it, "growth": yearly growth (0.45 for +45%), "cites": {"monthly": url, "sellers": url, "growth": url}}. Monthly demand with a seller count sets your fair share of views or searches; job posts cap your proposals; buyers cap who can be reached; a sourced growth rate replaces the trend label. Uncited demand is ignored. Find these numbers first: they matter more than any other.
 ` : '';
   return `You are the room lead${lead ? ` (${lead})` : ''} for the ${name.toUpperCase()} room in a sandbox race run by Joshua Grigson${board.name ? `: ${board.name}` : ''}.
 ${purpose ? `\nWhat this race is for: ${purpose}.${r.purpose === 'idea' ? ' The winning idea is the one Joshua will run for real, so an idea only you could pull off is worth less than one a person can repeat.' : ''}\n` : ''}
@@ -601,7 +602,7 @@ export function racePlaybook(state, catalog, roomId, playId, now = Date.now(), {
 ${p.sim ? `- Ran as: ${p.sim.line}${p.sim.live ? `, live for ${p.sim.simDays} simulated day${p.sim.simDays === 1 ? '' : 's'}` : ', stopped'}
 - Forecast when it launched (${p.sim.forecast ? p.sim.forecast.runs : 0} simulated runs): ${p.sim.forecast ? range(p.sim.forecast) : 'none'}
 - Chance of profit: ${p.sim.forecast ? p.sim.forecast.net.map((n, i) => `${Math.round(p.sim.forecast.pProfit[i] * 100)}% by day ${n.days}`).join(', ') : 'n/a'}
-- Numbers it set with a source: ${p.sim.cited} of ${p.sim.set}${p.sim.flags.length ? `\n- The simulator changed: ${p.sim.flags.join('; ')}` : ''}${p.sim.panel ? `\n- A simulated panel of ${p.sim.panel.n} read the work: ${Math.round(p.sim.panel.score * 100)}% would act${p.sim.panel.notes ? ` (${p.sim.panel.notes})` : ''}` : ''}` : '- Not launched in the simulated market.'}
+- Numbers it set with a source: ${p.sim.cited} of ${p.sim.set}${p.sim.drivers && p.sim.drivers.length ? `\n- Driven by research: ${p.sim.drivers.join('; ')}` : ''}${p.sim.flags.length ? `\n- The simulator changed: ${p.sim.flags.join('; ')}` : ''}${p.sim.panel ? `\n- A simulated panel of ${p.sim.panel.n} read the work: ${Math.round(p.sim.panel.score * 100)}% would act${p.sim.panel.notes ? ` (${p.sim.panel.notes})` : ''}` : ''}` : '- Not launched in the simulated market.'}
 ${tested.length ? `\nVariants it tested (${tested.length}), best first:\n${tested.slice().sort((a, b) => b.result.net[b.result.net.length - 1].p50 - a.result.net[a.result.net.length - 1].p50).slice(0, 10).map((v) => `- ${v.label}: ${specLine(v.spec)}; ${range(v.result)}`).join('\n')}\n` : ''}
 Every simulated number is a forecast from published benchmarks and this play's own research, not a result. Real people decide the real one.
 ` : '';

@@ -342,7 +342,7 @@ export function validate(input) {
           ev.variants = testVariants(ev.variants.map((v) => ({ label: v && v.label, spec: v && (v.spec || v) })), { horizons: ev.horizons, runs: 200, seed: ev.id }).map((v) => ({ ...v, result: slimResult(v.result) }));
         } else if (ev.act === 'launch') {
           const n = normalizeSpec(ev.spec);
-          ev.spec = n.spec; ev.flags = n.flags; ev.cited = n.cited; ev.set = n.set;
+          ev.spec = n.spec; ev.flags = n.flags; ev.cited = n.cited; ev.set = n.set; ev.drivers = n.drivers;
           if (ev.label !== undefined && !(isText(ev.label) && ev.label.length <= 120)) fail('sim launch label must be 1-120 characters');
           ev.forecast = slimResult(monteCarlo(n.spec, { horizons: [7, 30, 90], runs: 200, seed: ev.id }));
         } else if (ev.act === 'build') {

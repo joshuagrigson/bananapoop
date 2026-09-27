@@ -142,6 +142,13 @@ export const RESEARCHED_IDEAS = [
    "trend": "rising",
    "cites": {
     "marketPrice": "https://litcommerce.com/blog/digital-products-to-sell-on-etsy/"
+   },
+   "demand": {
+    "kind": "buyers",
+    "growth": 0.038,
+    "cites": {
+     "growth": "https://www.aarp.org/caregiving/basics/caregiving-in-us-survey-2025/"
+    }
    }
   },
   "build": {
@@ -180,6 +187,13 @@ export const RESEARCHED_IDEAS = [
    "trend": "rising",
    "cites": {
     "marketPrice": "https://remoteaitools.com/how-much-to-charge-for-n8n-automation/"
+   },
+   "demand": {
+    "kind": "posts",
+    "growth": 1.78,
+    "cites": {
+     "growth": "https://remoteaitools.com/upwork-ai-automation-jobs-2026/"
+    }
    }
   },
   "build": {
@@ -219,6 +233,13 @@ export const RESEARCHED_IDEAS = [
    "trend": "rising",
    "cites": {
     "marketPrice": "https://gigradar.io/blog/freelance-video-editing"
+   },
+   "demand": {
+    "kind": "posts",
+    "growth": 3.29,
+    "cites": {
+     "growth": "https://www.selfemployed.com/news/ai-freelance-skills-demand-2026/"
+    }
    }
   },
   "build": {
@@ -293,7 +314,13 @@ export const RESEARCHED_IDEAS = [
    "competition": "medium",
    "trend": "rising",
    "cites": {
-    "marketPrice": "https://www.beehiiv.com/blog/the-state-of-paid-newsletters-2026"
+    "marketPrice": "https://www.beehiiv.com/blog/the-state-of-paid-newsletters-2026",
+    "churn": "https://www.beehiiv.com/blog/the-state-of-paid-newsletters-2026",
+    "conv": "https://www.beehiiv.com/blog/the-state-of-paid-newsletters-2026"
+   },
+   "churn": 0.0506,
+   "rates": {
+    "conv": 0.0062
    }
   },
   "build": {

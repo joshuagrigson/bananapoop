@@ -25,6 +25,7 @@ export const SIM_CHANNELS = Object.freeze({
 });
 export const SIM_COMPETITION = Object.freeze({ low: 1.15, medium: 1, high: 0.75 });
 export const SIM_TREND = Object.freeze({ rising: 1.15, flat: 1, falling: 0.8 });
+export const DEMAND_KINDS = Object.freeze(['views', 'searches', 'posts', 'buyers']);
 export const SIM_ARTIFACTS = Object.freeze({ email: 'Email', site: 'Site or landing page', post: 'Post', listing: 'Listing', ad: 'Ad', product: 'Product', script: 'Script', proposal: 'Proposal', other: 'Other' });
 // a panel's read (share of simulated buyers who would act) to the quality multiplier: 20% or less 0.6, 50% 1.0, 80% up 1.4
 export const panelQuality = (score) => Math.round((0.6 + 0.8 * Math.max(0, Math.min(1, (score - 0.2) / 0.6))) * 100) / 100;
@@ -133,15 +134,39 @@ export function normalizeSpec(input, { maxPerDay = null, maxSpendPerDay = null }
     s.churn = PRIORS.recurring.churn.mid;
   }
   if (s.marketPrice !== null && !cited('marketPrice')) flags.push('marketPrice has no source: cite the listings or pages it came from');
+  // the market itself, from research: how much attention the niche gets a month (views, searches, job posts, buyers),
+  // how many sellers split it, and how fast it is growing. Only numbers with a source count; they size the market
+  // directly instead of the benchmark guess, and a cited growth rate replaces the rising/flat/falling label.
+  s.demand = null; const drivers = [];
+  if (input.demand && typeof input.demand === 'object') {
+    const dm = input.demand, dc = dm.cites && typeof dm.cites === 'object' ? dm.cites : {}, d = { kind: DEMAND_KINDS.includes(dm.kind) ? dm.kind : 'views', cites: {} };
+    const take = (k, ok, what) => { if (dm[k] === undefined || dm[k] === null) return; if (!ok(dm[k])) fail(`demand.${k} must be ${what}`); if (!isUrl(dc[k])) { flags.push(`demand.${k} has no source; ignored (cite the page it came from)`); return; } d[k] = dm[k]; d.cites[k] = dc[k].trim(); };
+    take('monthly', (v) => isNum(v) && v > 0 && v < 1e11, 'a positive number: attention the niche gets a month');
+    take('sellers', (v) => isNum(v) && v >= 1 && v < 1e9, 'a number of competing sellers or listings, 1 or more');
+    take('growth', (v) => isNum(v) && v > -0.95 && v < 100, 'a yearly growth rate, e.g. 0.45 for +45% a year');
+    if (d.growth !== undefined && d.growth > 2) { flags.push(`demand.growth ${d.growth} is capped at 2 (tripling a year): a fast trend rarely keeps its pace`); d.growth = 2; }
+    if (Object.keys(d.cites).length) {
+      s.demand = d;
+      if (d.growth !== undefined) drivers.push(`demand growing ${Math.round(d.growth * 100)}% a year (sourced), in place of the "${s.trend}" label`);
+      if (d.monthly && d.sellers) drivers.push(`${d.monthly.toLocaleString('en-US')} ${d.kind} a month split across ${d.sellers.toLocaleString('en-US')} sellers: about ${r2(d.monthly / 30 / (d.sellers + 1))} a day for a fair share`);
+      else if (d.monthly && d.kind === 'posts') drivers.push(`${d.monthly.toLocaleString('en-US')} job posts a month (sourced) cap proposals at about ${r2(d.monthly / 30)} a day`);
+      else if (d.monthly && d.kind !== 'buyers') drivers.push(`${d.monthly.toLocaleString('en-US')} ${d.kind} a month (sourced); add the number of competing sellers to size your share of it`);
+      if (d.monthly && d.kind === 'buyers' && input.audience === undefined) { s.audience = d.monthly; drivers.push(`${d.monthly.toLocaleString('en-US')} buyers with this need cap how many can ever be reached`); }
+    }
+  }
+  s.drivers = drivers;
   if (s.audience === null) s.audience = ch.audience;
+  for (const k of Object.keys(pri.rates)) if (given[k] !== undefined && cited(k)) s.drivers.push(`${k} ${s.rates[k]} from a cited source`);
+  if (s.recurring && input.churn !== undefined && cited('churn')) s.drivers.push(`churn ${s.churn} a month from a cited source`);
   const citedN = Object.keys(pri.rates).filter((k) => given[k] !== undefined && cited(k)).length + (s.marketPrice !== null && cited('marketPrice') ? 1 : 0);
   const setN = Object.keys(pri.rates).filter((k) => given[k] !== undefined).length + (s.marketPrice !== null ? 1 : 0);
-  return { spec: s, flags, cited: citedN, set: setN };
+  const dN = s.demand ? Object.keys(s.demand.cites).length : 0;
+  return { spec: s, flags, cited: citedN + dN, set: setN + dN, drivers: s.drivers };
 }
 
 // what one buyer-step multiplier comes to: price against the market, competition, the trend
 function buyFactor(s) {
-  let f = SIM_COMPETITION[s.competition] * SIM_TREND[s.trend];
+  let f = SIM_COMPETITION[s.competition] * (s.demand && s.demand.growth !== undefined ? 1 : SIM_TREND[s.trend]);
   if (s.marketPrice) f *= Math.max(0.2, Math.min(2, (s.marketPrice / s.price) ** 1.2));
   return f;
 }
@@ -161,23 +186,29 @@ export function simulate(spec, days, seed, start = null) {
     const row = { day: d, reach: 0, engaged: 0, leads: 0, sales: 0, lost: 0, grossUsd: 0, feesUsd: 0, costUsd: 0, adsUsd: 0, toolUsd: 0, subs: 0, signals: {} };
     const sig = (k, n) => { if (n > 0 && ch.signals[k]) row.signals[ch.signals[k]] = (row.signals[ch.signals[k]] || 0) + n; };
     let buyers = 0;
+    // the market from research: a sourced growth rate moves attention over time; monthly demand split across the
+    // sellers is the most a fair share of the niche can bring in a day
+    const dmd = spec.demand, gm = dmd && dmd.growth !== undefined ? Math.max(0.5, Math.min(3, (1 + dmd.growth) ** (d / 365))) : 1;
+    const fair = dmd && dmd.monthly && dmd.sellers ? (dmd.monthly / 30 / (dmd.sellers + 1)) * gm : null;
     switch (spec.channel) {
       case 'email': case 'dm': {
         const sent = Math.round(spec.volume * sat); row.reach = sent;
         const rep = binomial(r, sent, R.reply * first); sig('reply', rep); row.engaged = rep;
-        const pos = binomial(r, rep, R.positive); sig('positive', pos); row.leads = pos;
+        const pos = binomial(r, rep, Math.min(1, R.positive * gm)); sig('positive', pos); row.leads = pos;
         buyers = binomial(r, pos, R.close * buy);
         break;
       }
       case 'local': {
         const n = Math.round(spec.volume * sat); row.reach = n;
-        const m = binomial(r, n, R.meeting * first); sig('meeting', m); row.engaged = m; row.leads = m;
+        const m = binomial(r, n, Math.min(1, R.meeting * first * gm)); sig('meeting', m); row.engaged = m; row.leads = m;
         buyers = binomial(r, m, R.close * buy);
         break;
       }
       case 'freelance': {
-        const n = Math.round(spec.volume * sat); row.reach = n;
-        const iv = binomial(r, n, R.interview * first); sig('interview', iv); row.engaged = iv; row.leads = iv;
+        // you can only pitch jobs that exist: sourced job posts a month cap the proposals, and growth adds jobs
+        const posts = dmd && dmd.monthly && dmd.kind === 'posts' ? (dmd.monthly / 30) * gm : Infinity;
+        const n = Math.round(Math.min(spec.volume, posts) * sat); row.reach = n;
+        const iv = binomial(r, n, Math.min(1, R.interview * first * (posts === Infinity ? gm : 1))); sig('interview', iv); row.engaged = iv; row.leads = iv;
         buyers = binomial(r, iv, R.hire * buy);
         break;
       }
@@ -185,7 +216,10 @@ export function simulate(spec, days, seed, start = null) {
         // a new listing starts nearly unseen and fills in over the ramp; sales so far (reviews) lift it, up to double
         const ramp = Math.min(1, 0.1 + 0.9 * (d / Math.max(1, R.ramp)));
         const proof = Math.min(2, 1 + st.sales / 200);
-        const views = poisson(r, spec.volume * R.views * ramp * proof * first);
+        // a sourced fair share of the niche's views replaces the benchmark guess: a 10-listing shop gets its share,
+        // a bigger catalog up to twice that
+        const base = fair !== null && dmd.kind === 'views' ? fair * Math.min(2, Math.sqrt(spec.volume / 10)) : spec.volume * R.views * gm;
+        const views = poisson(r, base * ramp * proof * first);
         row.reach = views; sig('views', views); row.engaged = views;
         buyers = binomial(r, views, R.conv * buy);
         break;
@@ -193,7 +227,7 @@ export function simulate(spec, days, seed, start = null) {
       case 'ads': {
         const budget = spec.volume * sat; row.adsUsd = r2(budget);
         const cpc = Math.max(0.05, R.cpc * (1 + 0.15 * normal(r)));
-        const clicks = Math.floor(budget / cpc * first);
+        const clicks = Math.floor(Math.min(budget / cpc, fair !== null ? fair : Infinity) * first);
         row.reach = clicks; sig('cpc', clicks); row.engaged = clicks;
         buyers = binomial(r, clicks, R.conv * buy);
         break;
@@ -201,7 +235,7 @@ export function simulate(spec, days, seed, start = null) {
       case 'social': {
         // reach per post grows with the followers the posts win; a link click then buys on the sales page
         const perPost = R.reach + st.followers * R.follower_reach;
-        const reach = poisson(r, spec.volume * perPost * sat * first);
+        const reach = poisson(r, spec.volume * perPost * sat * first * gm);
         row.reach = reach; sig('reach', reach);
         const fol = binomial(r, reach, R.follow); st.followers += fol; sig('follow', fol);
         const clicks = binomial(r, reach, R.ctr); row.engaged = clicks;
@@ -212,7 +246,8 @@ export function simulate(spec, days, seed, start = null) {
         // every page ever written keeps drawing visits once search trusts it, after a slow start
         st.pages += spec.volume;
         const age = Math.min(1, d / Math.max(1, R.ramp));
-        const visits = poisson(r, st.pages * R.visits * age * age * first);
+        // a sourced fair share of the niche's searches replaces the benchmark visits per page
+        const visits = poisson(r, (fair !== null && dmd.kind === 'searches' ? fair * Math.min(1, st.pages / 20) : st.pages * R.visits * gm) * age * age * first);
         row.reach = visits; sig('visits', visits); row.engaged = visits;
         buyers = binomial(r, visits, R.conv * buy);
         break;
@@ -287,9 +322,9 @@ export function monteCarlo(spec, { horizons = [7, 30, 90], runs = 200, seed = 1,
 export function testVariants(variants, opts = {}) {
   const horizons = opts.horizons || [7, 30, 90];
   return variants.map((v, i) => {
-    const { spec, flags, cited, set } = normalizeSpec(v.spec || v, opts);
+    const { spec, flags, cited, set, drivers } = normalizeSpec(v.spec || v, opts);
     const result = monteCarlo(spec, { horizons, runs: opts.runs || 200, seed: hashSeed(opts.seed || 'test', i, JSON.stringify(spec)), stakeUsd: opts.stakeUsd ?? null });
-    return { label: String(v.label || `${SIM_CHANNELS[spec.channel].title} at $${spec.price}`).slice(0, 120), spec, flags, cited, set, result };
+    return { label: String(v.label || `${SIM_CHANNELS[spec.channel].title} at $${spec.price}`).slice(0, 120), spec, flags, cited, set, drivers, result };
   }).sort((a, b) => b.result.net[b.result.net.length - 1].p50 - a.result.net[a.result.net.length - 1].p50);
 }
 

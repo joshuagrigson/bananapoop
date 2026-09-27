@@ -18,8 +18,9 @@ Laws:
 1. Real data only. Every number you use comes from a page you read; log it with log_research and its url. Never invent a statistic, price, seller, review or quote.
 2. Nothing leaves the station. You never send, post, publish, list or buy anything. You build the real thing with build (the full email, full page, full listing) so it is ready if Joshua presses REAL MONEY.
 3. Look in three places: what is trending now; gaps (demand with few or weak sellers, unanswered questions, underserved buyers); and improvements (products that sell but get complaints: read reviews and threads, then design the better version).
-4. Test widely with simulate (many variants: channel, price, offer, volume), cite your sources in each spec's cites, then launch the best one. Don't game the simulator: uncited optimism is held to benchmarks anyway.
-5. Keep prose short. Finish with a plain summary of what you found, tested, built and launched.`;
+4. Size the market from real numbers before you test: monthly demand in the niche (views, searches, job posts or buyers), how many sellers compete for it, and its yearly growth, each with its source. Put them in spec.demand with cites; they drive the forecast more than anything else.
+5. Test widely with simulate (many variants: channel, price, offer, volume), cite your sources in each spec's cites, then launch the best one. Don't game the simulator: uncited numbers are ignored or held to benchmarks.
+6. Keep prose short. Finish with a plain summary of what you found, tested, built and launched.`;
 
 const TOPICS = Object.keys(RESEARCH_TOPICS);
 
@@ -42,7 +43,7 @@ function tools({ ledger, catalog, roomId, runId, now, log }) {
       run: async (i) => { const e = append({ kind: 'research', ...i }); return e.error ? err(e) : `logged ${e.id}`; },
     }),
     betaTool({
-      name: 'simulate', description: `Test 1-24 variants in the market simulator (200 runs each). Each: { label, spec: { channel (${Object.keys(SIM_CHANNELS).join('|')}), price, volume, recurring?, churn?, unitCost?, platform?, feePct?, fixedPerMonth?, capacityPerDay?, hoursPerSale?, audience?, marketPrice?, competition (low|medium|high), trend (rising|flat|falling), rates?, cites?: { key: url } } }. Returns ranges and odds of profit, best first, plus notes where the simulator overrode you.`,
+      name: 'simulate', description: `Test 1-24 variants in the market simulator (200 runs each). Each: { label, spec: { channel (${Object.keys(SIM_CHANNELS).join('|')}), price, volume, recurring?, churn?, unitCost?, platform?, feePct?, fixedPerMonth?, capacityPerDay?, hoursPerSale?, audience?, marketPrice?, competition (low|medium|high), trend (rising|flat|falling), rates?, cites?: { key: url }, demand?: { monthly, kind: views|searches|posts|buyers, sellers, growth (yearly, 0.45 = +45%), cites: { monthly, sellers, growth } } } }. Sourced demand sizes the market. Returns ranges and odds of profit, best first, plus notes where the simulator overrode you.`,
       inputSchema: { type: 'object', properties: { variants: { type: 'array', items: { type: 'object' } }, play: { type: 'string' } }, required: ['variants'], additionalProperties: false },
       run: async (i) => { const e = append({ kind: 'sim', act: 'test', variants: i.variants, ...(i.play ? { play: i.play } : {}) }); return e.error ? err(e) : JSON.stringify(e.variants.map((v) => ({ label: v.label, net: v.result.net, pProfit: v.result.pProfit, breakEvenDay: v.result.breakEvenDay, flags: v.flags }))); },
     }),
