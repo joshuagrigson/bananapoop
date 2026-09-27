@@ -1497,7 +1497,19 @@
     for (let k = 0; k < 16; k++) particles.push({ x: sx + (Math.random() - 0.5) * 6, y: sy + 6 - Math.random() * 18, vx: (Math.random() - 0.5) * 8, vy: -8 - Math.random() * 20, g: 0, life: 0.5 + Math.random() * 0.5, col, glow: true });
   }
   function outcomesForRun(runId) { let n = 0; for (const p of Object.values(snap.state.paths)) for (const list of Object.values(p.refs)) for (const r of list) if (r.runId === runId) n++; return n; }
-  const deskCenter = (room, i) => [room.x0 + DESKS[i][0] + 0.5, room.y0 + DESKS[i][1] + 0.5];
+  // each office room's own floor plan: where its six stations stand (room-local, the top-left of each station's tile).
+  // Rooms with furniture of their own (a barbershop, a kitchen...) keep the classic grid.
+  const DESK_SETS = {
+    rows: DESKS,
+    pods: [[1.6, 1.1], [3.0, 1.1], [5.0, 1.0], [1.6, 3.6], [3.0, 3.6], [5.0, 3.9]],
+    arc: [[0.5, 2.8], [1.75, 2.0], [3.0, 1.3], [4.25, 2.0], [5.5, 2.8], [3.0, 4.1]],
+    columns: [[1.4, 1.0], [1.4, 2.5], [1.4, 4.0], [4.6, 1.0], [4.6, 2.5], [4.6, 4.0]],
+    bench: [[0.8, 1.9], [2.2, 1.9], [3.6, 1.9], [5.0, 1.9], [1.6, 4.5], [4.4, 4.5]],
+    lounge: [[1.1, 0.95], [3.0, 0.95], [4.8, 0.95], [1.2, 3.8], [3.0, 4.4], [4.8, 3.8]],
+  };
+  const DESK_ORDER = ['rows', 'pods', 'arc', 'columns', 'bench', 'lounge'];
+  let deskSetOf = () => DESKS;                  // the renderer fills this in once it knows each room's kind
+  const deskCenter = (room, i) => { const D = deskSetOf(room); return [room.x0 + D[i][0] + 0.5, room.y0 + D[i][1] + 0.5]; };
   function pickDesk(room, self = null) {
     const info = stageInfo(room);
     const taken = new Set([...agents.values()].filter((a) => a !== self && a.path === room.id && a.state !== 'leave' && a.desk >= 0).map((a) => a.desk));
@@ -1704,7 +1716,7 @@
     if (!worker) {
       // nobody works this room: the visitor still comes and pays at the counter
       if (!chore) spawnGuest(room, null, e);
-      else spawnCoins(room, n);
+      else spawnCoins(room, n, e.usd);
       return;
     }
     worker.busy = { e, room, n, chore, t: 0 };
@@ -1719,7 +1731,7 @@
   const GUEST_TINTS = ['#9ec5ff', '#ffb3c7', '#b8f2a0', '#ffd79a', '#d4b8ff', '#9ff0e6', '#ffc39e', '#e6e6e6'];
   function spawnGuest(room, worker, e) {
     const guests = [...agents.values()].filter((a) => a.kind === 'guest').length;
-    if (guests >= 8) { spawnCoins(room, 8); return null; }
+    if (guests >= 8) { spawnCoins(room, 8, e.usd); return null; }
     const [dx, dy] = cellOrigin(...DOCK);
     const start = nearestWalkable(dx + 3.5, dy + 6.2);
     const station = worker ? worker.station : freeStation(room, null);
@@ -1733,7 +1745,7 @@
   function finishScene(worker) {
     const b = worker.busy; if (!b) return;
     worker.busy = null;
-    spawnCoins(b.room, b.n);
+    spawnCoins(b.room, b.n, b.e.usd);
     bubble(worker, b.chore ? 'star' : 'coin', 2.2, true);
     worker.jz = 1; worker.act = 'idle'; worker.actT = 1.5 + Math.random() * 2;
     popValue(worker.x, worker.y, `+${usd(b.e.usd)}`, worker.tint || roleCol(worker.role));
@@ -2090,7 +2102,7 @@
       const host = a.host && agents.get(a.host);
       const done = host ? !host.busy : a.actT <= 0;
       if (a.act === 'seated' && done) {
-        if (!host) spawnCoins(roomById(a.path), 8);
+        if (!host) spawnCoins(roomById(a.path), 8, a.ev && a.ev.usd);
         bubble(a, 'heart', 1.6);
         const [dx, dy] = cellOrigin(...DOCK);
         a.act = 'leave'; a.state = 'leave'; a.queue = findPath([a.x, a.y], nearestWalkable(dx + 3.5, dy + 6.2));
@@ -2233,14 +2245,14 @@
     motes.length = 0;
     for (const room of rooms) for (let k = 0; k < 7; k++) motes.push({ room, x: room.x0 + 0.5 + Math.random() * 6, y: room.y0 + 0.5 + Math.random() * 6, z: 4 + Math.random() * 22, vx: (Math.random() - 0.5) * 0.12, vy: (Math.random() - 0.5) * 0.12, vz: (Math.random() - 0.5) * 1.5, p: Math.random() * 6.28 });
   }
-  function spawnCoins(room, n) {
+  function spawnCoins(room, n, amt = null) {
     if (!room) return;
     for (const a of agents.values()) if (a.kind === 'extra' && !a.holo && a.path === room.id && !a.queue.length && Math.random() < 0.85) {
       a.act = 'cheer'; a.actT = 1.4 + Math.random() * 0.8; a.carry = 0; if (Math.random() < 0.6) bubble(a, Math.random() < 0.5 ? 'coin' : 'star', 1.2);
       const [sx, sy] = P(a.x, a.y, 30);
       for (let k = 0; k < 5; k++) particles.push({ x: sx + (Math.random() - 0.5) * 6, y: sy, vx: (Math.random() - 0.5) * 34, vy: -24 - Math.random() * 26, g: 26, life: 1.1 + Math.random() * 0.6, col: k % 3 ? '#f5f2e8' : '#e8f0ff' });
     }
-    flowBurst(room, Math.ceil(n / 3));
+    flowBurst(room, Math.ceil(n / 3), amt);
     const [cx, cy] = cellCenter(room.c, room.r);
     const hub = cellCenter(...HUB);
     const from = P(cx, cy, 12), to = P(hub[0], hub[1], 30);
@@ -2248,19 +2260,29 @@
   }
   // ---- contributions: every room sends what it makes along the walkways to the vault, in its world's form (enchanted
   // coins and sealed scrolls, produce, cargo pods, data cubes, spores, pearls in bubbles), and they funnel in at the centre.
-  // Data, not decoration: a room's stream is as steady as its last 30 days of money (plus its last 7 days of pipeline
-  // steps, as leads); a room with neither sends nothing, and every sale sends a burst.
+  // Data, not decoration: a room's money stream is as steady as its last 30 days of money (in a race, what it has made
+  // since the gun), and its work stream as steady as its recent pipeline steps, plays, demand and moves. A room that has
+  // ever earned keeps a trickle going, so the station never looks idle while money is in it; a room with nothing at all
+  // sends nothing. Every sale sends a burst whose first token carries the amount into the vault.
   const flows = [], flowAcc = new Map();
   let flowSig = '', flowCache = new Map(), vaultPulse = 0, flowLevel = 0;
   function roomFlow(room) {
-    const sig = snap.state.eventCount + ':' + Math.floor(Date.now() / 60000);
+    const sig = snap.state.eventCount + ':' + Math.floor(Date.now() / 60000) + ':' + rooms.length;
     if (sig !== flowSig) { flowSig = sig; flowCache = new Map(); }
     if (flowCache.has(room.id)) return flowCache.get(room.id);
     const from30 = Date.now() - 30 * 86400e3, from7 = Date.now() - 7 * 86400e3;
-    let usd = 0, leads = 0;
-    for (const e of snap.state.moneyIn) if (e.path === room.id && Date.parse(e.ts) >= from30) usd += e.usd;
+    let usd = 0, leads = 0, ever = false;
+    for (const e of snap.state.moneyIn) if (e.path === room.id) { ever = true; if (Date.parse(e.ts) >= from30) usd += e.usd; }
     if (!isService(room)) { const p = pathState(room.id); if (p) for (const st of STAGES) for (const r of p.refs[st]) if (Date.parse(r.ts) >= from7) leads++; }
-    const f = { usd, leads, every: usd > 0 ? clamp(7 / Math.log2(2 + usd), 0.45, 6) : 0, leadEvery: leads > 0 ? clamp(9 / Math.log2(2 + leads), 1.2, 9) : 0 };
+    // in a race: money since the gun, and every recent step, play, bit of demand and score is work toward the goal
+    const l = MODE() === 'race' && snap.race && snap.race.lanes.find((x) => x.id === room.id);
+    if (l) {
+      usd = Math.max(usd, l.inUsd); ever = ever || l.inUsd > 0;
+      const since = Date.now() - (snap.race.short ? 3600e3 : 3 * 86400e3);
+      leads += l.timeline.filter((x) => x.kind !== 'in' && x.kind !== 'out' && x.kind !== 'break' && Date.parse(x.ts) >= since).length + Math.round(Math.log2(1 + l.signalScore));
+    }
+    const idx = rooms.indexOf(room), lane = ((idx % 5) - 2) * 0.22;
+    const f = { usd, leads, lane, acc: themeOf(room.id).accent, every: usd > 0 ? clamp(4.5 / Math.log2(2 + usd), 0.3, 3) : ever ? 5 : 0, leadEvery: leads > 0 ? clamp(6 / Math.log2(2 + leads), 0.8, 4.5) : 0 };
     flowCache.set(room.id, f);
     return f;
   }
@@ -2271,14 +2293,15 @@
     return routeCache.get(key);
   }
   const FUNNEL_R = 2.6;
-  function spawnFlow(room, kind, big = false) {
-    if (!room || flows.length > 120) return;
+  function spawnFlow(room, kind, big = false, label = null) {
+    if (!room || flows.length > 160) return;
     const pts = flowRoute(room); if (pts.length < 2) return;
     const segs = []; let L = 0;
     for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); segs.push(d); L += d; }
-    flows.push({ room: room.id, kind, big, pts, segs, L, d: -Math.random() * 0.6, speed: (kind === 'lead' ? 3 : 3.6) * (0.85 + Math.random() * 0.3), lane: (Math.random() - 0.5) * 0.8, seed: (Math.random() * 1e6) | 0, k: 0, phase: 'go', trail: [] });
+    const f = roomFlow(room);
+    flows.push({ room: room.id, acc: f.acc, kind, big, label, pts, segs, L, d: -Math.random() * 0.6, speed: (kind === 'lead' ? 3 : 3.6) * (0.85 + Math.random() * 0.3), lane: f.lane + (Math.random() - 0.5) * 0.16, seed: (Math.random() * 1e6) | 0, k: 0, phase: 'go', trail: [] });
   }
-  function flowBurst(room, n) { for (let i = 0; i < Math.min(n, 6); i++) spawnFlow(room, 'money', i < 2); }
+  function flowBurst(room, n, amt = null) { for (let i = 0; i < Math.min(n, 6); i++) spawnFlow(room, 'money', i < 2, i === 0 && amt ? '+' + usd(amt) : null); }
   function flowTick(dt) {
     if (!snap) return;
     let lvl = 0;
@@ -2294,7 +2317,14 @@
     for (let i = flows.length - 1; i >= 0; i--) {
       const t = flows[i];
       if (t.phase === 'go') { t.d += t.speed * dt; if (t.d >= t.L - FUNNEL_R) { t.phase = 'funnel'; t.k = 0; } }
-      else { t.k += dt / 1.5; if (t.k >= 1) { flows.splice(i, 1); vaultPulse = Math.min(1.6, vaultPulse + (t.kind === 'money' ? (t.big ? 0.5 : 0.25) : 0.1)); } }
+      else {
+        t.k += dt / 1.5;
+        if (t.k >= 1) {
+          flows.splice(i, 1); vaultPulse = Math.min(1.6, vaultPulse + (t.kind === 'money' ? (t.big ? 0.5 : 0.25) : 0.1));
+          // the amount lands in the vault where you can read it
+          if (t.label) { const [hx, hy] = cellCenter(...HUB); popValue(hx, hy, t.label, t.acc); }
+        }
+      }
     }
   }
   function step(dt) {
@@ -2807,7 +2837,7 @@
       if (e.via) { const g = groups.get(e.via) || { n: 0, usd: 0, paths: new Set() }; g.n++; g.usd += e.usd; g.paths.add(e.path); groups.set(e.via, g); }
       else toast('money', `+${usd(e.usd)} · ${e.source}`, `${shortOf(e.path)} · ${e.evidence}`, '#ffcf5a', 'coin');
       const room = roomById(e.path);
-      if (room && coinBudget > 0 && !replay) { const n = clamp(Math.round(6 + Math.log10(Math.max(1, e.usd)) * 5), 6, 26); if (scenes++ < 6) playEvent(e, { quiet: scenes > 1 }); else spawnCoins(room, Math.min(n, coinBudget)); coinBudget -= n; }
+      if (room && coinBudget > 0 && !replay) { const n = clamp(Math.round(6 + Math.log10(Math.max(1, e.usd)) * 5), 6, 26); if (scenes++ < 6) playEvent(e, { quiet: scenes > 1 }); else spawnCoins(room, Math.min(n, coinBudget), e.usd); coinBudget -= n; }
     }
     for (const [via, g] of groups) {
       const csvSrc = via.startsWith('csv:');
@@ -5446,7 +5476,62 @@
     }
 
     // ---- furniture: lit boxes and cylinders, each piece with a footprint the folk walk around
-    const ST = (i) => [DESKS[i][0] + 0.5, DESKS[i][1] + 0.5];
+    let curDesks = DESKS;
+    const ST = (i) => [curDesks[i][0] + 0.5, curDesks[i][1] + 0.5];
+    // which floor plan a room gets: its own if it names one, else one by its rank, so neighbours differ
+    const OWN_FURNITURE = new Set(['barber', 'salon', 'kitchen', 'bedroom', 'study', 'laundry', 'pets', 'trash', 'yard', 'playroom', 'shop', 'studio']);
+    const deskPlan = (rm) => (OWN_FURNITURE.has(themeOfRoom(rm)) ? 'rows' : DESK_SETS[rm.spec.layout] ? rm.spec.layout : DESK_ORDER[(Math.max(1, rm.spec.rank || 1) - 1) % DESK_ORDER.length]);
+    deskSetOf = (rm) => DESK_SETS[deskPlan(rm)];
+    function armchair(x, y, col) {
+      box(x - 0.3, y - 0.26, 0.6, 0.55, 0.3, 0, shade(col, -0.25));
+      box(x - 0.3, y - 0.26, 0.6, 0.55, 0.12, 0.3, col, { gloss: true });
+      box(x - 0.32, y + 0.2, 0.64, 0.14, 0.55, 0.3, shade(col, -0.1));
+      for (const ax of [-0.34, 0.24]) box(x + ax, y - 0.26, 0.1, 0.55, 0.22, 0.3, shade(col, -0.18));
+    }
+    // the rest of an office's floor plan: what makes a trading arc, a pod office, a hackathon bench or a lounge its own
+    function deskDecor(plan, acc, add, wall) {
+      const board = (s0, s1, fn) => wall.push(() => onWall('R', () => { g.fillStyle = '#f7f7f2'; g.fillRect(s0, 1.3, s1 - s0, 1.0); g.strokeStyle = '#9aa6b8'; g.lineWidth = 0.05; g.strokeRect(s0, 1.3, s1 - s0, 1.0); fn(); }, curWallH));
+      if (plan === 'rows') {
+        add(0.4 + 2.3, [0.1, 2.0, 0.6, 0.6], () => waterCooler(0.4, 2.3));
+        add(0.4 + 4.9, [0.1, 4.6, 0.6, 0.6], () => lamp(0.4, 4.9));
+        wall.push(() => onWall('R', () => { g.fillStyle = '#f7f7f2'; g.fillRect(4.7, 1.45, 1.1, 0.75); g.strokeStyle = '#9aa6b8'; g.lineWidth = 0.05; g.strokeRect(4.7, 1.45, 1.1, 0.75); g.strokeStyle = acc; g.lineWidth = 0.035; g.beginPath(); g.moveTo(4.8, 2.05); g.lineTo(5.1, 1.8); g.lineTo(5.35, 1.9); g.lineTo(5.7, 1.55); g.stroke(); g.fillStyle = '#e05a47'; g.fillRect(1.2, 1.5, 0.5, 0.6); g.fillStyle = '#ffd84d'; g.fillRect(1.8, 1.6, 0.45, 0.5); }, curWallH));
+      } else if (plan === 'pods') {
+        // two pods of desks with a low screen between them, a whiteboard of sticky notes
+        add(1.45 + 3.0, [1.45, 2.95, 2.75, 0.12], () => { box(1.45, 2.95, 2.75, 0.1, 1.05, 0, '#3a4260'); if (LOD) for (let k = 0; k < 3; k++) plant(1.8 + k * 1.0, 3.0, 0.45, '#8a95a8'); });
+        add(0.4 + 2.3, [0.1, 2.0, 0.6, 0.6], () => waterCooler(0.4, 2.3));
+        add(0.5, null, () => rug(1.3, 0.8, 3.1, 4.6, acc));
+        board(0.9, 3.4, () => { const cs = ['#ffd84d', '#f472b6', '#5fd4ff', '#4ade80']; for (let k = 0; k < 10; k++) { g.fillStyle = cs[k % 4]; g.fillRect(1.0 + (k % 5) * 0.46, 1.4 + Math.floor(k / 5) * 0.45, 0.36, 0.34); } });
+      } else if (plan === 'arc') {
+        // a trading arc: every desk faces a wall of live charts
+        wall.push(() => onWall('R', () => {
+          g.fillStyle = '#10131d'; g.fillRect(1.0, 0.9, 5.0, 1.7); g.strokeStyle = '#2b3246'; g.lineWidth = 0.08; g.strokeRect(1.0, 0.9, 5.0, 1.7);
+          for (let p = 0; p < 3; p++) { const x0 = 1.1 + p * 1.65; g.fillStyle = '#0b1a2a'; g.fillRect(x0, 1.0, 1.55, 1.5); g.strokeStyle = [acc, '#3ddc97', '#ffcf5a'][p]; g.lineWidth = 0.04; g.beginPath(); for (let k = 0; k <= 12; k++) { const y = 1.9 - Math.sin(k * 0.8 + tt * (0.6 + p * 0.3) + p) * 0.3 - k * 0.03; if (k) g.lineTo(x0 + 0.05 + k * 0.12, y); else g.moveTo(x0 + 0.05, y); } g.stroke(); }
+          g.fillStyle = '#ffcf5a'; g.fillRect(1.0, 2.62, 5.0, 0.16); g.fillStyle = '#10131d'; for (let k = 0; k < 9; k++) g.fillRect(1.05 + ((k * 0.6 + tt * 0.4) % 5), 2.66, 0.3, 0.08);
+        }, curWallH));
+        add(0.5, null, () => { const [a, b] = Pl(3.5, 3.4, 0); g.strokeStyle = alpha(acc, 0.55); g.lineWidth = lw(0.08); g.beginPath(); g.ellipse(a, b, u * 3.1, u * 1.55, 0, Math.PI, 0); g.stroke(); });
+        add(0.4 + 4.9, [0.1, 4.6, 0.6, 0.6], () => lamp(0.4, 4.9));
+      } else if (plan === 'columns') {
+        // two columns of desks, an aisle down the middle, a coffee bar at the back
+        add(0.5, null, () => rug(2.7, 0.9, 1.6, 4.6, acc));
+        add(2.7 + 0.5, [2.7, 0.1, 1.6, 0.55], () => { counter(2.75, 0.1, 1.5, 0.5, '#2b2f3c'); if (LOD) { box(2.95, 0.18, 0.35, 0.3, 0.4, 0.93, '#1b1f2b'); cyl(3.8, 0.35, 0.07, 0.14, 0.93, '#f7f7f2'); cyl(4.0, 0.35, 0.07, 0.14, 0.93, acc); steam(3.12, 0.3, 1.35); } });
+        add(0.4 + 2.3, [0.1, 2.0, 0.6, 0.6], () => waterCooler(0.4, 2.3));
+        add(0.4 + 4.9, [0.1, 4.6, 0.6, 0.6], () => lamp(0.4, 4.9));
+        board(4.6, 6.3, () => { g.strokeStyle = acc; g.lineWidth = 0.04; g.strokeRect(4.75, 1.45, 0.6, 0.35); g.strokeRect(5.5, 1.45, 0.6, 0.35); g.beginPath(); g.moveTo(5.35, 1.62); g.lineTo(5.5, 1.62); g.stroke(); g.strokeRect(5.1, 1.95, 0.6, 0.25); });
+      } else if (plan === 'bench') {
+        // a hackathon bench: one long table, a banner, pizza and beanbags
+        wall.push(() => onWall('R', () => { g.fillStyle = acc; g.beginPath(); g.moveTo(0.9, 1.1); g.lineTo(6.1, 1.1); g.lineTo(5.9, 1.45); g.lineTo(6.1, 1.8); g.lineTo(0.9, 1.8); g.lineTo(1.1, 1.45); g.closePath(); g.fill(); g.fillStyle = '#10131d'; g.font = '800 0.42px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('SHIP IT', 3.5, 1.47); }, curWallH));
+        add(3.5 + 2.2, null, () => { if (!LOD) return; box(3.2, 2.15, 0.55, 0.45, 0.05, 0.98, '#e8d6b8'); const [a, b] = Pl(3.47, 2.37, 1.04); g.fillStyle = '#e8a33a'; g.beginPath(); g.moveTo(a, b - u * 0.12); g.lineTo(a + u * 0.18, b + u * 0.06); g.lineTo(a - u * 0.18, b + u * 0.06); g.closePath(); g.fill(); });
+        add(3.5 + 5.6, [3.0, 5.25, 1.0, 0.7], () => beanbag(3.5, 5.6, '#f472b6'));
+        add(0.5, null, () => rug(0.6, 1.6, 5.8, 1.9, acc));
+        add(0.4 + 4.9, [0.1, 4.6, 0.6, 0.6], () => lamp(0.4, 4.9));
+      } else if (plan === 'lounge') {
+        // desks at the back, armchairs round a coffee table at the front, a shelf of books
+        add(0.5, null, () => rug(1.2, 3.3, 4.8, 2.6, acc));
+        add(2.9 + 3.4 + 0.3, [2.9, 3.4, 1.2, 0.7], () => { table(2.9, 3.4, 1.2, 0.7, WOOD2); if (LOD) { cyl(3.2, 3.7, 0.08, 0.1, 0.79, '#f7f7f2'); steam(3.2, 3.7, 0.9); box(3.5, 3.55, 0.45, 0.3, 0.04, 0.79, '#4f8fe0'); } });
+        add(0.3 + 2.6, [0.05, 2.1, 0.5, 1.4], () => shelfUnit(0.05, 2.1, 0.45, 1.6));
+        add(6.3 + 3.0, [6.0, 2.6, 0.7, 0.7], () => plant(6.35, 2.95, 1.2, '#8a95a8'));
+      }
+    }
     const WOOD = '#a8743f', WOOD2 = '#8a5a2e', METAL = '#b8c2d4', DARK = '#2b2f3c';
     function legs(x, y, w, d, h, col) { const t = 0.07; for (const [a, b] of [[x, y], [x + w - t, y], [x, y + d - t], [x + w - t, y + d - t]]) box(a, b, t, t, h, 0, col, { noInk: LOD < 2 }); }
     function plant(x, y, s = 1, pot = '#c2673f') {
@@ -5607,6 +5692,7 @@
     // lanes in from each door are always left free.
     function layoutRoom(rm) {
       const th = themeOfRoom(rm), acc = themeOf(rm.id).accent, items = [], wall = [];
+      curDesks = deskSetOf(rm);
       const add = (d, fp, fn) => items.push({ d, fp, fn });
       const stFp = (i) => { const [cx, cy] = ST(i); return [cx - 0.52, cy - 0.36, 1.04, 0.72]; };
       const seatFp = (i) => { const [cx, cy] = ST(i); return [cx - 0.24, cy + 0.44, 0.48, 0.48]; };
@@ -5698,10 +5784,19 @@
         add(5.5 + 4.6, stFp(5), () => { box(5.0, 4.25, 1.0, 0.5, 0.5, 0, '#2b2f3c'); if (LOD) box(5.2, 4.35, 0.6, 0.3, 0.05, 0.5, '#5fd4ff'); });
         add(0.5, null, () => rug(2.2, 2.4, 2.6, 1.0, acc));
       } else {
-        for (let i = 0; i < 6; i++) { const [cx, cy] = ST(i); add(cx + cy, stFp(i), () => officeDesk(cx, cy, () => lit(i), busyAt(i))); add(cx + cy + 0.78, seatFp(i), () => officeChair(cx, cy + 0.62)); }
-        add(0.4 + 2.3, [0.1, 2.0, 0.6, 0.6], () => waterCooler(0.4, 2.3));
-        add(0.4 + 4.9, [0.1, 4.6, 0.6, 0.6], () => lamp(0.4, 4.9));
-        wall.push(() => onWall('R', () => { g.fillStyle = '#f7f7f2'; g.fillRect(4.7, 1.45, 1.1, 0.75); g.strokeStyle = '#9aa6b8'; g.lineWidth = 0.05; g.strokeRect(4.7, 1.45, 1.1, 0.75); g.strokeStyle = acc; g.lineWidth = 0.035; g.beginPath(); g.moveTo(4.8, 2.05); g.lineTo(5.1, 1.8); g.lineTo(5.35, 1.9); g.lineTo(5.7, 1.55); g.stroke(); g.fillStyle = '#e05a47'; g.fillRect(1.2, 1.5, 0.5, 0.6); g.fillStyle = '#ffd84d'; g.fillRect(1.8, 1.6, 0.45, 0.5); }, curWallH));
+        // an office: six stations in the room's own floor plan
+        const plan = deskPlan(rm);
+        for (let i = 0; i < 6; i++) {
+          const [cx, cy] = ST(i);
+          if (plan === 'lounge' && i >= 3) {
+            add(cx + cy, [cx - 0.25, cy - 0.2, 0.5, 0.4], () => { box(cx - 0.22, cy - 0.18, 0.44, 0.36, 0.5, 0, WOOD2); if (LOD) box(cx - 0.17, cy - 0.12, 0.34, 0.24, 0.03, 0.5, busyAt(i) ? '#5fd4ff' : '#2b2f3c'); });
+            add(cx + cy + 0.78, seatFp(i), () => armchair(cx, cy + 0.62, ['#c0504d', '#4f7fc0', '#7a5ab8'][i - 3]));
+            continue;
+          }
+          add(cx + cy, stFp(i), () => officeDesk(cx, cy, () => lit(i), busyAt(i)));
+          add(cx + cy + 0.78, seatFp(i), () => officeChair(cx, cy + 0.62, plan === 'arc' ? '#1f2433' : plan === 'bench' ? shade(acc, -0.3) : undefined));
+        }
+        deskDecor(plan, acc, add, wall);
       }
       // the corners every room has: a plant at the back, the room's prop at the front, and two ledger read-outs
       const theme = themeOf(rm.id), look = roomLook(rm);
@@ -7103,7 +7198,7 @@
     function figure(a, id, L, pose, fade) {
       let top;
       if (a.kind === 'npc') return LOD === 0 ? (g.scale(u, u), simpleFigure(a, id, { small: false })) : npcFigure(a) ?? 0;
-      if (LOD === 0) { g.scale(u * (a.face < 0 ? -1 : 1), u); top = simpleFigure(a, id, L || { small: false }); }
+      if (LOD === 0 && !KIT) { g.scale(u * (a.face < 0 ? -1 : 1), u); top = simpleFigure(a, id, L || { small: false }); }
       else if (a.kind === 'res') { g.scale(u * 1.15 * (a.face < 0 ? -1 : 1), u * 1.15); top = drawAnimal(a, a.t) * 1.15; }
       else {
         const k = L.small ? 0.98 : 1.22;
@@ -7288,14 +7383,37 @@
         g.fillStyle = 'rgba(255,255,255,0.8)'; g.beginPath(); g.ellipse(X - rr * 0.4, Y - rr * 0.45, rr * 0.22, rr * 0.12, -0.7, 0, 7); g.fill();
       }
     }
+    let numFam = null;
+    const numFont = () => numFam || (numFam = getComputedStyle(document.body).getPropertyValue('--f-num').trim() || 'system-ui');
+    // every working room's lane to the vault: a glowing line of dashes running toward the centre, in the room's color
+    function drawLanes(w, th) {
+      g.save(); g.lineCap = 'round';
+      const lw0 = Math.max(cssPx(2.2), u * 0.07), dash = Math.max(cssPx(5), u * 0.3);
+      for (const room of rooms) {
+        const f = roomFlow(room); if (!f.every && !f.leadEvery) continue;
+        const pts = flowRoute(room); if (pts.length < 2) continue;
+        const heat = clamp((f.every ? 1 / f.every : 0) + (f.leadEvery ? 0.4 / f.leadEvery : 0), 0.15, 1.6) / 1.6;
+        g.beginPath();
+        for (let i = 0; i < pts.length; i++) {
+          const [x0, y0] = pts[i], [x1, y1] = pts[Math.min(pts.length - 1, i + 1)], [xa, ya] = pts[Math.max(0, i - 1)];
+          const dx = (x1 - xa) || 1e-6, dy = (y1 - ya), L = Math.hypot(dx, dy) || 1, [X, Y] = P(x0 - (dy / L) * f.lane, y0 + (dx / L) * f.lane, th.z * u);
+          if (i === pts.length - 1) { const [hx, hy] = cellCenter(...HUB); const k = 1 - FUNNEL_R / Math.max(FUNNEL_R, Math.hypot(x0 - pts[i - 1][0], y0 - pts[i - 1][1])); const [Xe, Ye] = P(pts[i - 1][0] + (hx - pts[i - 1][0]) * k, pts[i - 1][1] + (hy - pts[i - 1][1]) * k, th.z * u); g.lineTo(Xe, Ye); }
+          else if (i === 0) g.moveTo(X, Y); else g.lineTo(X, Y);
+        }
+        g.strokeStyle = alpha(f.acc, 0.1 + heat * 0.12); g.lineWidth = lw0 * 2.6; g.setLineDash([]); g.stroke();
+        g.strokeStyle = alpha(f.acc, 0.45 + heat * 0.4); g.lineWidth = lw0; g.setLineDash([dash, dash * 1.3]); g.lineDashOffset = -T * dash * (1.2 + heat * 2); g.stroke();
+      }
+      g.restore();
+    }
     function drawFlows() {
       const w = curWorld, th = FLOW_THEME[w] || FLOW_THEME.space;
-      const r = Math.max(u * 0.26, cssPx(4.2));
+      const r = Math.max(u * 0.36, cssPx(6.5));
+      drawLanes(w, th);
       for (const t of flows) {
         if (t.d < 0) continue;
         const [x, y, z, ang] = flowPos(t, w), [X, Y] = P(x, y, z * u), [Xf, Yf] = P(x, y, 0);
         const fade = t.phase === 'funnel' ? 1 - Math.max(0, t.k - 0.8) * 5 : Math.min(1, t.d * 2);
-        const rr = r * (t.big ? 1.35 : 1) * (t.phase === 'funnel' ? 1 - t.k * 0.35 : 1);
+        const rr = r * (t.big ? 1.45 : 1) * (t.phase === 'funnel' ? 1 - t.k * 0.35 : 1);
         g.globalAlpha = Math.max(0, fade);
         // a soft shadow on the walkway, and the trail behind
         if (t.phase === 'go' && LOD) { g.fillStyle = 'rgba(0,0,0,0.18)'; g.beginPath(); g.ellipse(Xf, Yf, rr * 0.9, rr * 0.4, 0, 0, 7); g.fill(); }
@@ -7304,9 +7422,18 @@
           const tc = w === 'castle' || w === 'haunted' ? th.col : t.kind === 'lead' ? '#4ff0ff' : th.col;
           for (let k = 0; k < t.trail.length - 1; k++) { const [a1, b1] = t.trail[k], q = k / t.trail.length; g.fillStyle = alpha(tc, 0.5 * q); g.beginPath(); g.arc(a1, b1, rr * (w === 'cyber' ? 0.5 : 0.35) * (0.4 + q), 0, 7); g.fill(); }
         } else if (LOD && w === 'ocean' && (t.seed + Math.floor(T * 4)) % 6 === 0) particles.push({ x: X + (Math.random() - 0.5) * rr, y: Y, vx: (Math.random() - 0.5) * 6, vy: -14, g: -4, life: 0.6, col: '#dff7ff' });
+        // whose it is: a halo in the room's color
+        if (t.acc) glowAt(X, Y, rr * 2.6, t.acc, t.kind === 'money' ? 0.42 : 0.3);
         if (t.kind === 'money' && w !== 'farm') glowAt(X, Y, rr * 2.2, th.gold, 0.25);
         drawToken(t, w, X, Y, rr, ang);
         if (t.kind === 'money') lights.push([X, Y, u * 1.2, th.gold, 0.35]);
+        // a sale's amount rides its first token all the way in
+        if (t.label && t.phase === 'go') {
+          const fs = Math.max(cssPx(12), rr * 1.15);
+          g.font = `800 ${fs}px ${numFont()}, system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'bottom';
+          g.lineWidth = Math.max(cssPx(3), fs * 0.22); g.strokeStyle = 'rgba(10,12,24,0.9)'; g.strokeText(t.label, X, Y - rr * 1.3);
+          g.fillStyle = th.gold; g.fillText(t.label, X, Y - rr * 1.3);
+        }
       }
       g.globalAlpha = 1;
     }
@@ -7558,10 +7685,46 @@
       rx0 = x0; ry0 = y0;
     }
 
+    // ---- far away, each building is drawn into a picture of its own and stamped, one picture redrawn a
+    // frame so screens, steam and machines keep moving; the people, streams and effects stay live every frame. This is
+    // what lets the zoomed-out station keep full detail without the frame rate falling off.
+    const cellPics = new Map(), PIC_US = 16, PIC_AGE = 0.35;
+    function cellPic(o, Smat, fresh) {
+      const key = o.c + ',' + o.r, H = wallH.get(key) || LOWH, b = cellBox(o.c, o.r);
+      let e = cellPics.get(key);
+      const fits = e && e.kind === o.kind && e.skin === skinId() && Math.abs(e.S - S) / S < 0.08 && Math.abs(e.H - H) < 0.04;
+      if (fits && (T - e.t < PIC_AGE || fresh.n <= 0)) return e;
+      if (e && e.S && fresh.n <= 0 && e.kind === o.kind) return e;
+      fresh.n -= 1;
+      const pts = b.round ? [P(b.cx - b.R, b.cy + b.R, 0), P(b.cx + b.R, b.cy - b.R, 0), P(b.cx - b.R, b.cy - b.R, 0), P(b.cx + b.R, b.cy + b.R, 0)] : [P(b.x0, b.y0, 0), P(b.x1, b.y0, 0), P(b.x0, b.y1, 0), P(b.x1, b.y1, 0)];
+      const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
+      const x0 = Math.min(...xs) - 4 * u, x1 = Math.max(...xs) + 4 * u, y0 = Math.min(...ys) - (FULLH + 10) * u, y1 = Math.max(...ys) + 3 * u;
+      const k = Math.min(1, 2048 / Math.max((x1 - x0) * S * dpr, (y1 - y0) * S * dpr));
+      const W = Math.max(1, Math.ceil((x1 - x0) * S * dpr * k)), Hh = Math.max(1, Math.ceil((y1 - y0) * S * dpr * k));
+      if (!e) { e = { c: document.createElement('canvas') }; cellPics.set(key, e); }
+      if (e.c.width !== W || e.c.height !== Hh) { e.c.width = W; e.c.height = Hh; }
+      const pc = e.c.getContext('2d'), keepG = g, from = lights.length;
+      pc.setTransform(1, 0, 0, 1, 0, 0); pc.clearRect(0, 0, W, Hh);
+      pc.setTransform(S * dpr * k, 0, 0, S * dpr * k, -x0 * S * dpr * k, -y0 * S * dpr * k);
+      g = pc;
+      try { drawCell(o.c, o.r, o.kind, [], [], null, Smat); } finally { g = keepG; }
+      Object.assign(e, { x0, y0, x1, y1, S, H, kind: o.kind, skin: skinId(), t: T - Math.random() * 0.1, lights: lights.splice(from) });
+      return e;
+    }
+    function drawCellFar(o, inHere, over, selId, Smat, fresh) {
+      const e = cellPic(o, Smat, fresh);
+      g.drawImage(e.c, e.x0, e.y0, e.x1 - e.x0, e.y1 - e.y0);
+      for (const L of e.lights) lights.push(L);
+      for (const a of inHere.slice().sort((p, q) => (p.x + p.y) - (q.x + q.y))) drawChar(a, over, selId);
+    }
+
     // ---- the frame
     function draw(dt, o = {}) {
       g = o.ctx || dctx; tt = T; curWorld = skinId(); sprBudget = 16;
-      us = u * S; LOD = us < 11 ? 0 : us < 26 ? 1 : 2; px1 = 1 / (S * dpr); ou = u * Math.max(1, 14 / us);
+      // detail holds at every zoom: the whole station zoomed out keeps its people, animation, glow and props; only a
+      // view too small to read drops the finest touches
+      us = u * S; LOD = us < 5 ? 1 : 2; px1 = 1 / (S * dpr); ou = u * Math.max(1, 14 / us);
+      window.__pfView = { us, LOD, S };
       const W = vwCss, H = vhCss;
       g.setTransform(dpr, 0, 0, dpr, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
       if (o.bg !== false) background(W, H); else g.clearRect(0, 0, g.canvas.width, g.canvas.height);
@@ -7606,6 +7769,9 @@
       order.sort((p, q) => p.k - q.k || (p.c0 ?? p.c ?? 0) - (q.c0 ?? q.c ?? 0));
       const over = [], selId = follow || (selected && selected.startsWith('a:') ? selected.slice(2) : null);
       const hallsDone = new Set();
+      // far away (and only on screen): buildings come from their pictures, one redrawn a frame
+      const far = !o.ctx && us < PIC_US, fresh = { n: 1 };
+      if (!far && cellPics.size && us > PIC_US * 1.5) cellPics.clear();
       for (const o of order) {
         if (o.t === 'mast') { drawMast(Smat); continue; }
         if (o.t === 'hall') {
@@ -7617,7 +7783,8 @@
         }
         if (!inView(o.c, o.r)) continue;
         const inHere = buckets.get('c' + o.c + ',' + o.r) || [];
-        drawCell(o.c, o.r, o.kind, inHere, over, selId, Smat);
+        if (far) drawCellFar(o, inHere, over, selId, Smat, fresh);
+        else drawCell(o.c, o.r, o.kind, inHere, over, selId, Smat);
       }
       // anyone left over (between cells, outside the grid)
       for (const [k, arr] of buckets) if (k[0] !== 'c' && !hallsDone.has(k)) for (const a of arr.sort((p, q) => (p.x + p.y) - (q.x + q.y))) drawChar(a, over, selId);
@@ -7673,7 +7840,7 @@
     function withView(ctx, s, x0, y0, fn) {
       const keep = { g, S, dpr, vx0e, vy0e, us, LOD, px1, ou, tt };
       g = ctx; S = s; dpr = 1; vx0e = x0; vy0e = y0; tt = T;
-      us = u * S; LOD = us < 11 ? 0 : us < 26 ? 1 : 2; px1 = 1 / S; ou = u * Math.max(1, 14 / us);
+      us = u * S; LOD = us < 5 ? 1 : 2; px1 = 1 / S; ou = u * Math.max(1, 14 / us);
       g.setTransform(S, 0, 0, S, -x0 * S, -y0 * S);
       try { return fn(); } finally { ({ g, S, dpr, vx0e, vy0e, us, LOD, px1, ou, tt } = keep); }
     }
