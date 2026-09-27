@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { reduce } from './reduce.js';
-import { raceBoard, raceBrief } from './race.js';
+import { raceBoard, raceBrief, racePlaybook } from './race.js';
 import { quests, summary } from './quests.js';
 import { commanderLevel } from './level.js';
 import { CATALOG, GATES, stagesFor } from './paths.js';
@@ -100,6 +100,13 @@ export function createApi({ ledger, catalog: fixedCatalog = null, dataDir, runAg
     const catalog = fixedCatalog || loadCatalog(dataDir);
     try {
       if (method === 'GET' && pathname === '/api/state') return ok(200, snapshot(ledger, catalog, dataDir));
+      // one play's playbook, to run the idea for real: /api/race/playbook/<room>/<play>
+      const pb = method === 'GET' && /^\/api\/race\/playbook\/([a-z0-9][a-z0-9-]{0,31})\/([a-z0-9][a-z0-9-]{0,39})$/.exec(pathname);
+      if (pb) {
+        const station = dataDir ? stationInfo(dataDir) : null, lead = station && station.folk.find((f) => (f.rooms || []).includes(pb[1]));
+        const text = racePlaybook(reduce(ledger.readAll(), catalog), catalog, pb[1], pb[2], Date.now(), { lead: lead ? lead.name : null });
+        return text ? ok(200, { ok: true, markdown: text }) : ok(404, { ok: false, error: 'no such play in the race' });
+      }
       if (method === 'GET' && pathname === '/api/runs') return ok(200, [...runs.values()]);
       if (method === 'GET' && pathname === '/api/outbox') return ok(200, listOutbox(dataDir, catalog));
       if (method === 'GET' && pathname === '/api/inbox') {

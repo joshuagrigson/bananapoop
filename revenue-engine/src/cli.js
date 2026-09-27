@@ -6,7 +6,7 @@ import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { Ledger, LedgerError } from './ledger.js';
 import { reduce } from './reduce.js';
-import { raceBoard, raceBrief, spanLabel } from './race.js';
+import { raceBoard, raceBrief, racePlaybook, spanLabel } from './race.js';
 import { quests, summary } from './quests.js';
 import { commanderLevel } from './level.js';
 import { CATALOG, GATES } from './paths.js';
@@ -57,6 +57,7 @@ const HELP = `revenue-engine
                                                        stakes, models, notes
   race amend --rules rules.json --evidence "why"       change the rules of the race under way
   race brief <room>                                    the brief to paste into that room's agent session
+  race playbook <room> <play-id>                       everything to run that play for real: model, steps in order, every dollar
   race play <room> <play-id> --name N --status trying|working|paused|dropped [--plan P] [--why W] [--by user]
             [--offer O] [--customer C] [--channel H] [--pricing P] [--costs X]
                                                        a way a room is trying to make money, and its business model
@@ -274,6 +275,12 @@ async function main(argv) {
         const ev = ledger.append({ kind: 'race', amend: true, rules: JSON.parse(fs.readFileSync(path.resolve(v.rules), 'utf8')), evidence: v.evidence, ...(v.name ? { name: v.name } : {}) });
         console.log(`rules amended ${ev.id}`); return;
       }
+      if (sub === 'playbook') {
+        const cfg = loadConfig(DATA_DIR), lead = cfg && cfg.folk.find((f) => (f.rooms || []).includes(rest[1]));
+        const text = racePlaybook(reduce(ledger.readAll(), CAT), CAT, room(rest[1]), rest[2], Date.now(), { lead: lead ? lead.name : null });
+        if (!text) throw new LedgerError(`no play "${rest[2]}" in ${rest[1]} (race shows each room's plays)`);
+        console.log(text); return;
+      }
       if (sub === 'brief') {
         const b = raceBoard(reduce(ledger.readAll(), CAT), CAT);
         if (!b) throw new LedgerError('no race yet');
@@ -289,7 +296,7 @@ async function main(argv) {
         const ev = ledger.append({ kind: 'step', path: room(rest[1]), text: v.text, by, ...(v.type ? { type: v.type } : {}), ...(v.play ? { play: v.play } : {}), ...(v.url ? { url: v.url } : {}) });
         console.log(`step ${ev.id} in ${ev.path} (${ev.type})`); return;
       }
-      if (sub !== 'status') throw new LedgerError('race needs start, amend, brief, play, step or nothing (standings)');
+      if (sub !== 'status') throw new LedgerError('race needs start, amend, brief, playbook, play, step or nothing (standings)');
       const b = raceBoard(reduce(ledger.readAll(), CAT), CAT);
       if (!b) { console.log('no race yet. Start one: node src/cli.js race start --stake 250 --evidence "8 virtual cards, $250 each"'); return; }
       console.log(`${b.name || 'Sandbox race'} · ${b.short ? `${spanLabel(Math.max(1, b.elapsedMin))} of ${spanLabel(b.totalMin)}` : `day ${b.day} of ${b.totalDays}`} · ${usd(b.stakeUsd)} a room · ${usd(b.potUsd)} across ${b.lanes.length} rooms (staked ${usd(b.stakedUsd)})`);

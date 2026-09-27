@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { tmpLedger } from './helpers.js';
 import { validate, DEFAULT_HORIZONS } from '../src/ledger.js';
 import { reduce } from '../src/reduce.js';
-import { raceBoard, raceBrief } from '../src/race.js';
+import { raceBoard, raceBrief, racePlaybook } from '../src/race.js';
 import { snapshot } from '../src/api.js';
 import { seedRaceDemo } from '../src/demo.js';
 import { fromTemplate, catalogFrom, loadCatalog, stationInfo, MODES } from '../src/rooms.js';
@@ -242,4 +242,40 @@ test('a short race: prize times in minutes, rates per hour, check-ins in minutes
   assert.match(raceBrief(raceBoard(reduce([validate(gun({ horizonsMin: [60], rules: { everyMinutes: 0 } }))], CAT), CAT, T0), 'red', {}), /in one session/);
   assert.throws(() => validate(gun({ horizonsMin: [0] })), /prize times/);
   assert.throws(() => validate(gun({ rules: { everyMinutes: -1 } })), /everyMinutes/);
+});
+
+test('a play\'s playbook: the model, every step and dollar in order, where it needed a person, and the caveat', async () => {
+  const events = [
+    gun(),
+    { kind: 'play', id: 'p1', ts: at(0.5), path: 'red', play: 'shop', name: 'Planner shop', status: 'trying', offer: 'Ten planners', customer: 'students', channel: 'Pinterest', pricing: '$9', costs: 'Shopify', plan: 'sell planners', by: 'agent' },
+    spend('red', 0.6, 39, { play: 'shop', category: 'tool', payee: 'Shopify' }),
+    { kind: 'step', id: 's1', ts: at(0.7), path: 'red', play: 'shop', type: 'did', text: 'Designed ten planners', by: 'agent' },
+    { kind: 'step', id: 's2', ts: at(0.8), path: 'red', play: 'shop', type: 'blocked', text: 'Pinterest needs Joshua', by: 'agent' },
+    sale('red', 2, 9, { play: 'shop', item: 'Planner', source: 'Shopify' }),
+    { kind: 'step', id: 's3', ts: at(3), path: 'red', play: 'shop', type: 'learned', text: 'The ADHD planner sells best', by: 'agent' },
+    { kind: 'play', id: 'p2', ts: at(3.5), path: 'red', play: 'shop', name: 'Planner shop', status: 'working', why: 'first sales', by: 'agent' },
+  ].map((e) => validate(e));
+  const st = reduce(events, CAT);
+  const md = racePlaybook(st, CAT, 'red', 'shop', T0 + 5 * DAY, { lead: 'Ada' });
+  assert.match(md, /^# Playbook: Planner shop/);
+  assert.match(md, /run by Ada/);
+  assert.match(md, /\*\*What it sells:\*\* Ten planners/);
+  const steps = md.split('## Do it yourself')[1].split('## What it learned')[0];
+  assert.ok(steps.indexOf('Paid $39.00 for Shopify') < steps.indexOf('Designed ten planners'));
+  assert.ok(steps.indexOf('Designed ten planners') < steps.indexOf('(needed a person) Pinterest'));
+  assert.match(steps, /Play marked working: first sales/);
+  assert.match(md, /## What it learned\n- day 4: The ADHD planner sells best/);
+  assert.match(md, /\| day 3 \| in \| Planner \| \+\$9\.00 \|/);
+  assert.match(md, /not guaranteed to make the same amount/);
+  assert.equal(racePlaybook(st, CAT, 'red', 'nope', T0 + DAY), null);
+  // the API serves it
+  const { tmpLedger } = await import('./helpers.js');
+  const { createApi } = await import('../src/api.js');
+  const { ledger } = tmpLedger();
+  for (const e of events) ledger.append(e);
+  const handle = createApi({ ledger, catalog: CAT, dataDir: null });
+  const r = await handle('GET', '/api/race/playbook/red/shop', () => ({}));
+  assert.equal(r.code, 200);
+  assert.match(r.body.markdown, /Planner shop/);
+  assert.equal((await handle('GET', '/api/race/playbook/red/none', () => ({}))).code, 404);
 });

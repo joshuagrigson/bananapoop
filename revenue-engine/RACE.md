@@ -32,6 +32,7 @@ Put the station in race mode (Customize > What it's for > Sandbox race; the same
 
 - **The board** (no room selected): the prizes, who is waiting on you, the standings, spent vs made for every room with what each dollar spent brought back, where the race's money comes from (Gumroad, Fiverr, Shopify...), the rules, and a copy button for every agent's brief.
 - **A room:** its bankroll, multiple, rate and return per dollar, a chart by day, its place for each prize, spent vs made with where the money went, where its money comes from (each play and each platform), its plan, every play it tried, the day-by-day breakdown of everything it did, and its brief.
+- **Winning ideas** (on the board, once a prize is won): each winner's best play, one click from its page.
 - **A play** (click one): its full business model. What it sells, who buys, how they find it, what it charges, what it costs to run, and the plan; then made, spent, net, return per dollar, average sale, cost per sale, where its money came from and went, how its status changed and why, every step the agent took for it, and every dollar.
 
 ## How an agent reports
@@ -59,6 +60,17 @@ node src/cli.js race start --stake 50 --times 30m,1h,2h --evidence "one test car
 ```
 
 `rules.json` holds any of the setup's rules (`methods`, `connectors`, `ads`, `maxSpendPerDayUsd`, `approveOverUsd`, `knockoutUsd`, `outreach`, `posting`, `collab`, `everyMinutes` (0 = one session for the whole race), `scoring`, `tiebreak`, `stakes`, `models`, `notes`); anything left out takes its default. `race amend --rules rules.json --evidence "why"` changes them mid-race.
+
+## Taking a winning idea for real
+
+This is what the race is for: the agents battle, and the winner's idea is the one you run for real. Every play's page has **Its playbook**: copy it, download it (`playbook-<room>-<play>.md`) or read it there. It holds everything needed to run the idea yourself, written from the whole ledger:
+- the result and the business model;
+- every step in order, with what it paid for and when its status changed;
+- what it learned, and where it needed a person;
+- every dollar with its evidence;
+- what not to take for granted.
+
+From the command line: `node src/cli.js race playbook red planner-shop`.
 
 ## The brief each agent gets
 

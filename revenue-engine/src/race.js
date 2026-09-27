@@ -164,7 +164,7 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
   for (const l of lanes) for (const src of l.bySource) { const g = sources.get(src.key) || { key: src.key, usd: 0, n: 0, rooms: [] }; g.usd = r2(g.usd + src.usd); g.n += src.n; g.rooms.push(l.id); sources.set(src.key, g); }
   return {
     name: race.name, id: race.id, startedAt: race.startedAt, setAt: race.setAt || race.startedAt, endsAt: iso(tEnd), stakeUsd: race.stakeUsd, evidence: race.evidence, rules,
-    horizonsMin: hz, horizons: hz.map((m) => m / 1440), short, rateUnit: short ? 'hour' : 'day', recentLabel: spanLabel(recent / MIN), stepMin: step / MIN,
+    horizonsMin: hz, horizons: hz.map((m) => m / 1440), short, rateUnit: short ? 'hour' : 'day', recentLabel: short ? spanLabel(recent / MIN) : '7 days', stepMin: step / MIN,
     elapsedMin: Math.floor(elapsed / MIN), totalMin: last, startsInMin: now < t0 ? Math.ceil((t0 - now) / MIN) : 0,
     amendments: race.amendments || [],
     started: now >= t0, startsInDays: now < t0 ? Math.ceil((t0 - now) / DAY) : 0,
@@ -218,4 +218,75 @@ Report everything on the ledger, as it happens:
 - change a play's status with --why when it starts working, stalls or you drop it.
 
 ${every === 0 ? 'Work through the whole race in one session: keep going until the last prize time.' : `Check in every ${spanLabel(every).replace(/^1 (day|hour|week)$/, '$1')}.`} Start by reading the board (node src/cli.js race), then log your plan and your first play before you do anything else.`;
+}
+
+// A play's playbook: everything a person needs to run the same idea for real, in the order the agent did it. Built
+// from the ledger: the model it logged, every step, every status change and why, every dollar with its evidence.
+export function racePlaybook(state, catalog, roomId, playId, now = Date.now(), { lead = null, station = null } = {}) {
+  const board = raceBoard(state, catalog, now, { timeline: 0 });
+  const lane = board && board.lanes.find((l) => l.id === roomId);
+  const p = lane && lane.plays.find((x) => x.id === playId);
+  if (!p) return null;
+  const t0 = Date.parse(board.startedAt), tNow = Math.min(now, Date.parse(board.endsAt));
+  const inWindow = (ts) => { const t = Date.parse(ts); return t >= t0 && t <= tNow; };
+  const when = (ts) => { const m = Math.max(0, Math.floor((Date.parse(ts) - t0) / MIN)); return board.short ? `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')} in` : `day ${Math.floor(m / 1440) + 1}`; };
+  const usd = (v) => '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const room = catalog.find((c) => c.id === roomId), unit = board.rateUnit;
+  const rough = (mins) => (mins < 1440 ? spanLabel(mins) : `${Math.round(mins / 1440)} day${Math.round(mins / 1440) === 1 ? '' : 's'}`);
+  const steps = (state.steps || []).filter((s) => s.path === roomId && s.play === playId && inWindow(s.ts));
+  const money = [...state.moneyIn.map((e) => ({ e, dir: 'in' })), ...state.moneyOut.map((e) => ({ e, dir: 'out' }))].filter((x) => x.e.path === roomId && x.e.play === playId && inWindow(x.e.ts)).sort((a, b) => byTs(a.e, b.e));
+  const hist = (Object.values(state.plays || {}).find((x) => x.path === roomId && x.id === playId) || { history: [] }).history.filter((h) => inWindow(h.ts));
+  // the steps to repeat: what the agent did, where it got stuck, what it paid for, in order
+  const doing = [
+    ...steps.filter((s) => s.type === 'did' || s.type === 'blocked').map((s) => ({ ts: s.ts, text: s.type === 'blocked' ? `(needed a person) ${s.text}` : s.text, url: s.url })),
+    ...money.filter((x) => x.dir === 'out').map((x) => ({ ts: x.e.ts, text: `Paid ${usd(x.e.usd)} for ${x.e.payee || x.e.category}${x.e.evidence ? ` (${x.e.evidence})` : ''}` })),
+    ...hist.filter((h, i) => i > 0).map((h) => ({ ts: h.ts, text: `Play marked ${h.status}${h.why ? `: ${h.why}` : ''}` })),
+  ].sort(byTs);
+  const learned = steps.filter((s) => s.type === 'learned'), stuck = steps.filter((s) => s.type === 'blocked');
+  const m = p.model || {}, line = (k, t) => `- **${t}:** ${m[k] || 'not logged'}`;
+  const bars = (list, name = (k) => k, what = 'sale') => (list.length ? list.map((g) => `- ${name(g.key)}: ${usd(g.usd)} (${g.n} ${what}${g.n === 1 ? '' : 's'})`).join('\n') : '- nothing yet');
+  const CATS = { api: 'API use', tool: 'Tools and software', ads: 'Ads', capital: 'Stock and inventory', other: 'Fees and other' };
+  return `# Playbook: ${p.name}
+
+From the ${room ? room.name : roomId} room in ${board.name || 'the sandbox race'}${lead ? `, run by ${lead}` : ''}${lane.model ? ` on ${RACE_MODELS[lane.model] || lane.model}` : ''}. Status: ${p.status}, ${rough(Math.max(1, p.activeMin))} ${p.status === 'dropped' ? 'before it was dropped' : 'running'}.${station ? ` Station: ${station}.` : ''}
+
+## The result
+- Made ${usd(p.inUsd)} from ${p.sales} sale${p.sales === 1 ? '' : 's'}${p.firstSaleMin !== null ? `; the first came ${rough(Math.max(1, p.firstSaleMin - p.startedMin))} after it started` : ''}
+- Spent ${usd(p.outUsd)}; net ${p.netUsd < 0 ? '-' : '+'}${usd(Math.abs(p.netUsd))}
+- ${p.backPerDollar !== null ? `${usd(p.backPerDollar)} back for every $1 spent` : p.inUsd > 0 ? 'Nothing spent: every dollar made was profit' : 'Nothing spent, nothing made yet'}${p.avgSaleUsd !== null ? `; average sale ${usd(p.avgSaleUsd)}` : ''}${p.costPerSaleUsd !== null ? `; cost per sale ${usd(p.costPerSaleUsd)}` : ''}
+- Rate: ${p.rate < 0 ? '-' : '+'}${usd(Math.abs(p.rate))} ${unit === 'hour' ? 'an hour' : 'a day'}
+
+Where the money came from:
+${bars(p.bySource)}
+
+Where it went:
+${bars(p.byCategory, (k) => CATS[k] || k, 'payment')}
+
+## The business model
+${line('offer', 'What it sells')}
+${line('customer', 'Who buys')}
+${line('channel', 'How they find it')}
+${line('pricing', 'What it charges')}
+${line('costs', 'What it costs to run')}
+- **The plan:** ${p.plan || 'not logged'}
+
+## Do it yourself: every step, in order
+${doing.length ? doing.map((d, i) => `${i + 1}. ${when(d.ts)}: ${d.text}${d.url ? ` (${d.url})` : ''}`).join('\n') : 'No steps logged for this play.'}
+
+## What it learned
+${learned.length ? learned.map((s) => `- ${when(s.ts)}: ${s.text}`).join('\n') : '- nothing logged'}
+
+## Where it needed a person
+${stuck.length ? stuck.map((s) => `- ${when(s.ts)}: ${s.text}`).join('\n') : '- nowhere: it ran on its own'}
+
+## Every dollar
+| When | | What | Amount | Evidence |
+|---|---|---|---|---|
+${money.length ? money.map((x) => `| ${when(x.e.ts)} | ${x.dir === 'in' ? 'in' : 'out'} | ${String(x.dir === 'in' ? x.e.item || x.e.source : x.e.payee || x.e.category).replace(/\|/g, '/')} | ${x.dir === 'in' ? '+' : '-'}${usd(x.e.usd)} | ${String(x.e.evidence || '').replace(/\|/g, '/')} |`).join('\n') : '| | | nothing yet | | |'}
+
+## Before you copy it
+- These are the numbers one agent made in one ${board.short ? 'short ' : ''}race window, each with evidence on the ledger. Doing the same thing again is not guaranteed to make the same amount: timing, the market and luck all move it${board.short ? ', and a window this short is mostly luck' : ''}.
+- Every step marked "needed a person" is something you will do yourself.
+- Anything the agent bought and still holds counted as $0 in the race.
+`;
 }
