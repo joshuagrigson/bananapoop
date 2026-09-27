@@ -133,12 +133,14 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
       bank = r2(bank + f.usd);
       if (f.dir !== 'out') continue;
       const e = f.e, amt = -f.usd;
+      // a simulated day's cost of goods sold is not a purchase anyone decides on: no approval, no spend cap
+      if (e.sim && e.category === 'capital') continue;
       spent = r2(spent + amt);
       const d = Math.floor((f.t - t0) / DAY), today = r2((perDay.get(d) || 0) + amt); perDay.set(d, today);
       if (!rules.spendCategories.includes(e.category)) brk(f.t, 'category', `${usd(amt)} spent on ${SPEND_CATEGORIES[e.category] || e.category}, which this race does not allow`);
       if (rules.maxSpendPerDayUsd !== null && today > rules.maxSpendPerDayUsd && today - amt <= rules.maxSpendPerDayUsd) brk(f.t, 'dailyCap', `spent ${usd(today)} in a day, over the ${usd(rules.maxSpendPerDayUsd)} limit`);
       if (rules.maxTotalSpendUsd !== null && spent > rules.maxTotalSpendUsd && spent - amt <= rules.maxTotalSpendUsd) brk(f.t, 'totalCap', `spent ${usd(spent)} in all, over the ${usd(rules.maxTotalSpendUsd)} limit`);
-      if (rules.approveOverUsd !== null && amt > rules.approveOverUsd && !e.approved) brk(f.t, 'approval', `a ${usd(amt)} purchase over ${usd(rules.approveOverUsd)} without Joshua's yes`);
+      if (rules.approveOverUsd !== null && amt > rules.approveOverUsd && !e.approved && !e.sim) brk(f.t, 'approval', `a ${usd(amt)} purchase over ${usd(rules.approveOverUsd)} without Joshua's yes`);
       if (rules.reserveUsd !== null && bank < rules.reserveUsd) brk(f.t, 'reserve', `the bankroll fell to ${usd(bank)}, under the ${usd(rules.reserveUsd)} it must keep`);
       if (!rules.reinvest && spent > stakeOf(id) && spent - amt <= stakeOf(id)) brk(f.t, 'reinvest', 'spent money it made; this race allows spending only the stake');
       if (rules.requireModel && e.play) { const p = plays.find((x) => x.id === e.play); if (!p || !p.modelAt || Date.parse(p.modelAt) > f.t) brk(f.t, 'model', `spent ${usd(amt)} on a play before logging what it sells and to whom`); }

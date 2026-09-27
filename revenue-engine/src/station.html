@@ -1960,7 +1960,7 @@
   // ---- what a character is doing, in words, and whether it is real
   function activityText(a) {
     const room = a.path && roomById(a.path), where = room ? shortName(room.spec) : NM().hub.toLowerCase();
-    if (a.busy) { const e = a.busy.e; return { real: true, text: `${a.busy.chore ? 'doing' : 'serving'} ${e.item || shortName(room.spec)}${e.source && !a.busy.chore ? ' for ' + e.source : ''}: a real ${a.busy.chore ? 'chore' : 'sale'}, ${usd2(e.usd)}, logged ${ago(e.ts)}` }; }
+    if (a.busy) { const e = a.busy.e; return { real: true, text: `${a.busy.chore ? 'doing' : 'serving'} ${e.item || shortName(room.spec)}${e.source && !a.busy.chore ? ' for ' + e.source : ''}: ${e.sim ? 'a simulated' : 'a real'} ${a.busy.chore ? 'chore' : 'sale'}, ${usd2(e.usd)}, logged ${ago(e.ts)}` }; }
     if (a.runId) return { real: true, text: `on a live run in ${where}` };
     if (a.state === 'deliver') return { real: true, text: 'carrying what the run logged to the crates' };
     const life = { tinker: `tinkering at a station in ${where}`, chat: 'chatting', break: `on a break in the ${NM().hub.toLowerCase()}`, sleep: 'asleep (it is night)', move: `walking to ${where}`, idle: `between jobs in ${where}` }[a.act];
@@ -2663,7 +2663,7 @@
       return { accent: a.lk.res.sil || accent, html: `<div class="h"><span class="sw"></span>${esc(a.lk.resident)}</div><div class="s">${n} live in ${where}: the room's stock. One always does; more arrive as the room gets busier (30 days of activity), up to four.</div><div class="hint">click for the room</div>` };
     }
     if (a.kind === 'lead') return { accent: '#ffcf5a', html: `<div class="h"><span class="sw"></span>${esc(NM().leader)} (you)</div><div class="s">Level ${snap.level.level} · ${esc(snap.level.title)} · ${usd(snap.state.earnedUsd)} evidenced</div>` };
-    if (a.kind === 'guest') { const e = a.ev || {}; return { accent: a.tint, html: `<div class="h"><span class="sw"></span>A visitor · ${esc(e.source || 'customer')}</div><div class="s">a real sale: ${esc(e.item || shortOf(e.path))} · ${usd2(e.usd || 0)} · logged ${e.ts ? ago(e.ts) : ''}</div>` }; }
+    if (a.kind === 'guest') { const e = a.ev || {}; return { accent: a.tint, html: `<div class="h"><span class="sw"></span>A visitor · ${esc(e.source || 'customer')}</div><div class="s">${e.sim ? 'a simulated sale' : 'a real sale'}: ${esc(e.item || shortOf(e.path))} · ${usd2(e.usd || 0)} · logged ${e.ts ? ago(e.ts) : ''}</div>` }; }
     const act = activityText(a), doing = `<div class="s">${act.real ? '<b style="color:var(--gold)">● real</b> ' : ''}${esc(act.text)}</div>`;
     if (a.kind === 'folk') {
       const ks = kidStats(a.name, 7);
@@ -3427,7 +3427,7 @@
   }
   function rulesHtml(r, M) {
     const nm = (o, k) => (o && o[k]) || k, low = (t) => String(t).split(':')[0].replace(/\s*\(.*\)$/, '');
-    const lim = [r.moneyMode === 'paper' ? 'paper money: nothing real is bought or sold' : null, r.spendCategories && r.spendCategories.length < Object.keys(M.spendCategories || {}).length ? `may spend on ${r.spendCategories.map((c) => nm(M.spendCategories, c).toLowerCase()).join(', ') || 'nothing'}` : null,
+    const lim = [r.moneyMode === 'paper' ? 'paper money: nothing real is bought or sold' : r.moneyMode === 'sim' ? 'simulation: fake money, nothing real is sent, posted or bought' : null, r.spendCategories && r.spendCategories.length < Object.keys(M.spendCategories || {}).length ? `may spend on ${r.spendCategories.map((c) => nm(M.spendCategories, c).toLowerCase()).join(', ') || 'nothing'}` : null,
       r.maxSpendPerDayUsd !== null ? `at most ${usd(r.maxSpendPerDayUsd)} a day` : null, r.maxTotalSpendUsd !== null ? `at most ${usd(r.maxTotalSpendUsd)} in all` : null, r.approveOverUsd !== null ? `purchases over ${usd(r.approveOverUsd)} need you` : null,
       r.reserveUsd !== null ? `keep ${usd(r.reserveUsd)}` : null, r.reinvest === false ? 'only the stake may be spent' : null, r.knockoutUsd !== null ? `out at ${usd(r.knockoutUsd)}` : null, r.collab ? 'rooms may trade' : 'no trading between rooms'].filter(Boolean);
     const outs = [r.eliminateLast ? 'last place at each prize' : null, r.idleOutMinutes ? `no move for ${spanLabel(r.idleOutMinutes)}` : null, r.ruleBreak === 'out' ? 'any rule break' : null].filter(Boolean);
@@ -3719,7 +3719,7 @@
         <div class="chips">${M.connectors.map((c) => ck('conn', c, R.connectors.includes(c), c, M.work.includes(c) ? 'work account' : '')).join('')}</div>
         <input name="connOther" placeholder="Other tools, comma separated" value="${esc(R.connectors.filter((c) => !M.connectors.includes(c)).join(', '))}">`),
       sec('money', 'real or paper, what they may spend on, and every limit', `
-        <div class="rs-cards two">${Object.entries(M.moneyModes).map(([k, t]) => rc('moneyMode', k, R.moneyMode === k, t.split(':')[0], k === 'paper' ? 'nothing is bought or sold; scored on demand or your points' : 'every dollar in and out is real, with a receipt')).join('')}</div>
+        <div class="rs-cards two">${Object.entries(M.moneyModes).map(([k, t]) => rc('moneyMode', k, R.moneyMode === k, t.split(':')[0], k === 'sim' ? 'fake money: agents read the real web, every sale, email, site and ad is simulated; nothing real is sent or bought' : k === 'paper' ? 'nothing is bought or sold; scored on demand or your points' : 'every dollar in and out is real, with a receipt')).join('')}</div>
         <div class="field"><span>They may spend on ${TAGC}</span><div class="chips">${Object.entries(M.spendCategories).map(([k, t]) => ck('cat', k, R.spendCategories.includes(k), t, '')).join('')}</div></div>
         <div class="rs-grid3">${numf('maxDay', 'Most a room spends a day', R.maxSpendPerDayUsd, 'no limit', TAGC)}${numf('maxTotal', 'Most a room spends in all', R.maxTotalSpendUsd, 'no limit', TAGC)}${numf('approveOver', 'Purchases over this need you', R.approveOverUsd, 'none', TAGC)}</div>
         <div class="rs-grid3">${numf('reserve', 'Always keep at least', R.reserveUsd, 'nothing', TAGC)}
@@ -3789,7 +3789,7 @@
     const signalWeights = Object.fromEntries(Object.keys(M.signalTypes).map((k) => [k, Math.max(0, num('sig_' + k) ?? M.defaults.signalWeights[k])]));
     const hm = (v) => /^\d\d:\d\d$/.test(v);
     const rules = {
-      purpose: str('purpose') || 'idea', purposeText: str('purposeText').slice(0, 600), moneyMode: str('moneyMode') || 'real',
+      purpose: str('purpose') || 'idea', purposeText: str('purposeText').slice(0, 600), moneyMode: str('moneyMode') || 'sim',
       methods: fd.getAll('method'), customMethods: words('customMethods').slice(0, 30), banned: words('banned').slice(0, 60),
       connectors: [...new Set([...fd.getAll('conn'), ...words('connOther')])].slice(0, 60), spendCategories: fd.getAll('cat'),
       maxSpendPerDayUsd: num('maxDay'), maxTotalSpendUsd: num('maxTotal'), approveOverUsd: num('approveOver'), reserveUsd: num('reserve'), knockoutUsd: num('knockout'),
@@ -3807,12 +3807,13 @@
     const startAt = startAtLocal ? new Date(startAtLocal).toISOString() : null;
     let evidence = str('evidence');
     if (!evidence && !amend && rules.moneyMode === 'paper') evidence = 'Paper race: no real money';
+    if (!evidence && !amend && rules.moneyMode === 'sim') evidence = 'Simulation: no real money';
     return { name: str('name'), stake, mins, bad, racing, rules, startAt, startAtLocal, evidence };
   }
   function rsSummary() {
     const f = $('#f-rs'); if (!f) return;
     const d = rsRead(f), r = d.rules, M = snap.raceMenu, staked = d.racing.reduce((s, id) => s + (r.stakes[id] || d.stake), 0);
-    const ev = r.everyMinutes, first = d.mins[0], paper = r.moneyMode === 'paper';
+    const ev = r.everyMinutes, first = d.mins[0], paper = r.moneyMode === 'paper' || r.moneyMode === 'sim';
     // the rules the ledger will check in this race
     const checks = [r.methods.length < Object.keys(M.methods).length, r.banned.length, r.spendCategories.length < Object.keys(M.spendCategories).length, r.maxSpendPerDayUsd !== null, r.maxTotalSpendUsd !== null, r.approveOverUsd !== null, r.reserveUsd !== null, !r.reinvest, r.knockoutUsd !== null, r.requireModel, r.quietHours, r.weekdaysOnly, r.dailyReport, r.idleOutMinutes, r.eliminateLast, paper, r.evidence !== 'any'].filter(Boolean).length;
     const warn = [
@@ -3831,7 +3832,7 @@
       r.purpose === 'custom' && !r.purposeText ? 'say what the race is for, in your own words' : '',
     ].filter(Boolean);
     const scoreName = (M.scoring[r.scoring] || '').split(':')[0].replace(/\s*\(.*\)$/, '').toLowerCase();
-    f.querySelector('[data-rssum]').innerHTML = `<b>${d.racing.length}</b> room${d.racing.length === 1 ? '' : 's'} · ${paper ? '<b>paper</b> money' : `<b>${usd(staked)}</b> staked`} · prizes at ${d.mins.length ? d.mins.map(spanLabel).join(', ') : '…'} · scored on <b>${esc(scoreName)}</b>${r.places > 1 ? ` · top <b>${r.places}</b>` : ''} · agents ${ev ? `check in every <b>${spanLabel(ev)}</b>` : '<b>work all the time</b>'} · <b>${r.methods.length + r.customMethods.length}</b> ways · <b>${r.connectors.length}</b> tools · <b>${checks}</b> rules the ledger checks · <b>${r.customRules.length}</b> of your own${d.startAt ? ` · starts ${esc(new Date(d.startAt).toLocaleString())}` : ''}${warn.length ? `<div class="rs-warn">${ic('warn')}${warn.join('; ')}</div>` : ''}`;
+    f.querySelector('[data-rssum]').innerHTML = `<b>${d.racing.length}</b> room${d.racing.length === 1 ? '' : 's'} · ${paper ? (r.moneyMode === 'sim' ? '<b>simulated</b> money' : '<b>paper</b> money') : `<b>${usd(staked)}</b> staked`} · prizes at ${d.mins.length ? d.mins.map(spanLabel).join(', ') : '…'} · scored on <b>${esc(scoreName)}</b>${r.places > 1 ? ` · top <b>${r.places}</b>` : ''} · agents ${ev ? `check in every <b>${spanLabel(ev)}</b>` : '<b>work all the time</b>'} · <b>${r.methods.length + r.customMethods.length}</b> ways · <b>${r.connectors.length}</b> tools · <b>${checks}</b> rules the ledger checks · <b>${r.customRules.length}</b> of your own${d.startAt ? ` · starts ${esc(new Date(d.startAt).toLocaleString())}` : ''}${warn.length ? `<div class="rs-warn">${ic('warn')}${warn.join('; ')}</div>` : ''}`;
     const go = f.querySelector('[data-rsgobtn]'); if (go && rsMode !== 'amend') go.textContent = d.startAt ? 'Schedule the race' : 'Start the race';
   }
   // the section nav follows the scroll
@@ -8956,7 +8957,7 @@
     const what = mode === 'allowance' ? 'a chore' : mode === 'service' ? 'a service you sell' : mode === 'race' ? 'one contestant in a money race, with the same stake as every other room' : 'a way you make money';
     const who = mode === 'allowance' ? 'kids' : mode === 'service' ? 'your team' : mode === 'race' ? 'the agents leading each room' : 'AI agents and you';
     const steps = [
-      { title: 'Welcome to ' + (snap.station.name || 'Proxyfolk'), text: `This little world is a live picture of real records. Each room is ${what}. The characters are ${who}, plus clients walking in for real sales. Nothing moves unless the ledger says it happened.`, at: null },
+      { title: 'Welcome to ' + (snap.station.name || 'Proxyfolk'), text: snap.race && snap.race.simMode ? `This is a SIMULATION. Each room is ${what}. The agents research the real web, but every sale, email, site and ad here is simulated with fake money from published benchmarks: nothing real is sent, posted or bought until you press REAL MONEY.` : `This little world is a live picture of real records. Each room is ${what}. The characters are ${who}, plus clients walking in for real sales. Nothing moves unless the ledger says it happened.`, at: null },
       { title: 'Your numbers', text: mode === 'allowance' ? 'What the kids earned, what you owe them, what you already paid, and who is ahead this week. Hover or tap any of them for what it counts.' : mode === 'race' ? 'The race day, every bankroll added up, who leads, and how long until the next prize locks. Hover or tap any of them for what it counts.' : 'Money in, today and this month, straight from the ledger. Every number here traces back to a line with evidence behind it.', at: ['#res'] },
       { title: 'The world', text: `Drag to look around, scroll or pinch to zoom. Click or tap a room to go in. Click or tap a character to see who they are and what they are doing. ${phone ? '' : 'Keys 1 to 9 jump to a room.'}`, at: ['#cv'] },
       { title: 'Main menu', text: phone ? 'Everything you can do lives in the bar at the bottom: the world, the room list, customizing, income links, and More for the ledger, the tour and the guide.' : 'Everything you can do lives on this rail. Hover a button and it tells you what it does.', at: ['#rail'] },

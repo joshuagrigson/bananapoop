@@ -229,7 +229,7 @@ export function seedRaceDemo(ledger, dataDir, now = Date.now()) {
   const rand = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
   const lines = [
     { kind: 'note', demo: true, text: 'DEMO LEDGER: a fictional simulation race. The agents and plans are made up; every dollar is simulated by the market model; the research links are real pages.', ts: new Date(t0 - 3600e3).toISOString() },
-    { kind: 'race', stakeUsd: 250, name: 'The $250 Race', evidence: 'eight virtual cards, $250 on each (demo)', horizons: [7, 30, 90, 180], ts: at(0),
+    { kind: 'race', id: 'demo-race', stakeUsd: 250, name: 'The $250 Race', evidence: 'eight virtual cards, $250 on each (demo)', horizons: [7, 30, 90, 180], ts: at(0),
       rules: { purpose: 'idea', moneyMode: 'sim', places: 3, approveOverUsd: 50, maxSpendPerDayUsd: 40, knockoutUsd: 0, tiebreak: 'earliest', everyHours: 24,
         customRules: [{ kind: 'must', text: 'Show the price before anyone pays' }, { kind: 'mustnot', text: 'Sell anything to children' }],
         roomNotes: { gold: 'Put the review tool in front of three real businesses before building anything more.' },
