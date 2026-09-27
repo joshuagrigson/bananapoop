@@ -1130,16 +1130,48 @@
   // CELL: the grid pitch. ROOM: a room's department, the 7 by 7 core with its six stations, in the back corner of a
   // factory floor of its own (FOOT).
   const CELL = 18, ROOM = 7;
-  const PATH_CELLS = [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [1, 2], [2, 2], [3, 1], [3, 0], [3, 2]];   // up to 10 rooms
+  const BASE_CELLS = [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [1, 2], [2, 2], [3, 1], [3, 0], [3, 2]];   // up to 10 rooms
+  let PATH_CELLS = BASE_CELLS;
   // Every building has its own footprint, w along x and d along y. The department keeps the back corner, against the
   // walls its furniture was made for; the factory floor wraps round it toward the front, so the walkways, which run
   // straight down the rows and columns, still come in through the department's doors. Some buildings have a loading
   // yard cut out of the front corner (yard: [w, d]); the vault is a round hall on the middle of its square.
-  const FOOT = {
+  const BASE_FOOT = {
     '0,0': { w: 15, d: 13, yard: [4, 3] }, '1,0': { w: 11, d: 13 }, '2,0': { w: 13, d: 11 }, '3,0': { w: 13, d: 15 },
     '0,1': { w: 13, d: 11 }, '1,1': { w: 12, d: 12, round: true }, '2,1': { w: 15, d: 13, yard: [4, 3] }, '3,1': { w: 11, d: 11 },
     '0,2': { w: 13, d: 9 }, '1,2': { w: 11, d: 13 }, '2,2': { w: 13, d: 11 }, '3,2': { w: 15, d: 15, yard: [4, 4] },
   };
+  let FOOT = BASE_FOOT;
+  // Every world builds its own station: its own building shapes (long barns on the farm, narrow towers in the city,
+  // great halls and small towers in the castle, hangars in the rocket works) and which grid squares stay open, so
+  // the silhouette changes with the world. The vault and the dock keep their places; only decoration changes.
+  const F = (w, d, yard) => ({ w: Math.max(10, Math.min(15, w)), d: Math.max(10, Math.min(15, d)), ...(yard ? { yard } : {}) });
+  const PLAN = (empty, list) => ({ empty, foot: Object.fromEntries(['0,0', '1,0', '2,0', '3,0', '0,1', '2,1', '3,1', '1,2', '2,2', '3,2'].map((k, i) => [k, F(...list[i])])) });
+  const WORLD_PLAN = {
+    castle: PLAN(['1,2', '2,2'], [[15, 15, [4, 4]], [10, 15], [15, 10], [15, 15, [5, 5]], [10, 10], [13, 15], [10, 13], [15, 10], [10, 10], [15, 15, [5, 4]]]),
+    farm: PLAN(['0,0', '3,0'], [[15, 10], [15, 10], [15, 10], [15, 13, [6, 4]], [15, 11, [5, 3]], [15, 10], [15, 11], [15, 13, [6, 4]], [15, 10], [15, 15, [7, 6]]]),
+    cyber: PLAN(['0,1', '2,2'], [[10, 15], [10, 15], [11, 15], [10, 15], [10, 11], [10, 15], [11, 10], [10, 15], [10, 13], [11, 15]]),
+    alien: PLAN(['1,0', '3,2'], [[13, 14], [10, 12], [14, 10], [12, 15, [3, 5]], [11, 13], [15, 12, [5, 3]], [10, 10], [12, 15, [3, 5]], [14, 11], [13, 13]]),
+    ocean: PLAN(['0,0', '3,2'], [[12, 12, [4, 4]], [11, 11, [3, 3]], [12, 12, [4, 4]], [11, 11], [12, 12, [4, 4]], [11, 11, [3, 3]], [12, 12, [4, 4]], [11, 11], [12, 12, [4, 4]], [11, 11, [3, 3]]]),
+    haunted: PLAN(['2,0', '1,2'], [[15, 13, [5, 4]], [13, 15], [15, 13], [13, 15, [4, 5]], [13, 13], [15, 15, [6, 5]], [13, 11], [13, 15], [15, 13], [13, 13, [4, 4]]]),
+    pumpkin: PLAN(['3,1', '0,0'], [[10, 10], [10, 11], [11, 10], [10, 10, [2, 2]], [11, 10], [10, 11], [10, 10], [11, 11, [3, 3]], [10, 10], [12, 12, [4, 4]]]),
+    rocket: PLAN(['0,1', '3,1'], [[15, 15], [15, 11], [11, 15], [15, 15, [6, 6]], [11, 15], [15, 15], [15, 11], [11, 11], [15, 15, [5, 5]], [15, 13]]),
+    lab: PLAN(['2,1', '0,0'], [[13, 10], [15, 10], [13, 10], [10, 15], [15, 10], [10, 15], [15, 10], [13, 10], [10, 15], [15, 11, [5, 3]]]),
+    mafia: PLAN(['1,0', '1,2'], [[15, 15, [6, 6]], [13, 13], [15, 13, [5, 4]], [13, 15], [15, 11], [13, 13, [4, 4]], [15, 15, [6, 6]], [13, 13], [15, 15, [5, 5]], [13, 11]]),
+    gamer: PLAN(['2,0', '0,1'], [[12, 12], [15, 10], [10, 15], [14, 14, [5, 5]], [10, 10], [15, 12, [6, 3]], [12, 15], [15, 15, [6, 6]], [10, 12], [13, 10]]),
+  };
+  let geomFor = null;
+  // switch the station's buildings to a world's plan; true when anything changed
+  function setGeometry(skin) {
+    if (geomFor === skin) return false;
+    geomFor = skin;
+    const p = WORLD_PLAN[skin];
+    FOOT = p ? { ...BASE_FOOT, ...p.foot } : BASE_FOOT;
+    const empty = new Set(p ? p.empty : []);
+    PATH_CELLS = p ? [...BASE_CELLS.filter((c) => !empty.has(c.join(','))), ...BASE_CELLS.filter((c) => empty.has(c.join(',')))] : BASE_CELLS;
+    boxCache.clear();
+    return true;
+  }
   const HUB = [1, 1], DOCK = [0, 2];
   const DESKS = [[1, 1], [3, 1], [5, 1], [1, 4], [3, 4], [5, 4]];   // room-local, one per stage
   const STAGES = ['prospect', 'conversation', 'demo', 'pilot', 'paid', 'retained'];
@@ -1415,6 +1447,7 @@
   const dynLights = [];
 
   function buildRooms() {
+    setGeometry(skinId());
     rooms.length = 0; cells.clear();
     cells.set(HUB.join(','), 'hub'); cells.set(DOCK.join(','), 'dock');
     snap.catalog.slice(0, PATH_CELLS.length).forEach((spec, i) => {
@@ -5113,6 +5146,12 @@
   }
   // a new world: rebuild everything that was drawn in the old one
   function skinChanged() {
+    // a new world builds a new station: its own building shapes and layout. Only the look changes, never a number.
+    if (snap && setGeometry(skinId())) {
+      geomFor = null; buildRooms(); buildNav(); seedMotes();
+      for (const id of [...agents.keys()]) if (id !== 'commander') agents.delete(id);
+      lastLabels = ''; first = true;
+    }
     for (const id of [...agents.keys()]) if (agents.get(id).kind === 'res') agents.delete(id);
     for (const a of agents.values()) { if (a.kind === 'folk' || a.kind === 'job' || a.kind === 'visit') { a.costume = costumeFor(a.path && roomById(a.path)); a.pendingCostume = undefined; } }
     critters.length = 0;
