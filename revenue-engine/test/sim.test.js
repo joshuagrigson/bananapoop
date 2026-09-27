@@ -82,3 +82,37 @@ test('any way to make money: no method is barred by default, and a long shot sim
   assert.ok(nets[20] < 0, 'most long shots lose');
   assert.ok(nets[190] > 2000, 'a few win big');
 });
+
+test('a new race keeps the last one whole: past races stay readable, and a race\'s record holds every plan', async () => {
+  const { raceArchive } = await import('../src/race.js');
+  const events = [
+    { kind: 'race', id: 'r1', ts: at(0), stakeUsd: 250, evidence: 'simulated', horizons: [7] },
+    { kind: 'play', path: 'red', play: 'shop', name: 'Planner shop', status: 'working', by: 'agent', ts: at(0.1) },
+    { kind: 'sim', act: 'launch', path: 'red', play: 'shop', by: 'agent', ts: at(0.2), spec: { channel: 'freelance', price: 150, volume: 10 } },
+    { kind: 'race', id: 'r2', ts: at(10), stakeUsd: 250, evidence: 'simulated', horizons: [7] },
+  ].map(validate);
+  const st = reduce(events, CAT);
+  assert.equal(st.race.id, 'r2');
+  assert.equal(st.pastRaces[0].id, 'r1');
+  const old = raceBoard(st, CAT, T0 + 20 * DAY, { raceId: 'r1' });
+  assert.equal(old.over, true);
+  assert.equal(old.lanes.find((l) => l.id === 'red').plays[0].name, 'Planner shop');
+  assert.equal(raceBoard(st, CAT, T0 + 20 * DAY).lanes.find((l) => l.id === 'red').plays.length, 0, 'the new race starts clean');
+  const md = raceArchive(st, CAT, 'r1', T0 + 20 * DAY);
+  assert.match(md, /Every business plan/);
+  assert.match(md, /# Playbook: Planner shop/);
+});
+
+test('a room takes the name of the business it bets on; an app idea simulates with app-store fees and churn', () => {
+  const events = [
+    { kind: 'race', id: 'r1', ts: at(0), stakeUsd: 250, evidence: 'simulated', horizons: [7] },
+    { kind: 'play', path: 'red', play: 'clips', name: 'AI clip editing', status: 'trying', by: 'agent', ts: at(0.1) },
+    { kind: 'play', path: 'red', play: 'care', name: 'Caregiver app', brand: 'CareCircle', status: 'working', by: 'agent', offer: 'a caregiving app', ts: at(0.2) },
+  ].map(validate);
+  const red = raceBoard(reduce(events, CAT), CAT, T0 + DAY).lanes.find((l) => l.id === 'red');
+  assert.equal(red.title, 'CareCircle');
+  assert.equal(red.bet.offer, 'a caregiving app');
+  const { spec } = normalizeSpec({ channel: 'app', price: 6, recurring: true, volume: 30, platform: 'appstore' });
+  assert.equal(spec.feePct, 0.15);
+  assert.equal(spec.churn, 0.1);
+});

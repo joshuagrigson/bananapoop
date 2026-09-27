@@ -217,9 +217,11 @@ function raceAgents() {
   const played = new Set((st.sims || []).filter((e) => e.act === 'launch' && Date.parse(e.ts) >= t0).map((e) => e.path));
   const todo = ids.filter((id) => !played.has(id)).slice(0, 2);
   for (const room of todo) {
-    // no room is tied to an idea: each race deals the researched ideas out afresh
-    let h = 7; for (const ch of race.id + room) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-    const x = RESEARCHED_IDEAS[h % RESEARCHED_IDEAS.length];
+    // no room is tied to an idea: each race deals the researched ideas out afresh, and one room always gets the app
+    const hash = (t) => { let h = 7; for (const ch of t) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; };
+    const others = RESEARCHED_IDEAS.filter((i) => i.room !== 'app').sort((a, b) => hash(race.id + a.title) - hash(race.id + b.title));
+    const deck = [RESEARCHED_IDEAS.find((i) => i.room === 'app'), ...others].filter(Boolean);
+    const x = deck[(ids.indexOf(room) + hash(race.id)) % deck.length];
     const play = ('r-' + x.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')).slice(0, 32).replace(/-$/, '');
     for (const r of x.research) ledger.append({ kind: 'research', path: room, play, title: r.title.slice(0, 120), text: (r.text + ' (researched 2026-09-27)').slice(0, 1500), url: r.url, topic: r.topic, by: 'agent' });
     ledger.append({ kind: 'play', path: room, play, name: x.title.slice(0, 80), status: 'working', by: 'agent', plan: x.summary.slice(0, 2000), offer: x.summary.slice(0, 400) });

@@ -2636,7 +2636,10 @@
 
   // ======================================================================= DOM overlay: labels, floats, tooltip
   let labelEls = [], labelsDirty = true, plateRects = [], labelView = [NaN, NaN, NaN];
-  const shortName = (spec) => spec.short || spec.name.replace(/,.*$/, '').slice(0, 30);
+  // in a race, a room goes by the business it is betting on (its working play's brand or name)
+  const raceTitle = (id) => { const l = snap && snap.race && snap.race.lanes.find((x) => x.id === id); return l && l.title ? l.title : null; };
+  const baseName = (spec) => spec.short || spec.name.replace(/,.*$/, '').slice(0, 30);
+  const shortName = (spec) => { const t = raceTitle(spec.id); return t ? (t.length > 30 ? t.slice(0, 29) + '…' : t) : baseName(spec); };
   // a room's tier (stars, by 30 days of activity) and how many folk work it right now
   const tierHtml = (room) => { const t = roomTier(room); return t ? `<span class="tier" title="Tier ${t}: ${roomActivity(room)} in 30 days">${'★'.repeat(t)}</span>` : ''; };
   const folkHtml = (room) => { const n = workersIn(room).length; return n ? `<span class="fk" title="${n} working here">${ic('folk')}${n}</span>` : ''; };
@@ -3494,6 +3497,112 @@
       ${Object.keys(r.roomNotes || {}).length ? `<dt>Per room</dt><dd>${Object.entries(r.roomNotes).map(([id, t]) => `${esc(raceNm(id))}: ${esc(t)}`).join('<br>')}</dd>` : ''}
       ${r.notes ? `<dt>Also</dt><dd>${esc(r.notes)}</dd>` : ''}</dl>`;
   }
+  // ---- a race's end, loud: each prize time that passes, and the finish, with everything it made kept and reachable
+  const raceBest = (r) => r.lanes.flatMap((l) => l.plays.map((p) => ({ room: l.id, p }))).sort((a, b) => b.p.netUsd - a.p.netUsd)[0] || null;
+  function raceDoneHtml(r) {
+    const fin = r.standings[r.standings.length - 1], best = raceBest(r);
+    return `<div class="sec" style="border:2px solid #ffcf5a;border-radius:14px;padding:12px 14px;background:linear-gradient(135deg,rgba(255,207,90,.16),rgba(180,140,255,.12))">
+      <h3 style="color:#ffcf5a;font-size:15px;letter-spacing:.08em">${ic('crown')} RACE COMPLETE</h3>
+      <div style="font-size:16px;font-weight:700;margin:4px 0">${fin.winner ? `${esc(raceNm(fin.winner))} wins${fin.podium.length > 1 ? `, then ${fin.podium.slice(1).map((id) => esc(raceNm(id))).join(', ')}` : ''}` : 'A tie at the finish: nobody wins the last prize'}</div>
+      ${best ? `<div class="muted small">Best business plan: <b style="color:var(--ink)">${esc(best.p.name)}</b> (${esc(raceNm(best.room))}), net ${best.p.netUsd < 0 ? '−' : '+'}${usd(Math.abs(Math.round(best.p.netUsd)))}${r.simMode ? ' simulated' : ''}.</div>` : ''}
+      <div class="muted small" style="margin-top:4px">Everything is kept: every plan, step and dollar stays on the ledger, and this race moves to Past races when the next one starts.</div>
+      <div class="row2" style="margin-top:8px"><button class="btn go" type="button" data-rerun>${ic('flag')}Run it again</button><button class="btn" type="button" data-archive="${esc(r.id)}">${ic('chart')}Save every plan</button></div></div>`;
+  }
+  function pastRacesHtml() {
+    const past = snap.pastRaces || [];
+    if (!past.length) return '';
+    return `<div class="sec"><h3>Past races · ${past.length}</h3><div class="muted small">Every earlier race, as it ended, with its best plans. Save any one as a single file of every business plan it made.</div>
+      ${past.map((p) => { const fin = p.prizes[p.prizes.length - 1] || {}; return `<div style="border:1px solid var(--line,rgba(255,255,255,.12));border-radius:12px;padding:9px 11px;margin-top:8px">
+        <b>${esc(p.name || 'Sandbox race')}</b> <span class="muted small">· ${esc(new Date(p.startedAt).toLocaleString())} · ${p.rooms} rooms · ${p.plays} plans${p.mode === 'sim' ? ' · simulated' : ''}</span>
+        <div class="muted small">${p.prizes.map((z) => `${esc(z.label)}: ${z.winner ? esc(raceNm(z.winner)) : z.state === 'done' ? 'tie' : 'not reached'}`).join(' · ')}</div>
+        ${p.best.length ? `<div class="muted small" style="margin-top:3px">Best: ${p.best.slice(0, 3).map((b) => `<a href="#" data-pastbook="${esc(p.id)}|${esc(b.room)}|${esc(b.id)}">${esc(b.name)}</a> (${esc(raceNm(b.room))}, ${b.netUsd < 0 ? '−' : '+'}${usd(Math.abs(Math.round(b.netUsd)))})`).join(' · ')}</div>` : ''}
+        <div class="row2" style="margin-top:6px"><button class="btn sm2" type="button" data-archread="${esc(p.id)}">Read the record</button><button class="btn sm2" type="button" data-archive="${esc(p.id)}">Save every plan</button></div></div>`; }).join('')}</div>`;
+  }
+  // a big banner across the screen, for a moment
+  function bigBanner(title, sub, color) {
+    const el = document.createElement('div');
+    el.setAttribute('role', 'status');
+    el.style.cssText = `position:fixed;left:50%;top:18%;transform:translateX(-50%) scale(.8);z-index:9999;padding:18px 28px;border-radius:18px;text-align:center;background:rgba(12,10,24,.92);border:3px solid ${color};box-shadow:0 0 60px ${color}88;color:#fff;font:800 26px/1.2 system-ui,sans-serif;letter-spacing:.06em;opacity:0;transition:all .35s ease;pointer-events:none;max-width:90vw`;
+    el.innerHTML = `<div style="color:${color}">${esc(title)}</div>${sub ? `<div style="font:600 15px/1.4 system-ui,sans-serif;letter-spacing:0;margin-top:6px;color:#e8e6f5">${esc(sub)}</div>` : ''}`;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateX(-50%) scale(1)'; });
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 400); }, 6000);
+  }
+  function flashTitle(text) {
+    const was = document.title; let n = 0;
+    const iv = setInterval(() => { document.title = n++ % 2 ? was : text; if (n > 12) { clearInterval(iv); document.title = was; } }, 900);
+  }
+  function osNote(title, body) { try { if (document.hidden && 'Notification' in window && Notification.permission === 'granted') new Notification(title, { body }); } catch { /* no notifications here */ } }
+  function raceFinishedModal(r) {
+    const old = $('#raceDone'); if (old) old.remove();
+    const box = document.createElement('div');
+    box.id = 'raceDone';
+    box.style.cssText = 'position:fixed;inset:0;z-index:9998;display:grid;place-items:center;background:rgba(6,4,16,.66);backdrop-filter:blur(3px);padding:16px';
+    box.innerHTML = `<div class="glass" style="max-width:520px;width:100%;border-radius:18px;padding:18px 20px;border:2px solid #ffcf5a">${raceDoneHtml(r)}<div style="text-align:right;margin-top:8px"><button class="btn" type="button" data-racedoneclose>Close</button></div></div>`;
+    document.body.appendChild(box);
+    box.addEventListener('click', (e) => { if (e.target === box || e.target.closest('[data-racedoneclose]') || e.target.closest('[data-rerun]')) box.remove(); });
+  }
+  // watch the race: a prize time that passes gets a banner, fireworks over the winner and a sound; the finish gets
+  // all of that and a window with the result. Seen once per race, in this browser.
+  function raceWatch() {
+    const r = snap && snap.race;
+    if (!r || !r.started) return;
+    let seen = {}; try { seen = JSON.parse(localStorage.getItem('pf.raceSeen') || '{}'); } catch { seen = {}; }
+    const s = seen[r.id] || null, done = r.standings.filter((x) => x.state === 'done');
+    if (s) {
+      for (const st of done.slice(s.done)) {
+        const w = st.winner, wl = w && r.lanes.find((l) => l.id === w), last = st === r.standings[r.standings.length - 1];
+        if (last) continue;
+        const sub = w ? `${raceNm(w)} wins${wl ? ' with ' + (st.ranking.find((x) => x.id === w) || {}).scoreText : ''}${st.podium.length > 1 ? `, then ${st.podium.slice(1).map(raceNm).join(', ')}` : ''}` : 'A tie: nobody wins this prize';
+        bigBanner(`ROUND COMPLETE · ${st.label.toUpperCase()}`, sub, '#ffcf5a');
+        toast('big', `Round complete: the ${st.label} prize`, sub, '#ffcf5a', 'crown');
+        const room = w && roomById(w); if (room) fireworks(room, 6);
+        sfx('level'); flashTitle(`🏁 ${st.label} prize: ${w ? raceNm(w) : 'tie'}`); osNote(`Round complete: ${st.label}`, sub);
+      }
+    }
+    if (r.over && (!s || !s.over)) {
+      const fin = r.standings[r.standings.length - 1], w = fin.winner;
+      bigBanner('RACE COMPLETE', w ? `${raceNm(w)} wins the race` : 'A tie at the finish', '#ffcf5a');
+      const room = w && roomById(w); if (room) fireworks(room, 10);
+      for (const id of fin.podium.slice(1)) { const rm = roomById(id); if (rm) fireworks(rm, 3); }
+      sfx('level'); flashTitle('🏁 Race complete'); osNote('Race complete', w ? `${raceNm(w)} wins` : 'A tie at the finish');
+      raceFinishedModal(r);
+    }
+    seen[r.id] = { done: done.length, over: r.over };
+    try { localStorage.setItem('pf.raceSeen', JSON.stringify(seen)); } catch { /* private mode */ }
+  }
+  document.addEventListener('click', async (ev) => {
+    const t = ev.target.closest && ev.target.closest('[data-rerun],[data-archive],[data-archread],[data-pastbook]');
+    if (!t || !snap) return;
+    ev.preventDefault();
+    try {
+      if (t.hasAttribute('data-rerun')) {
+        const r = snap.race; if (!r) return;
+        try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch { /* fine */ }
+        await post('api/events', { kind: 'race', stakeUsd: r.stakeUsd, horizonsMin: r.horizonsMin, rooms: r.lanes.map((l) => l.id), ...(r.name ? { name: r.name } : {}), evidence: r.evidence || (r.simMode ? 'Simulation: no real money' : 'the same stake as before'), rules: r.rules });
+        toast('big', 'The race starts again', 'Same rules, same rooms. The last race and every plan it made are under Past races.', '#ffcf5a', 'flag');
+        if (typeof poll === 'function') poll();
+        return;
+      }
+      if (t.hasAttribute('data-pastbook')) {
+        const [rid, room, play] = t.dataset.pastbook.split('|');
+        const j = await (await fetch(`api/race/${encodeURIComponent(rid)}/playbook/${room}/${play}`)).json();
+        if (j.ok) openText(j.markdown, `${play}-playbook.md`);
+        return;
+      }
+      const rid = t.dataset.archive || t.dataset.archread;
+      const j = await (await fetch(`api/race/${encodeURIComponent(rid)}/archive`)).json();
+      if (!j.ok) { toast('status', 'Could not read that race', j.error || '', '#ff5d6c', 'close'); return; }
+      if (t.hasAttribute('data-archive')) {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([j.markdown], { type: 'text/markdown' })); a.download = `race-${rid}-every-plan.md`; document.body.appendChild(a); a.click(); a.remove();
+        toast('status', 'Saved every plan', `race-${rid}-every-plan.md`, '#4ade80', 'check');
+      } else openText(j.markdown, `race-${rid}.md`);
+    } catch (e) { toast('status', 'That did not work', e.message, '#ff5d6c', 'close'); }
+  });
+  function openText(md, name) {
+    const w = window.open('', '_blank'); if (!w) return;
+    w.document.write(`<title>${esc(name)}</title><pre style="white-space:pre-wrap;font:14px/1.55 system-ui,sans-serif;max-width:860px;margin:24px auto;padding:0 16px">${esc(md)}</pre>`); w.document.close();
+  }
   function renderRaceBoard(el) {
     const r = snap.race, M = snap.raceMenu;
     $('#inspector').style.setProperty('--room', '#ffcf5a');
@@ -3516,17 +3625,20 @@
     const needs = r.lanes.filter((l) => l.blocked);
     const sm = r.lanes.slice().sort((a, b) => b.inUsd - a.inUsd), smMax = Math.max(1e-9, ...sm.map((l) => Math.max(l.inUsd, l.outUsd)));
     el.innerHTML = `${head(`<span class="pill cyan">${!r.started ? `starts in ${leftLabel(r.startsInMin)}` : r.over ? 'finished' : raceNow(r)}</span>${r.simMode ? '<span class="pill" style="background:#b48cff;color:#140a26;font-weight:800">SIMULATION · nothing real is sent, posted or bought</span>' : ''}<span class="pill gold">${r.paper ? 'paper money' : usd(r.stakeUsd) + (r.simMode ? ' simulated' : '') + ' a room'}</span><span class="pill">${r.lanes.length} rooms</span>${r.breakCount ? `<span class="pill warn">${r.breakCount} rule break${r.breakCount === 1 ? '' : 's'}</span>` : ''}`)}
+      ${r.over ? raceDoneHtml(r) : ''}
       ${r.purpose ? `<div class="rb-for">${ic('target')}<span><small>What this race is for</small>${esc(r.purpose)}</span></div>` : ''}
       <div class="row2" style="margin:10px 0 2px"><button class="btn" type="button" data-rsopen="amend">${ic('sliders')}Rules and limits</button><button class="btn" type="button" data-rsopen="restart">${ic('flag')}New race</button></div>
+      <div class="row2" style="margin:6px 0 2px"><button class="btn" type="button" data-rerun>${ic('flag')}Run it again, same rules</button><button class="btn" type="button" data-archive="${esc(r.id)}">${ic('chart')}Save every plan (.md)</button></div>
       ${r.simMode && r.sim ? `<div class="muted small" style="border-left:3px solid #b48cff;padding-left:8px;margin-bottom:6px"><b style="color:var(--ink)">The simulation so far:</b> ${r.sim.totals.research} findings from the real web, ${r.sim.totals.variants} variants tested, ${r.sim.totals.builds} things built in the sandbox, ${r.sim.totals.live} plays live in the simulated market. Every dollar here is simulated from published benchmarks and each room's own research.${r.sim.topIdeas.length ? `<br><b style="color:var(--ink)">Best ideas tested:</b> ${r.sim.topIdeas.slice(0, 5).map((v) => `${esc(v.label)} (${esc(raceNm(v.room))}): typical ${usd(Math.round((v.net.find((n) => n.days === 30) || v.net[v.net.length - 1]).p50))} by day ${(v.net.find((n) => n.days === 30) || v.net[v.net.length - 1]).days}, ${Math.round(v.pProfit[Math.min(1, v.pProfit.length - 1)] * 100)}% odds of profit${v.drivers && v.drivers.length ? ` <i style="color:#b48cff">(from research: ${esc(v.drivers[0])})</i>` : ''}`).join(' · ')}` : ''}</div>` : ''}<div class="muted small">${r.paper ? 'A paper race: no real money moves; rooms prove their ideas with demand. ' : 'A bankroll is the stake plus evidenced money in minus money out since the gun; anything bought but not yet sold counts as zero. '}${esc((M.scoring[r.rules.scoring] || '').split(':')[0])} at each time limit wins a prize${r.rules.places > 1 ? `, with ${r.rules.places} places` : ''}.</div>
       <div class="sec"><h3>Prizes</h3><div class="hz">${hs.map((s) => `<button type="button" class="${s.state}${s === cur ? ' on' : ''}" data-hz="${s.mins}"><span class="k">${esc(s.label)}</span><span class="w">${s.state === 'done' ? (s.winner ? ic('crown') + esc(raceNm(s.winner)) : 'tie, no winner') : s.state === 'live' ? (s.leader ? esc(raceNm(s.leader)) + ' leads' : 'tied') : 'not yet'}</span><span class="s">${s.state === 'done' ? (s.winner ? `won with ${esc(metric(s.ranking.find((x) => x.id === s.winner)))}${s.tieBroken ? ' · tie broken' : ''}` : 'nobody ahead') : s.state === 'live' ? `${leftLabel(s.minsLeft)} left` : `in ${leftLabel(s.minsLeft)}`}</span>${s.podium.length > 1 ? `<span class="s">then ${s.podium.slice(1).map((id) => esc(raceNm(id))).join(', ')}</span>` : ''}${s.eliminated ? `<span class="s out">${esc(raceNm(s.eliminated))} out</span>` : ''}</button>`).join('')}</div></div>
       ${hs.some((s) => s.winner) ? `<div class="sec"><h3>Winning ideas</h3><div class="muted small">The best play of each prize's winner. Open it for the business model and the playbook to run it for real.</div>
         ${hs.filter((s) => s.winner).map((s) => { const wl = laneOf(s.winner), byDemand = r.paper || r.rules.scoring === 'signals', best = wl && wl.plays.slice().sort((a, b) => (byDemand ? b.signals - a.signals : 0) || b.netUsd - a.netUsd)[0]; return best ? `<button type="button" class="cf" data-winplay="${esc(s.winner)}|${esc(best.id)}" style="--c:${themeOf(s.winner).accent}"><span class="t"><b>${ic('crown')} ${esc(best.name)}</b><small>${esc(s.label)} · ${esc(raceNm(s.winner))}${best.model && best.model.offer ? ' · ' + esc(best.model.offer) : ''}</small></span><span class="u">${byDemand ? `${best.signals}<small>demand</small>` : `${best.netUsd < 0 ? '−' : '+'}${usd(Math.abs(Math.round(best.netUsd)))}<small>net</small>`}</span>${ic('chevR')}</button>` : ''; }).join('')}</div>` : ''}
+      ${pastRacesHtml()}
       ${needs.length ? `<div class="sec"><h3>Waiting on you · ${needs.length}</h3>${needs.map((l) => `<div class="need" data-sel="${esc(l.id)}"><b>${ic('warn')}${esc(raceNm(l.id))}${leadName(l.id) ? ' · ' + esc(leadName(l.id)) : ''} · ${raceWhen(l.blocked)}</b>${esc(l.blocked.text)}</div>`).join('')}</div>` : ''}
       <div class="sec"><h3>${cur.state === 'done' ? `Final at ${esc(cur.label)}` : `Standings · ${r.short ? spanLabel(Math.max(1, r.elapsedMin)) + ' in' : 'day ' + r.day}`}</h3>
         ${cur.ranking.map((x, i) => { const l = laneOf(x.id), acc = themeOf(x.id).accent, first = i === 0 && (cur.winner === x.id || (cur.state !== 'done' && cur.leader === x.id));
           const pod = cur.podium.indexOf(x.id);
-          return `<div class="rank${first ? ' top' : ''}${x.out ? ' out' : ''}" data-sel="${esc(x.id)}" style="--c:${acc}"><span class="no">${first ? ic('crown') : i + 1}</span><span class="nm">${esc(raceNm(x.id))}${leadName(x.id) ? ` <span style="color:var(--muted);font-weight:500">· ${esc(leadName(x.id))}</span>` : ''}<small>${x.out ? `out: ${esc(l.out ? l.out.why : 'knocked out')}` : cur.state === 'done' ? `${pod > 0 ? nth(pod + 1) + ' place · ' : ''}at ${esc(cur.label)}` : `${r.paper ? `${l.signalScore} demand` : rateFmt(l.rateRecent)} · ${l.plays.filter((p) => p.status !== 'dropped').length} plays${l.breaks.length ? ` · ${l.breaks.length} break${l.breaks.length === 1 ? '' : 's'}` : ''}${l.blocked ? ' · needs you' : ''}`}</small></span><span class="v${moneyScore && x.bankrollUsd < l.stakeUsd ? ' dn' : ''}">${esc(metric(x))}<small>${r.paper ? `${l.plays.length} idea${l.plays.length === 1 ? '' : 's'}` : r.rules.scoring === 'bankroll' ? multFmt(x.multiple) : usd(Math.round(x.bankrollUsd))}</small></span><i class="bg" style="width:${barW(x).toFixed(1)}%"></i></div>`; }).join('')}
+          return `<div class="rank${first ? ' top' : ''}${x.out ? ' out' : ''}" data-sel="${esc(x.id)}" style="--c:${acc}"><span class="no">${first ? ic('crown') : i + 1}</span><span class="nm">${esc(raceNm(x.id))}${leadName(x.id) ? ` <span style="color:var(--muted);font-weight:500">· ${esc(leadName(x.id))}</span>` : ''}${l.bet ? `<small style="color:var(--ink);opacity:.85">${esc(roomById(x.id) ? baseName(roomById(x.id).spec) : x.id)} room · idea: ${esc((() => { const t = l.bet.offer || l.bet.name; return t.length > 110 ? t.slice(0, 107).replace(/\s+\S*$/, '') + '…' : t; })())}</small>` : ''}<small>${x.out ? `out: ${esc(l.out ? l.out.why : 'knocked out')}` : cur.state === 'done' ? `${pod > 0 ? nth(pod + 1) + ' place · ' : ''}at ${esc(cur.label)}` : `${r.paper ? `${l.signalScore} demand` : rateFmt(l.rateRecent)} · ${l.plays.filter((p) => p.status !== 'dropped').length} plays${l.breaks.length ? ` · ${l.breaks.length} break${l.breaks.length === 1 ? '' : 's'}` : ''}${l.blocked ? ' · needs you' : ''}`}</small></span><span class="v${moneyScore && x.bankrollUsd < l.stakeUsd ? ' dn' : ''}">${esc(metric(x))}<small>${r.paper ? `${l.plays.length} idea${l.plays.length === 1 ? '' : 's'}` : r.rules.scoring === 'bankroll' ? multFmt(x.multiple) : usd(Math.round(x.bankrollUsd))}</small></span><i class="bg" style="width:${barW(x).toFixed(1)}%"></i></div>`; }).join('')}
         <div class="muted small" style="margin-top:6px">Rate is net dollars ${r.rateUnit === 'hour' ? 'an hour' : 'a day'} over the last ${esc(r.recentLabel)}. Click a room for every play it ran, and the business model behind each.</div></div>
       ${breaks.length ? `<div class="sec"><h3>Rule breaks the ledger saw · ${breaks.length}</h3><div class="tl">${breaks.slice(0, 12).map((b) => `<div class="e" style="--tc:#ff9a4a" data-sel="${esc(b.room)}"><span class="ic">${ic('warn')}</span><span><b style="color:var(--ink);font-weight:600">${esc(raceNm(b.room))}</b>: ${esc(b.text)}<small>${raceWhen(b)}</small></span><span></span></div>`).join('')}</div><div class="muted small" style="margin-top:6px">${r.rules.ruleBreak === 'fine' ? `Each break costs the room ${usd(r.rules.fineUsd || 0)}.` : r.rules.ruleBreak === 'out' ? 'A break knocks the room out.' : 'Breaks are flagged here; nothing else happens.'} Change it in the rules.</div></div>` : ''}
       ${sigLanes.length ? `<div class="sec"><h3>Demand shown</h3>${sigLanes.map((l) => `<div class="smrow" data-sel="${esc(l.id)}" style="--c:${themeOf(l.id).accent}"><span class="nm">${esc(raceNm(l.id))}</span><span class="bars"><i class="in" style="width:${(100 * l.signalScore / sigMax).toFixed(1)}%;background:var(--cyan)"></i></span><span class="v">${l.signalScore}<small>${l.signals.slice(0, 3).map((g) => `${g.n} ${esc(g.n === 1 ? (M.signalTypes[g.type] || g.type).toLowerCase() : (M.signalPlural || {})[g.type] || g.type)}`).join(' · ')}</small></span></div>`).join('')}
@@ -5148,6 +5260,7 @@
       }
       renderStationName();
       if (applySkin()) skinChanged();
+      raceWatch();
       if (!seasonToasted && seasonalSkin() && !skinTry && !skinFromUrl) { seasonToasted = true; toast('status', skinId() === 'haunted' ? 'The mansion wakes' : 'Halloween in the patch', 'the station dresses up for October; turn it off in Customize', skinId() === 'haunted' ? '#9dff8a' : '#ff8a1a', 'eye'); }
       sync(); announce(); first = false;
       renderHud(); renderFeed(); buildLabels();

@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { reduce } from './reduce.js';
-import { raceBoard, raceBrief, racePlaybook, realRaceEvent } from './race.js';
+import { raceBoard, raceBrief, racePlaybook, realRaceEvent, raceArchive } from './race.js';
 import { SIM_CHANNELS, SIM_ARTIFACTS, SIM_COMPETITION, SIM_TREND, PRIORS, FEES, SimError, testVariants } from './sim.js';
 import { quests, summary } from './quests.js';
 import { commanderLevel } from './level.js';
@@ -59,6 +59,14 @@ export function snapshot(ledger, catalog = CATALOG, dataDir = null, now = Date.n
     outbox: dataDir ? outboxCounts(dataDir, catalog) : {},
     state: { ...lean, stepCount: steps.length },
     race,
+    // races that came before this one, newest first: how each ended and its best plays, still readable
+    pastRaces: (state.pastRaces || []).slice(-8).reverse().map((pr) => {
+      const b = raceBoard(state, catalog, now, { timeline: 0, raceId: pr.id });
+      if (!b) return null;
+      const best = b.lanes.flatMap((l) => l.plays.map((p) => ({ room: l.id, id: p.id, name: p.name, netUsd: p.netUsd, status: p.status }))).sort((x, y) => y.netUsd - x.netUsd).slice(0, 5);
+      return { id: b.id, name: b.name, startedAt: b.startedAt, endedAt: pr.endedAt, mode: b.mode, stakeUsd: b.stakeUsd, rooms: b.lanes.length, plays: b.lanes.reduce((a, l) => a + l.plays.length, 0),
+        prizes: b.standings.map((s) => ({ label: s.label, state: s.state, winner: s.winner, podium: s.podium })), leader: b.lanes.slice().sort((x, y) => x.place - y.place)[0]?.id || null, best };
+    }).filter(Boolean),
     // the race setup's menu: every rule a race can set, and its default
     raceMenu: {
       methods: RACE_METHODS, connectors: RACE_CONNECTORS, work: RACE_WORK_CONNECTORS, models: RACE_MODELS, scoring: RACE_SCORING, contact: RACE_CONTACT, horizons: DEFAULT_HORIZONS,
@@ -115,6 +123,19 @@ export function createApi({ ledger, catalog: fixedCatalog = null, dataDir, runAg
         const station = dataDir ? stationInfo(dataDir) : null, lead = station && station.folk.find((f) => (f.rooms || []).includes(pb[1]));
         const text = racePlaybook(reduce(ledger.readAll(), catalog), catalog, pb[1], pb[2], Date.now(), { lead: lead ? lead.name : null });
         return text ? ok(200, { ok: true, markdown: text }) : ok(404, { ok: false, error: 'no such play in the race' });
+      }
+      // a race's whole record, every business plan in it, as one markdown file: /api/race/<id>/archive
+      const ar = method === 'GET' && /^\/api\/race\/([A-Za-z0-9_-]{1,64})\/archive$/.exec(pathname);
+      if (ar) {
+        const station = dataDir ? stationInfo(dataDir) : null, leads = Object.fromEntries((station ? station.folk : []).flatMap((f) => (f.rooms || []).map((r) => [r, f.name])));
+        const text = raceArchive(reduce(ledger.readAll(), catalog), catalog, ar[1], Date.now(), { leads });
+        return text ? ok(200, { ok: true, markdown: text }) : ok(404, { ok: false, error: 'no such race' });
+      }
+      // one play's playbook from an earlier race: /api/race/<id>/playbook/<room>/<play>
+      const pp = method === 'GET' && /^\/api\/race\/([A-Za-z0-9_-]{1,64})\/playbook\/([a-z0-9][a-z0-9-]{0,31})\/([a-z0-9][a-z0-9-]{0,39})$/.exec(pathname);
+      if (pp) {
+        const text = racePlaybook(reduce(ledger.readAll(), catalog), catalog, pp[2], pp[3], Date.now(), { raceId: pp[1] });
+        return text ? ok(200, { ok: true, markdown: text }) : ok(404, { ok: false, error: 'no such play in that race' });
       }
       // the brief a room's agent would get from a race still being set up: nothing is written
       if (method === 'POST' && pathname === '/api/race/brief-preview') {

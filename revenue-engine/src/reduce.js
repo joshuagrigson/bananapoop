@@ -155,7 +155,8 @@ export function reduce(events, catalog = CATALOG) {
           st.race.amendments.push({ id: ev.id, ts: ev.ts, evidence: ev.evidence });
           break;
         }
-        if (st.race) st.pastRaces.push({ id: st.race.id, name: st.race.name, startedAt: st.race.startedAt, moneyMode: (st.race.rules || {}).moneyMode || 'real', rooms: st.race.rooms });
+        // a new gun ends the race before it: kept whole, so its standings, plays and playbooks can still be read
+        if (st.race) st.pastRaces.push({ ...st.race, endedAt: ev.ts, moneyMode: (st.race.rules || {}).moneyMode || 'real' });
         st.race = { fromRace: ev.fromRace || null, forecasts: ev.forecasts || null, id: ev.id, startedAt: ev.startsAt || ev.ts, setAt: ev.ts, stakeUsd: ev.stakeUsd, horizonsMin: ev.horizonsMin || ev.horizons.map((d) => d * 1440), name: ev.name || null, evidence: ev.evidence, rooms: ev.rooms || null, rules: ev.rules || defaultRaceRules(), amendments: [] };
         break;
       case 'play': {
@@ -165,6 +166,7 @@ export function reduce(events, catalog = CATALOG) {
         if (ev.plan) pl.plan = ev.plan;
         for (const k of ['offer', 'customer', 'channel', 'pricing', 'costs']) if (ev[k]) pl.model[k] = ev[k];
         if (ev.method) pl.method = ev.method;
+        if (ev.brand) pl.brand = ev.brand;
         // when the play first had its model (what it sells and to whom): a rule can require it before any spend
         if (!pl.modelAt && pl.model.offer && pl.model.customer) pl.modelAt = ev.ts;
         pl.history.push({ id: ev.id, ts: ev.ts, status: ev.status, why: ev.why || null, by: ev.by });

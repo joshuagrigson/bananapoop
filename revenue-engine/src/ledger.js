@@ -297,6 +297,8 @@ export function validate(input) {
       for (const k of ['offer', 'customer', 'channel', 'pricing', 'costs']) if (ev[k] !== undefined && !(isText(ev[k]) && ev[k].length <= 400)) fail(`play ${k} must be 1-400 characters`);
       // which kind of money-making it is (a race rule can allow or bar each kind)
       if (ev.method !== undefined && !(isText(ev.method) && ev.method.length <= 80)) fail('play method must be a kind of money-making, e.g. digital or services');
+      // the business's own name: the room takes it while this is the play the room is betting on
+      if (ev.brand !== undefined && !(isText(ev.brand) && ev.brand.length <= 60)) fail('play brand must be the business name, 1-60 characters');
       if (!isBy(ev.by)) fail('play.by must be "user" or "agent"');
       break;
     case 'signal':

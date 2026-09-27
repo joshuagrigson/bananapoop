@@ -32,8 +32,9 @@ function groupBy(lines, key) {
   return [...m.values()].map((g) => ({ ...g, usd: r2(g.usd) })).sort((a, b) => b.usd - a.usd);
 }
 
-export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } = {}) {
-  const race = state && state.race;
+export function raceBoard(state, catalog, now = Date.now(), { timeline = 160, raceId = null } = {}) {
+  // the race on now, or (raceId) any earlier one, read exactly as it stood when the next race began
+  const race = !state ? null : raceId ? (state.race && state.race.id === raceId ? state.race : (state.pastRaces || []).find((x) => x.id === raceId) || null) : state.race;
   if (!race) return null;
   const rules = { ...defaultRaceRules(), ...(race.rules || {}) };
   // a race set before check-ins were counted in minutes said everyHours
@@ -44,7 +45,7 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
   const known = catalog.map((p) => p.id);
   const ids = race.rooms ? race.rooms.filter((id) => known.includes(id)) : known;
   const t0 = Date.parse(race.startedAt), hz = race.horizonsMin || (race.horizons || []).map((d) => d * 1440), last = hz[hz.length - 1];
-  const tEnd = t0 + last * MIN, tNow = Math.max(t0, Math.min(now, tEnd));
+  const tEnd = Math.min(t0 + last * MIN, race.endedAt ? Math.max(t0, Date.parse(race.endedAt)) : Infinity), tNow = Math.max(t0, Math.min(now, tEnd));
   const elapsed = tNow - t0;
   const short = last <= 2 * 1440, unit = short ? HOUR : DAY, floor = short ? 5 * MIN : DAY;
   const recent = short ? Math.max(15 * MIN, Math.min(HOUR, (last * MIN) / 4)) : 7 * DAY;
@@ -312,7 +313,7 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
       const inP = sum(pin, (x) => x.usd), outP = sum(pout, (x) => -x.usd), from = Date.parse(history[0].ts), cur = history[history.length - 1];
       const psteps = steps.filter((s) => s.play === p.id);
       return {
-        id: p.id, name: p.name, status: cur.status, plan: p.plan, why: cur.why, model: { ...(p.model || {}) }, method: p.method || null,
+        id: p.id, name: p.name, brand: p.brand || null, status: cur.status, plan: p.plan, why: cur.why, model: { ...(p.model || {}) }, method: p.method || null,
         startedAt: history[0].ts, updatedAt: cur.ts, startedDay: dayOf(history[0].ts), startedMin: minOf(history[0].ts),
         activeMin: Math.max(0, Math.round(((cur.status === 'dropped' ? Date.parse(cur.ts) : tNow) - from) / MIN)),
         inUsd: inP, outUsd: outP, netUsd: r2(inP - outP), sales: pin.length,
@@ -329,6 +330,10 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
       };
     }).filter(Boolean).sort((a, b) => b.netUsd - a.netUsd || (a.startedAt < b.startedAt ? -1 : 1));
     const named = new Set(plays.map((p) => p.id));
+    // the business the room is betting on: its newest working play, else its newest live one in the simulation, else
+    // its newest play still being tried. The room takes that business's name.
+    const byNew = (a, b) => (a.updatedAt < b.updatedAt ? 1 : -1);
+    const bet = plays.filter((p) => p.status === 'working').sort(byNew)[0] || plays.filter((p) => p.sim && p.sim.live).sort(byNew)[0] || plays.filter((p) => p.status === 'trying').sort(byNew)[0] || null;
     const loose = f.filter((x) => !x.e.play || !named.has(x.e.play));
     const planStep = steps.filter((s) => s.type === 'plan').pop() || null;
     // the agent's latest move: a step or a play started, changed or dropped (money arriving on its own is not a move)
@@ -354,7 +359,7 @@ export function raceBoard(state, catalog, now = Date.now(), { timeline = 160 } =
     const out = outAt.has(id) && outAt.get(id) <= tNow ? { ts: iso(outAt.get(id)), day: dayOf(iso(outAt.get(id))), min: minOf(iso(outAt.get(id))), why: outWhy.get(id) } : null;
     const score = metricAt(id, tNow);
     return {
-      id, stakeUsd: stake, bankrollUsd, inUsd, outUsd, netUsd: r2(inUsd - outUsd), profitUsd: r2(bankrollUsd - stake), multiple: r2(bankrollUsd / stake), score, scoreText: scoreText(score), rateRecent, rateAll,
+      id, title: bet ? bet.brand || bet.name : null, bet: bet ? { play: bet.id, name: bet.name, brand: bet.brand, offer: bet.model.offer || null, method: bet.method } : null, stakeUsd: stake, bankrollUsd, inUsd, outUsd, netUsd: r2(inUsd - outUsd), profitUsd: r2(bankrollUsd - stake), multiple: r2(bankrollUsd / stake), score, scoreText: scoreText(score), rateRecent, rateAll,
       sales: ins.length, customers: new Set(ins.map((x) => String(x.e.source || '').trim().toLowerCase())).size, backPerDollar: outUsd > 0 ? r2(inUsd / outUsd) : null, model: rules.models[id] || null, notes: rules.roomNotes[id] || null, out, fines,
       // where the money came from, and where it went
       bySource: groupBy(ins.map((x) => ({ usd: x.usd, src: x.e.source })), (x) => x.src),
@@ -518,6 +523,7 @@ ${ul([
     'Before you commit to an idea, test it in the market simulator (race sim test): many variants at once, differing in channel, price, offer, volume and costs. The simulator starts every rate from published benchmarks. A rate better than the typical one counts only with a source (cites: { rate: url }); without one it is held to typical. So research first, then test.',
     'Launch your best variant (race sim launch). From then on the simulated market runs it on the race clock and its simulated sales and costs land on your bankroll. When you learn something, test again and relaunch with the new spec; stop what loses (race sim stop).',
     'Test widely, then go deep: dozens of variants are cheap, one launched play that works is the point.',
+    'Always put at least one app idea through the simulator, even if you doubt it can work: a phone app, web app or micro-SaaS that earns while nobody works (channel "app": installs a day, the price, recurring for a subscription). Let the numbers decide.',
     'Do not game the simulator. An idea that only wins on an assumption nobody can check will be found out the day real people see it.',
   ])}
 Speed: ${SIM_SPEEDS[r.simSpeed] || `${r.simSpeed} simulated days every real day`}.
@@ -562,6 +568,7 @@ ${sim ? `- each finding on the web: race research ${roomId} --title "..." --text
 - the real thing, built in the sandbox: race build ${roomId} --what ${Object.keys(SIM_ARTIFACTS).join('|')} --title "..." --file <path> [--format html|markdown|text] [--to "who it would go to"] --play <play-id>
 - a play live in the simulated market: race sim launch ${roomId} <play-id> --spec spec.json [--label "..."]; stop it: race sim stop ${roomId} <play-id> --why "..."
 ` : ''}- each way you try, with its business model: race play ${roomId} <play-id> --name "..." --status trying --method <kind> --plan "..." --offer "what you sell" --customer "who buys" --channel "how they find it" --pricing "what it costs them" --costs "what it costs you"
+- the business you bet on to win: mark it working and give it a name with --brand "Company name". Your room takes that name on the board and the map
 - each thing you did, learned or are stuck on: race step ${roomId} --type did|learned|blocked --text "..." --play <play-id>
 ${paper || sim ? '' : `- every dollar: log-in / log-out --path ${roomId} --evidence "..." --play <play-id>\n`}${sim ? '' : `- demand without a sale: race signal ${roomId} --type ${Object.keys(SIGNAL_TYPES).join('|')} --count N --evidence "..." --play <play-id>\n`}
 - change a play's status with --why when it starts working, stalls or you drop it.
@@ -571,8 +578,8 @@ ${sim ? 'Start by reading the board (node src/cli.js race), then research the we
 
 // A play's playbook: everything a person needs to run the same idea for real, in the order the agent did it. Built
 // from the ledger: the model it logged, every step, every status change and why, every dollar with its evidence.
-export function racePlaybook(state, catalog, roomId, playId, now = Date.now(), { lead = null, station = null } = {}) {
-  const board = raceBoard(state, catalog, now, { timeline: 0 });
+export function racePlaybook(state, catalog, roomId, playId, now = Date.now(), { lead = null, station = null, raceId = null } = {}) {
+  const board = raceBoard(state, catalog, now, { timeline: 0, raceId });
   const lane = board && board.lanes.find((l) => l.id === roomId);
   const p = lane && lane.plays.find((x) => x.id === playId);
   if (!p) return null;
@@ -693,4 +700,30 @@ export function realRaceEvent(state, catalog, now, { rooms, stakeUsd, horizonsMi
     ...(horizonsMin ? { horizonsMin } : horizons ? { horizons } : { horizonsMin: board.horizonsMin }),
     rules: { ...base, ...rules, moneyMode: 'real' }, fromRace: board.id, forecasts,
   };
+}
+
+// A race's whole record, to keep: how it ended, every prize, and every play's playbook, best first. One markdown file
+// holds all the business plans a race produced, for the race on now or any earlier one.
+export function raceArchive(state, catalog, raceId = null, now = Date.now(), { leads = {} } = {}) {
+  const board = raceBoard(state, catalog, now, { timeline: 0, raceId });
+  if (!board) return null;
+  const nm = (id) => (catalog.find((c) => c.id === id) || {}).name || id;
+  const when = (ts) => new Date(ts).toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
+  const plays = board.lanes.flatMap((l) => l.plays.map((p) => ({ room: l.id, p }))).sort((a, b) => b.p.netUsd - a.p.netUsd);
+  const head = `# ${board.name || 'Sandbox race'}: the whole record
+
+${board.simMode ? 'A SIMULATION: every dollar below is simulated from published benchmarks and each room\'s research.' : board.paper ? 'A paper race: no real money moved.' : 'A real-money race.'}
+Started ${when(board.startedAt)}; ${board.over ? `finished ${when(board.endsAt)}` : 'still running when this was saved'}. ${board.lanes.length} rooms at $${board.stakeUsd} each. Purpose: ${board.purpose || 'not set'}.
+
+## Prizes
+${board.standings.map((s) => `- ${s.label}: ${s.state === 'done' ? (s.winner ? `won by ${nm(s.winner)} (${(s.ranking.find((x) => x.id === s.winner) || {}).scoreText})${s.podium.length > 1 ? `, then ${s.podium.slice(1).map(nm).join(', ')}` : ''}` : 'tie, no winner') : s.state === 'live' ? 'still running' : 'not reached'}`).join('\n')}
+
+## Final standings
+${board.lanes.slice().sort((a, b) => a.place - b.place).map((l) => `${l.place}. ${nm(l.id)}: ${l.scoreText} (bankroll $${l.bankrollUsd.toFixed(2)}, ${l.plays.length} play${l.plays.length === 1 ? '' : 's'})`).join('\n')}
+
+## Every business plan, best first
+${plays.length ? plays.map(({ room, p }) => `- ${p.name} (${nm(room)}): net ${p.netUsd < 0 ? '-' : '+'}$${Math.abs(p.netUsd).toFixed(2)}`).join('\n') : 'No plays were logged.'}
+`;
+  const books = plays.map(({ room, p }) => racePlaybook(state, catalog, room, p.id, now, { raceId: board.id, lead: leads[room] || null })).filter(Boolean);
+  return `${head}\n---\n\n${books.join('\n---\n\n')}`;
 }

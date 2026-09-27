@@ -44,6 +44,10 @@ export const PRIORS = {
     ramp: P(30, 180, 365, ['https://ahrefs.com/blog/how-long-does-it-take-to-rank/'], 'Ahrefs: pages that reach the top take months to a year; typical is an assumption', 'low'),
     conv: P(0.01, 0.02, 0.03, ['https://wecantrack.com/insights/affiliate-conversion-statistics/'], 'affiliate click to sale 1-3%, used for content visitors'),
   } },
+  app: { feePct: 0.15, churn: P(0.06, 0.1, 0.16, ['https://www.revenuecat.com/blog/growth/subscription-app-trends-benchmarks-2026'], 'monthly subscription churn: 27-28% of annual subscribers stay a year (RevenueCat 2026)', 'low'), rates: {
+    paid: P(0.0149, 0.022, 0.121, ['https://www.revenuecat.com/state-of-subscription-apps-2025', 'https://www.revenuecat.com/blog/growth/subscription-app-trends-benchmarks-2026'], 'download to paid: 1.49% low-priced, about 2.2% freemium, 10.7-12.1% hard paywall (RevenueCat 2025, 2026)'),
+    ramp: P(14, 30, 90, [], NONE + ' for how long a new app takes to be found', 'low'),
+  } },
   venture: { feePct: 0, rates: {
     win: P(0.01, 0.05, 0.2, [], NONE + ' for a long shot: cite the base rate for your kind of bet'),
     spread: P(0.5, 1, 1.5, [], 'assumption: how widely a win\'s payoff varies around its price (lognormal sigma)', 'low'),
@@ -53,6 +57,8 @@ export const PRIORS = {
 
 // platform fees as a share of each sale (fixed per-sale parts are in the notes)
 export const FEES = {
+  appstore: { pct: 0.15, src: 'https://developer.apple.com/app-store/small-business-program/', note: 'App Store Small Business Program: 15% up to $1M a year, 30% above' },
+  googleplay: { pct: 0.15, src: '', note: 'Google Play: 15% on the first $1M (not re-checked in this research)' },
   etsy: { pct: 0.095, src: 'https://craftybase.com/blog/the-complete-guide-to-etsy-fees', note: '6.5% transaction + 3% processing, plus $0.25 and $0.20 listing' },
   gumroad: { pct: 0.1, src: 'https://gumroad.com/pricing', note: '10% + $0.50 direct; 30% on Discover sales' },
   fiverr: { pct: 0.2, src: 'https://freelancecompare.com/blog/fiverr-fees-explained', note: 'flat 20% seller fee' },

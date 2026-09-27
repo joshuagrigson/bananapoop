@@ -6,7 +6,7 @@ import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { Ledger, LedgerError, RACE_SCORING } from './ledger.js';
 import { reduce } from './reduce.js';
-import { raceBoard, raceBrief, racePlaybook, realRaceEvent, spanLabel } from './race.js';
+import { raceBoard, raceBrief, racePlaybook, realRaceEvent, raceArchive, spanLabel } from './race.js';
 import { quests, summary } from './quests.js';
 import { commanderLevel } from './level.js';
 import { CATALOG, GATES } from './paths.js';
@@ -80,6 +80,7 @@ const HELP = `revenue-engine
   race panel <room> <play-id> --score 0.45 --n 20 [--notes N] [--build ID]   a simulated buyers' read of what a play built
   race run [<room>|all] [--max-usd 1] [--model claude-sonnet-5]   one check-in: Claude researches the real web (trends, gaps,
                                                        improvements), tests variants, builds in the sandbox, launches. Needs ANTHROPIC_API_KEY
+  race archive [list | <race-id>]                      the whole record of a race: prizes, standings, every business plan
   race real --evidence "where the real money sits" [--rooms a,b] [--stake 50] [--times 1h,1d | --days 7,30]
                                                        REAL MONEY: start a real-money race for the rooms you pick (default: the
                                                        simulation's podium), with the simulation's forecast fixed on the ledger
@@ -164,7 +165,7 @@ async function main(argv) {
       name: { type: 'string' }, city: { type: 'string' }, category: { type: 'string' }, website: { type: 'string' },
       monthly: { type: 'string' }, notes: { type: 'string' }, services: { type: 'string' }, 'harvest-daily': { type: 'boolean' }, open: { type: 'boolean' }, file: { type: 'string' }, tag: { type: 'string' }, hours: { type: 'string' }, 'daily-cap': { type: 'string' }, 'no-scheduler': { type: 'boolean' },
       key: { type: 'string' }, secret: { type: 'string' }, item: { type: 'string' }, label: { type: 'string' }, since: { type: 'string' }, 'dry-run': { type: 'boolean' }, 'sync-every': { type: 'string' }, barber: { type: 'boolean' }, family: { type: 'boolean' }, skin: { type: 'string' }, mode: { type: 'string' },
-      variants: { type: 'string' }, spec: { type: 'string' }, what: { type: 'string' }, to: { type: 'string' }, format: { type: 'string' }, topic: { type: 'string' }, number: { type: 'string', multiple: true }, rooms: { type: 'string' }, score: { type: 'string' }, n: { type: 'string' }, build: { type: 'string' }, price: { type: 'string' }, volume: { type: 'string' },
+      brand: { type: 'string' }, variants: { type: 'string' }, spec: { type: 'string' }, what: { type: 'string' }, to: { type: 'string' }, format: { type: 'string' }, topic: { type: 'string' }, number: { type: 'string', multiple: true }, rooms: { type: 'string' }, score: { type: 'string' }, n: { type: 'string' }, build: { type: 'string' }, price: { type: 'string' }, volume: { type: 'string' },
       race: { type: 'boolean' }, stake: { type: 'string' }, times: { type: 'string' }, rules: { type: 'string' }, offer: { type: 'string' }, customer: { type: 'string' }, channel: { type: 'string' }, pricing: { type: 'string' }, costs: { type: 'string' }, play: { type: 'string' }, status: { type: 'string' }, method: { type: 'string' }, approved: { type: 'boolean' }, payee: { type: 'string' }, count: { type: 'string' }, points: { type: 'string' }, at: { type: 'string' }, plan: { type: 'string' }, why: { type: 'string' }, text: { type: 'string' }, by: { type: 'string' },
     },
   });
@@ -310,7 +311,7 @@ async function main(argv) {
       }
       if (sub === 'play') {
         const model = Object.fromEntries(['offer', 'customer', 'channel', 'pricing', 'costs'].filter((k) => v[k]).map((k) => [k, v[k]]));
-        const ev = ledger.append({ kind: 'play', path: room(rest[1]), play: rest[2], name: v.name, status: v.status || 'trying', by, ...(v.plan ? { plan: v.plan } : {}), ...(v.why ? { why: v.why } : {}), ...(v.method ? { method: v.method } : {}), ...model });
+        const ev = ledger.append({ kind: 'play', path: room(rest[1]), play: rest[2], name: v.name, status: v.status || 'trying', by, ...(v.brand ? { brand: v.brand } : {}), ...(v.plan ? { plan: v.plan } : {}), ...(v.why ? { why: v.why } : {}), ...(v.method ? { method: v.method } : {}), ...model });
         console.log(`play ${ev.play} in ${ev.path}: ${ev.status}`); return;
       }
       if (sub === 'step') {
@@ -324,6 +325,14 @@ async function main(argv) {
       if (sub === 'judge') {
         const ev = ledger.append({ kind: 'judge', path: room(rest[1]), points: Number(v.points), why: v.why, ...(v.play ? { play: v.play } : {}) });
         console.log(`judged ${ev.path}: ${ev.points > 0 ? '+' : ''}${ev.points} points`); return;
+      }
+      if (sub === 'archive') {
+        // the whole record of a race (the one on now, or an earlier one by id): prizes, standings, every playbook
+        const st = reduce(ledger.readAll(), CAT);
+        if (rest[1] === 'list') { for (const r of [...(st.pastRaces || []), ...(st.race ? [st.race] : [])]) console.log(`${r.id}  ${r.name || 'Sandbox race'}  started ${r.startedAt}${r.endedAt ? `  ended ${r.endedAt}` : '  (on now)'}`); return; }
+        const text = raceArchive(st, CAT, rest[1] || null);
+        if (!text) throw new LedgerError(rest[1] ? `no race "${rest[1]}" (race archive list shows them)` : 'no race yet');
+        console.log(text); return;
       }
       if (sub === 'research') {
         const numbers = (v.number || []).map((t) => { const m = /^\s*([^=]{1,60})=\s*(-?[\d.]+)\s*(.{0,20})$/.exec(t); if (!m) throw new LedgerError(`--number takes "label=value unit", e.g. "median price=14.5 usd" (got "${t}")`); return { label: m[1].trim(), value: Number(m[2]), ...(m[3].trim() ? { unit: m[3].trim() } : {}) }; });

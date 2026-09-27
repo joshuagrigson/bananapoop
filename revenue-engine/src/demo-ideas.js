@@ -328,5 +328,48 @@ export const RESEARCHED_IDEAS = [
    "title": "[City] Eats Weekly: where to eat this weekend",
    "content": "Every Thursday, one email tells you exactly where to eat in [City] this weekend. No scrolling, no sponsored fluff. This week: the new hand-pulled noodle counter on [Street] (go before the lines start), three brunch spots under $15, and the taco truck that finally got a permanent home. Free subscribers get the weekly picks. Insiders ($10/month) also get the Friday 'Openings & Closings' tracker, reservation tips for the hardest tables in town, and member-only deals from local spots we love. Launch week: the first 100 Insiders lock in $7/month for life. Subscribe free at the link in bio, and reply with your favorite hidden gem so we can feature it."
   }
+ },
+ {
+  "room": "app",
+  "title": "Caregiver companion app (subscription)",
+  "angle": "gap",
+  "summary": "A phone app for the 63M US family caregivers: medication schedule, appointments, shared notes for siblings, a weekly summary. $6 a month after a free week; earns while nobody works.",
+  "research": [
+   {
+    "title": "63 million family caregivers, up 45% in a decade",
+    "text": "AARP 2025: 63 million Americans are family caregivers, about 1 in 4 adults; 44% provide high-intensity care and 70% of working-age caregivers also hold a job.",
+    "url": "https://www.aarp.org/caregiving/basics/caregiving-in-us-survey-2025/",
+    "topic": "demand"
+   },
+   {
+    "title": "Subscription apps: about 2% of downloads pay, 11-12% with a hard paywall",
+    "text": "RevenueCat: median download-to-paid about 2.2% for freemium apps and 10.7-12.1% with a hard paywall; 27-28% of annual subscribers stay a year.",
+    "url": "https://www.revenuecat.com/state-of-subscription-apps-2025",
+    "topic": "benchmark"
+   }
+  ],
+  "spec": {
+   "channel": "app",
+   "price": 6,
+   "recurring": true,
+   "volume": 30,
+   "platform": "appstore",
+   "competition": "medium",
+   "trend": "rising",
+   "demand": {
+    "kind": "buyers",
+    "monthly": 63000000,
+    "growth": 0.038,
+    "cites": {
+     "monthly": "https://www.aarp.org/caregiving/basics/caregiving-in-us-survey-2025/",
+     "growth": "https://www.aarp.org/caregiving/basics/caregiving-in-us-survey-2025/"
+    }
+   }
+  },
+  "build": {
+   "what": "listing",
+   "title": "App Store description",
+   "content": "CareCircle: caring for a parent, together. One shared schedule for medications, appointments and bills, so you and your siblings always know who is doing what. Reminders that reach everyone, notes that stay in one place, and a Sunday summary of the week ahead. Built for the 1 in 4 adults who care for someone while holding a job. Free for 7 days, then $6 a month. Cancel any time."
+  }
  }
 ];

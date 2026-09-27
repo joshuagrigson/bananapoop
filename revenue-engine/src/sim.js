@@ -22,6 +22,9 @@ export const SIM_CHANNELS = Object.freeze({
   ads: { title: 'Paid ads to a sales page', unit: 'dollars of ads a day', volMax: 5000, stages: ['cpc', 'conv'], signals: { cpc: 'view' }, lag: [0, 1], audience: 1e7, spend: true },
   social: { title: 'Organic social posts', unit: 'posts a day', volMax: 12, stages: ['reach', 'follow', 'ctr', 'conv'], signals: { reach: 'view', follow: 'follower' }, lag: [0, 2], audience: 1e7, growth: true },
   seo: { title: 'Search: articles and pages', unit: 'new pages a day', volMax: 8, stages: ['visits', 'conv'], signals: { visits: 'view' }, lag: [0, 0], audience: 1e7, ramp: true },
+  // an app that earns while you sleep: installs a day (from app-store search, social, ads), a share of them pay, often
+  // a subscription that runs until they cancel
+  app: { title: 'An app: phone, web or micro-SaaS', unit: 'installs a day', volMax: 5000, stages: ['paid', 'ramp'], signals: { install: 'signup' }, lag: [0, 14], audience: 1e8 },
   // anything the channels above don't fit, long shots included: attempts a month, each costing unitCost, each with a
   // chance to win; a win pays around price, spread wide (a lognormal), after a wait
   venture: { title: 'A long shot: any bet on a big outcome', unit: 'attempts a month', volMax: 300, stages: ['win', 'spread'], signals: {}, lag: [7, 45], audience: 1e9 },
@@ -131,7 +134,7 @@ export function normalizeSpec(input, { maxPerDay = null, maxSpendPerDay = null }
   }
   for (const k of Object.keys(given)) if (!pri.rates[k]) flags.push(`rates.${k} is not a step of ${ch.title.toLowerCase()} (${Object.keys(pri.rates).join(', ')}); ignored`);
   if (s.feePct === null) s.feePct = FEES[s.platform] !== undefined ? FEES[s.platform].pct : pri.feePct;
-  if (s.recurring && s.churn === null) s.churn = PRIORS.recurring.churn.mid;
+  if (s.recurring && s.churn === null) s.churn = (pri.churn || PRIORS.recurring.churn).mid;
   if (s.recurring && !cited('churn') && input.churn !== undefined && input.churn < PRIORS.recurring.churn.mid) {
     flags.push(`churn ${input.churn} is lower than the typical ${PRIORS.recurring.churn.mid} a month with no source cited; using ${PRIORS.recurring.churn.mid}`);
     s.churn = PRIORS.recurring.churn.mid;
@@ -243,6 +246,14 @@ export function simulate(spec, days, seed, start = null) {
         const fol = binomial(r, reach, R.follow); st.followers += fol; sig('follow', fol);
         const clicks = binomial(r, reach, R.ctr); row.engaged = clicks;
         buyers = binomial(r, clicks, R.conv * buy);
+        break;
+      }
+      case 'app': {
+        // a new app starts nearly unfound and grows into its installs over the ramp
+        const ramp = Math.min(1, 0.15 + 0.85 * (d / Math.max(1, R.ramp)));
+        const installs = poisson(r, spec.volume * ramp * first * gm * sat);
+        row.reach = installs; row.engaged = installs; sig('install', installs);
+        buyers = binomial(r, installs, Math.min(1, R.paid * buy));
         break;
       }
       case 'venture': {
