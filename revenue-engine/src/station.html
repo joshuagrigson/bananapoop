@@ -5832,7 +5832,7 @@
     const ST = (i) => [curDesks[i][0] + 0.5, curDesks[i][1] + 0.5];
     // which floor plan a room gets: its own if it names one, else one by its rank, so neighbours differ
     const OWN_FURNITURE = new Set(['barber', 'salon', 'kitchen', 'bedroom', 'study', 'laundry', 'pets', 'trash', 'yard', 'playroom', 'shop', 'studio']);
-    const deskPlan = (rm) => (OWN_FURNITURE.has(themeOfRoom(rm)) ? 'rows' : DESK_SETS[rm.spec.layout] ? rm.spec.layout : DESK_ORDER[(Math.max(1, rm.spec.rank || 1) - 1) % DESK_ORDER.length]);
+    const deskPlan = (rm) => (OWN_FURNITURE.has(themeOfRoom(rm)) || lookRoomOf(rm) ? 'rows' : DESK_SETS[rm.spec.layout] ? rm.spec.layout : DESK_ORDER[(Math.max(1, rm.spec.rank || 1) - 1) % DESK_ORDER.length]);
     deskSetOf = (rm) => DESK_SETS[deskPlan(rm)];
     function armchair(x, y, col) {
       box(x - 0.3, y - 0.26, 0.6, 0.55, 0.3, 0, shade(col, -0.25));
@@ -6039,6 +6039,500 @@
       g.restore();
     }
 
+    // ---- rooms furnished by their world look: a pig pen gets troughs and mud, a crypt coffins, a hacker den neon rigs,
+    // a weld bay welding tables. Six workstations in the classic grid (the folk stand at the front of each one, working
+    // it), a floor that fits, and two things against the side wall. Every station keeps a status light on it that is
+    // still the ledger: the stage it stands for (done, next, waiting) or whether someone is working it right now.
+    const LOOK_ROOM = {
+      // castle
+      crypt: { st: ['coffin', 'candles', 'coffin', 'tomb', 'coffin', 'tomb'], floor: 'flag', side: ['bones', 'candles'] },
+      alchemy: { st: ['cauldron', 'herbs', 'cauldron', 'herbs', 'cauldron', 'herbs'], floor: 'flag', side: ['barrel', 'jarshelf'] },
+      forge: { st: ['hearth', 'anvil', 'hearth', 'anvil', 'hearth', 'anvil'], floor: 'soot', side: ['barrel', 'weapons'] },
+      library: { st: ['bookcase', 'lectern', 'bookcase', 'lectern', 'bookcase', 'lectern'], floor: 'rugred', side: ['candles', 'books'] },
+      hoard: { st: ['gold', 'chest', 'gold', 'chest', 'gold', 'chest'], floor: 'coins', side: ['chest', 'gold'] },
+      parlor: { st: ['sofa', 'candletable', 'sofa', 'candletable', 'sofa', 'candletable'], floor: 'rugred', side: ['candles', 'coffinup'] },
+      // farm
+      pasture: { st: ['milk', 'hay', 'milk', 'hay', 'milk', 'hay'], floor: 'grass', side: ['hay', 'pail'] },
+      pigpen: { st: ['trough', 'mud', 'trough', 'trough', 'mud', 'trough'], floor: 'mud', side: ['sack', 'pail'] },
+      coop: { st: ['nest', 'eggs', 'nest', 'feed', 'eggs', 'nest'], floor: 'straw', side: ['sack', 'hay'] },
+      meadow: { st: ['wool', 'spinwheel', 'wool', 'spinwheel', 'wool', 'spinwheel'], floor: 'grass', side: ['hay', 'wool'] },
+      stable: { st: ['stall', 'saddle', 'stall', 'saddle', 'stall', 'saddle'], floor: 'straw', side: ['hay', 'pail'] },
+      garden: { st: ['vegbed', 'barrow', 'vegbed', 'vegbed', 'barrow', 'vegbed'], floor: 'soil', side: ['sack', 'pail'] },
+      // cyber city
+      den: { st: ['rig', 'rig', 'rig', 'server', 'rig', 'server'], floor: 'grid', side: ['server', 'cables'] },
+      bar: { st: ['barcounter', 'barcounter', 'barcounter', 'hightable', 'hightable', 'hightable'], floor: 'grid', side: ['jukebox', 'neonsign'] },
+      dojo: { st: ['punchbag', 'weaponrack', 'punchbag', 'punchbag', 'weaponrack', 'punchbag'], floor: 'mat', side: ['weapons', 'lanterncy'] },
+      garage: { st: ['hoverbike', 'toolchest', 'hoverbike', 'toolchest', 'hoverbike', 'toolchest'], floor: 'oil', side: ['tires', 'barrel'] },
+      club: { st: ['djdeck', 'speaker', 'djdeck', 'speaker', 'hightable', 'speaker'], floor: 'dance', side: ['speaker', 'neonsign'] },
+      clinic: { st: ['surgchair', 'implants', 'surgchair', 'implants', 'surgchair', 'implants'], floor: 'grid', side: ['implants', 'server'] },
+      // alien ship
+      lab: { st: ['spectube', 'aconsole', 'spectube', 'spectube', 'aconsole', 'spectube'], floor: 'organic', side: ['pods', 'aconsole'] },
+      hatchery: { st: ['eggnest', 'incubator', 'eggnest', 'eggnest', 'incubator', 'eggnest'], floor: 'goo', side: ['pods', 'eggnest'] },
+      bridge: { st: ['helm', 'starmap', 'helm', 'helm', 'starmap', 'helm'], floor: 'organic', side: ['aconsole', 'pods'] },
+      // (the alien spore garden shares the id 'garden' with the farm's veggie garden, so it is keyed by world below)
+      probe: { st: ['examtable', 'probearm', 'examtable', 'probearm', 'examtable', 'probearm'], floor: 'organic', side: ['pods', 'aconsole'] },
+      lounge: { st: ['floatseat', 'holoscreen', 'floatseat', 'floatseat', 'holoscreen', 'floatseat'], floor: 'organic', side: ['sporepod', 'pods'] },
+      // ocean base
+      reef: { st: ['coral', 'sampletable', 'coral', 'coral', 'sampletable', 'coral'], floor: 'sand', side: ['divetanks', 'coral'] },
+      grotto: { st: ['clam', 'shellshelf', 'clam', 'clam', 'shellshelf', 'clam'], floor: 'sand', side: ['rocks', 'coral'] },
+      wreck: { st: ['seachest', 'anchor', 'seachest', 'cannon', 'anchor', 'seachest'], floor: 'sand', side: ['barrel', 'rocks'] },
+      kelp: { st: ['kelp', 'sampletank', 'kelp', 'kelp', 'sampletank', 'kelp'], floor: 'sand', side: ['kelp', 'divetanks'] },
+      subbay: { st: ['minisub', 'divetanks', 'minisub', 'divetanks', 'minisub', 'divetanks'], floor: 'grate', side: ['divetanks', 'toolchest'] },
+      deep: { st: ['sonar', 'jellytank', 'sonar', 'jellytank', 'sonar', 'jellytank'], floor: 'dark', side: ['jellytank', 'divetanks'] },
+      // haunted mansion
+      ballroom: { st: ['banquet', 'organ', 'banquet', 'banquet', 'candelabra', 'banquet'], floor: 'ballroom', side: ['candelabra', 'clockold'] },
+      bonecellar: { st: ['slab', 'levers', 'slab', 'slab', 'levers', 'slab'], floor: 'flag', side: ['jarshelf', 'teslacoil'] },
+      gallery: { st: ['easel', 'bust', 'easel', 'bust', 'easel', 'bust'], floor: 'rugred', side: ['bust', 'candelabra'] },
+      attic: { st: ['trunk', 'dressform', 'trunk', 'rocker', 'trunk', 'dressform'], floor: 'dust', side: ['boxes', 'trunk'] },
+      nursery: { st: ['crib', 'rockhorse', 'crib', 'rockhorse', 'crib', 'rockhorse'], floor: 'dust', side: ['boxes', 'rocker'] },
+      seance: { st: ['crystal', 'candles', 'crystal', 'crystal', 'candles', 'crystal'], floor: 'rugpurple', side: ['candelabra', 'bust'] },
+      // pumpkin patch
+      patch: { st: ['pumpkins', 'pumpcart', 'pumpkins', 'pumpkins', 'pumpcart', 'pumpkins'], floor: 'soil', side: ['hay', 'jacks'] },
+      maze: { st: ['corn', 'hay', 'corn', 'corn', 'hay', 'corn'], floor: 'straw', side: ['hay', 'jacks'] },
+      graveyard: { st: ['tomb', 'jacks', 'tomb', 'tomb', 'jacks', 'tomb'], floor: 'soil', side: ['jacks', 'tomb'] },
+      witches: { st: ['cauldron', 'broomrack', 'cauldron', 'cauldron', 'broomrack', 'cauldron'], floor: 'flag', side: ['jarshelf', 'broomrack'] },
+      carving: { st: ['carvetable', 'jacks', 'carvetable', 'carvetable', 'jacks', 'carvetable'], floor: 'straw', side: ['pumpcart', 'hay'] },
+      cats: { st: ['catcrates', 'fishbarrel', 'catcrates', 'catcrates', 'fishbarrel', 'catcrates'], floor: 'cobble', side: ['fishbarrel', 'boxes'] },
+      // rocket works
+      engines: { st: ['nozzle', 'toolchest', 'nozzle', 'nozzle', 'toolchest', 'nozzle'], floor: 'hazard', side: ['gascyl', 'toolchest'] },
+      avionics: { st: ['circuit', 'server', 'circuit', 'circuit', 'server', 'circuit'], floor: 'clean', side: ['server', 'cables'] },
+      tankfarm: { st: ['proptank', 'valves', 'proptank', 'proptank', 'valves', 'proptank'], floor: 'hazard', side: ['gascyl', 'valves'] },
+      fairing: { st: ['nosecone', 'drafting', 'nosecone', 'nosecone', 'drafting', 'nosecone'], floor: 'clean', side: ['toolchest', 'gascyl'] },
+      weldbay: { st: ['weldtable', 'gascyl', 'weldtable', 'weldtable', 'gascyl', 'weldtable'], floor: 'hazard', side: ['gascyl', 'toolchest'] },
+      mission: { st: ['mconsole', 'mconsole', 'mconsole', 'mconsole', 'bigscreen', 'mconsole'], floor: 'clean', side: ['server', 'bigscreen'] },
+      // mad scientist lab
+      potions: { st: ['flasktable', 'cauldron', 'flasktable', 'flasktable', 'cauldron', 'flasktable'], floor: 'check', side: ['jarshelf', 'barrelhaz'] },
+      tesla: { st: ['teslacoil', 'levers', 'teslacoil', 'teslacoil', 'levers', 'teslacoil'], floor: 'check', side: ['levers', 'teslacoil'] },
+      specimens: { st: ['jarshelf', 'spectube', 'jarshelf', 'jarshelf', 'spectube', 'jarshelf'], floor: 'check', side: ['spectube', 'jarshelf'] },
+      distillery: { st: ['glasscoil', 'flasktable', 'glasscoil', 'glasscoil', 'flasktable', 'glasscoil'], floor: 'check', side: ['barrelhaz', 'jarshelf'] },
+      blast: { st: ['bombbench', 'barrelhaz', 'bombbench', 'bombbench', 'barrelhaz', 'bombbench'], floor: 'hazard', side: ['barrelhaz', 'gascyl'] },
+      clones: { st: ['clonevat', 'lconsole', 'clonevat', 'clonevat', 'lconsole', 'clonevat'], floor: 'check', side: ['lconsole', 'spectube'] },
+      // family mansion
+      pizzeria: { st: ['pizzaoven', 'doughtable', 'pizzaoven', 'doughtable', 'doughtable', 'doughtable'], floor: 'tile', side: ['flour', 'bottles'] },
+      oliveoil: { st: ['amphora', 'oilcrate', 'amphora', 'oilcrate', 'amphora', 'oilcrate'], floor: 'terra', side: ['amphora', 'oilcrate'] },
+      vino: { st: ['winebarrel', 'winerack', 'winebarrel', 'winebarrel', 'winerack', 'winebarrel'], floor: 'terra', side: ['winerack', 'barrel'] },
+      tailor: { st: ['sewtable', 'dressform', 'sewtable', 'sewtable', 'dressform', 'sewtable'], floor: 'rugred', side: ['fabric', 'dressform'] },
+      cardroom: { st: ['cardtable', 'cardtable', 'cardtable', 'roulette', 'cardtable', 'roulette'], floor: 'rugred', side: ['bottles', 'clockold'] },
+      builders: { st: ['blueprint', 'cmixer', 'blueprint', 'blueprint', 'cmixer', 'blueprint'], floor: 'concrete', side: ['bricks', 'barrel'] },
+      waste: { st: ['dumpster', 'cans', 'dumpster', 'cans', 'dumpster', 'cans'], floor: 'concrete', side: ['cans', 'boxes'] },
+      bakery: { st: ['pastrycase', 'doughtable', 'pastrycase', 'pastrycase', 'doughtable', 'pastrycase'], floor: 'tile', side: ['flour', 'bottles'] },
+      // game den
+      pcrig: { st: ['battle', 'battle', 'battle', 'battle', 'battle', 'battle'], floor: 'rgb', side: ['server', 'snacks'] },
+      vrarena: { st: ['vrpad', 'vrpad', 'vrpad', 'vrpad', 'vrpad', 'vrpad'], floor: 'rgb', side: ['vrrack', 'snacks'] },
+      couch: { st: ['tvset', 'tvset', 'tvset', 'couchseat', 'couchseat', 'couchseat'], floor: 'rugpurple', side: ['snacks', 'arcadecab'] },
+      argame: { st: ['arpad', 'arpad', 'arpad', 'arpad', 'arpad', 'arpad'], floor: 'rgb', side: ['vrrack', 'snacks'] },
+      aiarena: { st: ['esports', 'esports', 'esports', 'esports', 'esports', 'esports'], floor: 'rgb', side: ['trophy', 'server'] },
+      arcade: { st: ['arcadecab', 'arcadecab', 'arcadecab', 'arcadecab', 'arcadecab', 'arcadecab'], floor: 'arcade', side: ['snacks', 'arcadecab'] },
+    };
+    const LOOK_ROOM_BY_WORLD = { alien: { garden: { st: ['sporepod', 'planter', 'sporepod', 'sporepod', 'planter', 'sporepod'], floor: 'goo', side: ['sporepod', 'pods'] } } };
+    const LOOK_OVER = new Set(['office', 'study', 'studio', 'shop']);
+    const lookRoomOf = (rm) => { if (!rm || !LOOK_OVER.has(themeOfRoom(rm))) return null; const lk = lookDef(rm); if (!lk) return null; const w = skinId(); return (LOOK_ROOM_BY_WORLD[w] && LOOK_ROOM_BY_WORLD[w][lk.id]) || LOOK_ROOM[lk.id] || null; };
+
+    // small drawing helpers for the look furniture
+    const dotAt = (x, y, z, r, col, ink = true) => { const [a, b] = Pl(x, y, z); g.fillStyle = col; g.beginPath(); g.arc(a, b, u * r, 0, 7); g.fill(); if (ink && LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); } return [a, b]; };
+    const ellAt = (x, y, z, rx, ry, col, ink = true) => { const [a, b] = Pl(x, y, z); g.fillStyle = col; g.beginPath(); g.ellipse(a, b, u * rx, u * ry, 0, 0, 7); g.fill(); if (ink && LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); } return [a, b]; };
+    const lineAt = (pts, col, w) => { g.strokeStyle = col; g.lineWidth = Math.max(px1, u * w); g.lineCap = 'round'; g.beginPath(); pts.forEach(([x, y, z], k) => (k ? g.lineTo(...Pl(x, y, z)) : g.moveTo(...Pl(x, y, z)))); g.stroke(); };
+    const inkLine = (pts, col, w) => { if (LOD) lineAt(pts, INK, w + 0.05); lineAt(pts, col, w); };
+    // a glass cylinder with something inside: liquid to a level, a shape floating in it
+    function glassCyl(x, y, r, h, z, liq, lvl, inner) {
+      cyl(x, y, r * 1.12, 0.14, z, '#3a3f4c');
+      const [a, b0] = Pl(x, y, z + 0.14), [, b1] = Pl(x, y, z + 0.14 + h * lvl), [, bt] = Pl(x, y, z + 0.14 + h), rx = r * u * 1.414, ry = r * u * 0.707;
+      g.fillStyle = alpha(liq, 0.55); g.beginPath(); g.ellipse(a, b0, rx, ry, 0, 0, Math.PI); g.lineTo(a - rx, b1); g.ellipse(a, b1, rx, ry, 0, Math.PI, 0, true); g.closePath(); g.fill();
+      if (inner) inner(a, (b0 + b1) / 2);
+      g.fillStyle = 'rgba(230,248,255,0.16)'; g.beginPath(); g.ellipse(a, b0, rx, ry, 0, 0, Math.PI); g.lineTo(a - rx, bt); g.ellipse(a, bt, rx, ry, 0, Math.PI, 0, true); g.closePath(); g.fill();
+      if (LOD) { g.strokeStyle = 'rgba(230,248,255,0.6)'; g.lineWidth = lw(0.025); g.stroke(); g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(a - rx * 0.6, bt, rx * 0.18, b0 - bt); }
+      cyl(x, y, r * 1.12, 0.12, z + 0.14 + h, '#3a3f4c');
+      if (LOD === 2) for (let k = 0; k < 3; k++) { const p = (tt * 0.5 + k / 3 + x) % 1; g.fillStyle = 'rgba(255,255,255,0.5)'; g.beginPath(); g.arc(a + Math.sin(k * 2 + tt) * rx * 0.4, b0 - p * (b0 - b1), u * 0.035, 0, 7); g.fill(); }
+      lights.push([a, (b0 + b1) / 2, u * 1.6, liq, 0.3]);
+    }
+    // a flat panel facing the viewer's left (+y), standing at y: a screen, a board, a portrait
+    function panelFront(x, y, w, z, h, frame, face, fn) {
+      box(x, y, w, 0.08, h, z, frame);
+      if (!LOD) return;
+      poly([Pl(x + 0.06, y + 0.08, z + 0.06), Pl(x + w - 0.06, y + 0.08, z + 0.06), Pl(x + w - 0.06, y + 0.08, z + h - 0.06), Pl(x + 0.06, y + 0.08, z + h - 0.06)]); g.fillStyle = face; g.fill();
+      if (fn) { const [a0, b0] = Pl(x + 0.06, y + 0.08, z + h - 0.06); g.save(); g.transform(u, 0.5 * u, 0, u, a0, b0); fn(w - 0.12, h - 0.12); g.restore(); }
+    }
+    function heap(x, y, z, n, r, cols, spread = 0.35) { for (let k = 0; k < n; k++) { const an = k * 2.4, rr = spread * Math.sqrt(k / n); dotAt(x + Math.cos(an) * rr, y + Math.sin(an) * rr * 0.8, z + (1 - k / n) * r * 1.2, r, cols[k % cols.length]); } }
+    function pumpkinAt(x, y, z, r, lit = false) {
+      const [a, b] = Pl(x, y, z + r * 0.8); g.fillStyle = '#e8741a';
+      for (const dx of [-0.45, 0.45, 0]) { g.beginPath(); g.ellipse(a + dx * r * u, b, r * u * 0.62, r * u * 0.72, 0, 0, 7); g.fill(); }
+      if (LOD) { g.strokeStyle = '#a84a10'; g.lineWidth = lw(0.02); g.beginPath(); g.ellipse(a, b, r * u * 0.62, r * u * 0.72, 0, 0, 7); g.stroke(); }
+      g.fillStyle = '#3f7a2a'; g.fillRect(a - u * 0.03, b - r * u * 0.9, u * 0.06, u * 0.12);
+      if (lit) { g.fillStyle = '#ffd24a'; g.beginPath(); g.moveTo(a - r * u * 0.35, b - r * u * 0.15); g.lineTo(a - r * u * 0.15, b - r * u * 0.3); g.lineTo(a - r * u * 0.1, b - r * u * 0.05); g.fill(); g.beginPath(); g.moveTo(a + r * u * 0.35, b - r * u * 0.15); g.lineTo(a + r * u * 0.15, b - r * u * 0.3); g.lineTo(a + r * u * 0.1, b - r * u * 0.05); g.fill(); g.fillRect(a - r * u * 0.3, b + r * u * 0.15, r * u * 0.6, r * u * 0.12); glowAt(a, b, r * u * 1.8, '#ffb040', 0.35); lights.push([a, b, u * 1.4, '#ffb040', 0.35]); }
+    }
+    function candle(x, y, z, h = 0.22) { box(x - 0.03, y - 0.03, 0.06, 0.06, h, z, '#f2ead6', { noInk: true }); const [a, b] = Pl(x, y, z + h + 0.06); g.fillStyle = '#ffcf5a'; g.beginPath(); g.ellipse(a, b, u * 0.03, u * (0.06 + Math.sin(tt * 9 + x * 5) * 0.01), 0, 0, 7); g.fill(); glowAt(a, b, u * 0.35, '#ffb040', 0.5); lights.push([a, b, u * 1.2, '#ffb040', 0.25]); }
+    function screenFace(col, fn) { return (w, h) => { g.fillStyle = col; g.fillRect(0, 0, w, h); if (fn) fn(w, h); }; }
+    const scan = (hue) => (w, h) => { g.fillStyle = alpha(hue, 0.85); for (let k = 0; k < 4; k++) g.fillRect(0.05, 0.06 + k * h / 5, (0.3 + ((hsh(k + Math.floor(tt * 2)) % 60) / 100)) * w, h / 10); };
+
+    // one workstation: centred on (cx, cy), about 1.0 x 0.7, the worker standing at its front (+y) edge
+    let curLookId = null;
+    const lookDefNow = () => curLookId;
+    function lookStation(kind, cx, cy, on, i, F, stc) {
+      const x0 = cx - 0.5, y0 = cy - 0.34, W = 1.0, D = 0.68, glow = F.glow, ph = i * 1.3;
+      const stat = (x, y, z) => { const [a, b] = Pl(x, y, z); g.fillStyle = stc; g.beginPath(); g.arc(a, b, u * 0.055, 0, 7); g.fill(); glowAt(a, b, u * 0.3, stc, 0.6); };
+      switch (kind) {
+        // ---------------------------------------------------------------- castle and haunted
+        case 'coffin': {
+          box(x0 + 0.05, y0 + 0.05, 0.9, 0.58, 0.55, 0, '#6e6a78'); box(x0, y0, 1.0, 0.68, 0.1, 0.55, '#8a8698', { gloss: true });
+          if (LOD) { inkLine([[cx - 0.25, cy, 0.66], [cx + 0.25, cy, 0.66]], '#c9a24a', 0.05); inkLine([[cx - 0.08, cy - 0.16, 0.66], [cx - 0.08, cy + 0.16, 0.66]], '#c9a24a', 0.05); }
+          stat(x0 + 0.9, y0 + 0.6, 0.72); break;
+        }
+        case 'tomb': {
+          box(x0 + 0.1, y0 + 0.2, 0.8, 0.4, 0.12, 0, '#5a5664');
+          for (const [dx, hh] of [[0.2, 0.75], [0.62, 0.95]]) { box(x0 + dx, y0 + 0.3, 0.3, 0.12, hh, 0.12, '#8a8698'); dotAt(x0 + dx + 0.15, y0 + 0.36, 0.12 + hh, 0.15, '#8a8698'); }
+          if (skinId() === 'pumpkin') pumpkinAt(cx + 0.3, cy + 0.2, 0, 0.16, true); else candle(cx + 0.35, cy + 0.2, 0.12);
+          stat(x0 + 0.35, y0 + 0.42, 0.95); break;
+        }
+        case 'candles': case 'candelabra': {
+          box(cx - 0.3, cy - 0.2, 0.6, 0.4, 0.7, 0, '#4a4050'); box(cx - 0.34, cy - 0.24, 0.68, 0.48, 0.06, 0.7, '#5a5060');
+          if (kind === 'candelabra') { box(cx - 0.03, cy - 0.03, 0.06, 0.06, 0.5, 0.76, '#c9a24a', { noInk: true }); inkLine([[cx - 0.25, cy, 1.2], [cx + 0.25, cy, 1.2]], '#c9a24a', 0.04); for (const dx of [-0.25, 0, 0.25]) candle(cx + dx, cy, 1.22, 0.16); }
+          else for (const [dx, dy, hh] of [[-0.18, -0.1, 0.3], [0.05, -0.05, 0.2], [0.2, 0.08, 0.26], [-0.08, 0.1, 0.14]]) candle(cx + dx, cy + dy, 0.76, hh);
+          stat(cx + 0.28, cy + 0.2, 0.8); break;
+        }
+        case 'cauldron': {
+          for (const [dx, dy] of [[-0.25, 0.15], [0.25, 0.15], [0, -0.25]]) box(cx + dx - 0.03, cy + dy - 0.03, 0.06, 0.06, 0.25, 0, '#23262e', { noInk: true });
+          if (on) { const [fa, fb] = Pl(cx, cy, 0.1); glowAt(fa, fb, u * 0.6, '#ff8a2a', 0.8); }
+          cyl(cx, cy, 0.4, 0.45, 0.2, '#2b2b33'); const brew = skinId() === 'pumpkin' ? '#b86bff' : skinId() === 'lab' ? '#39f0ff' : '#7dff4a';
+          const [a, b] = ellAt(cx, cy, 0.66, 0.5, 0.25, brew, false); glowAt(a, b, u * 0.8, brew, 0.5); lights.push([a, b, u * 2, brew, 0.4]);
+          if (LOD === 2) for (let k = 0; k < 3; k++) { const p = (tt * 0.7 + k / 3 + ph) % 1; g.fillStyle = alpha(shade(brew, 0.4), 0.8 * (1 - p)); g.beginPath(); g.arc(a + Math.sin(k * 3 + tt) * u * 0.2, b - p * u * 0.8, u * (0.05 + p * 0.08), 0, 7); g.fill(); }
+          inkLine([[cx + 0.1, cy - 0.1, 0.7], [cx + 0.35, cy - 0.3, 1.25]], '#8a5a2e', 0.05);
+          stat(cx - 0.42, cy + 0.2, 0.62); break;
+        }
+        case 'herbs': {
+          table(x0, y0, W, D, '#6b4a2e');
+          if (LOD) { for (let k = 0; k < 4; k++) { const [a, b] = Pl(x0 + 0.18 + k * 0.22, y0 + 0.3, 0.79); potion(a, b, u * 0.09, ['#7dff4a', '#b86bff', '#ff5c8a', '#ffd24a'][(k + i) % 4]); }
+            for (let k = 0; k < 3; k++) { const [a, b] = Pl(x0 + 0.2 + k * 0.3, y0 + 0.55, 0.79); g.fillStyle = ['#5a8a3a', '#7a9a4a', '#4a7a3a'][k]; g.beginPath(); g.ellipse(a, b, u * 0.12, u * 0.05, 0.3, 0, 7); g.fill(); } }
+          stat(x0 + 0.9, y0 + 0.6, 0.82); break;
+        }
+        case 'hearth': {
+          box(x0 + 0.05, y0, 0.9, 0.62, 0.8, 0, '#5a5060'); box(x0 + 0.2, y0 + 0.1, 0.6, 0.4, 0.9, 0.8, '#4a4050');
+          if (LOD) { poly([Pl(x0 + 0.25, y0 + 0.62, 0.1), Pl(x0 + 0.75, y0 + 0.62, 0.1), Pl(x0 + 0.75, y0 + 0.62, 0.6), Pl(x0 + 0.25, y0 + 0.62, 0.6)]); g.fillStyle = on ? `rgba(255,${140 + Math.sin(tt * 11 + ph) * 40},50,1)` : '#2a1a14'; g.fill(); }
+          if (on) { const [a, b] = Pl(cx, y0 + 0.62, 0.35); glowAt(a, b, u * 1.1, '#ff9a4a', 0.6); lights.push([a, b, u * 2.6, '#ff9a4a', 0.5]); steam(cx, cy - 0.1, 1.8); }
+          stat(x0 + 0.9, y0 + 0.62, 0.7); break;
+        }
+        case 'anvil': {
+          cyl(cx, cy, 0.28, 0.45, 0, '#6b4a2e'); box(cx - 0.3, cy - 0.12, 0.6, 0.24, 0.14, 0.45, '#3a3a44'); box(cx - 0.18, cy - 0.1, 0.36, 0.2, 0.08, 0.59, '#4a4a56', { gloss: true });
+          const [a, b] = Pl(cx + 0.05, cy, 0.7); g.fillStyle = on ? '#ffb040' : '#8a4a2a'; g.fillRect(a - u * 0.25, b - u * 0.03, u * 0.5, u * 0.06); if (on) { glowAt(a, b, u * 0.5, '#ff9a4a', 0.7); if (Math.sin(tt * 6 + ph) > 0.3) sparks(a, b, 8, '#fff0b0', 1.2); }
+          stat(cx + 0.3, cy + 0.2, 0.5); break;
+        }
+        case 'bookcase': case 'books': {
+          shelfUnit(x0 + 0.1, y0 + 0.1, 0.8, kind === 'books' ? 1.0 : 1.7, ['#8a2a2a', '#2a4a8a', '#3a6a3a', '#8a6a2a', '#5a2a6a']);
+          if (kind === 'bookcase' && LOD === 2 && skinId() !== 'mafia') { const p = (tt * 0.3 + ph) % 1, [a, b] = Pl(cx + 0.3, cy + 0.3, 1.2 + p * 0.6); g.fillStyle = alpha('#e8d8b0', 1 - p); g.fillRect(a - u * 0.1, b - u * 0.07, u * 0.2, u * 0.14); }
+          stat(x0 + 0.85, y0 + 0.4, kind === 'books' ? 1.05 : 1.75); break;
+        }
+        case 'lectern': {
+          box(cx - 0.08, cy - 0.08, 0.16, 0.16, 0.9, 0, '#5a3a22'); box(cx - 0.3, cy - 0.25, 0.6, 0.45, 0.08, 0.9, '#6b4a2e');
+          const lv = 1.1 + (on ? Math.sin(tt * 1.5 + ph) * 0.06 : 0), [a, b] = Pl(cx, cy, lv); g.fillStyle = '#f2ead6'; g.beginPath(); g.moveTo(a - u * 0.3, b); g.quadraticCurveTo(a - u * 0.15, b - u * 0.12, a, b - u * 0.02); g.quadraticCurveTo(a + u * 0.15, b - u * 0.12, a + u * 0.3, b); g.lineTo(a + u * 0.3, b + u * 0.08); g.lineTo(a - u * 0.3, b + u * 0.08); g.closePath(); g.fill();
+          if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); } if (on) { glowAt(a, b, u * 0.7, '#9dd8ff', 0.5); lights.push([a, b, u * 1.6, '#9dd8ff', 0.3]); }
+          stat(cx + 0.3, cy + 0.2, 0.95); break;
+        }
+        case 'gold': { heap(cx, cy, 0, 16, 0.14, ['#ffd24a', '#f2b82a', '#ffe27a'], 0.42); const [a, b] = Pl(cx, cy, 0.4); if (LOD === 2 && Math.sin(tt * 3 + ph) > 0.6) sparkleAt(a + u * 0.2, b - u * 0.2, u * 0.12, '#ffffff'); glowAt(a, b, u * 0.9, '#ffd24a', 0.3); stat(cx + 0.4, cy + 0.25, 0.1); break; }
+        case 'chest': case 'seachest': {
+          const wood = kind === 'seachest' ? '#6a5a3a' : '#7a4a22'; box(cx - 0.4, cy - 0.22, 0.8, 0.44, 0.4, 0, wood);
+          box(cx - 0.4, cy - 0.3, 0.8, 0.12, 0.45, 0.4, shade(wood, 0.1)); heap(cx, cy, 0.38, 6, 0.08, ['#ffd24a', '#f2b82a', '#e8f0ff'], 0.2);
+          if (LOD) { box(cx - 0.42, cy + 0.1, 0.84, 0.05, 0.06, 0.2, '#c9a24a', { noInk: true }); }
+          if (kind === 'seachest' && LOD) for (const [dx, dy] of [[-0.3, 0.2], [0.25, 0.22]]) dotAt(cx + dx, cy + dy, 0.12, 0.05, '#d8d0c0');
+          const [a, b] = Pl(cx, cy, 0.5); glowAt(a, b, u * 0.8, '#ffd24a', on ? 0.45 : 0.2); stat(cx + 0.38, cy + 0.22, 0.42); break;
+        }
+        case 'sofa': { armchair(cx, cy - 0.05, '#7a1a2a'); if (LOD) { cyl(cx + 0.55, cy + 0.2, 0.12, 0.5, 0, '#2a1a1a'); const [a, b] = Pl(cx + 0.55, cy + 0.2, 0.62); g.fillStyle = '#9a1a2a'; g.fillRect(a - u * 0.04, b - u * 0.1, u * 0.08, u * 0.1); } stat(cx - 0.3, cy + 0.25, 0.45); break; }
+        case 'candletable': case 'banquet': {
+          const long = kind === 'banquet'; table(long ? x0 - 0.05 : cx - 0.35, long ? y0 : cy - 0.3, long ? 1.1 : 0.7, long ? D : 0.6, '#3a2418');
+          box(long ? x0 - 0.02 : cx - 0.32, (long ? y0 : cy - 0.3) + 0.05, long ? 1.04 : 0.64, long ? D - 0.1 : 0.5, 0.02, 0.79, '#e8e0e8', { noInk: true });
+          candle(cx - 0.15, cy - 0.05, 0.81, 0.22); if (long) candle(cx + 0.3, cy - 0.05, 0.81, 0.22);
+          if (LOD) for (const dx of long ? [-0.35, 0.1, 0.45] : [0.15]) { const [a, b] = Pl(cx + dx, cy + 0.15, 0.81); g.fillStyle = alpha('#eef4ff', 0.6); g.fillRect(a - u * 0.04, b - u * 0.14, u * 0.08, u * 0.14); g.fillStyle = '#8a1a2a'; g.fillRect(a - u * 0.035, b - u * 0.11, u * 0.07, u * 0.05); }
+          stat(cx + 0.4, cy + 0.25, 0.85); break;
+        }
+        case 'coffinup': { box(cx - 0.25, cy - 0.12, 0.5, 0.24, 1.6, 0, '#3a2418'); if (LOD) inkLine([[cx, cy + 0.13, 0.9], [cx, cy + 0.13, 1.4]], '#c9a24a', 0.04); break; }
+        case 'bones': { box(cx - 0.35, cy - 0.2, 0.7, 0.4, 0.1, 0, '#4a4454'); heap(cx, cy, 0.1, 5, 0.09, ['#eeeadf', '#d8d4c8'], 0.25); dotAt(cx + 0.05, cy - 0.05, 0.42, 0.13, '#eeeadf'); break; }
+        case 'organ': {
+          box(x0 + 0.05, y0 + 0.05, 0.9, 0.4, 0.8, 0, '#3a2418'); for (let k = 0; k < 6; k++) cyl(x0 + 0.15 + k * 0.14, y0 + 0.15, 0.05, 0.6 + (k % 3) * 0.3, 0.8, '#c9a24a');
+          box(x0 + 0.1, y0 + 0.42, 0.8, 0.2, 0.06, 0.72, '#f2ead6'); stat(x0 + 0.9, y0 + 0.5, 0.82); break;
+        }
+        case 'slab': {
+          box(x0 + 0.1, y0 + 0.15, 0.8, 0.4, 0.55, 0, '#5a5664'); box(x0, y0, 1.0, 0.68, 0.1, 0.55, '#8a8698', { gloss: true });
+          if (LOD) { for (const dx of [0.3, 0.7]) box(x0 + dx, y0 - 0.02, 0.08, 0.72, 0.03, 0.65, '#3a2a1a', { noInk: true }); box(x0 + 0.15, y0 + 0.14, 0.7, 0.4, 0.04, 0.65, '#d8d0c0', { noInk: true }); }
+          if (on && Math.sin(tt * 5 + ph) > 0.7) { const [a, b] = Pl(cx, cy, 1.0); bolt(a - u * 0.4, b - u * 0.5, a + u * 0.3, b, alpha('#bff0ff', 0.9), i); glowAt(a, b, u * 0.9, '#bff0ff', 0.5); }
+          stat(x0 + 0.9, y0 + 0.6, 0.7); break;
+        }
+        case 'levers': {
+          box(x0 + 0.1, y0 + 0.1, 0.8, 0.4, 1.3, 0, '#3a3f4c'); if (LOD) for (let k = 0; k < 3; k++) { const up = on && (hsh(k + i + Math.floor(tt * 0.7)) % 2); inkLine([[x0 + 0.25 + k * 0.25, y0 + 0.52, 0.8], [x0 + 0.25 + k * 0.25, y0 + 0.62, up ? 1.1 : 0.55]], '#c9ced8', 0.04); dotAt(x0 + 0.25 + k * 0.25, y0 + 0.62, up ? 1.12 : 0.53, 0.05, '#e05a47'); }
+          for (let k = 0; k < 3; k++) dotAt(x0 + 0.25 + k * 0.25, y0 + 0.52, 1.15, 0.05, on && Math.sin(tt * 4 + k) > 0 ? glow : '#2a2e40', false);
+          stat(x0 + 0.85, y0 + 0.5, 1.3); break;
+        }
+        case 'teslacoil': {
+          cyl(cx, cy, 0.3, 0.2, 0, '#3a3f4c'); cyl(cx, cy, 0.12, 1.2, 0.2, '#b8863a'); if (LOD) for (let z = 0.3; z < 1.3; z += 0.12) cyl(cx, cy, 0.14, 0.04, z, '#d8a24a');
+          const [a, b] = dotAt(cx, cy, 1.55, 0.2, '#c9ced8'); if (on) { glowAt(a, b, u * 0.9, '#bfa8ff', 0.6); for (let k = 0; k < 2; k++) if (Math.sin(tt * 7 + k * 2 + ph) > 0) bolt(a, b, a + (k ? 1 : -1) * u * 0.7, b + u * 0.5, alpha('#e8d8ff', 0.9), k + i); lights.push([a, b, u * 2.4, '#bfa8ff', 0.5]); }
+          stat(cx + 0.3, cy + 0.15, 0.22); break;
+        }
+        case 'easel': {
+          inkLine([[cx - 0.25, cy + 0.15, 0], [cx - 0.05, cy - 0.05, 1.5]], '#6b4a2e', 0.05); inkLine([[cx + 0.25, cy + 0.15, 0], [cx + 0.05, cy - 0.05, 1.5]], '#6b4a2e', 0.05); inkLine([[cx, cy - 0.25, 0], [cx, cy - 0.05, 1.4]], '#6b4a2e', 0.05);
+          panelFront(cx - 0.35, cy - 0.02, 0.7, 0.6, 0.85, '#c9a24a', '#3a2a3a', (w, h) => { g.fillStyle = skinId() === 'haunted' ? '#e6dcea' : '#e8c8a8'; g.beginPath(); g.ellipse(w / 2, h * 0.42, w * 0.18, h * 0.2, 0, 0, 7); g.fill(); g.fillStyle = '#1a1018'; g.fillRect(w * 0.25, h * 0.65, w * 0.5, h * 0.35); if (skinId() === 'haunted') { const e = on ? Math.sin(tt * 0.8 + ph) * 0.04 : 0; g.fillStyle = '#c0202a'; g.fillRect(w * 0.4 + e, h * 0.38, 0.04, 0.04); g.fillRect(w * 0.56 + e, h * 0.38, 0.04, 0.04); } });
+          stat(cx + 0.3, cy + 0.15, 0.3); break;
+        }
+        case 'bust': { box(cx - 0.2, cy - 0.2, 0.4, 0.4, 0.95, 0, '#d8d4dc'); box(cx - 0.24, cy - 0.24, 0.48, 0.48, 0.06, 0.95, '#e8e4ec'); ellAt(cx, cy, 1.15, 0.2, 0.12, '#c8c4cc'); dotAt(cx, cy, 1.42, 0.16, '#d8d4dc'); stat(cx + 0.22, cy + 0.22, 0.6); break; }
+        case 'trunk': { box(cx - 0.42, cy - 0.25, 0.84, 0.5, 0.45, 0, '#5a3a22'); box(cx - 0.44, cy - 0.27, 0.88, 0.54, 0.12, 0.45, '#6b4a2e', { gloss: true }); if (LOD) for (const dx of [-0.25, 0.2]) box(cx + dx, cy - 0.28, 0.06, 0.56, 0.58, 0, '#c9a24a', { noInk: true }); stat(cx + 0.4, cy + 0.25, 0.5); break; }
+        case 'dressform': {
+          box(cx - 0.03, cy - 0.03, 0.06, 0.06, 0.8, 0, '#3a2418', { noInk: true }); cyl(cx, cy, 0.22, 0.04, 0, '#3a2418');
+          const suit = skinId() === 'mafia', [a, b] = Pl(cx, cy, 1.45); g.fillStyle = suit ? '#2a2a34' : '#e8dcc8'; g.beginPath(); g.moveTo(a - u * 0.3, b - u * 0.05); g.quadraticCurveTo(a, b - u * 0.2, a + u * 0.3, b - u * 0.05); g.lineTo(a + u * 0.22, b + u * 0.65); g.lineTo(a - u * 0.22, b + u * 0.65); g.closePath(); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); }
+          if (suit && LOD) { g.strokeStyle = 'rgba(220,220,230,0.35)'; g.lineWidth = lw(0.012); for (let k = -2; k <= 2; k++) { g.beginPath(); g.moveTo(a + k * u * 0.09, b - u * 0.05); g.lineTo(a + k * u * 0.07, b + u * 0.62); g.stroke(); } g.fillStyle = '#f2f2f2'; g.beginPath(); g.moveTo(a - u * 0.06, b - u * 0.1); g.lineTo(a + u * 0.06, b - u * 0.1); g.lineTo(a, b + u * 0.2); g.fill(); }
+          stat(cx + 0.25, cy + 0.2, 0.1); break;
+        }
+        case 'rocker': { armchair(cx, cy - 0.05, '#6b4a2e'); if (LOD) lineAt([[cx - 0.4, cy + 0.3, 0.02], [cx + 0.4, cy + 0.3, 0.02]], '#5a3a22', 0.05); stat(cx - 0.3, cy + 0.25, 0.45); break; }
+        case 'crib': { box(x0 + 0.1, y0 + 0.1, 0.8, 0.5, 0.35, 0, '#d8d0c0'); for (let k = 0; k < 6; k++) box(x0 + 0.1 + k * 0.15, y0 + 0.56, 0.04, 0.04, 0.45, 0.35, '#d8d0c0', { noInk: true }); box(x0 + 0.1, y0 + 0.1, 0.8, 0.5, 0.05, 0.8, '#c8c0b0'); if (LOD) dotAt(cx, cy, 0.5, 0.1, '#e8e0f0'); stat(x0 + 0.85, y0 + 0.55, 0.85); break; }
+        case 'rockhorse': {
+          const rk = on ? Math.sin(tt * 2 + ph) * 0.06 : 0; lineAt([[cx - 0.4, cy, 0.05 + rk], [cx + 0.4, cy, 0.05 - rk]], '#6b4a2e', 0.06);
+          box(cx - 0.3, cy - 0.1, 0.6, 0.2, 0.25, 0.35, '#d8c0a0'); dotAt(cx + 0.35, cy, 0.75 - rk, 0.16, '#d8c0a0'); for (const dx of [-0.2, 0.2]) box(cx + dx, cy - 0.05, 0.05, 0.05, 0.3, 0.05, '#6b4a2e', { noInk: true }); stat(cx - 0.35, cy + 0.15, 0.6); break;
+        }
+        case 'crystal': {
+          cyl(cx, cy, 0.42, 0.06, 0.66, '#3a2440'); box(cx - 0.05, cy - 0.05, 0.1, 0.1, 0.66, 0, '#2a1a2a', { noInk: true }); box(cx - 0.4, cy - 0.3, 0.8, 0.6, 0.02, 0.72, '#4a2a5a', { noInk: true });
+          const [a, b] = dotAt(cx, cy, 0.98, 0.2, alpha('#bfa8ff', 0.8)); glowAt(a, b, u * (0.9 + (on ? Math.sin(tt * 2 + ph) * 0.2 : 0)), '#bfa8ff', 0.6); lights.push([a, b, u * 2, '#bfa8ff', 0.45]);
+          candle(cx - 0.3, cy + 0.15, 0.74, 0.14); stat(cx + 0.35, cy + 0.2, 0.76); break;
+        }
+        case 'clockold': { box(cx - 0.2, cy - 0.15, 0.4, 0.3, 1.9, 0, '#3a2418'); if (LOD) { const [a, b] = dotAt(cx, cy + 0.16, 1.6, 0.14, '#f2ead6'); g.strokeStyle = '#1a1018'; g.lineWidth = lw(0.02); g.beginPath(); g.moveTo(a, b); g.lineTo(a, b - u * 0.1); g.moveTo(a, b); g.lineTo(a + u * 0.07, b); g.stroke(); } break; }
+        // ---------------------------------------------------------------- farm and pumpkin patch
+        case 'milk': { stool(cx - 0.2, cy + 0.1, '#8a5a2e'); cyl(cx + 0.2, cy - 0.05, 0.18, 0.4, 0, '#c9ced8'); ellAt(cx + 0.2, cy - 0.05, 0.36, 0.2, 0.1, '#f7f7f2', false); box(cx - 0.45, cy - 0.34, 0.5, 0.35, 0.3, 0, '#e8c65a'); stat(cx + 0.35, cy + 0.15, 0.42); break; }
+        case 'hay': {
+          box(x0 + 0.1, y0 + 0.1, 0.8, 0.5, 0.5, 0, '#e8c65a', { gloss: true }); if (LOD) { for (const dx of [0.3, 0.65]) box(x0 + dx, y0 + 0.08, 0.04, 0.54, 0.52, 0, '#b8862e', { noInk: true }); }
+          if (skinId() !== 'pumpkin') inkLine([[x0 + 0.95, y0 + 0.5, 0], [x0 + 0.85, y0 + 0.2, 1.3]], '#8a5a2e', 0.035); else pumpkinAt(cx, cy, 0.5, 0.18);
+          stat(x0 + 0.85, y0 + 0.55, 0.55); break;
+        }
+        case 'pail': { cyl(cx, cy, 0.18, 0.35, 0, '#9aa6b8'); ellAt(cx, cy, 0.34, 0.2, 0.1, '#5fb4e0', false); break; }
+        case 'sack': { const [a, b] = Pl(cx, cy, 0.3); g.fillStyle = '#d8c09a'; g.beginPath(); g.ellipse(a, b, u * 0.28, u * 0.34, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); } break; }
+        case 'trough': {
+          box(x0 + 0.05, y0 + 0.15, 0.9, 0.4, 0.3, 0, '#8a5a2e'); box(x0 + 0.1, y0 + 0.2, 0.8, 0.3, 0.02, 0.28, '#7a5a3a', { noInk: true });
+          if (LOD) for (let k = 0; k < 4; k++) dotAt(x0 + 0.2 + k * 0.2, y0 + 0.35, 0.3, 0.05, ['#e8a24a', '#8ab04a', '#c8b07a'][k % 3], false);
+          for (const dx of [0.02, 0.93]) box(x0 + dx, y0 + 0.6, 0.06, 0.06, 0.6, 0, '#8a5a2e', { noInk: true }); lineAt([[x0 + 0.05, y0 + 0.63, 0.5], [x0 + 0.95, y0 + 0.63, 0.5]], '#a8743f', 0.05);
+          stat(x0 + 0.9, y0 + 0.5, 0.35); break;
+        }
+        case 'mud': { const [a, b] = Pl(cx, cy, 0.01); g.fillStyle = '#6a4a2a'; g.beginPath(); g.ellipse(a, b, u * 0.65, u * 0.32, 0, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,0.12)'; g.beginPath(); g.ellipse(a - u * 0.15, b - u * 0.05, u * 0.2, u * 0.06, 0, 0, 7); g.fill(); cyl(cx + 0.35, cy - 0.2, 0.15, 0.3, 0, '#9aa6b8'); stat(cx + 0.35, cy - 0.2, 0.36); break; }
+        case 'nest': {
+          box(x0 + 0.05, y0 + 0.05, 0.9, 0.5, 1.1, 0, '#a8743f'); if (LOD) for (let r2 = 0; r2 < 2; r2++) for (let k = 0; k < 3; k++) { const z = 0.15 + r2 * 0.5; poly([Pl(x0 + 0.1 + k * 0.29, y0 + 0.55, z), Pl(x0 + 0.34 + k * 0.29, y0 + 0.55, z), Pl(x0 + 0.34 + k * 0.29, y0 + 0.55, z + 0.38), Pl(x0 + 0.1 + k * 0.29, y0 + 0.55, z + 0.38)]); g.fillStyle = '#4a2e18'; g.fill(); const [a, b] = Pl(x0 + 0.22 + k * 0.29, y0 + 0.55, z + 0.06); g.fillStyle = '#e8c65a'; g.fillRect(a - u * 0.1, b - u * 0.06, u * 0.2, u * 0.06); if ((k + r2 + i) % 2 === 0) { g.fillStyle = '#fff8ea'; g.beginPath(); g.ellipse(a, b - u * 0.08, u * 0.05, u * 0.065, 0, 0, 7); g.fill(); } }
+          stat(x0 + 0.9, y0 + 0.5, 1.15); break;
+        }
+        case 'eggs': { cyl(cx, cy, 0.3, 0.3, 0, '#c89e62'); if (LOD) for (let k = 0; k < 6; k++) { const [a, b] = Pl(cx + Math.cos(k) * 0.15, cy + Math.sin(k) * 0.1, 0.34); g.fillStyle = k % 3 ? '#fff8ea' : '#e8c8a0'; g.beginPath(); g.ellipse(a, b, u * 0.06, u * 0.075, 0, 0, 7); g.fill(); } stat(cx + 0.3, cy + 0.15, 0.32); break; }
+        case 'feed': { const [a, b] = Pl(cx - 0.15, cy, 0.35); g.fillStyle = '#d8c09a'; g.beginPath(); g.ellipse(a, b, u * 0.26, u * 0.36, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); } const [c2, d2] = Pl(cx + 0.25, cy + 0.1, 0.01); g.fillStyle = '#e8c65a'; g.beginPath(); g.ellipse(c2, d2, u * 0.3, u * 0.12, 0, 0, 7); g.fill(); stat(cx + 0.35, cy + 0.2, 0.1); break; }
+        case 'wool': { box(x0 + 0.1, y0 + 0.1, 0.8, 0.5, 0.35, 0, '#a8743f'); heap(cx, cy, 0.4, 7, 0.15, ['#f7f4ec', '#ebe6da'], 0.3); stat(x0 + 0.85, y0 + 0.55, 0.4); break; }
+        case 'spinwheel': {
+          box(cx - 0.3, cy - 0.1, 0.6, 0.2, 0.15, 0.3, '#8a5a2e'); for (const dx of [-0.25, 0.25]) box(cx + dx, cy - 0.05, 0.05, 0.05, 0.3, 0, '#8a5a2e', { noInk: true });
+          const [a, b] = Pl(cx, cy, 0.9), sp = on ? tt * 3 : 0; g.strokeStyle = '#6b4a2e'; g.lineWidth = lw(0.04); g.beginPath(); g.ellipse(a, b, u * 0.35, u * 0.42, 0, 0, 7); g.stroke(); g.beginPath(); for (let k = 0; k < 4; k++) { const an = sp + k * Math.PI / 4; g.moveTo(a - Math.cos(an) * u * 0.35, b - Math.sin(an) * u * 0.42); g.lineTo(a + Math.cos(an) * u * 0.35, b + Math.sin(an) * u * 0.42); } g.stroke();
+          stat(cx + 0.3, cy + 0.15, 0.45); break;
+        }
+        case 'stall': { box(x0, y0 + 0.1, 0.08, 0.55, 0.9, 0, '#8a5a2e'); box(x0 + 0.92, y0 + 0.1, 0.08, 0.55, 0.9, 0, '#8a5a2e'); box(x0, y0 + 0.05, 1.0, 0.08, 0.9, 0, '#a8743f'); box(x0 + 0.2, y0 + 0.2, 0.6, 0.3, 0.3, 0, '#e8c65a'); cyl(x0 + 0.8, y0 + 0.5, 0.12, 0.25, 0, '#9aa6b8'); stat(x0 + 0.5, y0 + 0.1, 0.95); break; }
+        case 'saddle': { box(cx - 0.05, cy - 0.3, 0.1, 0.6, 0.7, 0, '#6b4a2e'); box(cx - 0.35, cy - 0.3, 0.7, 0.1, 0.1, 0.7, '#6b4a2e'); const [a, b] = Pl(cx, cy, 0.95); g.fillStyle = '#7a3a1a'; g.beginPath(); g.ellipse(a, b, u * 0.38, u * 0.2, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); g.fillStyle = '#c9a24a'; g.fillRect(a - u * 0.03, b + u * 0.1, u * 0.06, u * 0.3); } stat(cx + 0.3, cy + 0.2, 0.5); break; }
+        case 'vegbed': {
+          box(x0 + 0.05, y0 + 0.08, 0.9, 0.55, 0.3, 0, '#8a5a2e'); box(x0 + 0.1, y0 + 0.13, 0.8, 0.45, 0.02, 0.3, '#5a3a20', { noInk: true });
+          if (LOD) for (let k = 0; k < 6; k++) { const px = x0 + 0.2 + (k % 3) * 0.3, py = y0 + 0.25 + Math.floor(k / 3) * 0.2, kind2 = (k + i) % 3; if (kind2 === 0) { dotAt(px, py, 0.4, 0.09, '#6ab04a'); } else if (kind2 === 1) { const [a, b] = Pl(px, py, 0.32); g.fillStyle = '#f08a24'; g.fillRect(a - u * 0.03, b - u * 0.04, u * 0.06, u * 0.06); g.fillStyle = '#4a9a3a'; g.fillRect(a - u * 0.06, b - u * 0.16, u * 0.12, u * 0.12); } else dotAt(px, py, 0.38, 0.08, '#d8403a'); }
+          stat(x0 + 0.9, y0 + 0.6, 0.35); break;
+        }
+        case 'barrow': case 'pumpcart': {
+          box(cx - 0.35, cy - 0.2, 0.6, 0.4, 0.25, 0.3, '#5a8a4a'); dotAt(cx + 0.35, cy, 0.12, 0.12, '#2a2a30'); lineAt([[cx - 0.35, cy - 0.15, 0.4], [cx - 0.6, cy - 0.2, 0.55]], '#8a5a2e', 0.04); lineAt([[cx - 0.35, cy + 0.15, 0.4], [cx - 0.6, cy + 0.2, 0.55]], '#8a5a2e', 0.04);
+          if (kind === 'pumpcart') { pumpkinAt(cx - 0.12, cy - 0.05, 0.5, 0.16); pumpkinAt(cx + 0.12, cy + 0.05, 0.5, 0.14); } else heap(cx - 0.05, cy, 0.55, 5, 0.09, ['#f08a24', '#6ab04a', '#d8403a'], 0.18);
+          stat(cx + 0.3, cy + 0.25, 0.35); break;
+        }
+        case 'pumpkins': { lineAt([[x0 + 0.1, y0 + 0.5, 0.02], [cx, cy, 0.02], [x0 + 0.9, y0 + 0.2, 0.02]], '#3f7a2a', 0.04); pumpkinAt(cx - 0.25, cy + 0.05, 0, 0.22); pumpkinAt(cx + 0.25, cy - 0.1, 0, 0.18); pumpkinAt(cx + 0.05, cy + 0.25, 0, 0.13); stat(cx + 0.4, cy + 0.25, 0.1); break; }
+        case 'jacks': { box(x0 + 0.15, y0 + 0.1, 0.7, 0.45, 0.4, 0, '#6b4a2e'); pumpkinAt(cx - 0.15, cy - 0.05, 0.4, 0.17, true); pumpkinAt(cx + 0.18, cy, 0.4, 0.15, true); pumpkinAt(cx, cy + 0.15, 0, 0.16, true); stat(x0 + 0.8, y0 + 0.5, 0.45); break; }
+        case 'corn': { if (LOD) for (let k = 0; k < 5; k++) { const px = x0 + 0.1 + k * 0.2, sw = Math.sin(tt * 1.5 + k + ph) * 0.03; inkLine([[px, cy, 0], [px + sw, cy, 1.5]], '#8aa03a', 0.04); const [a, b] = Pl(px + sw, cy, 1.0); g.fillStyle = '#e8c65a'; g.beginPath(); g.ellipse(a + u * 0.05, b, u * 0.04, u * 0.12, 0.3, 0, 7); g.fill(); g.fillStyle = '#a8b04a'; g.beginPath(); g.ellipse(a - u * 0.1, b - u * 0.3, u * 0.14, u * 0.04, -0.5, 0, 7); g.fill(); } else box(x0 + 0.1, cy - 0.1, 0.8, 0.2, 1.4, 0, '#8aa03a'); stat(x0 + 0.95, cy + 0.2, 0.3); break; }
+        case 'broomrack': { box(cx - 0.4, cy - 0.1, 0.8, 0.1, 1.2, 0, '#4a3020'); for (let k = 0; k < 3; k++) { inkLine([[cx - 0.25 + k * 0.25, cy + 0.05, 0.3], [cx - 0.25 + k * 0.25, cy + 0.05, 1.5]], '#8a5a2e', 0.035); const [a, b] = Pl(cx - 0.25 + k * 0.25, cy + 0.05, 0.3); g.fillStyle = '#c8a050'; g.beginPath(); g.moveTo(a - u * 0.06, b - u * 0.05); g.lineTo(a + u * 0.06, b - u * 0.05); g.lineTo(a + u * 0.1, b + u * 0.3); g.lineTo(a - u * 0.1, b + u * 0.3); g.fill(); } stat(cx + 0.4, cy + 0.1, 1.1); break; }
+        case 'carvetable': { table(x0, y0, W, D, '#6b4a2e'); pumpkinAt(cx - 0.1, cy, 0.79, 0.22, on && i % 2 === 0); if (LOD) { inkLine([[cx + 0.3, cy + 0.15, 0.8], [cx + 0.45, cy + 0.05, 0.8]], '#c9ced8', 0.025); for (let k = 0; k < 5; k++) dotAt(cx + 0.2 + (k % 3) * 0.08, cy - 0.2 + (k % 2) * 0.06, 0.8, 0.025, '#f2e0a0', false); } stat(x0 + 0.9, y0 + 0.6, 0.82); break; }
+        case 'catcrates': { box(x0 + 0.1, y0 + 0.1, 0.5, 0.5, 0.5, 0, '#a8743f'); box(x0 + 0.5, y0 + 0.2, 0.4, 0.4, 0.35, 0, '#8a5a2e'); ellAt(cx + 0.2, cy + 0.3, 0.02, 0.16, 0.07, '#f2f2f2'); stat(x0 + 0.55, y0 + 0.55, 0.52); break; }
+        case 'fishbarrel': { cyl(cx, cy, 0.28, 0.7, 0, '#6b6f7a'); if (LOD) for (let k = 0; k < 3; k++) { const [a, b] = Pl(cx - 0.1 + k * 0.1, cy, 0.78 + (k % 2) * 0.05); g.fillStyle = '#9ab4c8'; g.beginPath(); g.ellipse(a, b, u * 0.12, u * 0.04, 0.6 - k * 0.5, 0, 7); g.fill(); } stat(cx + 0.28, cy + 0.15, 0.72); break; }
+        // ---------------------------------------------------------------- cyber city and gaming
+        case 'rig': case 'battle': case 'esports': {
+          const pro = kind === 'esports', game = kind !== 'rig'; box(x0, y0, W, 0.5, 0.06, 0.72, '#1a1c28', { gloss: true }); legs(x0 + 0.05, y0 + 0.05, 0.9, 0.4, 0.72, '#12131c');
+          const n = kind === 'rig' ? 3 : pro ? 1 : 3, hue = (o) => (game ? mixc(mixc('#39ff9e', '#29e7ff', (Math.sin(tt + o) + 1) / 2), '#ff3fb8', (Math.sin(tt * 0.7 + o) + 1) / 3) : k2col(o));
+          function k2col(o) { return o % 2 ? (F.glow2 || '#00f0ff') : glow; }
+          for (let k = 0; k < n; k++) { const sx = pro ? x0 + 0.15 : x0 + 0.05 + k * 0.31, sw = pro ? 0.7 : 0.28; panelFront(sx, y0 + 0.06, sw, 0.85, pro ? 0.5 : 0.36, '#0a0914', on ? '#0c1830' : '#0a0c16', on ? scan(hue(k + i)) : null); if (on) { const [a, b] = Pl(sx + sw / 2, y0 + 0.14, 1.05); lights.push([a, b, u * 1.2, hue(k + i), 0.35]); } }
+          if (LOD) box(cx - 0.2, y0 + 0.3, 0.4, 0.12, 0.02, 0.78, game ? hue(i * 2) : '#2a2e40', { noInk: true });
+          if (game) { box(x0 + 0.02, y0 + 0.44, 0.96, 0.03, 0.03, 0.7, hue(i), { noInk: true }); }
+          if (pro && LOD) panelFront(x0 + 0.75, y0 + 0.1, 0.2, 0.78, 0.25, '#ffd23a', '#12101f');
+          stat(x0 + 0.92, y0 + 0.4, 0.8); break;
+        }
+        case 'server': { box(cx - 0.3, cy - 0.25, 0.6, 0.5, 1.7, 0, '#1d1f2c', { gloss: true }); if (LOD) for (let r2 = 0; r2 < 6; r2++) for (let k = 0; k < 3; k++) { const [a, b] = Pl(cx - 0.18 + k * 0.16, cy + 0.26, 0.3 + r2 * 0.22); g.fillStyle = on && (hsh(r2 * 7 + k + i + Math.floor(tt * 6)) % 3) ? (k % 2 ? glow : F.glow2 || glow) : '#2a2e40'; g.fillRect(a - u * 0.04, b - u * 0.03, u * 0.08, u * 0.04); } stat(cx + 0.25, cy + 0.25, 1.72); break; }
+        case 'cables': { box(cx - 0.3, cy - 0.2, 0.6, 0.4, 0.5, 0, '#2a2e40'); if (LOD) for (let k = 0; k < 3; k++) lineAt([[cx - 0.2 + k * 0.2, cy + 0.2, 0.3], [cx - 0.1 + k * 0.1, cy + 0.45, 0.02]], ['#ff3fa4', '#00f0ff', '#f2e14e'][k], 0.03); break; }
+        case 'barcounter': {
+          counter(x0, y0 + 0.05, W, 0.55, '#1d1f2c', '#2a2e40'); if (LOD) { box(x0, y0 + 0.58, W, 0.03, 0.04, 0.4, F.glow2 || glow, { noInk: true }); for (let k = 0; k < 4; k++) { const [a, b] = Pl(x0 + 0.15 + k * 0.23, y0 + 0.2, 0.93); g.fillStyle = ['#ff3fa4', '#00f0ff', '#f2e14e', '#9dff8a'][(k + i) % 4]; g.fillRect(a - u * 0.035, b - u * 0.22, u * 0.07, u * 0.22); g.fillRect(a - u * 0.015, b - u * 0.3, u * 0.03, u * 0.08); } }
+          const [a, b] = Pl(cx, y0 + 0.6, 0.45); lights.push([a, b, u * 1.4, F.glow2 || glow, 0.35]); stat(x0 + 0.92, y0 + 0.5, 0.95); break;
+        }
+        case 'hightable': { cyl(cx, cy, 0.05, 0.9, 0, METAL); cyl(cx, cy, 0.32, 0.05, 0.9, '#1d1f2c'); if (LOD) { const [a, b] = Pl(cx - 0.1, cy, 0.95); g.fillStyle = alpha('#ff3fa4', 0.8); g.fillRect(a - u * 0.04, b - u * 0.14, u * 0.08, u * 0.14); } box(cx - 0.33, cy - 0.02, 0.66, 0.04, 0.03, 0.88, glow, { noInk: true }); stat(cx + 0.25, cy + 0.1, 0.96); break; }
+        case 'punchbag': { box(cx - 0.35, cy - 0.3, 0.06, 0.06, 1.9, 0, '#3a3f4c'); lineAt([[cx - 0.32, cy - 0.27, 1.9], [cx, cy, 1.9]], '#3a3f4c', 0.05); const sw = on ? Math.sin(tt * 4 + ph) * 0.06 : 0; lineAt([[cx, cy, 1.9], [cx + sw, cy, 1.6]], '#9aa6b8', 0.02); cyl(cx + sw, cy, 0.2, 0.8, 0.8, '#b3262e'); cyl(cx, cy, 0.4, 0.03, 0, '#2a2e40'); stat(cx - 0.32, cy - 0.27, 1.95); break; }
+        case 'weaponrack': case 'weapons': { box(cx - 0.4, cy - 0.12, 0.8, 0.12, 1.2, 0, '#2a1a1a'); if (LOD) for (let k = 0; k < 3; k++) { inkLine([[cx - 0.25 + k * 0.25, cy + 0.03, 0.2], [cx - 0.25 + k * 0.25, cy + 0.03, 1.35]], skinId() === 'castle' ? '#c9ced8' : k === 1 ? '#8a5a2e' : '#e8eef8', 0.03); if (skinId() === 'cyber') { const [a, b] = Pl(cx - 0.25 + k * 0.25, cy + 0.03, 1.1); glowAt(a, b, u * 0.25, F.glow2 || glow, 0.4); } } stat(cx + 0.35, cy + 0.02, 1.25); break; }
+        case 'lanterncy': { box(cx - 0.05, cy - 0.05, 0.1, 0.1, 1.0, 0, '#2a1a1a'); const [a, b] = ellAt(cx, cy, 1.2, 0.18, 0.25, '#e05a47'); glowAt(a, b, u * 0.8, '#ff7a59', 0.5); break; }
+        case 'hoverbike': {
+          box(cx - 0.4, cy - 0.3, 0.8, 0.6, 0.3, 0, '#3a3f4c'); const hv = 0.55 + Math.sin(tt * 2 + ph) * 0.03, [a, b] = Pl(cx, cy, hv);
+          g.fillStyle = '#1d1f2c'; g.beginPath(); g.ellipse(a, b, u * 0.5, u * 0.16, -0.2, 0, 7); g.fill(); if (LOD) { g.strokeStyle = F.glow2 || glow; g.lineWidth = lw(0.03); g.stroke(); } g.fillStyle = '#ff3fa4'; g.beginPath(); g.ellipse(a + u * 0.15, b - u * 0.1, u * 0.18, u * 0.08, -0.2, 0, 7); g.fill();
+          glowAt(a, b + u * 0.15, u * 0.6, F.glow2 || glow, on ? 0.5 : 0.2); if (on && Math.sin(tt * 7 + ph) > 0.6) sparks(a - u * 0.3, b, 6); stat(cx + 0.35, cy + 0.25, 0.32); break;
+        }
+        case 'toolchest': { box(cx - 0.35, cy - 0.22, 0.7, 0.44, 0.9, 0, skinId() === 'ocean' ? '#e8b030' : '#c0302a', { gloss: true }); if (LOD) for (let k = 0; k < 4; k++) box(cx - 0.3, cy + 0.2, 0.6, 0.03, 0.02, 0.15 + k * 0.2, '#e8eef8', { noInk: true }); stat(cx + 0.3, cy + 0.2, 0.92); break; }
+        case 'tires': { for (let k = 0; k < 3; k++) cyl(cx, cy, 0.28, 0.16, k * 0.16, '#1a1a20'); ellAt(cx, cy, 0.48, 0.14, 0.07, '#0a0a0e', false); break; }
+        case 'djdeck': {
+          box(x0, y0 + 0.1, W, 0.5, 0.85, 0, '#12131c'); box(x0 + 0.05, y0 + 0.15, 0.9, 0.4, 0.04, 0.85, '#2a2e40', { noInk: true });
+          for (const dx of [0.25, 0.75]) { const [a, b] = ellAt(x0 + dx, y0 + 0.35, 0.9, 0.16, 0.08, '#0a0a0e'); if (LOD) { g.strokeStyle = glow; g.lineWidth = lw(0.015); g.beginPath(); g.moveTo(a, b); g.lineTo(a + Math.cos(tt * 6) * u * 0.14, b + Math.sin(tt * 6) * u * 0.07); g.stroke(); } }
+          if (LOD) { box(x0, y0 + 0.58, W, 0.03, 0.05, 0.4, on ? mixc(glow, F.glow2 || glow, (Math.sin(tt * 3) + 1) / 2) : '#2a2e40', { noInk: true }); } const [a, b] = Pl(cx, y0 + 0.6, 0.5); lights.push([a, b, u * 1.8, glow, 0.4]); stat(x0 + 0.9, y0 + 0.5, 0.9); break;
+        }
+        case 'speaker': { const pu = on ? 1 + Math.abs(Math.sin(tt * 8 + ph)) * 0.08 : 1; box(cx - 0.3, cy - 0.25, 0.6, 0.5, 1.5, 0, '#12131c'); if (LOD) for (const [z, r] of [[0.45, 0.2], [1.1, 0.14]]) { const [a, b] = Pl(cx, cy + 0.26, z); g.fillStyle = '#2a2e40'; g.beginPath(); g.ellipse(a, b, u * r * pu, u * r * pu, 0, 0, 7); g.fill(); g.strokeStyle = glow; g.lineWidth = lw(0.02); g.stroke(); } stat(cx + 0.25, cy + 0.25, 1.52); break; }
+        case 'jukebox': { box(cx - 0.3, cy - 0.2, 0.6, 0.4, 1.2, 0, '#3a1a3a', { gloss: true }); const [a, b] = ellAt(cx, cy + 0.2, 1.2, 0.3, 0.3, '#ff3fa4'); glowAt(a, b, u * 0.7, '#ff3fa4', 0.5); break; }
+        case 'neonsign': { box(cx - 0.05, cy - 0.05, 0.1, 0.1, 1.2, 0, '#2a2e40'); const [a, b] = Pl(cx, cy, 1.5); g.strokeStyle = F.glow2 || glow; g.lineWidth = lw(0.05); g.beginPath(); g.arc(a, b, u * 0.25, 0, 7); g.stroke(); glowAt(a, b, u * 0.7, F.glow2 || glow, 0.5); break; }
+        case 'surgchair': {
+          box(cx - 0.35, cy - 0.2, 0.7, 0.4, 0.45, 0, '#2a2e40'); box(cx - 0.4, cy - 0.25, 0.8, 0.5, 0.12, 0.45, '#e8eef8', { gloss: true }); box(cx - 0.4, cy - 0.25, 0.2, 0.5, 0.4, 0.57, '#e8eef8');
+          box(cx + 0.35, cy - 0.3, 0.06, 0.06, 1.5, 0, '#9aa6b8'); inkLine([[cx + 0.38, cy - 0.27, 1.5], [cx, cy, 1.3]], '#9aa6b8', 0.04); const [a, b] = dotAt(cx, cy, 1.25, 0.08, F.glow2 || glow); glowAt(a, b, u * 0.5, F.glow2 || glow, 0.6);
+          stat(cx - 0.35, cy + 0.2, 0.6); break;
+        }
+        case 'implants': { box(cx - 0.35, cy - 0.2, 0.7, 0.4, 0.8, 0, '#1d1f2c'); box(cx - 0.33, cy - 0.18, 0.66, 0.36, 0.5, 0.8, 'rgba(180,230,255,0.25)', { lf: 'rgba(180,230,255,0.25)', rf: 'rgba(120,180,220,0.25)', top: 'rgba(200,240,255,0.2)' }); if (LOD) { inkLine([[cx - 0.2, cy, 0.9], [cx, cy, 1.1], [cx + 0.15, cy, 1.0]], '#c9ced8', 0.05); dotAt(cx + 0.18, cy, 1.0, 0.05, F.glow2 || glow, false); } stat(cx + 0.32, cy + 0.2, 0.82); break; }
+        case 'vrpad': case 'arpad': {
+          const [a, b] = Pl(cx, cy + 0.1, 0.02), c1 = kind === 'vrpad' ? '#29e7ff' : '#39ff9e'; g.fillStyle = '#12101f'; g.beginPath(); g.ellipse(a, b, u * 0.7, u * 0.35, 0, 0, 7); g.fill();
+          g.strokeStyle = c1; g.lineWidth = lw(0.05); g.setLineDash([u * 0.2, u * 0.1]); g.lineDashOffset = -tt * u * 0.5; g.beginPath(); g.ellipse(a, b, u * 0.62, u * 0.3, 0, 0, 7); g.stroke(); g.setLineDash([]); glowAt(a, b, u * 0.9, c1, 0.35); lights.push([a, b, u * 1.8, c1, 0.3]);
+          for (const dx of [-0.45, 0.45]) { box(cx + dx - 0.04, cy - 0.3, 0.08, 0.08, 1.4, 0, '#2a2748', { noInk: true }); dotAt(cx + dx, cy - 0.26, 1.45, 0.06, on && Math.sin(tt * 5 + dx) > 0 ? c1 : '#3a3660', false); }
+          if (kind === 'arpad' && LOD) for (let k = 0; k < 3; k++) { const an = tt * 0.8 + k * 2.1 + ph, [p, q] = Pl(cx + Math.cos(an) * 0.35, cy + 0.1 + Math.sin(an) * 0.2, 0.8 + Math.sin(tt * 2 + k) * 0.15); g.fillStyle = alpha(['#39ff9e', '#ff3fb8', '#ffd23a'][k], 0.6); g.fillRect(p - u * 0.08, q - u * 0.08, u * 0.16, u * 0.16); }
+          stat(cx + 0.45, cy - 0.26, 1.55); break;
+        }
+        case 'vrrack': { box(cx - 0.35, cy - 0.15, 0.7, 0.3, 1.2, 0, '#2a2748'); if (LOD) for (let k = 0; k < 3; k++) { const [a, b] = Pl(cx - 0.2 + k * 0.2, cy + 0.16, 0.5 + (k % 2) * 0.4); g.fillStyle = '#12101f'; g.fillRect(a - u * 0.08, b - u * 0.05, u * 0.16, u * 0.1); g.fillStyle = '#29e7ff'; g.fillRect(a - u * 0.06, b - u * 0.02, u * 0.12, u * 0.03); } break; }
+        case 'snacks': { box(cx - 0.3, cy - 0.25, 0.6, 0.5, 1.5, 0, '#c0302a', { gloss: true }); box(cx - 0.25, cy + 0.2, 0.5, 0.06, 1.0, 0.35, 'rgba(180,230,255,0.3)', { noInk: true }); if (LOD) for (let k = 0; k < 6; k++) { const [a, b] = Pl(cx - 0.15 + (k % 3) * 0.15, cy + 0.26, 0.55 + Math.floor(k / 3) * 0.4); g.fillStyle = ['#ffd23a', '#39ff9e', '#29e7ff'][k % 3]; g.fillRect(a - u * 0.04, b - u * 0.1, u * 0.08, u * 0.1); } break; }
+        case 'tvset': { box(x0 + 0.1, y0 + 0.1, 0.8, 0.35, 0.45, 0, '#2a2748'); panelFront(x0 + 0.05, y0 + 0.15, 0.9, 0.5, 0.6, '#0a0914', '#0c1830', on ? scan('#ffd23a') : null); if (LOD) { const [a, b] = Pl(cx, y0 + 0.45, 0.5); g.fillStyle = '#3a3660'; g.fillRect(a - u * 0.12, b - u * 0.05, u * 0.24, u * 0.05); } const [a, b] = Pl(cx, y0 + 0.24, 0.85); if (on) lights.push([a, b, u * 1.8, '#29e7ff', 0.4]); stat(x0 + 0.9, y0 + 0.4, 0.5); break; }
+        case 'couchseat': { box(cx - 0.5, cy - 0.1, 1.0, 0.45, 0.35, 0, '#5a3a9a'); box(cx - 0.5, cy + 0.2, 1.0, 0.18, 0.7, 0, '#6a4aaa'); if (LOD) { const [a, b] = Pl(cx - 0.1, cy, 0.4); g.fillStyle = '#1a1830'; g.fillRect(a - u * 0.1, b - u * 0.05, u * 0.2, u * 0.08); } stat(cx + 0.45, cy - 0.05, 0.4); break; }
+        case 'arcadecab': {
+          box(cx - 0.3, cy - 0.25, 0.6, 0.45, 1.6, 0, ['#c0302a', '#2a5ac0', '#3a2a9a', '#1a8a5a'][i % 4], { gloss: true }); box(cx - 0.28, cy + 0.1, 0.56, 0.2, 0.1, 0.8, '#1a1830');
+          panelFront(cx - 0.25, cy + 0.12, 0.5, 1.0, 0.45, '#12101f', '#0c0a22', on ? (w, h) => { g.fillStyle = '#ffd23a'; g.fillRect(w * (0.2 + (Math.sin(tt * 2 + ph) + 1) * 0.25), h * 0.6, 0.06, 0.06); g.fillStyle = '#ff3fb8'; g.fillRect(w * 0.3, h * 0.2, 0.08, 0.05); g.fillRect(w * 0.6, h * 0.2, 0.08, 0.05); } : null);
+          if (LOD) { dotAt(cx - 0.1, cy + 0.2, 0.93, 0.04, '#ff3fb8', false); dotAt(cx + 0.1, cy + 0.2, 0.93, 0.04, '#39ff9e', false); } const [a, b] = Pl(cx, cy + 0.14, 1.25); if (on) lights.push([a, b, u * 1.5, '#29e7ff', 0.4]); stat(cx + 0.25, cy + 0.2, 1.62); break;
+        }
+        case 'trophy': { box(cx - 0.25, cy - 0.25, 0.5, 0.5, 0.8, 0, '#1a1830'); const [a, b] = Pl(cx, cy, 1.15); g.fillStyle = '#ffd23a'; g.beginPath(); g.moveTo(a - u * 0.18, b - u * 0.2); g.lineTo(a + u * 0.18, b - u * 0.2); g.quadraticCurveTo(a + u * 0.15, b + u * 0.1, a, b + u * 0.15); g.quadraticCurveTo(a - u * 0.15, b + u * 0.1, a - u * 0.18, b - u * 0.2); g.fill(); glowAt(a, b, u * 0.6, '#ffd23a', 0.4); break; }
+        // ---------------------------------------------------------------- alien ship
+        case 'spectube': case 'clonevat': {
+          const alien = skinId() === 'alien', liq = kind === 'clonevat' ? '#7dff4a' : alien ? '#7dffb0' : '#39f0ff';
+          glassCyl(cx, cy, 0.32, 1.35, 0, liq, on ? 0.85 : 0.6, (a, b) => { const bob = Math.sin(tt * 1.2 + ph) * u * 0.05; if (kind === 'clonevat' || i % 2) { g.fillStyle = alpha('#2a4a2a', 0.55); g.beginPath(); g.arc(a, b - u * 0.25 + bob, u * 0.12, 0, 7); g.fill(); g.fillRect(a - u * 0.1, b - u * 0.14 + bob, u * 0.2, u * 0.4); } else { g.fillStyle = alpha('#f4a6b8', 0.8); g.beginPath(); g.ellipse(a, b + bob, u * 0.15, u * 0.12, 0, 0, 7); g.fill(); g.strokeStyle = alpha('#f4a6b8', 0.8); g.lineWidth = lw(0.025); g.beginPath(); g.moveTo(a, b + bob); g.lineTo(a, b + bob + u * 0.25); g.stroke(); } });
+          stat(cx + 0.35, cy + 0.2, 0.16); break;
+        }
+        case 'aconsole': case 'helm': case 'lconsole': {
+          const al = kind !== 'lconsole', body = al ? '#553570' : '#3a3f4c'; box(x0 + 0.05, y0 + 0.1, 0.9, 0.45, 0.75, 0, body, { gloss: true });
+          poly([Pl(x0 + 0.05, y0 + 0.55, 0.75), Pl(x0 + 0.95, y0 + 0.55, 0.75), Pl(x0 + 0.95, y0 + 0.1, 1.0), Pl(x0 + 0.05, y0 + 0.1, 1.0)]); g.fillStyle = shade(body, 0.25); g.fill();
+          if (LOD) for (let k = 0; k < 5; k++) { const [a, b] = Pl(x0 + 0.15 + k * 0.17, y0 + 0.35, 0.88); g.fillStyle = on && (hsh(k + i + Math.floor(tt * 3)) % 3) ? (k % 2 ? glow : F.warn) : shade(body, -0.3); g.beginPath(); g.ellipse(a, b, u * 0.05, u * 0.03, 0, 0, 7); g.fill(); }
+          if (kind === 'helm') { const [a, b] = Pl(cx, cy - 0.1, 1.25); g.fillStyle = alpha(glow, 0.3); g.beginPath(); g.ellipse(a, b, u * 0.35, u * 0.2, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = glow; g.lineWidth = lw(0.015); g.stroke(); } }
+          if (kind === 'lconsole') panelFront(x0 + 0.2, y0 + 0.1, 0.6, 1.0, 0.45, '#2a3a44', '#0c2018', on ? scan('#7dff4a') : null);
+          const [a, b] = Pl(cx, y0 + 0.5, 0.9); if (on) lights.push([a, b, u * 1.4, glow, 0.35]); stat(x0 + 0.9, y0 + 0.5, 0.8); break;
+        }
+        case 'eggnest': { const [a, b] = Pl(cx, cy, 0.05); g.fillStyle = '#3a2352'; g.beginPath(); g.ellipse(a, b, u * 0.55, u * 0.28, 0, 0, 7); g.fill(); for (const [dx, dy, r] of [[-0.18, -0.05, 0.16], [0.18, -0.05, 0.14], [0, 0.12, 0.17]]) { const [p, q] = ellAt(cx + dx, cy + dy, 0.2, r * 0.85, r, '#d8f5e4'); g.fillStyle = alpha(glow, 0.55 + (on ? Math.sin(tt * 2 + dx * 9) * 0.25 : 0)); g.beginPath(); g.ellipse(p, q, u * r * 0.5, u * r * 0.6, 0, 0, 7); g.fill(); } glowAt(a, b, u * 0.9, glow, 0.3); stat(cx + 0.45, cy + 0.2, 0.1); break; }
+        case 'incubator': { cyl(cx, cy, 0.38, 0.4, 0, '#2a1640'); const [a, b] = Pl(cx, cy, 0.4); g.fillStyle = alpha('#c8ffe8', 0.3); g.beginPath(); g.ellipse(a, b, u * 0.52, u * 0.26, 0, 0, Math.PI, true); g.ellipse(a, b - u * 0.05, u * 0.52, u * 0.5, 0, 0, Math.PI, true); g.fill(); ellAt(cx, cy, 0.55, 0.15, 0.18, shade(F.body, 0.35)); glowAt(a, b, u * 0.8, glow, on ? 0.5 : 0.2); stat(cx + 0.35, cy + 0.2, 0.42); break; }
+        case 'starmap': { cyl(cx, cy, 0.4, 0.7, 0, '#2a1640', { top: '#40295a' }); const [a, b] = Pl(cx, cy, 1.25 + Math.sin(tt + ph) * 0.05); g.fillStyle = alpha(glow, 0.35); g.beginPath(); g.arc(a, b, u * 0.28, 0, 7); g.fill(); if (LOD) { g.strokeStyle = alpha(glow, 0.8); g.lineWidth = lw(0.015); g.beginPath(); g.ellipse(a, b, u * 0.45, u * 0.12, tt * 0.3, 0, 7); g.stroke(); dotAt(cx + Math.cos(tt) * 0.3, cy + Math.sin(tt) * 0.3, 1.25, 0.04, '#ffd24a', false); } glowAt(a, b, u * 0.8, glow, 0.45); lights.push([a, b, u * 2, glow, 0.4]); stat(cx + 0.35, cy + 0.2, 0.72); break; }
+        case 'sporepod': case 'planter': case 'pods': {
+          if (kind === 'planter') box(x0 + 0.1, y0 + 0.1, 0.8, 0.5, 0.3, 0, '#2a1640'); else { const [a, b] = Pl(cx, cy, 0.01); g.fillStyle = '#3a2352'; g.beginPath(); g.ellipse(a, b, u * 0.55, u * 0.28, 0, 0, 7); g.fill(); }
+          const z0 = kind === 'planter' ? 0.3 : 0; for (const [dx, dy, h, r, c] of [[-0.2, -0.05, 0.55, 0.2, '#b86bff'], [0.18, 0.02, 0.4, 0.15, '#7dffb0'], [0, 0.18, 0.28, 0.12, '#ff7ad9']]) { box(cx + dx - 0.03, cy + dy - 0.03, 0.06, 0.06, h, z0, '#e8dcf8', { noInk: true }); const [p, q] = ellAt(cx + dx, cy + dy, z0 + h + 0.05, r, r * 0.55, c); if (on || kind !== 'pods') glowAt(p, q, u * r * 3, c, 0.35 + Math.sin(tt * 2 + dx * 7) * 0.1); }
+          stat(cx + 0.4, cy + 0.2, z0 + 0.1); break;
+        }
+        case 'examtable': { box(x0 + 0.1, y0 + 0.15, 0.8, 0.4, 0.6, 0, '#40295a'); box(x0, y0 + 0.05, 1.0, 0.6, 0.08, 0.6, '#c8e8e0', { gloss: true }); const [a, b] = Pl(cx, cy, 0.7); glowAt(a, b, u * 0.8, glow, on ? 0.35 : 0.1); stat(x0 + 0.9, y0 + 0.6, 0.72); break; }
+        case 'probearm': { cyl(cx - 0.2, cy - 0.1, 0.22, 0.3, 0, '#2a1640'); box(cx - 0.24, cy - 0.14, 0.08, 0.08, 1.5, 0.3, '#7a55a0', { noInk: true }); const sw = on ? Math.sin(tt * 1.3 + ph) * 0.15 : 0; inkLine([[cx - 0.2, cy - 0.1, 1.8], [cx + 0.25 + sw, cy + 0.05, 1.5], [cx + 0.3 + sw, cy + 0.1, 1.0]], '#9a7ac0', 0.05); const [a, b] = dotAt(cx + 0.3 + sw, cy + 0.1, 0.95, 0.07, glow); glowAt(a, b, u * 0.5, glow, 0.7); stat(cx - 0.05, cy + 0.1, 0.32); break; }
+        case 'floatseat': { const hv = 0.35 + Math.sin(tt * 1.5 + ph) * 0.05, [a, b] = Pl(cx, cy, hv); glowAt(...Pl(cx, cy, 0.02), u * 0.6, glow, 0.3); g.fillStyle = shade(F.body, 0.2); g.beginPath(); g.ellipse(a, b, u * 0.45, u * 0.25, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); } g.fillStyle = shade(F.body, 0.35); g.beginPath(); g.ellipse(a, b - u * 0.35, u * 0.4, u * 0.35, 0, Math.PI, 0); g.fill(); stat(cx + 0.4, cy + 0.2, 0.4); break; }
+        case 'holoscreen': { box(cx - 0.05, cy - 0.05, 0.1, 0.1, 0.6, 0, '#2a1640'); panelFront(cx - 0.45, cy - 0.04, 0.9, 0.6, 0.7, alpha(glow, 0.5), alpha(glow, 0.2), on ? scan(glow) : null); const [a, b] = Pl(cx, cy, 0.95); lights.push([a, b, u * 1.6, glow, 0.35]); stat(cx + 0.4, cy + 0.05, 1.3); break; }
+        // ---------------------------------------------------------------- ocean base
+        case 'coral': { const [a, b] = Pl(cx, cy, 0.01); g.fillStyle = '#e8d8a8'; g.beginPath(); g.ellipse(a, b, u * 0.55, u * 0.28, 0, 0, 7); g.fill(); for (const [dx, dy, c, h] of [[-0.25, -0.05, '#ff7a8a', 0.6], [0.05, -0.12, '#ffb454', 0.8], [0.28, 0.05, '#b86bff', 0.5], [-0.05, 0.15, '#39e0ff', 0.4]]) { const sw = Math.sin(tt * 1.2 + dx * 5) * 0.03; inkLine([[cx + dx, cy + dy, 0], [cx + dx + sw, cy + dy, h]], c, 0.07); inkLine([[cx + dx, cy + dy, h * 0.5], [cx + dx + 0.12 + sw, cy + dy, h * 0.75]], c, 0.05); } stat(cx + 0.45, cy + 0.2, 0.1); break; }
+        case 'sampletable': case 'shellshelf': {
+          if (kind === 'shellshelf') { box(x0 + 0.1, y0 + 0.1, 0.8, 0.45, 0.7, 0, '#6a7a86'); } else table(x0, y0, W, D, '#c9d6e0');
+          const z = kind === 'shellshelf' ? 0.7 : 0.79; if (LOD) for (let k = 0; k < 4; k++) { const [a, b] = Pl(x0 + 0.2 + k * 0.2, y0 + 0.35, z); if (kind === 'shellshelf') { g.fillStyle = ['#f4c8b8', '#fff0d8', '#e8a0b8', '#d8e8f0'][k]; g.beginPath(); g.ellipse(a, b - u * 0.05, u * 0.08, u * 0.06, 0, Math.PI, 0); g.fill(); } else { g.fillStyle = alpha('#c8f0ff', 0.6); g.fillRect(a - u * 0.05, b - u * 0.2, u * 0.1, u * 0.2); g.fillStyle = ['#ff7a8a', '#ffb454', '#39e0ff', '#9dff8a'][k]; g.fillRect(a - u * 0.04, b - u * 0.1, u * 0.08, u * 0.08); } }
+          if (kind === 'sampletable' && LOD) { const [a, b] = Pl(x0 + 0.8, y0 + 0.55, 0.8); g.fillStyle = '#f7f7f2'; g.fillRect(a - u * 0.12, b - u * 0.04, u * 0.24, u * 0.06); }
+          stat(x0 + 0.9, y0 + 0.55, z + 0.02); break;
+        }
+        case 'clam': { const op = 0.15 + (on ? Math.abs(Math.sin(tt * 0.8 + ph)) * 0.25 : 0.05), [a, b] = Pl(cx, cy, 0.2); g.fillStyle = '#c8a0c8'; g.beginPath(); g.ellipse(a, b, u * 0.55, u * 0.25, 0, 0, Math.PI); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); } g.fillStyle = '#d8b8d8'; g.beginPath(); g.ellipse(a, b - u * op, u * 0.55, u * 0.3, 0, Math.PI, 0); g.fill(); if (LOD) g.stroke(); const [p, q] = dotAt(cx, cy, 0.25, 0.1, '#f8f4ff'); glowAt(p, q, u * 0.5, '#e8f0ff', 0.6); stat(cx + 0.45, cy + 0.2, 0.2); break; }
+        case 'rocks': { heap(cx, cy, 0, 5, 0.2, ['#6a7a86', '#5a6a76', '#7a8a96'], 0.3); break; }
+        case 'anchor': { const [a, b] = Pl(cx, cy, 0.05); g.strokeStyle = '#4a4e5a'; g.lineWidth = u * 0.08; g.lineCap = 'round'; g.beginPath(); g.moveTo(a, b - u * 1.3); g.lineTo(a, b); g.moveTo(a - u * 0.4, b - u * 0.25); g.quadraticCurveTo(a, b + u * 0.25, a + u * 0.4, b - u * 0.25); g.moveTo(a - u * 0.25, b - u * 1.05); g.lineTo(a + u * 0.25, b - u * 1.05); g.stroke(); g.beginPath(); g.arc(a, b - u * 1.4, u * 0.1, 0, 7); g.stroke(); stat(cx + 0.35, cy + 0.2, 0.1); break; }
+        case 'cannon': { box(cx - 0.35, cy - 0.15, 0.7, 0.3, 0.25, 0, '#5a3a22'); inkLine([[cx - 0.4, cy, 0.4], [cx + 0.45, cy, 0.5]], '#3a3a44', 0.22); heap(cx + 0.35, cy + 0.25, 0, 3, 0.08, ['#2a2a30'], 0.1); stat(cx - 0.3, cy + 0.2, 0.3); break; }
+        case 'kelp': { if (LOD) for (let k = 0; k < 5; k++) { const px = x0 + 0.15 + k * 0.18, py = cy + (k % 2) * 0.1, sw = Math.sin(tt * 1.3 + k + ph) * 0.08; inkLine([[px, py, 0], [px + sw * 0.5, py, 0.8], [px + sw, py, 1.7 - (k % 3) * 0.2]], k % 2 ? '#4a9a5a' : '#6ab04a', 0.06); } else box(x0 + 0.1, cy - 0.1, 0.8, 0.2, 1.5, 0, '#4a9a5a'); stat(x0 + 0.95, cy + 0.2, 0.2); break; }
+        case 'sampletank': case 'jellytank': {
+          box(x0 + 0.05, y0 + 0.1, 0.9, 0.5, 0.4, 0, '#2f4a5e'); box(x0 + 0.08, y0 + 0.13, 0.84, 0.44, 0.7, 0.4, '#1a5a85', { lf: 'rgba(40,120,180,0.6)', rf: 'rgba(30,90,140,0.6)', top: 'rgba(160,220,255,0.3)' });
+          if (kind === 'jellytank') { for (let k = 0; k < 2; k++) { const [a, b] = Pl(x0 + 0.3 + k * 0.4, y0 + 0.55, 0.75 + Math.sin(tt * 1.5 + k * 2) * 0.1); g.fillStyle = alpha(k ? '#ff7ad9' : '#b48cff', 0.8); g.beginPath(); g.ellipse(a, b, u * 0.1, u * 0.08, 0, Math.PI, 0); g.fill(); glowAt(a, b, u * 0.4, k ? '#ff7ad9' : '#b48cff', 0.6); } } else if (LOD) { for (let k = 0; k < 3; k++) { const p = (tt * 0.15 + k * 0.33 + ph) % 1, [a, b] = Pl(x0 + 0.15 + p * 0.7, y0 + 0.57, 0.6 + k * 0.15); g.fillStyle = ['#ffb454', '#39e0ff', '#ff7a59'][k]; g.beginPath(); g.ellipse(a, b, u * 0.06, u * 0.035, 0, 0, 7); g.fill(); } }
+          const [a, b] = Pl(cx, y0 + 0.57, 0.8); lights.push([a, b, u * 1.4, '#39e0ff', 0.35]); stat(x0 + 0.9, y0 + 0.55, 0.42); break;
+        }
+        case 'minisub': { box(cx - 0.4, cy - 0.25, 0.8, 0.5, 0.2, 0, '#3a4a5a'); const [a, b] = Pl(cx, cy, 0.6); g.fillStyle = '#ffcf3a'; g.beginPath(); g.ellipse(a, b, u * 0.55, u * 0.35, -0.3, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); } g.fillStyle = alpha('#9fe8ff', 0.8); g.beginPath(); g.arc(a + u * 0.2, b - u * 0.05, u * 0.14, 0, 7); g.fill(); if (LOD) g.stroke(); g.fillStyle = '#e0a020'; g.fillRect(a - u * 0.1, b - u * 0.55, u * 0.18, u * 0.22); if (on && Math.sin(tt * 6 + ph) > 0.5) sparks(a - u * 0.5, b, 5, '#bff0ff'); stat(cx + 0.4, cy + 0.2, 0.22); break; }
+        case 'divetanks': { box(cx - 0.35, cy - 0.12, 0.7, 0.12, 1.2, 0, '#2f4a5e'); for (let k = 0; k < 3; k++) { cyl(cx - 0.22 + k * 0.22, cy + 0.08, 0.09, 0.8, 0.1, ['#ffcf3a', '#e8eef8', '#ffcf3a'][k]); } stat(cx + 0.32, cy + 0.02, 1.22); break; }
+        case 'sonar': { box(x0 + 0.1, y0 + 0.1, 0.8, 0.45, 0.8, 0, '#2f4a5e', { gloss: true }); const [a, b] = ellAt(cx, y0 + 0.32, 0.82, 0.3, 0.15, '#0a2a1a'); if (LOD) { g.strokeStyle = alpha('#5fe39a', 0.8); g.lineWidth = lw(0.02); g.beginPath(); g.moveTo(a, b); g.lineTo(a + Math.cos(tt * 2 + ph) * u * 0.3, b + Math.sin(tt * 2 + ph) * u * 0.15); g.stroke(); dotAt(cx + 0.1, y0 + 0.3, 0.83, 0.025, '#5fe39a', false); } glowAt(a, b, u * 0.6, '#5fe39a', 0.4); stat(x0 + 0.85, y0 + 0.5, 0.82); break; }
+        // ---------------------------------------------------------------- rocket works
+        case 'nozzle': { box(cx - 0.4, cy - 0.3, 0.8, 0.6, 0.15, 0, '#3a404e'); frustum(cx, cy, 0.15, 1.0, 0.36, 0.14, '#8a5a3a'); cyl(cx, cy, 0.18, 0.3, 1.0, '#9aa1ae'); if (on && Math.sin(tt * 3 + ph) > 0.6) { const [a, b] = Pl(cx + 0.2, cy + 0.2, 0.9); sparks(a, b, 8, '#fff0b0'); glowAt(a, b, u * 0.5, '#cfe8ff', 0.7); } stat(cx + 0.38, cy + 0.28, 0.17); break; }
+        case 'circuit': { table(x0, y0, W, D, '#c9ced8'); if (LOD) for (let k = 0; k < 2; k++) { box(x0 + 0.1 + k * 0.45, y0 + 0.15, 0.38, 0.3, 0.02, 0.79, '#1f6a3a', { noInk: true }); for (let j = 0; j < 3; j++) box(x0 + 0.15 + k * 0.45 + j * 0.1, y0 + 0.22, 0.06, 0.06, 0.04, 0.81, j % 2 ? '#2a2e40' : '#c9a24a', { noInk: true }); } const [a, b] = Pl(x0 + 0.85, y0 + 0.5, 0.95); if (on) { glowAt(a, b, u * 0.3, '#fff4c8', 0.8); } stat(x0 + 0.92, y0 + 0.6, 0.82); break; }
+        case 'proptank': { cyl(cx, cy, 0.36, 1.6, 0, '#eef1f6'); if (LOD) { cyl(cx, cy, 0.37, 0.06, 0.5, '#ff6a1a'); cyl(cx, cy, 0.37, 0.06, 1.1, '#ff6a1a'); const [a, b] = Pl(cx, cy + 0.37, 0.8); g.fillStyle = '#f2efe6'; g.beginPath(); g.arc(a, b, u * 0.1, 0, 7); g.fill(); g.strokeStyle = '#333'; g.lineWidth = lw(0.015); g.stroke(); g.beginPath(); g.moveTo(a, b); g.lineTo(a + Math.cos(tt + ph) * u * 0.07, b + Math.sin(tt + ph) * u * 0.07); g.stroke(); } stat(cx + 0.3, cy + 0.2, 1.62); break; }
+        case 'valves': { box(x0 + 0.1, y0 + 0.2, 0.8, 0.3, 0.2, 0, '#5b6272'); for (const dx of [0.25, 0.75]) box(x0 + dx - 0.06, y0 + 0.29, 0.12, 0.12, 1.1, 0.2, '#9aa1ae', { noInk: true }); lineAt([[x0 + 0.25, y0 + 0.35, 1.2], [x0 + 0.75, y0 + 0.35, 1.2]], '#9aa1ae', 0.1); for (const dx of [0.25, 0.75]) { const [a, b] = Pl(x0 + dx, y0 + 0.45, 0.8); g.strokeStyle = '#e05a47'; g.lineWidth = lw(0.04); g.beginPath(); g.ellipse(a, b, u * 0.12, u * 0.12, 0, 0, 7); g.stroke(); } stat(x0 + 0.5, y0 + 0.4, 1.25); break; }
+        case 'nosecone': { box(cx - 0.35, cy - 0.3, 0.7, 0.6, 0.2, 0, '#5b6272'); const [nx, ny] = Pl(cx, cy, 0.2), [ax, ay] = Pl(cx, cy, 1.5), rt = 0.32 * u * 1.414; g.beginPath(); g.moveTo(nx - rt, ny); g.quadraticCurveTo(nx - rt, ay + (ny - ay) * 0.3, ax, ay); g.quadraticCurveTo(nx + rt, ay + (ny - ay) * 0.3, nx + rt, ny); g.closePath(); g.fillStyle = '#eef1f6'; g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.025); g.stroke(); g.fillStyle = '#ff6a1a'; g.fillRect(nx - rt * 0.9, ny - u * 0.25, rt * 1.8, u * 0.06); } if (on && Math.sin(tt * 4 + ph) > 0.5) { const [a, b] = Pl(cx + 0.2, cy + 0.2, 0.6); sparks(a, b, 5); } stat(cx + 0.33, cy + 0.28, 0.22); break; }
+        case 'drafting': { legs(x0 + 0.1, y0 + 0.1, 0.8, 0.5, 0.7, '#5b6272'); poly([Pl(x0, y0 + 0.65, 0.75), Pl(x0 + W, y0 + 0.65, 0.75), Pl(x0 + W, y0, 1.05), Pl(x0, y0, 1.05)]); g.fillStyle = '#2a5aa0'; g.fill(); if (LOD) { g.strokeStyle = 'rgba(255,255,255,0.6)'; g.lineWidth = lw(0.012); g.stroke(); g.beginPath(); g.moveTo(...Pl(cx - 0.2, cy + 0.1, 0.84)); g.lineTo(...Pl(cx + 0.2, cy - 0.1, 0.95)); g.stroke(); } stat(x0 + 0.95, y0 + 0.6, 0.8); break; }
+        case 'weldtable': { table(x0, y0, W, D, '#5b6272'); box(x0 + 0.2, y0 + 0.2, 0.6, 0.3, 0.12, 0.79, '#9aa1ae'); if (on) { const [a, b] = Pl(cx + 0.1, cy, 0.95); glowAt(a, b, u * (0.6 + Math.abs(Math.sin(tt * 20)) * 0.3), '#cfe8ff', 0.85); sparks(a, b, 10, '#fff0b0', 1.4); lights.push([a, b, u * 2.4, '#cfe8ff', 0.5]); } stat(x0 + 0.92, y0 + 0.6, 0.82); break; }
+        case 'gascyl': { for (const [dx, c] of [[-0.15, '#3a8a4a'], [0.15, '#c0302a']]) { cyl(cx + dx, cy, 0.13, 1.1, 0, c); dotAt(cx + dx, cy, 1.18, 0.06, '#9aa1ae'); } stat(cx + 0.3, cy + 0.15, 0.2); break; }
+        case 'mconsole': { box(x0, y0 + 0.1, W, 0.5, 0.75, 0, '#262b36', { gloss: true }); for (let k = 0; k < 2; k++) panelFront(x0 + 0.08 + k * 0.45, y0 + 0.12, 0.4, 0.8, 0.35, '#12151f', '#0c1830', on ? scan(['#6fd8ff', '#5fe39a'][k]) : null); const [a, b] = Pl(cx, y0 + 0.2, 1.0); if (on) lights.push([a, b, u * 1.4, '#6fd8ff', 0.35]); stat(x0 + 0.92, y0 + 0.55, 0.78); break; }
+        case 'bigscreen': { for (const dx of [-0.4, 0.4]) box(cx + dx - 0.04, cy - 0.04, 0.08, 0.08, 1.0, 0, '#5b6272', { noInk: true }); panelFront(cx - 0.5, cy - 0.04, 1.0, 1.0, 0.7, '#1d2433', '#0c1830', (w, h) => { g.strokeStyle = '#5fe39a'; g.lineWidth = 0.03; g.beginPath(); for (let k = 0; k <= 10; k++) g.lineTo(k * w / 10, h * 0.7 - Math.sin(k * 0.6 + tt) * h * 0.2 - k * h * 0.03); g.stroke(); g.fillStyle = '#ff6a1a'; g.fillRect(w * 0.7, h * 0.15, 0.08, 0.08); }); stat(cx + 0.45, cy + 0.05, 1.72); break; }
+        // ---------------------------------------------------------------- mad scientist lab
+        case 'flasktable': { table(x0, y0, W, D, '#6a4a3a'); if (LOD) for (let k = 0; k < 4; k++) { const [a, b] = Pl(x0 + 0.18 + k * 0.22, y0 + 0.3 + (k % 2) * 0.12, 0.79); potion(a, b, u * 0.1, ['#7dff4a', '#ff4fb8', '#39f0ff', '#ffe14a'][(k + i) % 4]); } if (on && LOD === 2) { const p = (tt * 0.4 + ph) % 1; poof(...Pl(cx, cy, 1.1), p, ['#7dff4a', '#ff4fb8', '#39f0ff'][i % 3], 0.4); } stat(x0 + 0.92, y0 + 0.6, 0.82); break; }
+        case 'glasscoil': { box(x0 + 0.1, y0 + 0.1, 0.8, 0.5, 0.2, 0, '#2a3a44'); box(cx - 0.04, cy - 0.04, 0.08, 0.08, 1.6, 0.2, '#8a95a8', { noInk: true }); const pts = []; for (let k = 0; k <= 40; k++) { const f = k / 40, an = f * Math.PI * 2 * 4, z = 1.6 - f * 1.3; pts.push([cx + Math.cos(an) * 0.25, cy + Math.sin(an) * 0.25, z]); } lineAt(pts, alpha('#eafff8', 0.5), 0.08); g.setLineDash([u * 0.2, u * 0.12]); g.lineDashOffset = -tt * u; lineAt(pts, ['#ff4fb8', '#39f0ff', '#7dff4a'][i % 3], 0.04); g.setLineDash([]); stat(x0 + 0.85, y0 + 0.55, 0.22); break; }
+        case 'jarshelf': { box(x0 + 0.1, y0 + 0.1, 0.8, 0.4, 0.06, 0, '#5a3a2a'); for (const z of [0.6, 1.2]) box(x0 + 0.1, y0 + 0.1, 0.8, 0.4, 0.05, z, '#6a4a3a', { noInk: true }); for (const dx of [0.1, 0.84]) box(x0 + dx, y0 + 0.1, 0.06, 0.4, 1.7, 0, '#5a3a2a', { noInk: true }); if (LOD) for (const z of [0.06, 0.65, 1.25]) for (let k = 0; k < 3; k++) { const [a, b] = Pl(x0 + 0.3 + k * 0.22, y0 + 0.3, z); g.fillStyle = alpha('#c8f0e0', 0.45); g.fillRect(a - u * 0.08, b - u * 0.3, u * 0.16, u * 0.3); g.fillStyle = ['#f4a6b8', '#e8e0c0', '#9dff8a'][(k + i + Math.round(z * 3)) % 3]; g.beginPath(); g.arc(a, b - u * 0.13, u * 0.055, 0, 7); g.fill(); } stat(x0 + 0.85, y0 + 0.5, 1.72); break; }
+        case 'bombbench': { table(x0, y0, W, D, '#5b6272'); const [a, b] = dotAt(cx, cy, 0.95, 0.16, '#1a1a20'); if (LOD) { inkLine([[cx + 0.05, cy, 1.1], [cx + 0.15, cy - 0.05, 1.25]], '#c8a050', 0.02); if (on) sparks(...Pl(cx + 0.15, cy - 0.05, 1.27), 5, '#ffd24a', 0.8); } if (LOD) { const [p, q] = Pl(cx - 0.3, cy + 0.2, 0.8); g.fillStyle = '#2a2a30'; g.fillRect(p - u * 0.12, q - u * 0.05, u * 0.24, u * 0.05); g.fillStyle = alpha('#9dff8a', 0.8); g.beginPath(); g.arc(p - u * 0.06, q - u * 0.05, u * 0.045, 0, 7); g.arc(p + u * 0.06, q - u * 0.05, u * 0.045, 0, 7); g.fill(); } void a; void b; stat(x0 + 0.92, y0 + 0.6, 0.82); break; }
+        case 'barrelhaz': { cyl(cx, cy, 0.28, 0.85, 0, '#e8c22a'); if (LOD) { cyl(cx, cy, 0.29, 0.05, 0.2, '#1a1a20'); cyl(cx, cy, 0.29, 0.05, 0.65, '#1a1a20'); const [a, b] = Pl(cx, cy + 0.29, 0.45); g.fillStyle = '#1a1a20'; g.beginPath(); g.moveTo(a, b - u * 0.12); g.lineTo(a + u * 0.1, b + u * 0.06); g.lineTo(a - u * 0.1, b + u * 0.06); g.fill(); } ellAt(cx, cy, 0.86, 0.2, 0.1, '#7dff4a', false); stat(cx + 0.28, cy + 0.15, 0.9); break; }
+        // ---------------------------------------------------------------- family mansion
+        case 'pizzaoven': { box(x0 + 0.05, y0 + 0.05, 0.9, 0.55, 0.7, 0, '#a8543a'); const [a, b] = Pl(cx, y0 + 0.33, 0.7); g.fillStyle = '#b8644a'; g.beginPath(); g.ellipse(a, b, u * 0.62, u * 0.5, 0, Math.PI, 0); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); } const [p, q] = Pl(cx, y0 + 0.6, 0.35); g.fillStyle = on ? `rgba(255,${150 + Math.sin(tt * 9 + ph) * 40},60,1)` : '#2a1a14'; g.beginPath(); g.ellipse(p, q, u * 0.24, u * 0.22, 0, Math.PI, 0); g.fill(); if (on) { glowAt(p, q, u * 0.8, '#ff9a4a', 0.6); lights.push([p, q, u * 2.2, '#ff9a4a', 0.4]); } box(cx + 0.1, y0 - 0.02, 0.14, 0.14, 0.7, 0.8, '#8a4a3a'); stat(x0 + 0.9, y0 + 0.6, 0.72); break; }
+        case 'doughtable': { table(x0, y0, W, D, '#d8c8a8'); const bak = skinId() === 'mafia' && lookDefNow() === 'bakery'; if (bak) { if (LOD) for (let k = 0; k < 4; k++) { const [a, b] = Pl(x0 + 0.2 + k * 0.2, y0 + 0.35, 0.8); g.fillStyle = '#e8b870'; g.beginPath(); g.ellipse(a, b, u * 0.09, u * 0.04, 0.4, 0, 7); g.fill(); g.fillStyle = '#fff8ea'; g.beginPath(); g.arc(a + u * 0.07, b - u * 0.02, u * 0.03, 0, 7); g.fill(); } } else { const [a, b] = ellAt(cx - 0.1, cy, 0.8, 0.3, 0.15, '#f2e0b0'); if (LOD) { for (let k = 0; k < 5; k++) { g.fillStyle = '#c0302a'; g.beginPath(); g.arc(a + Math.cos(k * 1.3) * u * 0.18, b + Math.sin(k * 1.3) * u * 0.08, u * 0.035, 0, 7); g.fill(); } } } if (LOD) { const [a, b] = Pl(cx + 0.35, cy + 0.15, 0.8); g.fillStyle = 'rgba(255,255,255,0.7)'; g.beginPath(); g.ellipse(a, b, u * 0.12, u * 0.05, 0, 0, 7); g.fill(); } stat(x0 + 0.92, y0 + 0.6, 0.82); break; }
+        case 'pastrycase': { box(x0 + 0.05, y0 + 0.1, 0.9, 0.5, 0.6, 0, '#e8e0d0'); box(x0 + 0.05, y0 + 0.1, 0.9, 0.5, 0.4, 0.6, 'rgba(200,230,255,0.3)', { lf: 'rgba(200,230,255,0.3)', rf: 'rgba(160,200,230,0.3)', top: 'rgba(220,240,255,0.3)' }); if (LOD) for (let k = 0; k < 4; k++) { const [a, b] = Pl(x0 + 0.2 + k * 0.2, y0 + 0.4, 0.62); g.fillStyle = '#e8b870'; g.beginPath(); g.ellipse(a, b, u * 0.08, u * 0.04, 0.4, 0, 7); g.fill(); g.fillStyle = k % 2 ? '#fff8ea' : '#6a3a1a'; g.beginPath(); g.arc(a + u * 0.06, b - u * 0.02, u * 0.03, 0, 7); g.fill(); } stat(x0 + 0.9, y0 + 0.55, 1.02); break; }
+        case 'amphora': { for (const [dx, dy, s] of [[-0.2, -0.05, 1], [0.2, 0.05, 0.85]]) { const [a, b] = Pl(cx + dx, cy + dy, 0.4 * s); g.fillStyle = '#c86a3a'; g.beginPath(); g.ellipse(a, b, u * 0.22 * s, u * 0.4 * s, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); } g.fillRect(a - u * 0.08 * s, b - u * 0.55 * s, u * 0.16 * s, u * 0.16 * s); } stat(cx + 0.4, cy + 0.2, 0.1); break; }
+        case 'oilcrate': case 'bottles': { box(cx - 0.35, cy - 0.25, 0.7, 0.5, 0.35, 0, '#a8743f'); if (LOD) for (let k = 0; k < 6; k++) { const [a, b] = Pl(cx - 0.22 + (k % 3) * 0.22, cy - 0.1 + Math.floor(k / 3) * 0.2, 0.35); g.fillStyle = kind === 'oilcrate' ? '#8a9a2a' : '#3a5a2a'; g.fillRect(a - u * 0.045, b - u * 0.28, u * 0.09, u * 0.28); g.fillRect(a - u * 0.02, b - u * 0.38, u * 0.04, u * 0.1); } stat(cx + 0.33, cy + 0.22, 0.37); break; }
+        case 'winebarrel': case 'barrel': { const big = kind === 'winebarrel'; if (big) { box(cx - 0.4, cy - 0.2, 0.8, 0.4, 0.15, 0, '#4a2a18'); const [a, b] = Pl(cx, cy, 0.55); g.fillStyle = '#8a5a2e'; g.beginPath(); g.ellipse(a, b, u * 0.55, u * 0.42, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); g.strokeStyle = '#3a3a44'; g.lineWidth = lw(0.04); for (const k of [-0.3, 0.3]) { g.beginPath(); g.ellipse(a + k * u, b, u * 0.06, u * 0.4, 0, 0, 7); g.stroke(); } g.fillStyle = '#6a3a1a'; g.beginPath(); g.ellipse(a + u * 0.5, b, u * 0.12, u * 0.36, 0, 0, 7); g.fill(); } } else { cyl(cx, cy, 0.26, 0.7, 0, '#8a5a2e'); if (LOD) for (const z of [0.15, 0.55]) cyl(cx, cy, 0.27, 0.04, z, '#3a3a44'); } stat(cx + 0.35, cy + 0.2, big ? 0.2 : 0.72); break; }
+        case 'winerack': { box(x0 + 0.1, y0 + 0.1, 0.8, 0.4, 1.4, 0, '#4a2a18'); if (LOD) for (let r2 = 0; r2 < 4; r2++) for (let k = 0; k < 4; k++) { const [a, b] = Pl(x0 + 0.2 + k * 0.2, y0 + 0.51, 0.2 + r2 * 0.3); g.fillStyle = (k + r2) % 3 ? '#2a3a1a' : '#6a1a24'; g.beginPath(); g.arc(a, b, u * 0.06, 0, 7); g.fill(); } stat(x0 + 0.85, y0 + 0.5, 1.42); break; }
+        case 'sewtable': { table(x0, y0, W, D, '#6b4a2e'); box(cx - 0.25, cy - 0.15, 0.5, 0.2, 0.3, 0.79, '#1a1a20', { gloss: true }); box(cx + 0.1, cy - 0.15, 0.15, 0.2, 0.05, 0.79, '#c9a24a', { noInk: true }); if (LOD) { box(x0 + 0.1, y0 + 0.4, 0.5, 0.25, 0.02, 0.79, '#2a2a34', { noInk: true }); for (let k = 0; k < 4; k++) lineAt([[x0 + 0.15 + k * 0.12, y0 + 0.4, 0.82], [x0 + 0.15 + k * 0.12, y0 + 0.65, 0.82]], 'rgba(220,220,230,0.5)', 0.008); const ny = on ? Math.abs(Math.sin(tt * 12)) * 0.05 : 0; lineAt([[cx - 0.2, cy, 0.95], [cx - 0.2, cy, 0.83 + ny]], '#c9ced8', 0.015); } stat(x0 + 0.92, y0 + 0.6, 0.82); break; }
+        case 'fabric': { box(cx - 0.35, cy - 0.2, 0.7, 0.4, 0.6, 0, '#4a2a18'); for (let k = 0; k < 4; k++) cyl(cx - 0.24 + k * 0.16, cy, 0.08, 0.12, 0.6 + (k % 2) * 0.02, ['#2a2a34', '#6a1a24', '#3a3a4a', '#c9b89a'][k]); stat(cx + 0.33, cy + 0.18, 0.62); break; }
+        case 'cardtable': case 'roulette': {
+          const rou = kind === 'roulette';
+          cyl(cx, cy, 0.12, 0.7, 0, '#3a2418'); cyl(cx, cy, 0.5, 0.08, 0.7, '#4a2412', { top: rou ? '#1f5a2e' : '#1f6b3a' });
+          if (LOD) {
+            if (rou) { const [a, b] = Pl(cx, cy, 0.79); g.save(); g.translate(a, b); g.scale(1, 0.5); const sp = on ? tt * 3 : 0; for (let k = 0; k < 12; k++) { g.fillStyle = k % 2 ? '#b8262e' : '#1a1a20'; g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, u * 0.36, sp + k * 0.5236, sp + (k + 1) * 0.5236); g.fill(); } g.fillStyle = '#c9a24a'; g.beginPath(); g.arc(0, 0, u * 0.1, 0, 7); g.fill(); g.restore(); }
+            else { for (let k = 0; k < 3; k++) { const [a, b] = Pl(cx - 0.15 + k * 0.15, cy - 0.05, 0.8); g.fillStyle = '#f7f7f2'; g.fillRect(a - u * 0.05, b - u * 0.03, u * 0.1, u * 0.07); } for (let k = 0; k < 4; k++) cyl(cx + 0.22, cy + 0.12, 0.06, 0.03, 0.79 + k * 0.03, ['#b8262e', '#f7f7f2', '#1a1a20', '#3a78c8'][k], { noInk: true }); }
+          }
+          stat(cx - 0.3, cy + 0.25, 0.8); break;
+        }
+        case 'blueprint': { table(x0, y0, W, D, '#8a6a4a'); box(x0 + 0.1, y0 + 0.08, 0.8, 0.52, 0.01, 0.79, '#2a5aa8', { noInk: true }); if (LOD) { for (let k = 0; k < 4; k++) lineAt([[x0 + 0.18 + k * 0.18, y0 + 0.14, 0.81], [x0 + 0.18 + k * 0.18, y0 + 0.54, 0.81]], 'rgba(220,235,255,0.6)', 0.01); lineAt([[x0 + 0.2, y0 + 0.3, 0.81], [x0 + 0.7, y0 + 0.3, 0.81], [x0 + 0.7, y0 + 0.5, 0.81]], '#e8f0ff', 0.018); } box(x0 + 0.72, y0 + 0.1, 0.18, 0.12, 0.12, 0.79, '#ffc23a'); stat(x0 + 0.92, y0 + 0.6, 0.82); break; }
+        case 'cmixer': { box(cx - 0.4, cy - 0.2, 0.8, 0.4, 0.3, 0, '#ffb42a'); const [a, b] = Pl(cx, cy, 0.8), sp = on ? tt * 2 : 0; g.save(); g.translate(a, b); g.rotate(-0.4); g.fillStyle = '#ff8a1a'; g.beginPath(); g.ellipse(0, 0, u * 0.42, u * 0.3, 0, 0, 7); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); g.strokeStyle = '#c85a0a'; g.lineWidth = lw(0.04); for (let k = 0; k < 3; k++) { const o = ((sp + k * 2) % 6) / 6 - 0.5; g.beginPath(); g.moveTo(o * u * 0.6, -u * 0.25); g.lineTo(o * u * 0.6 + u * 0.1, u * 0.25); g.stroke(); } } g.fillStyle = '#6a6e78'; g.beginPath(); g.ellipse(-u * 0.4, 0, u * 0.08, u * 0.16, 0, 0, 7); g.fill(); g.restore(); stat(cx + 0.38, cy + 0.18, 0.3); break; }
+        case 'bricks': { for (let k = 0; k < 6; k++) box(cx - 0.3 + (k % 2) * 0.3, cy - 0.15, 0.28, 0.3, 0.12, Math.floor(k / 2) * 0.12, '#b8523a', { noInk: LOD < 2 }); break; }
+        case 'dumpster': { box(x0 + 0.05, y0 + 0.05, 0.9, 0.58, 0.75, 0, '#2f7a4a', { gloss: true }); const lid = on ? 0.1 + Math.abs(Math.sin(tt * 1.2)) * 0.1 : 0.05; box(x0, y0, 1.0, 0.68, 0.06, 0.75 + lid, '#26603a'); if (LOD) { heap(cx, cy, 0.8, 5, 0.1, ['#3a3a44', '#c9a06a', '#5a8a3a']); const [a, b] = Pl(cx, y0 + 0.64, 0.4); g.fillStyle = '#f2efe6'; g.font = `800 ${(u * 0.14).toFixed(1)}px system-ui`; g.textAlign = 'center'; g.fillText('WASTE', a, b); } stat(x0 + 0.9, y0 + 0.6, 0.82); break; }
+        case 'cans': { for (const [dx, col] of [[-0.25, '#6a707c'], [0.25, '#3a78c8']]) { cyl(cx + dx, cy, 0.2, 0.62, 0, col); cyl(cx + dx, cy, 0.22, 0.06, 0.62, shade(col, -0.2)); } stat(cx + 0.45, cy + 0.2, 0.2); break; }
+        case 'boxes': { box(cx - 0.3, cy - 0.2, 0.45, 0.4, 0.35, 0, '#b8905a'); box(cx - 0.05, cy - 0.15, 0.35, 0.3, 0.3, 0.35, '#c9a06a'); box(cx + 0.1, cy - 0.2, 0.3, 0.35, 0.28, 0, '#a8804a'); break; }
+        case 'flour': { for (const [dx, dy] of [[-0.12, 0], [0.18, 0.05], [0.02, -0.05]]) { const [a, b] = Pl(cx + dx, cy + dy, 0.3); g.fillStyle = '#f2ead6'; g.beginPath(); g.roundRect(a - u * 0.18, b - u * 0.3, u * 0.36, u * 0.5, u * 0.08); g.fill(); if (LOD) { g.strokeStyle = INK; g.lineWidth = lw(0.02); g.stroke(); g.fillStyle = '#b8262e'; g.fillRect(a - u * 0.1, b - u * 0.1, u * 0.2, u * 0.06); } } break; }
+        default: { table(x0, y0, W, D, F.wood || WOOD); stat(x0 + 0.9, y0 + 0.6, 0.8); }
+      }
+    }
+
+    // the floor a look room is laid with, over the world's own boards, tiles or plates
+    function lookFloor(kind, acc) {
+      const pat = (col, n, r, cols, seed = 7) => { if (!LOD) return; for (let k = 0; k < n; k++) { const h = hsh(k * 31 + seed), x = 0.4 + (h % 620) / 100, y = 0.4 + ((h >>> 10) % 620) / 100; ellAt(x, y, 0.012, r * (0.6 + (h % 5) / 10), r * 0.5 * (0.6 + (h % 5) / 10), cols ? cols[k % cols.length] : col, false); } };
+      switch (kind) {
+        case 'grass': decal(0.3, 0.3, 6.4, 6.4, '#7fb45a', { border: '#5a8a3a' }); pat('#6aa04a', 16, 0.3); break;
+        case 'mud': decal(0.3, 0.3, 6.4, 6.4, '#9a7048'); pat('#6a4a2a', 10, 0.55); pat('#7a5434', 8, 0.35, null, 3); break;
+        case 'straw': decal(0.3, 0.3, 6.4, 6.4, '#e0c070'); if (LOD) for (let k = 0; k < 60; k++) { const h = hsh(k * 17), x = 0.4 + (h % 620) / 100, y = 0.4 + ((h >>> 9) % 620) / 100, an = (h % 314) / 100; lineAt([[x, y, 0.015], [x + Math.cos(an) * 0.25, y + Math.sin(an) * 0.25, 0.015]], '#c8a04a', 0.02); } break;
+        case 'soil': decal(0.3, 0.3, 6.4, 6.4, '#7a5434'); if (LOD) for (let r = 0; r < 6; r++) lineAt([[0.4, 0.6 + r * 1.05, 0.013], [6.6, 0.6 + r * 1.05, 0.013]], '#5e3e24', 0.06); break;
+        case 'flag': decal(0.3, 0.3, 6.4, 6.4, '#5e5868'); if (LOD) for (let r = 0; r < 7; r++) for (let c = 0; c < 7; c++) decal(0.35 + c * 0.9 + (r % 2) * 0.2, 0.35 + r * 0.9, 0.8, 0.8, (r * 7 + c) % 3 ? '#6a6474' : '#57515f'); break;
+        case 'soot': decal(0.3, 0.3, 6.4, 6.4, '#4a3e3a'); pat('#2a2224', 12, 0.4); break;
+        case 'rugred': decal(0.8, 2.3, 5.4, 1.4, '#7a1a24', { border: '#c9a24a' }); break;
+        case 'rugpurple': decal(0.8, 2.3, 5.4, 1.4, '#4a2a6a', { border: '#c9a24a' }); break;
+        case 'coins': pat('#ffcf3a', 22, 0.12, ['#ffcf3a', '#e0a82a']); break;
+        case 'grid': case 'clean': case 'grate': { const c = kind === 'grid' ? acc : kind === 'clean' ? '#9aa4b4' : '#3a5a6e'; if (LOD) for (let k = 1; k < 7; k++) { lineAt([[k, 0.3, 0.012], [k, 6.7, 0.012]], alpha(c, 0.35), 0.02); lineAt([[0.3, k, 0.012], [6.7, k, 0.012]], alpha(c, 0.35), 0.02); } break; }
+        case 'mat': decal(0.6, 0.6, 5.8, 5.8, '#3a4a8a', { border: '#ff3fa4' }); decal(2.4, 2.4, 2.2, 2.2, 'rgba(0,0,0,0)', { border: '#f2e14e' }); break;
+        case 'oil': pat('#15161e', 8, 0.5); break;
+        case 'dance': case 'rgb': case 'arcade': { if (!LOD) break; const cols = kind === 'arcade' ? ['#ff3fb8', '#29e7ff', '#ffd23a', '#39ff9e'] : ['#ff3fa4', '#00f0ff', '#b48cff', '#39ff9e']; for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) { const k = (r * 6 + c + Math.floor(tt * (kind === 'dance' ? 3 : 0.6))) % 4; if (kind !== 'dance' && (r + c) % 3) continue; decal(0.55 + c * 1.0, 0.55 + r * 1.0, 0.9, 0.9, alpha(cols[k], kind === 'dance' ? 0.35 : 0.14)); } break; }
+        case 'organic': case 'goo': decal(0.5, 0.5, 6.0, 6.0, alpha(kind === 'goo' ? '#7dffb0' : '#b86bff', 0.1), { border: alpha('#7dffb0', 0.3) }); pat(alpha('#7dffb0', 0.25), 8, 0.35); break;
+        case 'sand': decal(0.3, 0.3, 6.4, 6.4, '#d8c090'); pat('#c8ac78', 14, 0.3); pat('#f2e6c8', 10, 0.08, ['#f2e6c8', '#ffb4a0'], 5); break;
+        case 'dark': decal(0.3, 0.3, 6.4, 6.4, '#10202c'); break;
+        case 'ballroom': if (LOD) for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) if ((r + c) % 2) decal(0.5 + c * 1.0, 0.5 + r * 1.0, 1.0, 1.0, 'rgba(230,220,255,0.14)'); break;
+        case 'dust': pat('rgba(200,190,180,0.25)', 12, 0.4); break;
+        case 'cobble': decal(0.3, 0.3, 6.4, 6.4, '#4a4450'); pat('#5a5462', 30, 0.2); break;
+        case 'hazard': decal(0.4, 2.35, 6.2, 0.1, '#ffc23a'); decal(0.4, 3.55, 6.2, 0.1, '#ffc23a'); break;
+        case 'check': break;
+        case 'tile': if (LOD) for (let r = 0; r < 7; r++) for (let c = 0; c < 7; c++) if ((r + c) % 2) decal(0.3 + c * 0.915, 0.3 + r * 0.915, 0.915, 0.915, 'rgba(255,255,255,0.35)'); break;
+        case 'terra': decal(0.3, 0.3, 6.4, 6.4, '#b8704a'); if (LOD) for (let k = 1; k < 7; k++) { lineAt([[k, 0.3, 0.012], [k, 6.7, 0.012]], 'rgba(90,40,20,0.35)', 0.02); lineAt([[0.3, k, 0.012], [6.7, k, 0.012]], 'rgba(90,40,20,0.35)', 0.02); } break;
+        case 'concrete': decal(0.3, 0.3, 6.4, 6.4, '#8a8e96'); pat('#7a7e86', 10, 0.35); break;
+      }
+    }
+    // a look room: its floor, six themed workstations where the desks were, two pieces against the side wall
+    function furnishLook(rm, spec, add, busyAt, lit) {
+      const F = FAC[curWorld || skinId()] || FAC.space, acc = themeOf(rm.id).accent, act = roomLook(rm) === 'active', lid = (lookDef(rm) || {}).id;
+      const add0 = add; add = (d, fp, fn) => add0(d, fp, () => { curLookId = lid; fn(); });
+      add(0.05, null, () => lookFloor(spec.floor, acc));
+      for (let i = 0; i < 6; i++) {
+        const [cx, cy] = ST(i), kind = spec.st[i % spec.st.length];
+        add(cx + cy, [cx - 0.66, cy - 0.44, 1.32, 0.88], () => { const [a, b] = Pl(cx, cy, 0); g.save(); g.translate(a, b); g.scale(1.3, 1.3); g.translate(-a, -b); lookStation(kind, cx, cy, busyAt(i) || act, i, F, lit(i)); g.restore(); });
+      }
+      const [s0, s1] = spec.side || [];
+      if (s0) add(0.4 + 2.3, [0.1, 2.0, 0.6, 0.6], () => { const k = 0.8; g.save(); const [a, b] = Pl(0.4, 2.3, 0); g.translate(a, b); g.scale(k, k); g.translate(-a, -b); lookStation(s0, 0.4, 2.3, act, 6, F, alpha(acc, 0)); g.restore(); });
+      if (s1) add(0.4 + 4.9, [0.1, 4.6, 0.6, 0.6], () => { const k = 0.8; g.save(); const [a, b] = Pl(0.4, 4.9, 0); g.translate(a, b); g.scale(k, k); g.translate(-a, -b); lookStation(s1, 0.4, 4.9, act, 7, F, alpha(acc, 0)); g.restore(); });
+    }
+
     // ---- where things go, per room theme. Six stations per room (the desks, chairs and pens the folk work at), so a
     // character working station 2 stands at station 2's furniture. Each piece's footprint blocks the walk grid. The
     // lanes in from each door are always left free.
@@ -6051,7 +6545,10 @@
       const busyAt = (i) => [...agents.values()].some((a) => a.path === rm.id && a.station === i && (a.busy || a.act === 'tinker' || a.act === 'chore' || a.state === 'work') && !a.queue.length);
       const pipeline = !isService(rm) && MODE() !== 'allowance';
       const lit = (i) => { if (pipeline) { const st = stageInfo(rm)[i]; return !st ? '#2a78c8' : st.done ? '#2fbf7f' : st.next ? (Math.sin(tt * 4) > 0 ? '#39a8ff' : '#1f6fb8') : '#34405a'; } return busyAt(i) ? '#3ddc97' : i < svcStatsToday(rm).n ? '#2a9a6a' : '#2a4a78'; };
-      if (th === 'barber' || th === 'salon') {
+      const lookSpec = lookRoomOf(rm);
+      if (lookSpec) {
+        furnishLook(rm, lookSpec, add, busyAt, lit);
+      } else if (th === 'barber' || th === 'salon') {
         const chair = th === 'salon' ? '#f472b6' : '#b3262e';
         for (let i = 0; i < 6; i++) {
           const [cx, cy] = ST(i);
@@ -6152,8 +6649,16 @@
       }
       // the corners every room has: a plant at the back, the room's prop at the front, and two ledger read-outs
       const theme = themeOf(rm.id), look = roomLook(rm);
-      if (th === 'yard') add(1.2, [0.15, 0.15, 0.9, 0.9], () => tree(0.6, 0.6, 1.0)); else add(1.2, [0.15, 0.15, 0.9, 0.9], () => plant(0.6, 0.6, 1.15));
-      add(0.6 + 6.4, [0.15, 5.95, 0.9, 0.9], () => roomProp(th === 'barber' ? 'pole' : theme.prop, 0.6, 6.4, acc, th));
+      if (lookSpec) {
+        // a look room's corners hold more of its own things, not a pot plant and the office prop
+        const F = FAC[curWorld || skinId()] || FAC.space, act = look === 'active', [c0, c1] = lookSpec.corner || [lookSpec.side[1], lookSpec.side[0]];
+        const lid = (lookDef(rm) || {}).id;
+        add(1.2, [0.15, 0.15, 0.9, 0.9], () => (curLookId = lid, lookStation(c0, 0.6, 0.6, act, 8, F, 'rgba(0,0,0,0)')));
+        add(0.6 + 6.4, [0.15, 5.95, 0.9, 0.9], () => (curLookId = lid, lookStation(c1, 0.6, 6.4, act, 9, F, 'rgba(0,0,0,0)')));
+      } else {
+        if (th === 'yard') add(1.2, [0.15, 0.15, 0.9, 0.9], () => tree(0.6, 0.6, 1.0)); else add(1.2, [0.15, 0.15, 0.9, 0.9], () => plant(0.6, 0.6, 1.15));
+        add(0.6 + 6.4, [0.15, 5.95, 0.9, 0.9], () => roomProp(th === 'barber' ? 'pole' : theme.prop, 0.6, 6.4, acc, th));
+      }
       const nStack = isService(rm) || MODE() === 'allowance' ? svcStats(rm, 30).monthCount : STAGES.reduce((s2, st) => s2 + pathState(rm.id).refs[st].length, 0);
       add(6.45 + 0.6, [6.0, 0.15, 0.9, 0.9], () => stack(6.45, 0.6, nStack, th));
       let f = 0, tcol = '#ffcf5a';
