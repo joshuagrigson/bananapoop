@@ -66,7 +66,8 @@ const shim = (station, prefix) => `<script type="importmap">${JSON.stringify({ i
     let u;
     try { u = new URL(String((url && url.url) || url), location.href); } catch { return real(url, opts); }
     if (u.origin !== location.origin || !u.pathname.startsWith(base)) return real(url, opts);
-    return ready.then((route) => (route ? route(u, opts) : lookOnly(u, opts)));
+    // A slow module graph may finish after the fallback timer; recover writes once it is ready.
+    return ready.then((route) => { const current=M.route||route; return current ? current(u, opts) : lookOnly(u, opts); });
   };
 })();</script>
 <script type="module" src="/engine/mock/station.js" onerror="window.__PF_MOCK.ready(null)"></script>`;

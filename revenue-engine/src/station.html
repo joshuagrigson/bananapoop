@@ -1163,10 +1163,20 @@
   let geomFor = null;
   // a room's own setup, chosen in Customize, overrides its world's shape for that building
   const ROOM_SIZE = { small: [10, 10], medium: [12, 12], large: [15, 15], wide: [15, 10], deep: [10, 15] };
+  const ROOM_SHAPE_NAMES = {square:'Square', wide:'Wide rectangle', deep:'Tall rectangle', round:'Circle', courtyard:'L-shaped courtyard'};
+  const GROWTH_STEPS = [50,100,250,500,1000,2500];
+  function roomGrowth(room) {
+    const lane = snap?.race?.lanes.find(l => l.id === room.id);
+    const profit = lane ? lane.profitUsd : (snap?.state.moneyIn || []).filter(e => e.path === room.id).reduce((n,e) => n + e.usd,0) - (snap?.state.moneyOut || []).filter(e => e.path === room.id).reduce((n,e) => n + e.usd,0);
+    return {profit, level:GROWTH_STEPS.filter(n => profit >= n).length, simulated:Boolean(lane && snap.race.simMode)};
+  }
   let cellSpec = new Map();
   function roomShape(key, f) {
     const sp = cellSpec.get(key);
-    if (!sp || f.round || (!sp.size && !sp.yard)) return f;
+    if (!sp) return f;
+    if (sp.shape === 'round') return {w:15,d:15,round:true};
+    if (sp.shape) f = sp.shape === 'wide' ? {w:15,d:10} : sp.shape === 'deep' ? {w:10,d:15} : sp.shape === 'courtyard' ? {w:15,d:15,yard:[5,5]} : {w:12,d:12};
+    if (!sp.size && !sp.yard) return f;
     const [w, d] = ROOM_SIZE[sp.size] || [f.w, f.d], out = { w, d };
     const yard = sp.yard === 'none' ? null : sp.yard === 'small' ? [3, 3] : sp.yard === 'large' ? [5, 4] : f.yard;
     if (yard) { const y = [Math.min(yard[0], w - 8), Math.min(yard[1], d - 8)]; if (y[0] >= 2 && y[1] >= 2) out.yard = y; }
@@ -1377,7 +1387,7 @@
     if (roomLook(room) === 'killed') return 1;
     const wk = weekActivity(room);
     const hired = jobsOn(room.id).filter((j) => j.enabled).length;
-    return clamp(3 + Math.round(Math.log2(1 + wk)) + Math.min(2, hired), 1, 7);
+    return clamp(3 + Math.round(Math.log2(1 + wk)) + Math.min(2, hired) + roomGrowth(room).level * 2, 1, 19);
   }
   // ---- residents: characters who belong to a world, drawn in the Code Lab style. Scenery, labelled so, except
   // Mumblecrow, who stands in a farm room only while that room has had no sales, chores or leads for 7 days.
@@ -1459,12 +1469,15 @@
 
   function buildRooms() {
     setGeometry(skinId());
-    cellSpec = new Map(snap.catalog.slice(0, PATH_CELLS.length).map((spec, i) => [PATH_CELLS[i].join(','), spec]));
+    const assigned = new Map(), occupied = new Set();
+    for (const sp of snap.catalog) if (sp.position) { assigned.set(sp.id,sp.position); occupied.add(sp.position.join(',')); }
+    for (const sp of snap.catalog) if (!assigned.has(sp.id)) { const cell = PATH_CELLS.find(p => !occupied.has(p.join(','))); if (cell) { assigned.set(sp.id,cell); occupied.add(cell.join(',')); } }
+    cellSpec = new Map(snap.catalog.filter(sp => assigned.has(sp.id)).map(sp => [assigned.get(sp.id).join(','),sp]));
     boxCache.clear();
     rooms.length = 0; cells.clear();
     cells.set(HUB.join(','), 'hub'); cells.set(DOCK.join(','), 'dock');
     snap.catalog.slice(0, PATH_CELLS.length).forEach((spec, i) => {
-      const [c, r] = PATH_CELLS[i];
+      const [c, r] = assigned.get(spec.id) || PATH_CELLS[i];
       const [x0, y0] = cellOrigin(c, r);
       cells.set(c + ',' + r, 'path');
       rooms.push({ id: spec.id, spec, c, r, x0, y0, box: cellBox(c, r) });
@@ -2014,7 +2027,7 @@
   }
 
 
-  const catSig = (cat) => JSON.stringify((cat || []).map((p) => [p.id, p.name, p.short, p.kind, p.accent, p.style, p.screen, p.prop, p.rank, p.layout, p.size, p.yard]));
+  const catSig = (cat) => JSON.stringify((cat || []).map((p) => [p.id, p.name, p.short, p.kind, p.accent, p.style, p.screen, p.prop, p.rank, p.layout, p.size, p.yard, p.shape, p.position]));
 
   // ---- service rooms: what sold, what it earned, what it cost in supplies and time. All read from the ledger.
   const DAY = 86400e3;
@@ -2272,19 +2285,23 @@
         const [tx, ty] = a.queue[0];
         const dx = tx - a.x, dy = ty - a.y, dist = Math.hypot(dx, dy);
         const base = a.kind === 'res' ? a.lk.res.speed || 1.1 : a.kind === 'npc' ? (a.npc === 'crab' ? 1.2 : a.npc === 'warg' ? 2.6 : a.npc === 'courier' ? 3.4 : 1.6) : a.kind === 'extra' ? (a.carry ? 3.2 : 2.5) : a.kind === 'guest' ? 2.1 : a.busy ? 3.3 : a.kind === 'folk' ? (a.small ? 2.3 : 1.9) : a.state === 'idle' ? 1.7 : 3.1;
-        const sp = base * dt;
+        // Acceleration and a short final deceleration preserve the existing collision-safe route.
+        const targetSpeed = a.queue.length === 1 ? Math.min(base, Math.max(0.35, dist * 5)) : base;
+        a.speed = (a.speed || 0) + (targetSpeed - (a.speed || 0)) * (1 - Math.exp(-dt * 10));
+        const sp = a.speed * dt;
+        a.gait = (a.gait || 0) + Math.min(dist, sp) / 1.5;
         const sdx = dx - dy, sdy = dx + dy;
         if (Math.abs(sdx) > 0.01) a.face = sdx > 0 ? 1 : -1;
         if (Math.abs(sdy) > 0.01 || Math.abs(sdx) > 0.01) a.view = sdy < -0.01 ? 'back' : 'front';
         if (dist <= sp) { a.x = tx; a.y = ty; a.queue.shift(); } else { a.x += dx / dist * sp; a.y += dy / dist * sp; }
         // footsteps kick up a little dust (agents glide: no feet on the floor)
-        if (a.kind !== 'job' && a.kind !== 'visit' && a.kind !== 'res') {
+        if (!reduceMotion && a.kind !== 'job' && a.kind !== 'visit' && a.kind !== 'res') {
           a.stepAcc = (a.stepAcc || 0) + dt;
           if (a.stepAcc > (a.busy ? 0.15 : 0.26)) { a.stepAcc = 0; const [fx1, fy1] = P(a.x, a.y, 0.5); for (let k = 0; k < 3; k++) particles.push({ x: fx1 + (Math.random() - 0.5) * 3, y: fy1, vx: (Math.random() - 0.5) * 12 - dx / (dist || 1) * 6, vy: -4 - Math.random() * 6, g: 12, life: 0.3 + Math.random() * 0.2, col: k % 2 ? 'rgba(210,215,230,0.55)' : 'rgba(170,175,190,0.45)' }); }
         }
         if (!a.queue.length) arrived(a, id);
         if (!agents.has(id)) continue;
-      } else lifeTick(a, dt);
+      } else { a.speed = 0; lifeTick(a, dt); }
       // face the station while working it
       if (!a.queue.length && a.station >= 0 && (a.act === 'tinker' || a.act === 'serve' || a.act === 'chore')) { const room = roomById(a.path); if (room) { const [cx, cy] = deskCenter(room, a.station); a.face = (cx - cy) - (a.x - a.y) > 0 ? 1 : -1; a.view = 'back'; } }
       // or the machine, belt, bench or crate they came to
@@ -2359,6 +2376,8 @@
   }
   function spawnCoins(room, n, amt = null) {
     if (!room) return;
+    if (T - (room.lastSaleFx ?? -100) < 8) { flowBurst(room,1,amt); return; }
+    room.lastSaleFx=T; n=reduceMotion ? 0 : Math.min(n,1);
     for (const a of agents.values()) if (a.kind === 'extra' && !a.holo && a.path === room.id && !a.queue.length && Math.random() < 0.85) {
       a.act = 'cheer'; a.actT = 1.4 + Math.random() * 0.8; a.carry = 0; if (Math.random() < 0.6) bubble(a, Math.random() < 0.5 ? 'coin' : 'star', 1.2);
       const [sx, sy] = P(a.x, a.y, 30);
@@ -2393,8 +2412,16 @@
     if (w === 'mafia' && big) popValue(cx, cy - 1, ['Salute!', 'Molto bene', 'Grazie'][(Math.random() * 3) | 0], '#e0b454');
   }
   let flowSig = '', flowCache = new Map(), vaultPulse = 0, flowLevel = 0;
+  // Visual cargo represents batches, never individual sales. Density grows logarithmically.
+  function productionDensity(dailySales) {
+    const sales = Number.isFinite(dailySales) ? Math.max(0, dailySales) : 0;
+    const extreme = sales >= 10000;
+    return { extreme, maxItems: extreme ? Math.min(8, 3 + Math.floor(Math.log10(sales / 10000))) : 2,
+      every: Math.max(2, 28 / (1 + Math.log10(1 + sales / 1000))),
+      spacing: extreme ? Math.max(2.8, 8 / (1 + Math.log10(sales / 10000))) : 8 };
+  }
   function roomFlow(room) {
-    const sig = snap.state.eventCount + ':' + Math.floor(Date.now() / 60000) + ':' + rooms.length;
+    const sig = snap.state.eventCount + ':' + Math.floor(Date.now() / 60000) + ':' + rooms.length + ':' + (snap.race?.id||'') + ':' + (snap.race?.day||0);
     if (sig !== flowSig) { flowSig = sig; flowCache = new Map(); }
     if (flowCache.has(room.id)) return flowCache.get(room.id);
     const from30 = Date.now() - 30 * 86400e3, from7 = Date.now() - 7 * 86400e3;
@@ -2409,7 +2436,9 @@
       leads += l.timeline.filter((x) => x.kind !== 'in' && x.kind !== 'out' && x.kind !== 'break' && Date.parse(x.ts) >= since).length + Math.round(Math.log2(1 + l.signalScore));
     }
     const idx = rooms.indexOf(room), lane = ((idx % 5) - 2) * 0.22;
-    const f = { usd, leads, lane, acc: themeOf(room.id).accent, every: usd > 0 ? clamp(4.5 / Math.log2(2 + usd), 0.3, 3) : ever ? 5 : 0, leadEvery: leads > 0 ? clamp(6 / Math.log2(2 + leads), 0.8, 4.5) : 0 };
+    const sales = l ? l.plays.reduce((n,p)=>n+(p.sales||0),0) / Math.max(1,snap.race.day) : snap.state.moneyIn.filter(e=>e.path===room.id && Date.parse(e.ts)>=Date.now()-30*DAY).reduce((n,e)=>n+(e.qty||1),0)/30;
+    const density = productionDensity(sales);
+    const f = { usd, leads, lane, sales, ...density, acc: themeOf(room.id).accent, every: usd > 0 ? density.every : ever ? 40 : 0, leadEvery: leads > 0 ? Math.max(24,60/(1+leads/500)) : 0 };
     flowCache.set(room.id, f);
     return f;
   }
@@ -2421,27 +2450,34 @@
   }
   const FUNNEL_R = 2.6;
   function spawnFlow(room, kind, big = false, label = null) {
-    if (!room || flows.length > 160) return;
+    if (!room || flows.length >= 36 || flows.filter(t=>t.room===room.id).length >= roomFlow(room).maxItems) return;
     const pts = flowRoute(room); if (pts.length < 2) return;
     const segs = []; let L = 0;
     for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); segs.push(d); L += d; }
     const f = roomFlow(room);
-    flows.push({ room: room.id, acc: f.acc, kind, big, label, pts, segs, L, d: -Math.random() * 0.6, speed: (kind === 'lead' ? 3 : 3.6) * (0.85 + Math.random() * 0.3), lane: f.lane + (Math.random() - 0.5) * 0.16, seed: (Math.random() * 1e6) | 0, k: 0, phase: 'go', trail: [] });
+    flows.push({ room: room.id, acc: f.acc, kind, big, label, pts, segs, L, d: 0, speed: (kind === 'lead' ? 4.2 : 4.8), lane: f.lane + (Math.random() - 0.5) * 0.16, seed: (Math.random() * 1e6) | 0, k: 0, phase: 'go', trail: [] });
   }
-  function flowBurst(room, n, amt = null) { for (let i = 0; i < Math.min(n, 6); i++) spawnFlow(room, 'money', i < 2, i === 0 && amt ? '+' + usd(amt) : null); }
+  const pendingSales = new Map();
+  function flowBurst(room, n, amt = null) {
+    if(!room || !amt)return;
+    const pending=pendingSales.get(room.id)||{amount:0,last:-100}; pending.amount+=amt;
+    pendingSales.set(room.id,pending);
+  }
   function flowTick(dt) {
     if (!snap) return;
     let lvl = 0;
     for (const room of rooms) {
       const f = roomFlow(room);
+      const pending=pendingSales.get(room.id);
+      if(pending && pending.amount>0 && T-pending.last>=15 && flows.filter(t=>t.room===room.id).length<f.maxItems){spawnFlow(room,'money',false,'+'+usd(pending.amount));pending.amount=0;pending.last=T;}
       const a = flowAcc.get(room.id) || { m: Math.random() * 2, l: Math.random() * 3 };
       if (f.every) { a.m += dt * (reduceMotion ? 0.3 : 1); if (a.m >= f.every) { a.m = 0; spawnFlow(room, 'money'); } lvl += 1 / f.every; }
       if (f.leadEvery) { a.l += dt * (reduceMotion ? 0.3 : 1); if (a.l >= f.leadEvery) { a.l = 0; spawnFlow(room, 'lead'); } lvl += 0.4 / f.leadEvery; }
       flowAcc.set(room.id, a);
     }
     flowLevel += (clamp(lvl / 4, 0, 1) - flowLevel) * Math.min(1, dt * 0.8);
-    // the lab never stops experimenting: a poof over a busy bench every second or so
-    if (skinId() === 'lab' && !reduceMotion) { fxAcc += dt; if (fxAcc > 1.1) { fxAcc = 0; const busy = rooms.filter((r) => { const f = roomFlow(r); return f.every || f.leadEvery; }); if (busy.length) worldMoment(busy[(Math.random() * busy.length) | 0], false); } }
+    // Occasional activity accent; keep production readable.
+    if (skinId() === 'lab' && !reduceMotion) { fxAcc += dt; if (fxAcc > 12) { fxAcc = 0; const busy = rooms.filter((r) => { const f = roomFlow(r); return f.every || f.leadEvery; }); if (busy.length) worldMoment(busy[(Math.random() * busy.length) | 0], false); } }
     for (let i = worldFx.length - 1; i >= 0; i--) if (T - worldFx[i].t0 > 2.6) worldFx.splice(i, 1);
     vaultPulse = Math.max(0, vaultPulse - dt * 1.6);
     for (let i = flows.length - 1; i >= 0; i--) {
@@ -3062,8 +3098,7 @@
   function whoHere(room) {
     const here = [...agents.values()].filter((a) => a.path === room.id && a.kind !== 'res' && a.state !== 'leave');
     const named = here.filter((a) => a.kind !== 'extra' && a.kind !== 'npc'), npcs = here.filter((a) => a.kind === 'npc'), crowd = here.length - named.length - npcs.length;
-    if (!here.length) return '';
-    return `<div class="who">${named.map((a) => { const id = identity(a); return `<span class="w" data-sel="a:${esc(a.id)}" style="--wc:${id.col}" title="Follow ${esc(id.name)}"><i></i>${esc(id.name)}<small>${esc(id.kind === 'agent' ? 'agent' : id.kind === 'client' ? 'client' : id.kind === 'kid' ? 'kid' : id.kind === 'lead' ? 'you' : MODE() === 'race' ? 'room lead' : 'team')}</small></span>`; }).join('')}${npcs.map((a) => { const id = identity(a); return `<span class="w crowd" style="--wc:${id.col}" title="${esc((NPC[a.npc] || {}).say || '')}"><i></i>${esc(id.name)}<small>${esc(id.label.toLowerCase())}</small></span>`; }).join('')}${crowd ? `<span class="w crowd" title="The floor crowd grows with this room's activity and its agents; they are not on your roster">+${crowd} on the floor</span>` : ''}</div>`;
+    return roomDesignHtml(room) + `<div class="who">${named.map((a) => { const id = identity(a); return `<span class="w" data-sel="a:${esc(a.id)}" style="--wc:${id.col}" title="Follow ${esc(id.name)}"><i></i>${esc(id.name)}<small>${esc(id.kind === 'agent' ? 'agent' : id.kind === 'client' ? 'client' : id.kind === 'kid' ? 'kid' : id.kind === 'lead' ? 'you' : MODE() === 'race' ? 'room lead' : 'team')}</small></span>`; }).join('')}${npcs.map((a) => { const id = identity(a); return `<span class="w crowd" style="--wc:${id.col}" title="${esc((NPC[a.npc] || {}).say || '')}"><i></i>${esc(id.name)}<small>${esc(id.label.toLowerCase())}</small></span>`; }).join('')}${crowd ? `<span class="w crowd" title="The floor crowd grows with this room's activity and its agents; they are not on your roster">+${crowd} on the floor</span>` : ''}</div>`;
   }
   // the panel folded once: a stacked list of rooms, or a compact hub for the room in view
   function renderStack(el, room) {
@@ -3625,11 +3660,11 @@
     const needs = r.lanes.filter((l) => l.blocked);
     const sm = r.lanes.slice().sort((a, b) => b.inUsd - a.inUsd), smMax = Math.max(1e-9, ...sm.map((l) => Math.max(l.inUsd, l.outUsd)));
     el.innerHTML = `${head(`<span class="pill cyan">${!r.started ? `starts in ${leftLabel(r.startsInMin)}` : r.over ? 'finished' : raceNow(r)}</span>${r.simMode ? '<span class="pill" style="background:#b48cff;color:#140a26;font-weight:800">SIMULATION · nothing real is sent, posted or bought</span>' : ''}<span class="pill gold">${r.paper ? 'paper money' : usd(r.stakeUsd) + (r.simMode ? ' simulated' : '') + ' a room'}</span><span class="pill">${r.lanes.length} rooms</span>${r.breakCount ? `<span class="pill warn">${r.breakCount} rule break${r.breakCount === 1 ? '' : 's'}</span>` : ''}`)}
-      ${r.over ? raceDoneHtml(r) : ''}
+      ${r.over ? raceDoneHtml(r) : ''}<button class="btn wide" data-research-open>Research agents · ${snap.research?.settings?.enabled?'on':'off'}</button>
       ${r.purpose ? `<div class="rb-for">${ic('target')}<span><small>What this race is for</small>${esc(r.purpose)}</span></div>` : ''}
       <div class="row2" style="margin:10px 0 2px"><button class="btn" type="button" data-rsopen="amend">${ic('sliders')}Rules and limits</button><button class="btn" type="button" data-rsopen="restart">${ic('flag')}New race</button></div>
       <div class="row2" style="margin:6px 0 2px"><button class="btn" type="button" data-rerun>${ic('flag')}Run it again, same rules</button><button class="btn" type="button" data-archive="${esc(r.id)}">${ic('chart')}Save every plan (.md)</button></div>
-      ${r.simMode && r.sim ? `<div class="muted small" style="border-left:3px solid #b48cff;padding-left:8px;margin-bottom:6px"><b style="color:var(--ink)">The simulation so far:</b> ${r.sim.totals.research} findings from the real web, ${r.sim.totals.variants} variants tested, ${r.sim.totals.builds} things built in the sandbox, ${r.sim.totals.live} plays live in the simulated market. Every dollar here is simulated from published benchmarks and each room's own research.${r.sim.topIdeas.length ? `<br><b style="color:var(--ink)">Best ideas tested:</b> ${r.sim.topIdeas.slice(0, 5).map((v) => `${esc(v.label)} (${esc(raceNm(v.room))}): typical ${usd(Math.round((v.net.find((n) => n.days === 30) || v.net[v.net.length - 1]).p50))} by day ${(v.net.find((n) => n.days === 30) || v.net[v.net.length - 1]).days}, ${Math.round(v.pProfit[Math.min(1, v.pProfit.length - 1)] * 100)}% odds of profit${v.drivers && v.drivers.length ? ` <i style="color:#b48cff">(from research: ${esc(v.drivers[0])})</i>` : ''}`).join(' · ')}` : ''}</div>` : ''}<div class="muted small">${r.paper ? 'A paper race: no real money moves; rooms prove their ideas with demand. ' : 'A bankroll is the stake plus evidenced money in minus money out since the gun; anything bought but not yet sold counts as zero. '}${esc((M.scoring[r.rules.scoring] || '').split(':')[0])} at each time limit wins a prize${r.rules.places > 1 ? `, with ${r.rules.places} places` : ''}.</div>
+      ${r.simMode && r.sim ? `<div class="muted small" style="border-left:3px solid #b48cff;padding-left:8px;margin-bottom:6px"><b style="color:var(--ink)">The simulation so far:</b> ${r.sim.totals.research} ${snap.research?.available?'recorded research findings':'prerecorded demo findings'}, ${r.sim.totals.variants} variants tested, ${r.sim.totals.builds} things built in the sandbox, ${r.sim.totals.live} plays live in the simulated market. Every dollar here is simulated from published benchmarks and each room's own research.${r.sim.topIdeas.length ? `<br><b style="color:var(--ink)">Best ideas tested:</b> ${r.sim.topIdeas.slice(0, 5).map((v) => `${esc(v.label)} (${esc(raceNm(v.room))}): typical ${usd(Math.round((v.net.find((n) => n.days === 30) || v.net[v.net.length - 1]).p50))} by day ${(v.net.find((n) => n.days === 30) || v.net[v.net.length - 1]).days}, ${Math.round(v.pProfit[Math.min(1, v.pProfit.length - 1)] * 100)}% odds of profit${v.drivers && v.drivers.length ? ` <i style="color:#b48cff">(from research: ${esc(v.drivers[0])})</i>` : ''}`).join(' · ')}` : ''}</div>` : ''}<div class="muted small">${r.paper ? 'A paper race: no real money moves; rooms prove their ideas with demand. ' : 'A bankroll is the stake plus evidenced money in minus money out since the gun; anything bought but not yet sold counts as zero. '}${esc((M.scoring[r.rules.scoring] || '').split(':')[0])} at each time limit wins a prize${r.rules.places > 1 ? `, with ${r.rules.places} places` : ''}.</div>
       <div class="sec"><h3>Prizes</h3><div class="hz">${hs.map((s) => `<button type="button" class="${s.state}${s === cur ? ' on' : ''}" data-hz="${s.mins}"><span class="k">${esc(s.label)}</span><span class="w">${s.state === 'done' ? (s.winner ? ic('crown') + esc(raceNm(s.winner)) : 'tie, no winner') : s.state === 'live' ? (s.leader ? esc(raceNm(s.leader)) + ' leads' : 'tied') : 'not yet'}</span><span class="s">${s.state === 'done' ? (s.winner ? `won with ${esc(metric(s.ranking.find((x) => x.id === s.winner)))}${s.tieBroken ? ' · tie broken' : ''}` : 'nobody ahead') : s.state === 'live' ? `${leftLabel(s.minsLeft)} left` : `in ${leftLabel(s.minsLeft)}`}</span>${s.podium.length > 1 ? `<span class="s">then ${s.podium.slice(1).map((id) => esc(raceNm(id))).join(', ')}</span>` : ''}${s.eliminated ? `<span class="s out">${esc(raceNm(s.eliminated))} out</span>` : ''}</button>`).join('')}</div></div>
       ${hs.some((s) => s.winner) ? `<div class="sec"><h3>Winning ideas</h3><div class="muted small">The best play of each prize's winner. Open it for the business model and the playbook to run it for real.</div>
         ${hs.filter((s) => s.winner).map((s) => { const wl = laneOf(s.winner), byDemand = r.paper || r.rules.scoring === 'signals', best = wl && wl.plays.slice().sort((a, b) => (byDemand ? b.signals - a.signals : 0) || b.netUsd - a.netUsd)[0]; return best ? `<button type="button" class="cf" data-winplay="${esc(s.winner)}|${esc(best.id)}" style="--c:${themeOf(s.winner).accent}"><span class="t"><b>${ic('crown')} ${esc(best.name)}</b><small>${esc(s.label)} · ${esc(raceNm(s.winner))}${best.model && best.model.offer ? ' · ' + esc(best.model.offer) : ''}</small></span><span class="u">${byDemand ? `${best.signals}<small>demand</small>` : `${best.netUsd < 0 ? '−' : '+'}${usd(Math.abs(Math.round(best.netUsd)))}<small>net</small>`}</span>${ic('chevR')}</button>` : ''; }).join('')}</div>` : ''}
@@ -4433,7 +4468,7 @@
     const cfg = d.config || {};
     const base = { name: cfg.name || 'Proxyfolk', mode: cfg.mode || 'agents', skin: cfg.skin || 'space', kids: (cfg.folk || cfg.kids || []).map((k) => ({ ...k, rooms: k.rooms ? [...k.rooms] : undefined })) };
     if (cfg.rooms) return { ...base, template: cfg.template, rooms: cfg.rooms.map((r) => ({ ...r, match: [...(r.match || [])], looks: { ...(r.looks || {}) } })) };
-    return { ...base, template: 'paths', rooms: d.catalog.map((c) => { const t = THEME[c.id] || {}; return { base: c.id, name: c.name, short: c.short, layout: c.layout, size: c.size, yard: c.yard, accent: t.accent || '#8fb0ff', style: 'office', screen: t.screen, prop: t.prop, match: [], looks: {} }; }) };
+    return { ...base, template: 'paths', rooms: d.catalog.map((c) => { const t = THEME[c.id] || {}; return { base: c.id, name: c.name, short: c.short, layout: c.layout, size: c.size, yard: c.yard, shape:c.shape, position:c.position, accent: t.accent || '#8fb0ff', style: 'office', screen: t.screen, prop: t.prop, match: [], looks: {} }; }) };
   }
   async function openRooms(opts = {}) {
     rd.welcome = Boolean(opts.welcome); rd.armed = null; rd.msg = ''; rd.err = false; rd.step = 1; rd.wmode = null; rd.wtpl = null; rd.wskin = null;
@@ -4542,6 +4577,7 @@
       ${looks ? `<div class="field" style="margin-top:10px"><span>${COSTUME_SKINS.has(dr.skin) ? 'What the folk here become' : 'What lives here'} · ${esc((d.skins[dr.skin] || {}).title || dr.skin)}</span><div class="looks">${looks.map((l) => `<button type="button" class="tile${curLook === l.id ? ' on' : ''}" data-look="${l.id}" style="--c:${r.accent}"><span><b>${esc(l.resident)}</b><small>${esc(l.title)}</small></span></button>`).join('')}</div></div>`
         : `<div class="field" style="margin-top:10px"><span>Furniture</span><div class="styles">${Object.entries(d.styles).map(([k, t]) => `<button type="button" class="tile${(r.style || 'office') === k ? ' on' : ''}" data-style="${k}" style="--c:${r.accent}">${ic(STYLE_ICON[k] || 'rooms')}<span><b>${esc(k[0].toUpperCase() + k.slice(1))}</b><small>${esc(t)}</small></span></button>`).join('')}</div></div>
       <div class="row2" style="margin-top:10px"><label class="field"><span>Wall sign</span><select data-f="screen">${opt(d.screens, SCREEN_NAME, r.screen || 'none')}</select></label><label class="field"><span>Corner prop</span><select data-f="prop">${opt(d.props, PROP_NAME, r.prop || 'plant')}</select></label></div>`}
+      ${d.shapes ? `<label class="field"><span>Building shape</span><select data-f="shape"><option value="">The world's pick</option>${opt(Object.keys(d.shapes), d.shapes, r.shape || '')}</select></label>` : ''}
       ${d.layouts ? `<div class="field" style="margin-top:12px"><span>Room setup · the building and how it's laid out</span></div>
       <div class="row2"><label class="field"><span>Desk layout</span><select data-f="layout"><option value="">The world's pick</option>${opt(Object.keys(d.layouts), d.layouts, r.layout || '')}</select></label><label class="field"><span>Building size</span><select data-f="size"><option value="">The world's pick</option>${opt(Object.keys(d.sizes), d.sizes, r.size || '')}</select></label></div>
       <div class="row2" style="margin-top:8px"><label class="field"><span>Yard</span><select data-f="yard"><option value="">The world's pick</option>${opt(Object.keys(d.yards), d.yards, r.yard || '')}</select></label><span></span></div>` : ''}
@@ -4747,7 +4783,7 @@
   function openMap() {
     if (typeof window.mapSvg !== 'function' || !snap) return;
     const box = $('#mapbox .box');
-    const list = rooms.map((m) => ({ id: m.id, name: shortName(m.spec), accent: themeOf(m.id).accent }));
+    const list = rooms.map((m) => ({ id: m.id, name: shortName(m.spec), accent: themeOf(m.id).accent, position:[m.c,m.r], shape:m.spec.shape, growth:roomGrowth(m).level }));
     box.innerHTML = `<button class="cbtn glass x" data-close title="Close (Esc)">${ic('close')}</button>
       <h2>Map</h2><p class="lead">${esc((snap.station && snap.station.name) || 'Your station')} · ${esc(SKINS_TITLE[skinId()] || skinId())}. Every room with its number; click one to fly there.</p>
       <div class="mapv">${mapSvg(skinId(), { id: 'pfmap', rooms: list, hub: NM().hub, dock: NM().dock, level: snap.level.level, title: (snap.station && snap.station.name) || undefined })}</div>`;
@@ -4808,7 +4844,7 @@
     worldPick = { w, cur, onUse };
     const ids = SKIN_IDS.filter((k) => SKINS[k]), i = ids.indexOf(w), sk = SKINS[w] || SKINS.space;
     const info = ((rd.data && rd.data.skins) || {})[w] || { title: SKINS_TITLE[w] || w, blurb: '' };
-    const list = rooms.map((m) => ({ id: m.id, name: shortName(m.spec), accent: themeOf(m.id).accent }));
+    const list = rooms.map((m) => ({ id: m.id, name: shortName(m.spec), accent: themeOf(m.id).accent, position:[m.c,m.r], shape:m.spec.shape, growth:roomGrowth(m).level }));
     const box = $('#worldbox .box');
     box.innerHTML = `<button class="cbtn glass x" data-wclose title="Back (Esc)">${ic('close')}</button>
       <div class="wh"><div><div class="k">World ${i + 1} of ${ids.length}${cur === w ? ' · your world now' : ''}</div><h2>${esc(info.title)}</h2><p class="lead">${esc(info.blurb)}</p></div>
@@ -4935,7 +4971,7 @@
         <div><h3>Scenery (no meaning)</h3><p class="muted small" style="margin:0 0 14px">The world itself: space, dark castle, farm, cyber city, alien ship or ocean base all draw the same ledger, only dressed differently. In October the station dresses up by itself: a pumpkin patch until the 23rd, then a haunted mansion to the end of the month (turn it off in Customize). Change it with <kbd>C</kbd>, or preview one with <code>?skin=castle</code> on the URL. In the castle, the city and the ship, folk wear the costume of the room they work (a skeleton in the crypt, a hacker in the den). Also scenery: each room's floor crowd (three even in a new room, more as its last 7 days get busier, three glowing helpers per agent on a live run; hover one and it says Floor crew or Agent crew), each world's residents (Mordra keeps the castle vault and Vex the scriptorium, Mott and Warg mind the farm, a cargo bot works the launch pad, a courier rides the city on a hoverboard beside a DJ bot, Glorp greets visitors on the ship, Octavia the octopus keeps the pearl vault with crabs for couriers), what folk do between real events (tinkering at a station, chatting, a coffee break, sleeping at night), day and night on your clock, birds, bats, fireflies, flying cars, saucers and fish, each world's backdrop (sky, hills, skyline, reef), wall screens, neon signs, barber poles, rugs, chairs, mugs, plants, racks, windows, painted room numbers, dust in the air, hull lights, solar wings, the docking shuttle, where idle crew wander, and everything in space: planet, moon, stars, freighter, shooting stars.</p>
           <h3>Controls</h3><div class="kb">
             <kbd>click</kbd><span>open a room, the vault (roster) or the outbox dock</span>
-            <kbd>double-click</kbd><span>zoom into a room</span>
+            <kbd>double-click</kbd><span>arrange rooms and choose their shapes</span>
             <kbd>drag</kbd><span>pan the camera</span>
             <kbd>scroll · pinch</kbd><span>zoom</span>
             <kbd>1 – 9</kbd><span>jump to room by rank</span>
@@ -4959,6 +4995,94 @@
     g.hidden = false;
   }
   const closeGuide = () => { $('#guide').hidden = true; };
+
+  function researchCard(room) {
+    if(MODE()!=='race')return '';
+    const r=snap.research,a=r?.racers?.find(x=>x.roomId===room.id),job=r?.race?.rooms?.find(x=>x.roomId===room.id);
+    return `<div class="sec"><h3>${esc(a?.name||shortName(room.spec)+' researcher')}</h3><p class="muted small">${!r?.available?'Demo agent · prerecorded activity':job?esc(job.stage):r.settings.enabled?'Resident agent · ready for the next simulation':'Resident agent · live research off'}${job?' · $'+job.usd.toFixed(3)+' API usage':''}</p><button class="btn wide" data-research-open>Research settings</button></div>`;
+  }
+  const researchPanel=document.createElement('dialog');researchPanel.setAttribute('aria-label','Research agents');researchPanel.style.cssText='color:var(--ink);background:#10192b;border:1px solid #546582;border-radius:20px;padding:24px;width:min(580px,92vw);max-height:85vh;overflow:auto';document.body.appendChild(researchPanel);
+  async function openResearch(){
+    const r=snap.research||{},settings=r.settings||{enabled:false,totalUsd:8};
+    researchPanel.innerHTML=`<h2>Resident research agents</h2><p>Each room keeps its own agent identity and previous findings. A new simulation starts a fresh web investigation, followed by business ideas and market tests.</p><p>${!r.available?'This preview uses prerecorded demo activity. Live research requires the Node server.':!r.ready?'Add ANTHROPIC_API_KEY to the server environment and restart to enable real research.':'Server connected · Claude Sonnet 5'}</p><form><label class="field"><span>Total API budget target per race ($)</span><input name="totalUsd" type="number" min="1" max="100" step="1" value="${settings.totalUsd}" ${r.active?'disabled':''}></label><label><input name="enabled" type="checkbox" ${settings.enabled?'checked':''} ${!r.ready||r.active?'disabled':''}> Research automatically on each new simulation</label><p class="muted small">The target is shared across rooms. Token and search fees count toward it. A request already in flight can exceed the target; use a provider account limit for a strict spending ceiling. Simulation income is separate from API spending.</p><p role="status"></p><div class="row2"><button class="btn go" ${!r.ready||r.active?'disabled':''}>Save settings</button><button class="btn" type="button" data-research-close>Close</button></div>${r.active?'<button class="btn wide" type="button" data-research-stop>Stop after current request</button>':''}</form><div>${(r.race?.rooms||[]).map(x=>`<p><b>${esc(r.racers.find(a=>a.roomId===x.roomId)?.name||x.roomId)}</b> · ${esc(x.stage)} · $${x.usd.toFixed(3)}${x.error?'<br>'+esc(x.error):''}</p>`).join('')}</div>`;
+    if(!researchPanel.open)researchPanel.showModal();
+    researchPanel.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=e.target;try{await post('api/race/research',{enabled:f.elements.enabled.checked,totalUsd:Number(f.elements.totalUsd.value)});await poll();researchPanel.close();}catch(err){f.querySelector('[role=status]').textContent=err.message;}};
+  }
+  document.addEventListener('click',e=>{if(e.target.closest('[data-research-open]'))openResearch();});
+  researchPanel.addEventListener('click',async e=>{if(e.target.closest('[data-research-close]'))researchPanel.close();if(e.target.closest('[data-research-stop]')){await post('api/race/research',{action:'stop'});researchPanel.querySelector('[role=status]').textContent='Stopping after the current request finishes.';}});
+  function roomDesignHtml(room) {
+    const growth = roomGrowth(room);
+    return researchCard(room) + `<div class="sec room-design"><label class="field"><span>Room shape</span><select aria-label="Room shape" data-room-shape="${esc(room.id)}"><option value="">World default</option>${Object.entries(ROOM_SHAPE_NAMES).map(([v,n]) => `<option value="${v}" ${room.spec.shape === v ? 'selected' : ''}>${n}</option>`).join('')}</select></label><button class="btn wide" data-arrange="${esc(room.id)}">Arrange rooms</button><p class="muted small">${growth.level} / 6 extensions · ${usd2(growth.profit)} ${growth.simulated ? 'simulated ' : ''}net profit${snap.race ? ' this race' : ' all time'}. Next wing: ${growth.level < 6 ? usd2(GROWTH_STEPS[growth.level]) : 'fully expanded'}. Extensions add visual team workers.</p></div>`;
+  }
+  const designStyle = document.createElement('style');
+  designStyle.textContent = `#arranger{position:fixed;inset:0;z-index:160;background:rgba(5,9,20,.96);padding:24px;overflow:auto}#arranger[hidden]{display:none}.arr-wrap{max-width:1080px;margin:auto}.arr-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.arr-top h2{margin-right:auto}.arr-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin:28px 0;touch-action:none}.arr-cell{height:148px;border:1px dashed #4c607d;border-radius:18px;background:#151e32;color:#b0c2de;position:relative;cursor:pointer}.arr-tile{position:absolute;inset:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 18%,#152136);border-radius:12px;color:white;animation:room-jiggle .3s ease-in-out infinite alternate;box-shadow:0 8px 16px #0006;pointer-events:none}.arr-tile.round{border-radius:50%}.arr-tile.wide{inset:32px 8px}.arr-tile.deep{inset:8px 44px}.arr-tile.courtyard{clip-path:polygon(0 0,100% 0,100% 65%,65% 65%,65% 100%,0 100%)}.arr-cell.selected{outline:3px solid #ffd06b;outline-offset:4px}.arr-cell.drop{background:#315676}.arr-cell small{font-size:11px}.arr-controls{display:flex;gap:14px;flex-wrap:wrap;align-items:end}.arr-controls label{min-width:180px}.arr-hint{color:#a5bad5}.arr-msg{min-height:24px;color:#ffd06b}@keyframes room-jiggle{from{transform:rotate(-.7deg)}to{transform:rotate(.7deg)}}@media(prefers-reduced-motion:reduce){.arr-tile{animation:none}}@media(max-width:650px){#arranger{padding:12px}.arr-grid{gap:8px}.arr-cell{height:112px}.arr-tile{inset:5px;font-size:10px}.arr-tile.deep{inset:5px 18px}.arr-tile.wide{inset:22px 5px}}`;
+  document.head.appendChild(designStyle);
+  const arranger = document.createElement('section'); arranger.id='arranger'; arranger.hidden=true;
+  arranger.setAttribute('role','dialog'); arranger.setAttribute('aria-modal','true'); arranger.setAttribute('aria-label','Arrange rooms'); document.body.appendChild(arranger);
+  let arrangement = null, arrangeSelected = null, arrangeDrag = null, roomClickTimer = null, arrangeSaving = false, arrangeSuppressClick = false;
+  function openArranger(id) {
+    if (!snap) return;
+    clearTimeout(roomClickTimer); stopReplay();
+    arrangement=rooms.map(r => ({id:r.id,name:shortName(r.spec),accent:themeOf(r.id).accent,position:[r.c,r.r],shape:r.spec.shape || '',layout:r.spec.layout || 'rows'}));
+    arrangeSelected=id || arrangement[0]?.id; arranger.hidden=false; paintArranger();
+    arranger.querySelector('[data-arr-done]').focus();
+  }
+  function paintArranger() {
+    const chosen=arrangement.find(r => r.id===arrangeSelected);
+    arranger.innerHTML=`<div class="arr-wrap"><div class="arr-top"><h2>Arrange your station</h2><button class="btn" data-arr-cancel>Cancel</button><button class="btn go" data-arr-done>Save layout</button></div><p class="arr-hint">Drag rooms to a plot. Drop onto a team to swap places. Or select a room, then tap an empty plot. Use arrow keys to move the selected room. The vault and dock stay anchored.</p><div class="arr-grid">${Array.from({length:12},(_,i)=>{const c=i%4,r=Math.floor(i/4),room=arrangement.find(a=>a.position[0]===c&&a.position[1]===r),fixed=(c===1&&r===1)||(c===0&&r===2);return `<button class="arr-cell ${room?.id===arrangeSelected?'selected':''}" data-cell="${c},${r}" ${fixed?'disabled':''} aria-label="${room?esc(room.name):fixed?'Fixed '+(c===1?'vault':'dock'):'Empty plot'} · column ${c+1}, row ${r+1}">${room?`<span class="arr-tile ${room.shape}" style="--c:${room.accent}"><b>${esc(room.name)}</b><small>${ROOM_SHAPE_NAMES[room.shape]||'World default'}</small></span>`:fixed?(c===1?'VAULT':'DOCK'):'＋'}</button>`;}).join('')}</div><div class="arr-controls"><label class="field"><span>${chosen?esc(chosen.name):'Room'} · shape</span><select aria-label="Selected room shape" data-arr-shape><option value="">World default</option>${Object.entries(ROOM_SHAPE_NAMES).map(([v,n])=>`<option value="${v}" ${chosen?.shape===v?'selected':''}>${n}</option>`).join('')}</select></label><label class="field"><span>Workstations</span><select aria-label="Selected room workstations" data-arr-layout>${Object.entries({rows:'Rows',pods:'Team pods',arc:'Half circle',columns:'Columns',bench:'Long bench',lounge:'Lounge'}).map(([v,n])=>`<option value="${v}" ${chosen?.layout===v?'selected':''}>${n}</option>`).join('')}</select></label></div><p class="arr-msg" role="status"></p></div>`;
+  }
+  function arrangeMove(cell) {
+    const target=cell.split(',').map(Number), chosen=arrangement.find(r=>r.id===arrangeSelected);
+    if (!chosen || (target[0]===1&&target[1]===1)||(target[0]===0&&target[1]===2)) return;
+    const other=arrangement.find(r=>r.position.join(',')===cell);
+    if(other) other.position=[...chosen.position]; chosen.position=target; paintArranger();
+  }
+  arranger.addEventListener('pointerdown',e=>{
+    if(arrangeSaving)return;
+    const tile=e.target.closest('[data-cell]'); if(!tile || tile.disabled)return;
+    const room=arrangement.find(r=>r.position.join(',')===tile.dataset.cell);
+    if(!room)return;
+    arrangeSelected=room.id; arrangeDrag={x:e.clientX,y:e.clientY,moved:false};
+    tile.setPointerCapture(e.pointerId);
+  });
+  arranger.addEventListener('pointermove',e=>{
+    if(!arrangeDrag)return;
+    if(Math.hypot(e.clientX-arrangeDrag.x,e.clientY-arrangeDrag.y)>6)arrangeDrag.moved=true;
+    arranger.querySelectorAll('.drop').forEach(el=>el.classList.remove('drop'));
+    const cell=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-cell]'); if(cell&&!cell.disabled)cell.classList.add('drop');
+  });
+  arranger.addEventListener('pointerup',e=>{
+    if(!arrangeDrag)return; const moved=arrangeDrag.moved; arrangeDrag=null;
+    if(moved){arrangeSuppressClick=true;setTimeout(()=>arrangeSuppressClick=false,0);const cell=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-cell]'); if(cell&&!cell.disabled)arrangeMove(cell.dataset.cell); else paintArranger();}
+  });
+  arranger.addEventListener('pointercancel',()=>{arrangeDrag=null;paintArranger();});
+  arranger.addEventListener('click',async e=>{
+    if(arrangeSaving||arrangeSuppressClick)return;
+    if(e.target.closest('[data-arr-cancel]')){arranger.hidden=true;arrangement=null;return;}
+    if(e.target.closest('[data-arr-done]')){
+      arrangeSaving=true; e.target.disabled=true;
+      try {await post('api/rooms/design',{rooms:arrangement.map(({id,shape,position,layout})=>({id,shape,position,layout,size:'',yard:''}))});arranger.hidden=true;arrangement=null;await poll();}
+      catch(err){arranger.querySelector('.arr-msg').textContent=err.message;}
+      finally{arrangeSaving=false;if(e.target.isConnected)e.target.disabled=false;} return;
+    }
+    const cell=e.target.closest('[data-cell]');if(!cell||cell.disabled)return;
+    const room=arrangement.find(r=>r.position.join(',')===cell.dataset.cell);
+    if(room){arrangeSelected=room.id;paintArranger();}else arrangeMove(cell.dataset.cell);
+  });
+  arranger.addEventListener('change',e=>{const room=arrangement.find(r=>r.id===arrangeSelected);if(!room)return;if(e.target.matches('[data-arr-shape]'))room.shape=e.target.value;if(e.target.matches('[data-arr-layout]'))room.layout=e.target.value;paintArranger();});
+  arranger.addEventListener('keydown',e=>{
+    if(e.key==='Tab'){const items=[...arranger.querySelectorAll('button:not([disabled]),select')],first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}return;}
+    if(e.key==='Escape'&&!arrangeSaving){arranger.hidden=true;arrangement=null;e.stopPropagation();return;}
+    if(e.target.matches('select,input'))return;
+    const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+    if(d){e.preventDefault();e.stopPropagation();const room=arrangement.find(r=>r.id===arrangeSelected);if(room){const c=room.position[0]+d[0],r=room.position[1]+d[1];if(c>=0&&c<4&&r>=0&&r<3)arrangeMove(c+','+r);}}
+  });
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-arrange]');if(b)openArranger(b.dataset.arrange);});
+  document.addEventListener('change',async e=>{
+    const sel=e.target.closest('[data-room-shape]');if(!sel)return;sel.disabled=true;
+    try{await post('api/rooms/design',{rooms:[{id:sel.dataset.roomShape,shape:sel.value,size:'',yard:''}]});await poll();}
+    catch(err){toast('status','Shape not saved',err.message,'#ff8a6b','warn');}finally{sel.disabled=false;}
+  });
 
   // ======================================================================= input
   let drag = null;
@@ -5004,7 +5128,7 @@
     const hit = pick(ev.clientX - r.left, ev.clientY - r.top);
     if (hit && hit.kind === 'mast') openSync();
     else if (hit && hit.kind === 'crew' && ['folk', 'job', 'visit', 'guest'].includes(hit.agent.kind)) select('a:' + hit.agent.id);
-    else if (hit) select(hit.kind === 'crew' ? (hit.agent.kind === 'lead' || !hit.agent.path ? 'hub' : hit.agent.path) : hit.t.id);
+    else if (hit) { const id=hit.kind === 'crew' ? (hit.agent.kind === 'lead' || !hit.agent.path ? 'hub' : hit.agent.path) : hit.t.id; clearTimeout(roomClickTimer); roomClickTimer=setTimeout(()=>select(id),260); }
   };
   cv.addEventListener('pointerup', endPointer);
   cv.addEventListener('pointercancel', endPointer);
@@ -5012,7 +5136,8 @@
   cv.addEventListener('dblclick', (ev) => {
     const r = view.getBoundingClientRect();
     const hit = snap && pick(ev.clientX - r.left, ev.clientY - r.top);
-    if (hit && hit.t && hit.t.room) { select(hit.t.id); camT.z = 2.4; clampCam(); } else zoomBy(1.6, ev.clientX - r.left, ev.clientY - r.top);
+    clearTimeout(roomClickTimer);
+    if (hit && hit.t && hit.t.room) { openArranger(hit.t.id); } else zoomBy(1.6, ev.clientX - r.left, ev.clientY - r.top);
   });
   cv.addEventListener('wheel', (ev) => {
     ev.preventDefault();
@@ -5020,7 +5145,8 @@
     const dy = ev.deltaMode === 1 ? ev.deltaY * 30 : ev.deltaY;
     zoomBy(Math.exp(-dy * 0.0016), ev.clientX - r.left, ev.clientY - r.top);
   }, { passive: false });
-  $('#labels').addEventListener('click', (ev) => { const el = ev.target.closest('[data-sel]'); if (el) select(el.dataset.sel); });
+  $('#labels').addEventListener('click', (ev) => { const el = ev.target.closest('[data-sel]'); if (el) { clearTimeout(roomClickTimer); roomClickTimer=setTimeout(()=>select(el.dataset.sel),260); } });
+  $('#labels').addEventListener('dblclick',ev=>{const el=ev.target.closest('[data-sel]');if(el&&roomById(el.dataset.sel)){ev.preventDefault();clearTimeout(roomClickTimer);openArranger(el.dataset.sel);}});
   $('#labels').addEventListener('mouseover', (ev) => { const el = ev.target.closest('[data-sel]'); if (el && snap) { const t = targetById(el.dataset.sel); if (t) showTip({ kind: 'place', t }, ev); } });
   $('#labels').addEventListener('mouseout', (ev) => { if (ev.target.closest('[data-sel]')) showTip(null); });
   $('#panel').addEventListener('click', (ev) => {
@@ -5248,10 +5374,11 @@
       const r = await fetch('api/state', { cache: 'no-store' });
       const next = await r.json();
       prev = snap; snap = next;
+      if(prev?.race?.id!==snap.race?.id){pendingSales.clear();flowAcc.clear();flows.length=0;flowSig='';}
       // the room design changed (a template, a new room, a rename, a new order): rebuild the station around it
       const catChanged = Boolean(prev) && catSig(prev.catalog) !== catSig(snap.catalog);
       if (!rooms.length || catChanged) {
-        buildRooms(); buildNav(); seedMotes(); layout(); camT.x = cam.x = home.x; camT.y = cam.y = home.y;
+        buildRooms(); buildNav(); routeCache.clear(); flows.length=0; seedMotes(); layout(); camT.x = cam.x = home.x; camT.y = cam.y = home.y;
         if (catChanged) {
           for (const id of [...agents.keys()]) if (id !== 'commander') agents.delete(id);
           if (selected && selected !== 'dock' && !roomById(selected)) selected = null;
@@ -5265,6 +5392,7 @@
       sync(); announce(); first = false;
       renderHud(); renderFeed(); buildLabels();
       renderPanel();
+      if(catChanged&&selected&&roomById(selected))select(selected);
       finishBoot();
       if (!welcomed && snap.station && snap.station.configured === false && !snap.state.eventCount && !sget('rs-welcome')) { welcomed = true; openRooms({ welcome: true }); }
       // the first visit to the preview's mock starts the tour by itself (Skip ends it for good)
@@ -6378,7 +6506,7 @@
     // where everything goes in one building (box-local units), worked out once per cell, world and kind
     function factoryPlan(b, kind, world) {
       const lkRoom = kind === 'path' ? rooms.find((m) => m.c === b.c && m.r === b.r) : null, lk = lkRoom && FAC[world] && FAC[world].bylook ? lookDef(lkRoom) : null;
-      const key = `${b.c},${b.r}|${kind}|${world}|${lk ? lk.id : ''}`;
+      const key = `${b.c},${b.r}|${kind}|${world}|${lk ? lk.id : ''}|${b.w},${b.d},${b.round},${b.yard}`;
       if (facCache.has(key)) return facCache.get(key);
       const F0 = FAC[world] || FAC.space, F = lk && F0.bylook[lk.id] ? { ...F0, slots: F0.bylook[lk.id] } : F0, W = b.w, D = b.d, [yw, yd] = b.yard || [0, 0], seed = hsh(key);
       const plan = { F, belts: [], machines: [], benches: [], crates: [], pallets: [], collector: null, crossings: [], lamps: [], spots: { work: [], pick: [], drop: [] }, walls: [], out: null };
@@ -6435,9 +6563,9 @@
       const world = curWorld || skinId(), plan = factoryPlan(b, kind, world), F = plan.F, items = [], wall = [], back = [];
       const add = (d, fp, fn) => items.push({ d, fp, fn });
       const alive = look === 'active' || look === undefined;
-      let speed = 0, prod = 'money', every = 1.25;
-      if (kind === 'path' && rm) { const f = roomFlow(rm); if (f.usd > 0) speed = 0.35 + Math.min(0.75, Math.log10(1 + f.usd) / 5); else if (f.leads > 0) { speed = 0.3; prod = 'lead'; every = 2.1; } }
-      else if (kind === 'dock') { const drafts = Object.values((snap && snap.outbox) || {}).reduce((s2, n) => s2 + n, 0); if (drafts > 0) { speed = 0.45; prod = 'lead'; every = 1.6; } }
+      let speed = 0, prod = 'money', every = 10;
+      if (kind === 'path' && rm) { const f = roomFlow(rm); if (f.usd > 0) { speed = 0.45; every = f.spacing; } else if (f.leads > 0) { speed = 0.3; prod = 'lead'; every = 12; } }
+      else if (kind === 'dock') { const drafts = Object.values((snap && snap.outbox) || {}).reduce((s2, n) => s2 + n, 0); if (drafts > 0) { speed = 0.45; prod = 'lead'; every = 10; } }
       else speed = 0.5;
       if (!alive) speed = 0;
       const on = speed > 0;
@@ -6462,7 +6590,7 @@
       for (const bn of plan.benches) add(bn.x + bn.y + Math.max(bn.w, bn.d) * 0.5 + 0.5, [bn.x, bn.y, bn.w, bn.d], () => workbench(bn, F, world, on));
       for (const c of plan.crates) add(c.x + c.y + 1.0, [c.x, c.y, c.w, c.d], () => crateStack(c.x, c.y, F, world, 3 + (hsh(c.x * 7 + c.y) % 3)));
       if (plan.pallets.length) {
-        const sold = kind === 'path' && rm ? Math.min(36, Math.ceil(svcStats(rm, 30).monthCount / 2)) : kind === 'dock' ? Math.min(24, Object.values((snap && snap.outbox) || {}).reduce((s2, n) => s2 + n, 0)) : 0;
+        const sold = kind === 'path' && rm ? Math.min(36, Math.floor(6 * Math.log10(1 + roomFlow(rm).sales / 1000))) : kind === 'dock' ? Math.min(24, Object.values((snap && snap.outbox) || {}).reduce((s2, n) => s2 + n, 0)) : 0;
         for (const p of plan.pallets) { const n = clamp(sold - p.k * 12, 0, 12); add(p.x + p.y + 1.0, [p.x, p.y, p.w, p.d], () => pallet(p.x, p.y, n, F, world)); }
       }
       // on the walls beyond the department: pipes, vents, a high window
@@ -6582,15 +6710,15 @@
       }
       // what rides on it: the room's own goods, spaced by how busy it is
       if (!speed || LOD === 0) return;
-      const L = bl.len, n = Math.floor(L / every), sh = (tt * speed) % every;
+      const L = bl.len, n = Math.ceil(L / every) + 1, travel = tt * speed, step = Math.floor(travel / every), sh = travel % every;
       const r = u * 0.22;
       for (let i = 0; i < n; i++) {
-        const p = i * every + sh;
+        const p = (i - 1) * every + sh;
         if (p < k0 || p >= k1 || p > L - 0.2) continue;
         if (p > bl.cross[0] - 0.1 && p < bl.cross[1] + 0.1) continue;
         const [X, Y] = Pl(hz ? bl.x + p : bl.x + BELT_W / 2, hz ? bl.y + BELT_W / 2 : bl.y + p, Z + 0.28);
-        if (LOD === 1) { g.fillStyle = FLOW_THEME[world] ? FLOW_THEME[world].gold : '#ffcf5a'; g.beginPath(); g.arc(X, Y, r * 0.7, 0, 7); g.fill(); continue; }
-        drawToken({ kind: prod, seed: (hsh(bl.x * 31 + bl.y * 7) + i * 7) % 997 }, world, X, Y, r, hz ? 0 : Math.PI / 2);
+        // Preserve each theme's actual item art at medium zoom too.
+        drawToken({ kind: prod, seed: ((hsh(bl.x * 31 + bl.y * 7) + (i-step) * 7) % 997 + 997) % 997 }, world, X, Y, r, hz ? 0 : Math.PI / 2);
       }
     }
     // a plate over the belt where the walkway crosses it, ramped on both sides
@@ -7987,18 +8115,30 @@
     const KIT_TOP = 44.8 * KIT_U;            // feet to the top of the head
     const spr = new Map();
     let sprBudget = 0;
-    function kitSprite(key, px, make) {
+    let spriteBytes = 0;
+    const SPRITE_BYTES = 128 * 1024 * 1024;
+    function kitSprite(key, px, make, frames = 1) {
       const k = key + '@' + px;
       let s = spr.get(k);
       if (s) { spr.delete(k); spr.set(k, s); return s.c; }
-      if (sprBudget <= 0) return null;           // a few new ones a frame, so a crowd arriving never stalls a frame
+      if (sprBudget <= 0) return null;
       sprBudget--;
-      s = { c: null }; spr.set(k, s);
-      if (spr.size > 900) spr.delete(spr.keys().next().value);
+      s = { c: null, bytes: px * px * frames * 4 }; spr.set(k, s);
+      spriteBytes += s.bytes;
+      while (spriteBytes > SPRITE_BYTES && spr.size > 1) {
+        const oldest = spr.keys().next().value, old = spr.get(oldest);
+        spriteBytes -= old.bytes; spr.delete(oldest);
+      }
       const img = new Image();
-      img.onload = () => { const c = document.createElement('canvas'); c.width = c.height = px; c.getContext('2d').drawImage(img, 0, 0, px, px); s.c = c; };
+      img.onload = () => {
+        if (spr.get(k) !== s) return;
+        const c = document.createElement('canvas'); c.width = px * frames; c.height = px;
+        c.getContext('2d').drawImage(img, 0, 0); s.c = c;
+      };
       img.onerror = () => { if (!window.__pfKitBad) window.__pfKitBad = []; window.__pfKitBad.push(key); };
-      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(make().replace('<svg ', `<svg width="${px}" height="${px}" `));
+      const tiles = Array.from({ length: frames }, (_, i) => make(i / frames, 'k' + i)
+        .replace('<svg ', `<svg x="${i * px}" y="0" width="${px}" height="${px}" `)).join('');
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${px * frames}" height="${px}">${tiles}</svg>`);
       return null;
     }
     const clampT = (v) => Math.max(0, Math.min(4, v | 0));
@@ -8021,7 +8161,7 @@
       return { role, world: w, tier, species, skin: h % 6, hair: (h >>> 3) % 7, hairC: w === 'lab' && h % 3 === 0 ? 4 : (h >>> 6) % 7, eyeC: (h >>> 9) % 6, tint, agent: false, ...(gear ? { gear } : {}) };
     }
     function kitPose(pose, a) {
-      if (pose === 'walk') return Math.floor(a.t * 5.5) % 2 ? 'walk2' : 'walk';
+      if (pose === 'walk') return 'walk';
       if (pose === 'runner' || pose === 'carry') return 'carry';
       if (pose === 'phone' || pose === 'cheer') return pose;
       if (pose === 'sit' || pose === 'tinker') return 'type';
@@ -8029,20 +8169,24 @@
     }
     const kitExpr = (pose, a) => (pose === 'sleep' ? 'sleep' : pose === 'chat' ? (Math.floor(a.t * 3) % 2 ? 'talk' : 'smile') : pose === 'serve' || pose === 'chore' ? 'focus' : undefined);
     // stamp a sprite with its feet at the origin. vb: the art's viewBox size; fx, fy: its feet inside that box
-    function stamp(key, make, vb, fx, fy, k = 1) {
+    function stamp(key, make, vb, fx, fy, k = 1, phase = null) {
       const s = u * KIT_U * k, box = vb * s;
       const devPx = box * S * dpr, px = devPx <= 72 ? 64 : devPx <= 144 ? 128 : devPx <= 288 ? 256 : 512;
-      let c = kitSprite(key, px, make);
+      const frames = phase === null || reduceMotion ? 1 : 12;
+      key += ':frames' + frames;
+      let c = kitSprite(key, px, make, frames);
       // mid-zoom, a neighbouring size already made stands in, so nobody flickers back to the old figure
       if (!c) for (const alt of [px * 2, px / 2, px * 4, px / 4]) { const o = spr.get(key + '@' + alt); if (o && o.c) { c = o.c; break; } }
       if (!c) return false;
-      g.drawImage(c, -fx * s, -fy * s, box, box);
+      const tile = c.height, frame = phase === null ? 0 : Math.floor(((phase % 1 + 1) % 1) * frames);
+      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+      g.drawImage(c, frame * tile, 0, tile, tile, -fx * s, -fy * s, box, box);
       return true;
     }
     const CAST_FEET = { mumblecrow: [96, 53.5, 74.5] };
     // a resident: the Code Lab cast as drawn in Code Lab, the rest from the kit; null until their sprite is ready
     function npcFigure(a) {
-      const d = NPC[a.npc] || {}, moving = a.queue.length > 0, bob = moving ? Math.abs(Math.sin(a.t * 9)) * 0.08 : Math.sin(a.t * 1.8 + (hsh(a.id) % 7)) * 0.03;
+      const d = NPC[a.npc] || {}, moving = a.queue.length > 0, bob = reduceMotion ? 0 : moving ? Math.pow(Math.sin((a.gait || 0) * Math.PI * 2), 2) * 0.04 : Math.sin(a.t * 1.8 + (hsh(a.id) % 7)) * 0.02;
       g.save(); g.translate(0, -u * bob); if (a.face < 0) g.scale(-1, 1);
       let ok = false, top = KIT_TOP;
       if (d.cast && window.PF_CAST && PF_CAST[a.npc]) {
@@ -8054,9 +8198,9 @@
         top = KIT_TOP * 0.45;
       } else {
         const look = NPC_LOOK[a.npc] || { role: 'crew', world: curWorld };
-        const pose = a.npc === 'cargo' || a.npc === 'courier' ? 'carry' : a.npc === 'don' ? 'type' : a.npc === 'dj' || a.npc === 'caster' ? (Math.floor(a.t * 2) % 2 ? 'cheer' : 'idle') : a.npc === 'accountant' ? 'type' : moving ? (Math.floor(a.t * 5.5) % 2 ? 'walk2' : 'walk') : 'idle';
+        const pose = a.npc === 'cargo' || a.npc === 'courier' ? 'carry' : a.npc === 'don' ? 'type' : a.npc === 'dj' || a.npc === 'caster' ? 'cheer' : a.npc === 'accountant' ? 'type' : moving ? 'walk' : 'idle';
         if (d.board) { g.save(); g.scale(1, 0.4); g.fillStyle = 'rgba(255,92,224,0.35)'; g.beginPath(); g.arc(0, 0, u * 0.9, 0, 7); g.fill(); g.restore(); g.fillStyle = '#1b1b28'; g.strokeStyle = '#ff5ce0'; g.lineWidth = u * 0.06; g.beginPath(); g.ellipse(0, -u * 0.35, u * 0.75, u * 0.2, 0, 0, 7); g.fill(); g.stroke(); g.translate(0, -u * 0.45); }
-        ok = stamp('npc:' + a.npc + ':' + pose, () => folkSvg({ ...look, agent: false }, { id: 'k', pose, shadow: false }), 84.4, 42.2, 72.3);
+        ok = stamp('npc:' + a.npc + ':' + pose, (phase, tileId) => folkSvg({ ...look, agent: false }, { id: tileId, pose, phase, shadow: false }), 84.4, 42.2, 72.3, 1, moving ? (a.gait || 0) : pose === 'carry' ? 0 : a.t * 0.45 + (hsh(a.id) % 17) / 17);
       }
       g.restore();
       return ok ? top + bob : null;
@@ -8064,8 +8208,9 @@
     // a person from the kit: feet at the origin, facing their way; null until their sprite is ready
     function kitFigure(a, id, pose) {
       const look = kitLook(a, id), kp = kitPose(pose, a), expr = kitExpr(pose, a);
-      const moving = pose === 'walk' || pose === 'runner';
-      const bob = moving ? Math.abs(Math.sin(a.t * 11)) * 0.07 : pose === 'serve' || pose === 'chore' ? Math.abs(Math.sin(a.t * 6)) * 0.04 : Math.sin(a.t * 1.6 + (hsh(a.id) % 7)) * 0.025;
+      const moving = pose === 'walk' || pose === 'runner' || (pose === 'carry' && a.queue.length > 0);
+      const phase = reduceMotion || (kp === 'carry' && !moving) ? 0 : moving ? (a.gait || 0) : a.t * (kp === 'type' ? 1.6 : kp === 'cheer' ? 1.1 : 0.28) + (hsh(a.id) % 97) / 97;
+      const bob = 0; // lift and weight transfer are authored into each cycle, never double-bob the feet
       // the Grubbs run the castle's floor
       const grubb = curWorld === 'castle' && a.kind === 'extra' && !a.holo && hsh(a.id) % 3 === 0 && window.PF_CAST && PF_CAST.grubb;
       // in space the runners float, papers and all
@@ -8074,11 +8219,11 @@
       const cst = a.costume && a.costume.res ? COSTUME[a.costume.id] : null, ghost = Boolean(cst && cst.ghost);
       g.save();
       if (ghost) g.globalAlpha *= 0.6;
-      g.translate(0, -u * (bob + (zeroG ? 0.45 + Math.sin(a.t * 3) * 0.08 : 0) + (ghost ? 0.32 + Math.sin(a.t * 2 + (hsh(a.id) % 5)) * 0.08 : 0)));
+      g.translate(0, -u * (bob + (zeroG ? 0.45 + (reduceMotion ? 0 : Math.sin(a.t * 3) * 0.08) : 0) + (ghost ? 0.32 + (reduceMotion ? 0 : Math.sin(a.t * 2 + (hsh(a.id) % 5)) * 0.08) : 0)));
       if (zeroG) g.rotate(0.12 * (a.face < 0 ? -1 : 1));
       if (a.face < 0) g.scale(-1, 1);
       const ok = grubb ? stamp('cast:grubb', () => PF_CAST.grubb, 84, 42, 72, 0.9)
-        : stamp(JSON.stringify(look) + kp + (expr || ''), () => folkSvg(expr ? { ...look, expr } : look, { id: 'k', pose: kp, shadow: false }), 84.4, 42.2, 72.3);
+        : stamp(JSON.stringify(look) + kp + (expr || ''), (phase, tileId) => folkSvg(expr ? { ...look, expr } : look, { id: tileId, pose: kp, phase, shadow: false }), 84.4, 42.2, 72.3, 1, phase);
       g.restore();
       return ok ? (look.role === 'kid' ? 0.86 : 1) * KIT_TOP + bob : null;
     }
@@ -8095,7 +8240,7 @@
           g.save(); g.scale(1, 0.45); g.strokeStyle = alpha(id.col, 0.9); g.lineWidth = Math.max(px1, u * 0.04); g.setLineDash([u * 0.2, u * 0.12]); g.lineDashOffset = T * u; g.beginPath(); g.arc(0, 0, u * 0.5, 0, 7); g.stroke(); g.setLineDash([]); g.restore();
           if (LOD === 2) { const beam = g.createLinearGradient(0, 0, 0, -u * 2.4); beam.addColorStop(0, alpha(id.col, 0.3)); beam.addColorStop(1, alpha(id.col, 0)); g.fillStyle = beam; g.beginPath(); g.moveTo(-u * 0.5, 0); g.lineTo(u * 0.5, 0); g.lineTo(u * 0.3, -u * 2.4); g.lineTo(-u * 0.3, -u * 2.4); g.fill(); }
           g.translate(0, -u * (0.18 + Math.sin(a.t * 2) * 0.05));
-          g.globalAlpha = fade * (0.85 + (Math.sin(a.t * 37) > 0.93 ? -0.4 : 0));
+          g.globalAlpha = fade * (reduceMotion ? 0.88 : 0.88 + Math.sin(a.t * 2.1) * 0.04);
           if (LOD === 2) { g.shadowColor = id.col; g.shadowBlur = us * 0.25 * dpr; }
         }
         if (pose === 'sleep') { g.rotate(-Math.PI / 2 * (a.face < 0 ? -1 : 1)); g.translate(u * 0.3, u * 0.1); }
@@ -8204,33 +8349,48 @@
     function flowPos(t, w) {
       const th = FLOW_THEME[w] || FLOW_THEME.space, [hx, hy] = cellCenter(...HUB);
       if (t.phase === 'funnel') {
-        if (t.a0 === undefined) { const p = flowPos({ ...t, phase: 'go', d: t.L - FUNNEL_R }, w); t.a0 = Math.atan2(p[1] - hy, p[0] - hx); t.z0 = p[2]; }
-        const k = t.k, a = t.a0 + k * Math.PI * 2.4, r = FUNNEL_R * (1 - k) * (1 - k * 0.15);
+        if (t.a0 === undefined) { const p = flowPos({ ...t, phase: 'go', d: t.L - FUNNEL_R }, w); t.a0 = Math.atan2(p[1] - hy, p[0] - hx); t.z0 = p[2]; t.r0=Math.hypot(p[0]-hx,p[1]-hy); }
+        const k = t.k, a = t.a0 + k * Math.PI * 2.4, r = t.r0 * (1 - k) * (1 - k * 0.15);
         // up into the funnel's mouth, then round and down into the vault
-        const z = k < 0.3 ? t.z0 + (2.9 - t.z0) * (k / 0.3) : 2.9 - 1.6 * ((k - 0.3) / 0.7);
+        const ease=k*k*(3-2*k),z=t.z0+(1.3-t.z0)*ease+Math.sin(Math.PI*k)*.8;
         return [hx + Math.cos(a) * r, hy + Math.sin(a) * r, z, a];
       }
       let d = Math.max(0, t.d), i = 0;
       while (i < t.segs.length - 1 && d > t.segs[i]) { d -= t.segs[i]; i++; }
       const [x0, y0] = t.pts[i], [x1, y1] = t.pts[i + 1], f = t.segs[i] ? Math.min(1, d / t.segs[i]) : 1;
       const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
-      const x = x0 + dx * f + nx * t.lane, y = y0 + dy * f + ny * t.lane, tt2 = T + t.seed;
+      let x = x0 + dx * f + nx * t.lane, y = y0 + dy * f + ny * t.lane, heading=Math.atan2(dy,dx);
+      const radius=1.1, tt2=T+t.seed;
+      // A quadratic bend rounds each junction without the cargo snapping through 90 degrees.
+      let corner=null, before=null, after=null, q=0;
+      if(i>0 && d<radius){corner=t.pts[i];before=t.pts[i-1];after=t.pts[i+1];q=.5+d/(2*radius);}
+      else if(i<t.segs.length-1 && t.segs[i]-d<radius){corner=t.pts[i+1];before=t.pts[i];after=t.pts[i+2];q=(d-(t.segs[i]-radius))/(2*radius);}
+      if(corner){const l0=Math.hypot(corner[0]-before[0],corner[1]-before[1])||1,l1=Math.hypot(after[0]-corner[0],after[1]-corner[1])||1;const a=corner.map((v,k)=>v-(v-before[k])*radius/l0),b=corner.map((v,k)=>v+(after[k]-v)*radius/l1);x=(1-q)**2*a[0]+2*(1-q)*q*corner[0]+q*q*b[0];y=(1-q)**2*a[1]+2*(1-q)*q*corner[1]+q*q*b[1];const tx=(1-q)*(corner[0]-a[0])+q*(b[0]-corner[0]),ty=(1-q)*(corner[1]-a[1])+q*(b[1]-corner[1]),tl=Math.hypot(tx,ty)||1;x-=ty/tl*t.lane;y+=tx/tl*t.lane;heading=Math.atan2(ty,tx);}
       let z = th.z;
-      if (w === 'farm' || w === 'pumpkin') z = 0.35 + Math.abs(Math.sin(t.d * 2.4 + t.seed)) * 0.95;
+      if (w === 'farm' || w === 'pumpkin') z = 0.5 + (1-Math.cos(t.d * 1.2 + t.seed)) * 0.09;
       else if (w === 'haunted') z += Math.sin(tt2 * 1.5) * 0.35;
       else if (w === 'ocean') z += Math.sin(tt2 * 2.2) * 0.3 + Math.min(0.6, t.d * 0.05);
       else if (w === 'alien') z += Math.sin(tt2 * 3) * 0.25;
       else if (w === 'castle') z += Math.sin(tt2 * 2) * 0.15;
-      return [x, y, z, Math.atan2(dy, dx)];
+      return [x, y, z, heading];
     }
-    function drawToken(t, w, X, Y, r, ang) {
+    function drawToken(t,w,X,Y,r,ang) {
+      g.save(); g.lineJoin='round'; g.lineCap='round';
+      const shade=g.createRadialGradient(X-r*.3,Y-r*.4,0,X,Y,r*1.4);
+      shade.addColorStop(0,'rgba(255,255,255,.13)');shade.addColorStop(1,'rgba(255,255,255,0)');
+      paintToken(t,w,X,Y,r,ang);
+      // Small specular accent is consistent across every world's production art.
+      g.fillStyle=shade;g.beginPath();g.ellipse(X-r*.2,Y-r*.2,r*.48,r*.27,-.45,0,Math.PI*2);g.fill();
+      g.restore();
+    }
+    function paintToken(t, w, X, Y, r, ang) {
       const th = FLOW_THEME[w] || FLOW_THEME.space, lead = t.kind === 'lead', s = t.seed, tt2 = T * 1 + s;
       const ink = (lw2) => { g.strokeStyle = 'rgba(20,12,30,0.85)'; g.lineWidth = r * lw2; g.stroke(); };
       if (w === 'rocket') {
         if (lead) { g.fillStyle = '#2a5ab8'; g.beginPath(); g.roundRect(X - r, Y - r * 0.4, r * 2, r * 0.8, r * 0.3); g.fill(); ink(0.14); g.strokeStyle = 'rgba(255,255,255,0.8)'; g.lineWidth = r * 0.08; g.beginPath(); g.moveTo(X - r * 0.6, Y); g.lineTo(X + r * 0.6, Y); g.moveTo(X, Y - r * 0.3); g.lineTo(X, Y + r * 0.3); g.stroke(); return; }
         // a little rocket on its way to the silo, flame and all
         g.save(); g.translate(X, Y); g.rotate(Math.sin(tt2 * 3) * 0.12 - 0.3);
-        const fl = 0.7 + Math.sin(tt2 * 30) * 0.3; g.fillStyle = `rgba(255,170,60,${0.9 * fl})`; g.beginPath(); g.moveTo(-r * 0.3, r * 0.9); g.lineTo(0, r * (1.5 + fl * 0.5)); g.lineTo(r * 0.3, r * 0.9); g.fill();
+        const fl = 0.7 + Math.sin(tt2 * 9) * 0.3; g.fillStyle = `rgba(255,170,60,${0.9 * fl})`; g.beginPath(); g.moveTo(-r * 0.3, r * 0.9); g.lineTo(0, r * (1.5 + fl * 0.5)); g.lineTo(r * 0.3, r * 0.9); g.fill();
         g.fillStyle = '#eef1f6'; g.beginPath(); g.moveTo(-r * 0.4, r * 0.9); g.lineTo(-r * 0.4, -r * 0.3); g.quadraticCurveTo(0, -r * 1.4, r * 0.4, -r * 0.3); g.lineTo(r * 0.4, r * 0.9); g.closePath(); g.fill(); ink(0.12);
         g.fillStyle = '#ff6a1a'; g.beginPath(); g.moveTo(-r * 0.4, r * 0.5); g.lineTo(-r * 0.75, r * 1.0); g.lineTo(-r * 0.4, r * 0.9); g.fill(); g.beginPath(); g.moveTo(r * 0.4, r * 0.5); g.lineTo(r * 0.75, r * 1.0); g.lineTo(r * 0.4, r * 0.9); g.fill();
         g.fillStyle = '#6fd8ff'; g.beginPath(); g.arc(0, 0, r * 0.18, 0, 7); g.fill(); g.restore(); return;
@@ -8242,16 +8402,16 @@
       if (w === 'mafia') {
         if (lead) { g.fillStyle = '#f4ecd8'; g.beginPath(); g.rect(X - r * 0.9, Y - r * 0.55, r * 1.8, r * 1.1); g.fill(); ink(0.1); g.strokeStyle = 'rgba(80,60,40,0.6)'; g.lineWidth = r * 0.08; g.beginPath(); g.moveTo(X - r * 0.9, Y - r * 0.55); g.lineTo(X, Y + r * 0.1); g.lineTo(X + r * 0.9, Y - r * 0.55); g.stroke(); g.fillStyle = '#8a1c2b'; g.beginPath(); g.arc(X, Y + r * 0.05, r * 0.24, 0, 7); g.fill(); return; }
         if (s % 3) { g.save(); g.translate(X, Y); g.rotate(Math.sin(tt2 * 2) * 0.2); g.fillStyle = '#5a9a4a'; g.beginPath(); g.roundRect(-r, -r * 0.5, r * 2, r, r * 0.12); g.fill(); ink(0.1); g.fillStyle = '#8ac27a'; g.fillRect(-r * 0.85, -r * 0.38, r * 1.7, r * 0.76); g.fillStyle = '#e0b454'; g.fillRect(-r * 0.18, -r * 0.5, r * 0.36, r); g.fillStyle = '#2a4a2a'; g.beginPath(); g.arc(-r * 0.55, 0, r * 0.15, 0, 7); g.fill(); g.restore(); return; }
-        const sx = Math.abs(Math.cos(tt2 * 5)) * 0.85 + 0.15; g.fillStyle = th.col; g.beginPath(); g.ellipse(X, Y, r * sx, r, 0, 0, 7); g.fill(); ink(0.14); return;
+        const sx = Math.abs(Math.cos(tt2 * 1.8)) * 0.85 + 0.15; g.fillStyle = th.col; g.beginPath(); g.ellipse(X, Y, r * sx, r, 0, 0, 7); g.fill(); ink(0.14); return;
       }
       if (w === 'gamer') {
         if (lead) { glowAt(X, Y, r * 2.2, '#39ff9e', 0.45); g.fillStyle = '#39ff9e'; g.beginPath(); g.moveTo(X, Y - r); g.lineTo(X + r * 0.75, Y); g.lineTo(X, Y + r); g.lineTo(X - r * 0.75, Y); g.closePath(); g.fill(); ink(0.1); g.fillStyle = '#0a2a1a'; g.font = `900 ${(r * 0.6).toFixed(1)}px Bungee, system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('XP', X, Y + r * 0.05); return; }
         if (s % 4 === 0) { g.fillStyle = th.gold; g.beginPath(); g.moveTo(X - r * 0.8, Y - r * 0.7); g.lineTo(X + r * 0.8, Y - r * 0.7); g.quadraticCurveTo(X + r * 0.7, Y + r * 0.3, X, Y + r * 0.4); g.quadraticCurveTo(X - r * 0.7, Y + r * 0.3, X - r * 0.8, Y - r * 0.7); g.fill(); ink(0.1); g.fillRect(X - r * 0.12, Y + r * 0.35, r * 0.24, r * 0.4); g.fillRect(X - r * 0.45, Y + r * 0.72, r * 0.9, r * 0.2); return; }
-        const sx = Math.abs(Math.cos(tt2 * 5)) * 0.85 + 0.15; g.fillStyle = th.gold; g.beginPath(); g.ellipse(X, Y, r * sx, r, 0, 0, 7); g.fill(); ink(0.14); if (sx > 0.5) sparkleAt(X, Y, r * 0.55 * sx, '#fff4b0'); return;
+        const sx = Math.abs(Math.cos(tt2 * 1.8)) * 0.85 + 0.15; g.fillStyle = th.gold; g.beginPath(); g.ellipse(X, Y, r * sx, r, 0, 0, 7); g.fill(); ink(0.14); if (sx > 0.5) sparkleAt(X, Y, r * 0.55 * sx, '#fff4b0'); return;
       }
       if (w === 'castle') {
         if (lead) { g.fillStyle = '#efe2c0'; g.beginPath(); g.roundRect(X - r * 0.9, Y - r * 0.38, r * 1.8, r * 0.76, r * 0.3); g.fill(); ink(0.16); g.fillStyle = '#c9b48a'; g.fillRect(X - r * 0.9, Y - r * 0.38, r * 0.3, r * 0.76); g.fillStyle = '#a3202e'; g.beginPath(); g.arc(X + r * 0.15, Y + r * 0.12, r * 0.28, 0, 7); g.fill(); return; }
-        const sx = Math.abs(Math.cos(tt2 * 5)) * 0.85 + 0.15;
+        const sx = Math.abs(Math.cos(tt2 * 1.8)) * 0.85 + 0.15;
         g.fillStyle = th.gold; g.beginPath(); g.ellipse(X, Y, r * sx, r, 0, 0, 7); g.fill(); ink(0.16);
         if (sx > 0.5) { g.fillStyle = '#fff1b0'; g.beginPath(); g.ellipse(X - r * 0.2 * sx, Y - r * 0.25, r * 0.35 * sx, r * 0.3, 0, 0, 7); g.fill(); }
       } else if (w === 'farm') {
@@ -8264,7 +8424,7 @@
         else { g.fillStyle = '#a07848'; g.beginPath(); g.moveTo(X - r * 0.7, Y + r * 0.8); g.quadraticCurveTo(X - r, Y - r * 0.2, X - r * 0.3, Y - r * 0.55); g.lineTo(X + r * 0.3, Y - r * 0.55); g.quadraticCurveTo(X + r, Y - r * 0.2, X + r * 0.7, Y + r * 0.8); g.closePath(); g.fill(); ink(0.14); g.strokeStyle = '#5a3a1e'; g.lineWidth = r * 0.14; g.beginPath(); g.moveTo(X - r * 0.35, Y - r * 0.45); g.lineTo(X + r * 0.35, Y - r * 0.45); g.stroke(); }
       } else if (w === 'space') {
         if (lead) { g.fillStyle = th.col; g.beginPath(); g.moveTo(X, Y - r); g.lineTo(X + r * 0.7, Y); g.lineTo(X, Y + r); g.lineTo(X - r * 0.7, Y); g.closePath(); g.fill(); ink(0.14); return; }
-        const c2 = Math.cos(ang), s2 = Math.sin(ang) * 0.5, fl = 0.7 + Math.sin(tt2 * 30) * 0.3;
+        const c2 = Math.cos(ang), s2 = Math.sin(ang) * 0.5, fl = 0.7 + Math.sin(tt2 * 9) * 0.3;
         g.fillStyle = `rgba(255,170,80,${0.9 * fl})`; g.beginPath(); g.ellipse(X - c2 * r * 1.3, Y - s2 * r * 1.3, r * 0.55 * fl, r * 0.3, Math.atan2(s2, c2), 0, 7); g.fill();
         g.fillStyle = '#eef2f8'; g.beginPath(); g.ellipse(X, Y, r * 1.1, r * 0.62, Math.atan2(s2, c2), 0, 7); g.fill(); ink(0.14);
         g.fillStyle = th.gold; g.beginPath(); g.ellipse(X, Y, r * 0.3, r * 0.6, Math.atan2(s2, c2), 0, 7); g.fill();
@@ -8322,7 +8482,7 @@
     }
     function drawFlows() {
       const w = curWorld, th = FLOW_THEME[w] || FLOW_THEME.space;
-      const r = Math.max(u * 0.36, cssPx(6.5));
+      const r = Math.max(u * 0.3, cssPx(3.5));
       drawLanes(w, th);
       for (const t of flows) {
         if (t.d < 0) continue;
@@ -8332,14 +8492,14 @@
         g.globalAlpha = Math.max(0, fade);
         // a soft shadow on the walkway, and the trail behind
         if (t.phase === 'go' && LOD) { g.fillStyle = 'rgba(0,0,0,0.18)'; g.beginPath(); g.ellipse(Xf, Yf, rr * 0.9, rr * 0.4, 0, 0, 7); g.fill(); }
-        t.trail.push([X, Y]); if (t.trail.length > 7) t.trail.shift();
+        if(!t.trail.length || T-(t.trailAt||0)>1/30){t.trail.push([X,Y]);t.trailAt=T;if(t.trail.length>4)t.trail.shift();}
         if (LOD && (w === 'cyber' || w === 'space' || w === 'castle' || w === 'haunted')) {
           const tc = w === 'castle' || w === 'haunted' ? th.col : t.kind === 'lead' ? '#4ff0ff' : th.col;
           for (let k = 0; k < t.trail.length - 1; k++) { const [a1, b1] = t.trail[k], q = k / t.trail.length; g.fillStyle = alpha(tc, 0.5 * q); g.beginPath(); g.arc(a1, b1, rr * (w === 'cyber' ? 0.5 : 0.35) * (0.4 + q), 0, 7); g.fill(); }
         } else if (LOD && w === 'ocean' && (t.seed + Math.floor(T * 4)) % 6 === 0) particles.push({ x: X + (Math.random() - 0.5) * rr, y: Y, vx: (Math.random() - 0.5) * 6, vy: -14, g: -4, life: 0.6, col: '#dff7ff' });
         // whose it is: a halo in the room's color
-        if (t.acc) glowAt(X, Y, rr * 2.6, t.acc, t.kind === 'money' ? 0.42 : 0.3);
-        if (t.kind === 'money' && w !== 'farm') glowAt(X, Y, rr * 2.2, th.gold, 0.25);
+        if (t.acc) glowAt(X, Y, rr * 1.7, t.acc, 0.12);
+        if (t.kind === 'money' && w !== 'farm') glowAt(X, Y, rr * 1.5, th.gold, 0.1);
         drawToken(t, w, X, Y, rr, ang);
         if (t.kind === 'money') lights.push([X, Y, u * 1.2, th.gold, 0.35]);
         // a sale's amount rides its first token all the way in
@@ -8627,6 +8787,29 @@
       g.save(); poly(s); g.strokeStyle = alpha(col, a); g.lineWidth = cssPx(2.5); if (LOD) { g.shadowColor = col; g.shadowBlur = 10 * dpr; } g.stroke(); g.restore();
     }
 
+    const growthAnim = new Map();
+    function drawGrowth(room) {
+      const b=room.box, level=roomGrowth(room).level, color=themeOf(room.id).accent;
+      let state=growthAnim.get(room.id);
+      if(!state){state={level,from:level,at:T};growthAnim.set(room.id,state);}
+      if(state.level!==level){state={level,from:state.level,at:T};growthAnim.set(room.id,state);}
+      const visible=reduceMotion?level:state.from+(level-state.from)*ease3((T-state.at)/1.2);
+      const oldX=rx0,oldY=ry0;rx0=b.x0;ry0=b.y0;
+      for(let n=0;n<Math.ceil(visible);n++){
+        const reveal=clamp(visible-n,0,1),side=n%2,along=1+Math.floor(n/2)*2.8;
+        const x=side?along:b.w+.25,y=side?b.d+.25:along,sz=2.1;
+        g.save();g.globalAlpha*=reveal;
+        box(side?x+.6:b.w-.1,side?b.d-.1:y+.6,side?.8:.5,side?.5:.8,.18,.08,shade(color,-.2));
+        box(x,y,sz,sz,.3,-.05,shade(color,-.35),{top:shade(color,.25)});
+        box(x,y,sz,.12,1.25*reveal,.25,shade(color,-.3));box(x,y,.12,sz,1.25*reveal,.25,shade(color,-.15));
+        box(x+.4,y+.4,1.2,.6,.5,.3,'#32405b');box(x+.65,y+.42,.65,.1,.5,.8,color);
+        const [px,py]=Pl(x+1.15,y+1.45,.3);
+        g.save();g.translate(px,py);stamp('wing:'+curWorld+color, (phase,id)=>folkSvg({world:curWorld,role:'crew',tint:color,agent:false},{id,pose:'type',phase,shadow:false}),84.4,42.2,72.3,.6,reduceMotion?0:T*.7+n/6);g.restore();
+        g.restore();
+      }
+      rx0=oldX;ry0=oldY;
+    }
+
     // ---- one cell: floor, walls, then everything in it back to front with the characters among the furniture
     function drawCell(c, r, kind, inHere, over, selId, S) {
       const b = cellBox(c, r), [x0, y0] = cellOrigin(c, r); curBox = b; rx0 = b.x0; ry0 = b.y0;
@@ -8670,14 +8853,14 @@
     // ---- far away, each building is drawn into a picture of its own and stamped, one picture redrawn a
     // frame so screens, steam and machines keep moving; the people, streams and effects stay live every frame. This is
     // what lets the zoomed-out station keep full detail without the frame rate falling off.
-    const cellPics = new Map(), PIC_US = 16, PIC_AGE = 0.35;
+    const cellPics = new Map(), PIC_US = 16, PIC_AGE = 1 / 30;
     function cellPic(o, Smat, fresh) {
       const key = o.c + ',' + o.r, H = wallH.get(key) || LOWH, b = cellBox(o.c, o.r);
       let e = cellPics.get(key);
       const fits = e && e.kind === o.kind && e.skin === skinId() && Math.abs(e.S - S) / S < 0.08 && Math.abs(e.H - H) < 0.04;
-      if (fits && (T - e.t < PIC_AGE || fresh.n <= 0)) return e;
-      if (e && e.S && fresh.n <= 0 && e.kind === o.kind) return e;
-      fresh.n -= 1;
+      if (fits && (T - e.t < PIC_AGE || !fresh.keys.has(key))) return e;
+      if (e && e.S && !fresh.keys.has(key) && e.kind === o.kind && e.skin === skinId()) return e;
+      fresh.keys.delete(key);
       const pts = b.round ? [P(b.cx - b.R, b.cy + b.R, 0), P(b.cx + b.R, b.cy - b.R, 0), P(b.cx - b.R, b.cy - b.R, 0), P(b.cx + b.R, b.cy + b.R, 0)] : [P(b.x0, b.y0, 0), P(b.x1, b.y0, 0), P(b.x0, b.y1, 0), P(b.x1, b.y1, 0)];
       const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
       const x0 = Math.min(...xs) - 4 * u, x1 = Math.max(...xs) + 4 * u, y0 = Math.min(...ys) - (FULLH + 10) * u, y1 = Math.max(...ys) + 3 * u;
@@ -8690,7 +8873,7 @@
       pc.setTransform(S * dpr * k, 0, 0, S * dpr * k, -x0 * S * dpr * k, -y0 * S * dpr * k);
       g = pc;
       try { drawCell(o.c, o.r, o.kind, [], [], null, Smat); } finally { g = keepG; }
-      Object.assign(e, { x0, y0, x1, y1, S, H, kind: o.kind, skin: skinId(), t: T - Math.random() * 0.1, lights: lights.splice(from) });
+      Object.assign(e, { x0, y0, x1, y1, S, H, kind: o.kind, skin: skinId(), t: T, lights: lights.splice(from) });
       return e;
     }
     function drawCellFar(o, inHere, over, selId, Smat, fresh) {
@@ -8702,7 +8885,7 @@
 
     // ---- the frame
     function draw(dt, o = {}) {
-      g = o.ctx || dctx; tt = T; curWorld = skinId(); sprBudget = 16;
+      g = o.ctx || dctx; tt = T; curWorld = skinId(); sprBudget = 2;
       // detail holds at every zoom: the whole station zoomed out keeps its people, animation, glow and props; only a
       // view too small to read drops the finest touches
       us = u * S; LOD = us < 5 ? 1 : 2; px1 = 1 / (S * dpr); ou = u * Math.max(1, 14 / us);
@@ -8721,7 +8904,7 @@
         const focus = selRoom && selRoom.c === o.c && selRoom.r === o.r;
         const key = o.c + ',' + o.r, want = wallMode === 'down' ? DOWNH : wallMode === 'up' ? (o.kind === 'dock' ? 2.6 : FULLH) : focus ? FULLH : (selected === 'dock' && o.kind === 'dock') ? 2.6 : LOWH;
         const cur = wallH.has(key) ? wallH.get(key) : LOWH;
-        wallH.set(key, cur + (want - cur) * Math.min(1, dt * 4));
+        wallH.set(key, cur + (want - cur) * (reduceMotion ? 1 : 1 - Math.exp(-dt * 5)));
       }
       // what is in view
       const vx1 = vx0e + W / S, vy1 = vy0e + H / S;
@@ -8751,8 +8934,13 @@
       order.sort((p, q) => p.k - q.k || (p.c0 ?? p.c ?? 0) - (q.c0 ?? q.c ?? 0));
       const over = [], selId = follow || (selected && selected.startsWith('a:') ? selected.slice(2) : null);
       const hallsDone = new Set();
-      // far away (and only on screen): buildings come from their pictures, one redrawn a frame
-      const far = !o.ctx && us < PIC_US, fresh = { n: 1 };
+      // Far away, refresh a bounded group of the oldest visible building pictures each frame.
+      const far = !o.ctx && us < PIC_US;
+      // Oldest visible cells first: a busy back room cannot starve the rooms in front.
+      const visible = list.filter((cell) => inView(cell.c, cell.r));
+      const refreshCount = quality === 2 ? 4 : quality === 1 ? 3 : 2;
+      visible.sort((a, b) => (cellPics.get(a.c + ',' + a.r)?.t ?? -Infinity) - (cellPics.get(b.c + ',' + b.r)?.t ?? -Infinity));
+      const fresh = { keys: new Set(visible.slice(0, refreshCount).map((cell) => cell.c + ',' + cell.r)) };
       if (!far && cellPics.size && us > PIC_US * 1.5) cellPics.clear();
       for (const o of order) {
         if (o.t === 'mast') { drawMast(Smat); continue; }
@@ -8767,6 +8955,7 @@
         const inHere = buckets.get('c' + o.c + ',' + o.r) || [];
         if (far) drawCellFar(o, inHere, over, selId, Smat, fresh);
         else drawCell(o.c, o.r, o.kind, inHere, over, selId, Smat);
+        const growRoom=rooms.find(r=>r.c===o.c&&r.r===o.r);if(growRoom)drawGrowth(growRoom);
       }
       // anyone left over (between cells, outside the grid)
       for (const [k, arr] of buckets) if (k[0] !== 'c' && !hallsDone.has(k)) for (const a of arr.sort((p, q) => (p.x + p.y) - (q.x + q.y))) drawChar(a, over, selId);

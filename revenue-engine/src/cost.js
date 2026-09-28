@@ -25,5 +25,6 @@ export function costUsd(model, usage, override) {
   const outTok = usage.output_tokens || 0;
   const cacheWrite = usage.cache_creation_input_tokens || 0;
   const cacheRead = usage.cache_read_input_tokens || 0;
-  return (inTok * p.in + outTok * p.out + cacheWrite * p.in * CACHE_WRITE + cacheRead * p.in * CACHE_READ) / 1e6;
+  const searchUsd = Math.max(0, usage.server_tool_use?.web_search_requests || 0) * 0.01;
+  return searchUsd + (inTok * p.in + outTok * p.out + cacheWrite * p.in * CACHE_WRITE + cacheRead * p.in * CACHE_READ) / 1e6;
 }
