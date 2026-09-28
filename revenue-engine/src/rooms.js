@@ -166,6 +166,10 @@ function normalizeLooks(looks) {
 
 // a room's own setup: how its desks are arranged, how big its building is, and whether it has a yard. Each world
 // gives every room a shape of its own; these override it for one room. Decoration only.
+export const ROOM_SHAPES = Object.freeze({ square: 'Square', wide: 'Wide rectangle', deep: 'Tall rectangle', round: 'Circle', courtyard: 'L-shaped courtyard' });
+export const ROOM_SLOTS = [[0,0],[1,0],[2,0],[3,0],[0,1],[2,1],[3,1],[1,2],[2,2],[3,2]];
+export const GROWTH_STEPS = [50, 100, 250, 500, 1000, 2500];
+export function growthLevel(profit) { return GROWTH_STEPS.filter((n) => Number.isFinite(profit) && profit >= n).length; }
 export const ROOM_LAYOUTS = Object.freeze({ rows: 'Rows of desks', pods: 'Team pods', arc: 'A half-circle', columns: 'Columns', bench: 'One long bench', lounge: 'A lounge' });
 export const ROOM_SIZES = Object.freeze({ small: 'Small', medium: 'Medium', large: 'Large', wide: 'Wide', deep: 'Deep' });
 export const ROOM_YARDS = Object.freeze({ none: 'No yard', small: 'A small yard', large: 'A big yard' });
@@ -200,9 +204,13 @@ export function normalizeConfig(input) {
       match: [...new Set(match)],
       minutes: num(r.minutes, 1, 1440, 30), priceUsd: num(r.priceUsd, 0, 1e6, 0), costUsd: num(r.costUsd, 0, 1e6, 0), goalUsd: num(r.goalUsd, 0, 1e8, 0),
       looks: normalizeLooks(r.looks),
+      ...(ROOM_SHAPES[r.shape] ? { shape: r.shape } : {}),
+      ...(Array.isArray(r.position) && ROOM_SLOTS.some(([c,y]) => c === r.position[0] && y === r.position[1]) ? { position: [...r.position] } : {}),
       ...(ROOM_LAYOUTS[r.layout] ? { layout: r.layout } : {}), ...(ROOM_SIZES[r.size] ? { size: r.size } : {}), ...(ROOM_YARDS[r.yard] ? { yard: r.yard } : {}),
     };
   });
+  const positions = rooms.filter(r => r.position).map(r => r.position.join(','));
+  if (new Set(positions).size !== positions.length) throw new LedgerError('Two rooms cannot occupy the same plot');
   const mode = input.mode || (rooms.every((r) => r.base) ? 'agents' : 'service');
   return { name, template, mode, skin, folk: pinFolk(folk0, ids), rooms };
 }
@@ -236,7 +244,7 @@ export function catalogFrom(cfg) {
   if (!cfg || !cfg.rooms) return CATALOG;
   return cfg.rooms.map((r, i) => {
     const base = r.base ? baseSpec(r.base) : null;
-    const shared = { rank: i + 1, name: r.name, short: r.short, accent: r.accent, style: r.style, screen: r.screen, prop: r.prop, match: r.match, kind: r.kind, minutes: r.minutes, priceUsd: r.priceUsd, costUsd: r.costUsd, goalUsd: r.goalUsd, looks: r.looks, layout: r.layout, size: r.size, yard: r.yard };
+    const shared = { rank: i + 1, name: r.name, short: r.short, accent: r.accent, style: r.style, screen: r.screen, prop: r.prop, match: r.match, kind: r.kind, minutes: r.minutes, priceUsd: r.priceUsd, costUsd: r.costUsd, goalUsd: r.goalUsd, looks: r.looks, layout: r.layout, size: r.size, yard: r.yard, shape: r.shape, position: r.position };
     if (base) return { ...base, ...shared, id: base.id };
     return {
       id: r.id, bucket: 'service', thesis: `${r.name}: a service this business sells.`, killTest: '', budgetUsd: 5,

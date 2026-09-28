@@ -14,7 +14,7 @@ import { ROLES, DEFAULT_MODEL } from './agent.js';
 import { addItem, listItems } from './inbox.js';
 import { addClient, listClients, updateClient, isDue } from './clients.js';
 import { harvest as runHarvest } from './harvest.js';
-import { ROOM_LAYOUTS, ROOM_SIZES, ROOM_YARDS, loadCatalog, loadConfig, saveConfig, resetConfig, fromTemplate, stationInfo, unclaimedItems, TEMPLATES, STYLES, SCREENS, PROPS, PALETTE, MAX_ROOMS, MODES, SKINS, KID_COLORS, MAX_KIDS, FOLK_COLORS, MAX_FOLK } from './rooms.js';
+import { ROOM_SHAPES, ROOM_SLOTS, ROOM_LAYOUTS, ROOM_SIZES, ROOM_YARDS, loadCatalog, loadConfig, saveConfig, resetConfig, fromTemplate, stationInfo, unclaimedItems, TEMPLATES, STYLES, SCREENS, PROPS, PALETTE, MAX_ROOMS, MODES, SKINS, KID_COLORS, MAX_KIDS, FOLK_COLORS, MAX_FOLK } from './rooms.js';
 import { connectorSpecs, CSV_SOURCES, listConnections, upsertConnection, removeConnection, publicConnection, syncConnection, syncAll, syncing, testConnection, csvRecords, classify, knownExt, importRecords } from './sync.js';
 
 // Count real files an agent wrote to each path's outbox. The station's dock draws exactly this many papers.
@@ -95,11 +95,11 @@ export function roomsInfo(ledger, catalog, dataDir) {
   const cfg = dataDir ? loadConfig(dataDir) : null;
   return {
     config: cfg || { name: 'Proxyfolk', template: 'paths', rooms: null },
-    catalog: catalog.map((p) => ({ id: p.id, name: p.name, short: p.short, kind: p.kind || 'pipeline', accent: p.accent, style: p.style, screen: p.screen, prop: p.prop, match: p.match || [], minutes: p.minutes, priceUsd: p.priceUsd, costUsd: p.costUsd, goalUsd: p.goalUsd, looks: p.looks, base: p.kind === 'service' ? undefined : p.id })),
+    catalog: catalog.map((p) => ({ id: p.id, name: p.name, short: p.short, kind: p.kind || 'pipeline', accent: p.accent, style: p.style, screen: p.screen, prop: p.prop, match: p.match || [], minutes: p.minutes, priceUsd: p.priceUsd, costUsd: p.costUsd, goalUsd: p.goalUsd, looks: p.looks, shape: p.shape, position: p.position, layout: p.layout, size: p.size, yard: p.yard, base: p.kind === 'service' ? undefined : p.id })),
     templates: Object.fromEntries(Object.entries(TEMPLATES).map(([k, t]) => { const c = fromTemplate(k); return [k, { title: t.title, blurb: t.blurb, rooms: t.rooms ? t.rooms.length : CATALOG.length, mode: c.mode, skin: c.skin, name: c.name, list: c.rooms }]; })),
     modes: MODES, skins: SKINS, kidColors: KID_COLORS, maxKids: MAX_KIDS, folkColors: FOLK_COLORS, maxFolk: MAX_FOLK,
     builtIn: CATALOG.map((p) => ({ id: p.id, name: p.name, short: p.short })),
-    styles: STYLES, screens: SCREENS, props: PROPS, palette: PALETTE, maxRooms: MAX_ROOMS, layouts: ROOM_LAYOUTS, sizes: ROOM_SIZES, yards: ROOM_YARDS,
+    styles: STYLES, screens: SCREENS, props: PROPS, palette: PALETTE, maxRooms: MAX_ROOMS, shapes: ROOM_SHAPES, slots: ROOM_SLOTS, layouts: ROOM_LAYOUTS, sizes: ROOM_SIZES, yards: ROOM_YARDS,
     unclaimed: unclaimedItems(ledger.readAll(), catalog),
   };
 }
@@ -109,14 +109,21 @@ export function roomsInfo(ledger, catalog, dataDir) {
 // opts.catalog pins the rooms (tests); without it the rooms come from <data>/rooms.json on every request, so a room
 // designed in the station takes effect immediately.
 // readBody(limit) -> Promise<parsed JSON body>; it is only called for writes.
-export function createApi({ ledger, catalog: fixedCatalog = null, dataDir, runAgent, makeProvider, harvestImpl = null, fetchImpl = globalThis.fetch }) {
+export function createApi({ ledger, catalog: fixedCatalog = null, dataDir, runAgent, makeProvider, raceResearch = null, harvestImpl = null, fetchImpl = globalThis.fetch }) {
   const runs = new Map(); // runId -> { status, started, result?, error? }
   const ok = (code, body) => ({ code, body });
 
   return async function handle(method, pathname, readBody) {
     const catalog = fixedCatalog || loadCatalog(dataDir);
     try {
-      if (method === 'GET' && pathname === '/api/state') return ok(200, snapshot(ledger, catalog, dataDir));
+      if (method === 'GET' && pathname === '/api/state') return ok(200, {...snapshot(ledger, catalog, dataDir),research:raceResearch?raceResearch.status():{available:false,ready:false,settings:{enabled:false,totalUsd:8},racers:[],race:null}});
+      if(method==='GET'&&pathname==='/api/race/research')return ok(200,raceResearch?raceResearch.status():{available:false,ready:false});
+      if(method==='POST'&&pathname==='/api/race/research'){
+        if(!raceResearch)return ok(501,{ok:false,error:'Live research needs the Node server with ANTHROPIC_API_KEY. This static preview only simulates activity.'});
+        const body=await readBody();
+        try {const result=body.action==='stop'?raceResearch.stop():raceResearch.configure(body);return ok(200,{ok:true,...result});}
+        catch(e){return ok(400,{ok:false,error:e.message});}
+      }
       // one play's playbook, to run the idea for real: /api/race/playbook/<room>/<play>
       const pb = method === 'GET' && /^\/api\/race\/playbook\/([a-z0-9][a-z0-9-]{0,31})\/([a-z0-9][a-z0-9-]{0,39})$/.exec(pathname);
       if (pb) {
@@ -173,6 +180,7 @@ export function createApi({ ledger, catalog: fixedCatalog = null, dataDir, runAg
       if (method === 'POST' && pathname === '/api/race/real') {
         const body = await readBody();
         try {
+          if(raceResearch)raceResearch.guardNewRace();
           const ev = realRaceEvent(reduce(ledger.readAll(), catalog), catalog, Date.now(), {
             rooms: Array.isArray(body.rooms) ? body.rooms : null, stakeUsd: body.stakeUsd === undefined ? undefined : Number(body.stakeUsd), evidence: body.evidence,
             horizonsMin: Array.isArray(body.horizonsMin) ? body.horizonsMin : null, rules: body.rules && typeof body.rules === 'object' ? body.rules : {}, name: body.name || null,
@@ -253,8 +261,11 @@ export function createApi({ ledger, catalog: fixedCatalog = null, dataDir, runAg
       if (method === 'POST' && pathname === '/api/events') {
         const body = await readBody();
         try {
+          if(body.kind==='race'&&raceResearch){try{raceResearch.guardNewRace();}catch(e){return ok(409,{ok:false,error:e.message});}}
           const ev = ledger.append(body);
-          return ok(201, { ok: true, event: ev });
+          let research=null;
+          if(ev.kind==='race'&&!body.amend&&raceResearch)research=raceResearch.enqueue(ev.id);
+          return ok(201, { ok: true, event: ev, research });
         } catch (e) {
           if (e instanceof LedgerError) return ok(400, { ok: false, error: e.message });
           throw e;
@@ -263,6 +274,27 @@ export function createApi({ ledger, catalog: fixedCatalog = null, dataDir, runAg
 
       // ---- room designer
       if (method === 'GET' && pathname === '/api/rooms') return ok(200, roomsInfo(ledger, catalog, dataDir));
+      if (method === 'POST' && pathname === '/api/rooms/design') {
+        const body = await readBody();
+        if (!Array.isArray(body.rooms) || !body.rooms.length) return ok(400, {ok:false,error:'Choose rooms to arrange'});
+        const config = loadConfig(dataDir) || {name:'Proxyfolk', template:'paths', rooms:null};
+        const current = config.rooms || catalog.map(p => ({...p, base:p.id}));
+        const seen = new Set();
+        for (const item of body.rooms) {
+          if (!current.some(r => r.id === item.id || r.base === item.id) || seen.has(item.id)) return ok(400,{ok:false,error:'Unknown or duplicate room'});
+          seen.add(item.id);
+          if (item.shape !== undefined && item.shape !== '' && !ROOM_SHAPES[item.shape]) return ok(400,{ok:false,error:'Choose a supported shape'});
+          if (item.position !== undefined && (!Array.isArray(item.position) || item.position.length !== 2 || !ROOM_SLOTS.some(p => p[0] === item.position[0] && p[1] === item.position[1]))) return ok(400,{ok:false,error:'Choose an open room plot'});
+        }
+        const rooms = current.map(r => {
+          const patch = body.rooms.find(p => p.id === (r.base || r.id));
+          if (!patch) return r;
+          const fields = Object.fromEntries(['shape','position','size','layout','yard'].filter(k => patch[k] !== undefined).map(k => [k, patch[k]]));
+          return {...r,...fields};
+        });
+        try { return ok(200,{ok:true,config:saveConfig(dataDir,{...config,rooms})}); }
+        catch (e) { return ok(400,{ok:false,error:e.message}); }
+      }
       if (method === 'POST' && pathname === '/api/rooms') {
         if (!dataDir) return ok(501, { ok: false, error: 'no data dir' });
         const body = await readBody();

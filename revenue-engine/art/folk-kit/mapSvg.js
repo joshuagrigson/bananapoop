@@ -123,6 +123,14 @@ function slab(k, wd, cx, cy, s = 0.62) {
   const tx = { farm: '#6bbf49', castle: '#7d7483', space: '#b3bccd', cyber: '#56567a', alien: '#6fb8a8', ocean: '#d9c386', haunted: '#4a5a3a', pumpkin: '#3f8a3a', rocket: '#c9ced8', lab: '#7dff4a', mafia: '#5a7a3a', gamer: '#39ff9e' }[k];
   for (let i = 0; i < 5; i++) { const [px, py] = iso(x + 0.25 + ((i * 0.37) % 1) * (w - 0.5), y + 0.3 + ((i * 0.61) % 1) * (d - 0.6), 0); s2 += `<ellipse cx="${f(px)}" cy="${f(py)}" rx="7" ry="3" fill="${tx}" opacity=".7"/>`; }
   if (k === 'cyber') s2 += `<polygon points="${pts(top)}" fill="none" stroke="#ff5ce0" stroke-width="1.5" opacity=".55"/>`;
+  // Edge bevel, paving seams and a soft contact shadow anchor every building to its island.
+  for (const offset of [-0.3, 0, 0.3]) {
+    const A = iso(cx + offset, cy - s + 0.06), B = iso(cx + offset, cy + s - 0.06);
+    s2 += `<path d="M${f(A[0])} ${f(A[1])}L${f(B[0])} ${f(B[1])}" stroke="${dark(wd.slabTop, 0.24)}" stroke-width="1" opacity=".28"/>`;
+  }
+  s2 += `<polyline points="${pts([top[3], top[0], top[1]])}" fill="none" stroke="${light(wd.slabTop, 0.55)}" stroke-width="2" opacity=".65"/>`;
+  const [sx, sy] = iso(cx + 0.12, cy + 0.12);
+  for (let i = 3; i > 0; i--) s2 += `<ellipse cx="${f(sx)}" cy="${f(sy)}" rx="${42 + i * 7}" ry="${15 + i * 3}" fill="#100e24" opacity=".07"/>`;
   return s2;
 }
 function walkway(k, wd, a, b) {
@@ -131,7 +139,9 @@ function walkway(k, wd, a, b) {
   const x0 = horiz ? Math.min(ax, bx) + gap : ax - w, y0 = horiz ? ay - w : Math.min(ay, by) + gap;
   const len = CELL - gap * 2;
   const shapes = horiz ? box(x0, y0, -8, len, w * 2, 8, wd.walk) : box(x0, y0, -8, w * 2, len, 8, wd.walk);
-  return outlined(shapes, 5);
+  const A = iso(ax + (horiz ? gap : 0), ay + (horiz ? 0 : gap), 1);
+  const B = iso(bx - (horiz ? gap : 0), by - (horiz ? 0 : gap), 1);
+  return outlined(shapes, 5) + `<path d="M${pts([A]).replace(',', ' ')}L${pts([B]).replace(',', ' ')}" fill="none" stroke="${light(wd.walk, 0.5)}" stroke-width="2" stroke-dasharray="6 8" opacity=".5"/>`;
 }
 
 // ---------------------------------------------------------------------------------------------- buildings
@@ -377,7 +387,10 @@ function mapSvg(world = 'space', opts = {}) {
   // a ninth room takes the mast's corner; the mast steps out one cell
   MAST = rooms.length > 8 ? [4, 0] : [3, 0];
   const cells = [];
-  ROOM_CELLS.forEach(([c, r], i) => { if (rooms[i]) cells.push({ c, r, kind: 'room', i }); });
+  const used = new Set();
+  rooms.forEach((room,i)=>{const p=room.position;if(Array.isArray(p)&&ROOM_CELLS.some(q=>q[0]===p[0]&&q[1]===p[1])&&!used.has(p.join(','))){used.add(p.join(','));cells.push({c:p[0],r:p[1],kind:'room',i});}});
+  rooms.forEach((room,i)=>{if(cells.some(q=>q.i===i))return;const p=ROOM_CELLS.find(q=>!used.has(q.join(',')));used.add(p.join(','));cells.push({c:p[0],r:p[1],kind:'room',i});});
+  if(used.has(MAST.join(',')))MAST=[4,0];
   cells.push({ c: HUB[0], r: HUB[1], kind: 'hub' }, { c: DOCK[0], r: DOCK[1], kind: 'dock' });
   const occupied = new Set(cells.map((q) => q.c + ',' + q.r));
   let body = '';
@@ -390,8 +403,19 @@ function mapSvg(world = 'space', opts = {}) {
     const cx = q.c * CELL, cy = q.r * CELL;
     const sel = q.kind === 'room' ? rooms[q.i].id || '' : opts.rooms && opts.rooms.some((r) => r.id) ? q.kind : '';
     body += sel ? `<g data-sel="${esc(sel)}">` : '<g>';
-    body += slab(k, wd, cx, cy, q.kind === 'hub' ? 0.7 : 0.62);
-    if (q.kind === 'room') body += building(k, cx, cy, rooms[q.i].accent, q.i + 1, K);
+    const shape=q.kind==='room'?rooms[q.i].shape:null;
+    if(shape==='round')body+=outlined(cyl(cx,cy,-24,.64,24,wd.slab,{top:wd.slabTop}));
+    else if(shape==='wide'||shape==='deep')body+=outlined(box(cx-(shape==='wide'?.83:.5),cy-(shape==='deep'?.83:.5),-24,shape==='wide'?1.66:1,shape==='deep'?1.66:1,24,wd.slab,{top:wd.slabTop}));
+    else if(shape==='courtyard')body+=outlined([...box(cx-.68,cy-.68,-24,1.36,.78,24,wd.slab,{top:wd.slabTop}),...box(cx-.68,cy+.1,-24,.78,.58,24,wd.slab,{top:wd.slabTop})]);
+    else body += slab(k, wd, cx, cy, q.kind === 'hub' ? 0.7 : 0.62);
+    if (q.kind === 'room') {
+      body += building(k, cx, cy, rooms[q.i].accent, q.i + 1, K);
+      const growth=Math.max(0,Math.min(6,Math.floor(rooms[q.i].growth||0)));
+      for(let n=0;n<growth;n++){
+        const side=n%2,along=-.5+Math.floor(n/2)*.4,x=cx+(side?.83:along),y=cy+(side?along:.83);
+        body+=`<g data-extension="${n+1}">${outlined(box(x-.15,y-.15,-12,.3,.3,26,rooms[q.i].accent))}</g>`;
+      }
+    }
     if (q.kind === 'hub') body += vault(k, wd, K);
     if (q.kind === 'dock') body += dock(k, wd, K);
     body += '</g>';
@@ -408,6 +432,10 @@ function mapSvg(world = 'space', opts = {}) {
   const head = `<g transform="translate(48 44)"><rect x="-4" y="-4" width="${tw + 8}" height="72" rx="20" fill="${OUT}"/><rect width="${tw}" height="64" rx="16" fill="#fbf6ea"/><text x="32" y="44" font-size="32" font-weight="900" fill="${OUT}" font-family="Arial Black, Arial, sans-serif" letter-spacing="1">${esc(title.toUpperCase())}</text></g>`;
   // the sky is drawn after the station so every gradient exists before the defs are written
   const bg = sky(k, wd, K);
+  const glow = { farm: '#fff4b0', castle: '#ffd38a', space: '#83cfff', cyber: '#ff7ce5', alien: '#7ef0c8', ocean: '#a2eaff', haunted: '#c5dcb2', pumpkin: '#ffb15c', rocket: '#ffbd8b', lab: '#abff82', mafia: '#ffe0b0', gamer: '#bb9aff' }[k];
+  const halo = `<ellipse cx="800" cy="560" rx="720" ry="420" fill="${K.rad([[0, glow, 0.13], [1, glow, 0]])}"/>`;
+  const ambience = Array.from({ length: 18 }, (_, i) => `<circle class="pf-map-mote" style="animation-delay:-${i * 0.71}s;animation-duration:${6 + i % 5}s" cx="${80 + (i * 317 % 1440)}" cy="${160 + (i * 173 % 750)}" r="${1.3 + i % 3 * 0.6}" fill="${glow}" opacity=".3"/>`).join('');
+  const motion = `<style>.pf-map-mote{pointer-events:none;animation:pf-map-drift 8s ease-in-out infinite alternate}@keyframes pf-map-drift{from{transform:translateY(8px);opacity:.16}to{transform:translateY(-12px);opacity:.5}}@media(prefers-reduced-motion:reduce){.pf-map-mote{animation:none}}</style>`;
   // fit the station into the frame below the title: its slabs' corners, room above for the tallest roofs and the mast
   const xs = [], ys = [];
   for (const q of cells.concat([{ c: MAST[0], r: MAST[1] }])) for (const [dx, dy] of [[-0.8, -0.8], [0.8, -0.8], [0.8, 0.8], [-0.8, 0.8]]) { const [px, py] = iso(q.c * CELL + dx, q.r * CELL + dy, 0); xs.push(px); ys.push(py); }
@@ -416,7 +444,7 @@ function mapSvg(world = 'space', opts = {}) {
   const tx = (W - (bx1 - bx0) * sc) / 2 - bx0 * sc, ty = 130 - by0 * sc;
   // plates: false leaves off the name plates and the title (a thumbnail, a picture of the world on its own)
   const bare = opts.plates === false;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="pf-map pf-map-${k}"><defs>${K.defs()}</defs>${bg}<g transform="translate(${f(tx)} ${f(ty)}) scale(${sc.toFixed(3)})">${body}${bare ? '' : labels}</g>${bare ? '' : head}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="pf-map pf-map-${k}"><defs>${K.defs()}</defs>${motion}${bg}${halo}${ambience}<g transform="translate(${f(tx)} ${f(ty)}) scale(${sc.toFixed(3)})">${body}${bare ? '' : labels}</g>${bare ? '' : head}</svg>`;
 }
 
 const MAPS = { worlds: Object.keys(WORLD), rooms: DEFAULT_ROOMS };

@@ -20,7 +20,7 @@
 //     expr     smile grin focus talk wink proud   (a pose picks its own when this is left out)
 //     tint     a color for the role accent (defaults to the role's color)
 //     agent    true draws the floating role diamond an AI agent carries (defaults: the ten agent roles)
-//   options: { id, pose, dir, crop }
+//   options: { id, pose, dir, crop, phase } — phase is an optional normalized animation cycle.
 //     id       unique per sprite on a page (it prefixes every gradient and clip)
 //     pose     idle walk phone cheer type carry
 //     dir      'r' (default) or 'l' (mirrored)
@@ -698,6 +698,37 @@ const POSE = {
   carry: { lift: -0.5, legs: [18, -20], armB: [26.2, 37.4, 28.6, 42.4], armF: [38.2, 37.4, 36.4, 42.4], toolAt: [32.4, 42.4, 0], expr: 'proud', held: 'stack', both: true, stow: true, lean: 6 },
 };
 
+// Optional cycle phase in [0, 1). Static exports retain their original poses.
+function cyclePose(name, phase) {
+  const base = POSE[name] || POSE.idle;
+  if (!Number.isFinite(phase)) return base;
+  const t = ((phase % 1) + 1) % 1, wave = Math.sin(t * Math.PI * 2);
+  const p = { ...base, legs: [...base.legs], armB: [...base.armB], armF: [...base.armF], toolAt: [...base.toolAt] };
+  if (name === 'walk' || name === 'walk2' || name === 'carry') {
+    const stride = name === 'carry' ? 14 : 20;
+    p.legs = [wave * stride, -wave * stride];
+    p.lift = -Math.pow(Math.sin(t * Math.PI * 2), 2) * 1.1;
+    p.lean = name === 'carry' ? 4 : wave * 1.2;
+    if (name !== 'carry') {
+      p.armB[2] = 24 - wave * 2.4; p.armB[3] = 44.8 + wave * 0.8;
+      p.armF[2] = 40.8 + wave * 2.4; p.armF[3] = 44.8 - wave * 0.8;
+      p.toolAt = [p.armF[2], p.armF[3], 22 + wave * 14];
+    }
+  } else if (name === 'type') {
+    p.armB[3] += wave * 0.7; p.armF[3] -= wave * 0.7;
+    p.toolAt[2] += wave * 1.5;
+  } else if (name === 'cheer') {
+    const jump = (1 - Math.cos(t * Math.PI * 2)) / 2;
+    p.lift = -jump * 3.8; p.legs = [-3 - jump * 6, 3 + jump * 6];
+    p.armB[2] -= wave; p.armF[2] += wave;
+    p.toolAt[0] = p.armF[2];
+  } else {
+    p.lift = -wave * 0.35; p.lean = wave * 0.65;
+    p.armF[3] += wave * 0.25; p.toolAt[1] += wave * 0.25;
+  }
+  return p;
+}
+
 // ---------------------------------------------------------------------------------------------- the figure
 function folkSvg(look, opts = {}) {
   if (opts.catalog) return { roles: ROLES, tiers: TIERS, worlds: WORLDS, species: SPECIES, skins: SKINS, hairs: HAIRS, hairColors: HAIR_COLORS, eyeColors: EYE_COLORS, exprs: EXPRS, poses: POSES };
@@ -713,7 +744,7 @@ function folkSvg(look, opts = {}) {
   let poseName = opts.pose || 'idle';
   if (L.world === 'gamer' && (poseName === 'type' || (poseName === 'idle' && !agent))) poseName = (L.hair + L.eyeC) % 3 === 0 ? 'game2' : 'game';
   L._pose = poseName;
-  const pose = POSE[poseName] || POSE.idle;
+  const pose = cyclePose(poseName, opts.phase);
   const mode = L.expr || pose.expr;
   const P = Painter(id);
   const kid = L.role === 'kid';
@@ -741,7 +772,7 @@ function folkSvg(look, opts = {}) {
   const sheet = () => { const fl = L._pose === 'walk' ? 0.8 : L._pose === 'walk2' ? -0.8 : 0; return [P.part(`M23.4 36C23.4 34 27.4 33.2 32.2 33.2C37 33.2 41 34 41 36L43.6 53.4Q44 55.6 42.4 55.8Q40.8 ${f(54.2 + fl)} 39 55.8Q37.2 ${f(57.4 - fl)} 35.4 55.8Q33.6 ${f(54.2 + fl)} 31.8 55.8Q30 ${f(57.4 - fl)} 28.2 55.8Q26.4 ${f(54.2 + fl)} 24.4 55.8Q21.6 56 20.8 53.4Z`, FUR.ghost[0], { grad: P.grad([[0, '#ffffff'], [0.6, FUR.ghost[0]], [1, '#cdd6f2']], 0.2, 1), detail: `<path d="M27.4 38Q26.4 46 27.6 54M36.8 38Q38 46 36.8 54" fill="none" stroke="#cdd6f2" stroke-width=".8" opacity=".8"/>` })]; };
   const jelly = () => [P.part('M24.4 38.2C24.4 35 27.8 33.4 32.2 33.4C36.6 33.4 40 35 40 38.2L43.2 55.2Q43.6 58.4 40.4 58.4H24Q20.8 58.4 21.2 55.2Z', FUR.blob[0], { grad: P.grad([[0, light(FUR.blob[0], 0.3)], [0.7, FUR.blob[0]], [1, dark(FUR.blob[0], 0.12)]], 0.2, 1), detail: `<circle cx="28" cy="48" r="1.3" fill="${FUR.blob[1]}" opacity=".7"/><circle cx="36.6" cy="52.4" r="1.8" fill="${FUR.blob[1]}" opacity=".55"/><circle cx="33" cy="44.4" r=".9" fill="${FUR.blob[1]}" opacity=".7"/><path d="M29.4 36.4L32.2 38.2L35 36.4L35 39.8L32.2 38.2L29.4 39.8Z" fill="${L._accent}" stroke="${OUT}" stroke-width=".5"/><path d="M22.4 55.6Q32.2 57.8 42 55.6" fill="none" stroke="${dark(FUR.blob[0], 0.25)}" stroke-width=".6" opacity=".6"/>` })];
   const body = G(pose.lean ? `rotate(${pose.lean} 32.2 50)` : null,
-    G(null, behind),
+    G(Number.isFinite(opts.phase) ? `rotate(${f(Math.sin(opts.phase * Math.PI * 2 - 0.7) * 2)} 32.2 38)` : null, behind),
     G(null, [aB.sleeve]),
     blob || ghost ? null : G(legTf(0, 28.4), leg(P, L, -1)),
     blob || ghost ? null : G(legTf(1, 35.9), leg(P, L, 1)),

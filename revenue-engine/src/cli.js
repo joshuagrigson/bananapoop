@@ -502,7 +502,10 @@ async function main(argv) {
       const host = v.host || '127.0.0.1';
       const loopback = ['127.0.0.1', 'localhost', '::1'].includes(host);
       if (!loopback) console.error(`note: listening on ${host}, so the localhost-only check is off. Anyone who can reach this address can use the station.`);
+      const {createRaceResearch}=await import('./race-research.js');
+      const raceResearch=createRaceResearch({ledger,dataDir:DATA_DIR,makeProvider:makeAnthropicProvider,ready:()=>Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN || process.env.ANTHROPIC_PROFILE)});
       const server = createServer({
+        raceResearch,
         ledger, dataDir: DATA_DIR, runAgent, checkHost: loopback,
         makeProvider: () => { if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN && !process.env.ANTHROPIC_PROFILE) console.error('note: no ANTHROPIC_API_KEY in env; the SDK will try an ant auth profile'); return makeAnthropicProvider(); },
       });
