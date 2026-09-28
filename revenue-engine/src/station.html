@@ -2604,6 +2604,10 @@
   let home = { x: 480, y: 280 };
   const cam = { x: 480, y: 280, z: 1 }, camT = { x: 480, y: 280, z: 1 };
   let camBounce = false, camVz = 0;
+  // while the view is being dragged, pinched or wheeled, the buildings are stamped from pictures instead of redrawn
+  let camMovingUntil = 0;
+  const camNudge = (ms = 220) => { camMovingUntil = Math.max(camMovingUntil, performance.now() + ms); };
+  const camMoving = () => performance.now() < camMovingUntil;
   const Z_MIN = 0.72, Z_MAX = 18;
   let vx0e = 0, vy0e = 0, S = 1;
   let quality = 2;
@@ -5160,7 +5164,7 @@
     if (pointers.has(ev.pointerId)) pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
     if (pinch && pointers.size === 2) {
       const [a, b] = [...pointers.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
-      if (pinch.d > 0) { camT.z = clamp(pinch.z * d / pinch.d, Z_MIN, Z_MAX); clampCam(); }
+      if (pinch.d > 0) { camT.z = clamp(pinch.z * d / pinch.d, Z_MIN, Z_MAX); clampCam(); camNudge(400); }
       if (pinch.d > 0 && selected && roomById(selected) && !closeUp && pinch.z * d / pinch.d > Z_MAX * 1.2) { closeUpOn(); pinch = null; pointers.clear(); }
       return;
     }
@@ -5170,7 +5174,7 @@
       if (!drag.moved && Math.hypot(dx, dy) > 5) { drag.moved = true; cv.classList.add('drag'); showTip(null); }
       if (drag.moved) {
         camT.x -= dx / (fitS * camT.z); camT.y -= dy / (fitS * camT.z); clampCam();
-        cam.x = camT.x; cam.y = camT.y;
+        cam.x = camT.x; cam.y = camT.y; camNudge();
         drag.x = ev.clientX; drag.y = ev.clientY;
         return;
       }
@@ -5204,7 +5208,7 @@
     ev.preventDefault();
     const r = view.getBoundingClientRect();
     const dy = ev.deltaMode === 1 ? ev.deltaY * 30 : ev.deltaY;
-    zoomBy(Math.exp(-dy * 0.0016), ev.clientX - r.left, ev.clientY - r.top);
+    zoomBy(Math.exp(-dy * 0.0016), ev.clientX - r.left, ev.clientY - r.top); camNudge(450);
   }, { passive: false });
   $('#labels').addEventListener('click', (ev) => { const el = ev.target.closest('[data-sel]'); if (el) { clearTimeout(roomClickTimer); roomClickTimer=setTimeout(()=>select(el.dataset.sel),260); } });
   $('#labels').addEventListener('dblclick',ev=>{const el=ev.target.closest('[data-sel]');if(el&&roomById(el.dataset.sel)){ev.preventDefault();clearTimeout(roomClickTimer);openArranger(el.dataset.sel);}});
@@ -8748,7 +8752,7 @@
       if (!c) for (const alt of [px * 2, px / 2, px * 4, px / 4]) { const o = spr.get(key + '@' + alt); if (o && o.c) { c = o.c; break; } }
       if (!c) return false;
       const tile = c.height, frame = phase === null ? 0 : Math.floor(((phase % 1 + 1) % 1) * frames);
-      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = camMoving() ? 'low' : 'high';
       g.drawImage(c, frame * tile, 0, tile, tile, -fx * s, -fy * s, box, box);
       return true;
     }
@@ -9691,9 +9695,12 @@
       const key = o.c + ',' + o.r, H = wallH.get(key) || LOWH, b = cellBox(o.c, o.r);
       let e = cellPics.get(key);
       const fits = e && e.kind === o.kind && e.skin === skinId() && Math.abs(e.S - S) / S < 0.08 && Math.abs(e.H - H) < 0.04;
-      if (fits && (T - e.t < PIC_AGE || !fresh.keys.has(key))) return e;
-      if (e && e.S && !fresh.keys.has(key) && e.kind === o.kind && e.skin === skinId()) return e;
-      fresh.keys.delete(key);
+      const may = fresh.keys.has(key) && (fresh.n < 1 || performance.now() < fresh.deadline);
+      if (fits && (T - e.t < PIC_AGE || !may)) return e;
+      // a picture from a slightly different zoom still stamps in the right place; while moving, it will do
+      const near = e && e.S && Math.max(e.S / S, S / e.S) < (fresh.moving ? 1.7 : 1e9);
+      if (e && e.S && near && !may && e.kind === o.kind && e.skin === skinId() && Math.abs(e.H - H) < 0.3) return e;
+      fresh.keys.delete(key); fresh.n++;
       const pts = b.round ? [P(b.cx - b.R, b.cy + b.R, 0), P(b.cx + b.R, b.cy - b.R, 0), P(b.cx - b.R, b.cy - b.R, 0), P(b.cx + b.R, b.cy + b.R, 0)] : [P(b.x0, b.y0, 0), P(b.x1, b.y0, 0), P(b.x0, b.y1, 0), P(b.x1, b.y1, 0)];
       const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
       const x0 = Math.min(...xs) - 4 * u, x1 = Math.max(...xs) + 4 * u, y0 = Math.min(...ys) - (FULLH + 10) * u, y1 = Math.max(...ys) + 3 * u;
@@ -9768,13 +9775,16 @@
       const over = [], selId = follow || (selected && selected.startsWith('a:') ? selected.slice(2) : null);
       const hallsDone = new Set();
       // Far away, refresh a bounded group of the oldest visible building pictures each frame.
-      const far = !o.ctx && us < PIC_US;
-      // Oldest visible cells first: a busy back room cannot starve the rooms in front.
+      // Moving the view: every building is a picture stamped where it belongs (no redraws), so a drag stays smooth.
+      const moving = !o.ctx && camMoving();
+      const far = !o.ctx && (us < PIC_US || (moving && us < PIC_US * 2.2));
+      // Oldest visible cells first: a busy back room cannot starve the rooms in front. Refreshes are held to a few
+      // milliseconds a frame (at least one picture), and none while the view is moving.
       const visible = list.filter((cell) => inView(cell.c, cell.r));
-      const refreshCount = quality === 2 ? 4 : quality === 1 ? 3 : 2;
+      const refreshCount = moving ? 0 : quality === 2 ? 3 : quality === 1 ? 2 : 1;
       visible.sort((a, b) => (cellPics.get(a.c + ',' + a.r)?.t ?? -Infinity) - (cellPics.get(b.c + ',' + b.r)?.t ?? -Infinity));
-      const fresh = { keys: new Set(visible.slice(0, refreshCount).map((cell) => cell.c + ',' + cell.r)) };
-      if (!far && cellPics.size && us > PIC_US * 1.5) cellPics.clear();
+      const fresh = { keys: new Set(visible.slice(0, refreshCount).map((cell) => cell.c + ',' + cell.r)), n: 0, deadline: performance.now() + (quality === 2 ? 4 : 2.5), moving };
+      if (!far && cellPics.size && us > PIC_US * 1.5 && performance.now() - camMovingUntil > 2500) cellPics.clear();
       for (const o of order) {
         if (o.t === 'mast') { drawMast(Smat); continue; }
         if (o.t === 'hall') {
@@ -10243,10 +10253,10 @@
       syncZoomUi();
       const t3 = performance.now();
       if (labelsDirty) positionLabels();
-      perf.step += (t1 - t0 - perf.step) * 0.05; perf.world += (t2 - t1 - perf.world) * 0.05; perf.display += (t3 - t2 - perf.display) * 0.05; perf.quality = quality;
+      perf.step += (t1 - t0 - perf.step) * 0.05; perf.world += (t2 - t1 - perf.world) * 0.05; perf.display += (t3 - t2 - perf.display) * 0.05; perf.quality = quality; perf.last = t3 - t0;
       // adaptive quality: step down if frames stay slow, step back up if there is headroom
       if (dt > 0.034) { slow++; fast = 0; } else if (dt < 0.02) { fast++; slow = 0; }
-      if (slow > 90 && quality > 0) { quality--; slow = 0; layout(); }
+      if (slow > 45 && quality > 0) { quality--; slow = 0; layout(); }
       if (fast > 600 && quality < 2) { quality++; fast = 0; layout(); }
     }
     requestAnimationFrame(frame);
