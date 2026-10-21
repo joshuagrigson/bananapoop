@@ -1,0 +1,38 @@
+{
+  "name": "fling",
+  "productName": "Fling",
+  "version": "1.0.0",
+  "description": "Fling files between your iPhone and this laptop.",
+  "main": "main.js",
+  "author": "Joshua Grigson",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "test": "node test/server.test.js",
+    "dist": "electron-builder --win nsis --x64 --publish never"
+  },
+  "dependencies": {
+    "qrcode": "1.5.4",
+    "ws": "8.22.0"
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.jgrigson.fling",
+    "productName": "Fling",
+    "files": ["main.js", "preload.js", "server.js", "tunnel.js", "ui/**", "assets/**", "package.json"],
+    "extraResources": [{ "from": "../phone", "to": "phone" }],
+    "directories": { "output": "dist", "buildResources": "build" },
+    "win": { "target": "nsis", "icon": "build/icon.png", "artifactName": "Fling-Setup-${version}.${ext}" },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": true,
+      "runAfterFinish": true,
+      "include": "build/installer.nsh",
+      "shortcutName": "Fling"
+    }
+  }
+}

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+<title>Fling</title>
+<style>
+  :root { --bg: #0b0b12; --panel: #14141f; --line: rgba(255,255,255,.1); --text: #f4f4f8; --muted: #a1a1b5; --a: #8b5cf6; --b: #22d3ee; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 "Segoe UI Variable", "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 28px 28px 36px; }
+  h1 { margin: 0; font-size: 28px; letter-spacing: -.01em; }
+  h1 span { background: linear-gradient(90deg, var(--a), var(--b)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { color: var(--muted); margin: 6px 0 22px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
+  .panel h2 { margin: 0 0 4px; font-size: 16px; }
+  .panel p { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+  .qr { background: #fff; border-radius: 14px; padding: 10px; width: 100%; max-width: 260px; display: block; margin: 0 auto 10px; }
+  .url { font: 12px ui-monospace, Consolas, monospace; color: var(--muted); word-break: break-all; text-align: center; }
+  .status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); font-size: 13px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #5b5b6e; }
+  .on .dot { background: var(--b); box-shadow: 0 0 10px var(--b); }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .row:first-of-type { border-top: 0; }
+  button { font: inherit; color: var(--text); background: #232335; border: 1px solid var(--line); border-radius: 10px; padding: 7px 14px; cursor: pointer; }
+  button:hover { background: #2d2d44; }
+  button.primary { background: linear-gradient(90deg, var(--a), #6d5cf6); border-color: transparent; }
+  .switch { position: relative; width: 44px; height: 26px; flex: none; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch span { position: absolute; inset: 0; border-radius: 999px; background: #33334a; transition: background .2s; cursor: pointer; }
+  .switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .switch input:checked + span { background: var(--a); }
+  .switch input:checked + span::after { transform: translateX(18px); }
+  .muted { color: var(--muted); font-size: 13px; }
+  .err { color: #fca5a5; font-size: 13px; margin-top: 8px; }
+  ol { margin: 8px 0 0; padding-left: 20px; color: var(--muted); font-size: 13px; }
+  ol li { margin: 3px 0; }
+  .alt { margin-top: 10px; }
+  .alt summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <h1><span>Fling</span></h1>
+    <div class="status" id="status"><span class="dot"></span><span id="statusText">No phone linked yet</span></div>
+  </div>
+  <p class="lede">Point your iPhone camera at a code. Open the link, then tap Share → <b>Add to Home Screen</b>. After that, fling files left and they land here.</p>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>Same Wi-Fi or iPhone hotspot</h2>
+      <p>Fastest. Works with no internet when the laptop joins your iPhone's Personal Hotspot.</p>
+      <div id="lan"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Anywhere</h2>
+      <p>Different Wi-Fi or phone data. Goes through Cloudflare's free tunnel. The code changes each time Fling restarts.</p>
+      <div class="row">
+        <span>Anywhere mode</span>
+        <label class="switch"><input type="checkbox" id="anywhere"><span></span></label>
+      </div>
+      <div id="anywhereBox"></div>
+    </section>
+  </div>
+
+  <section class="panel" style="margin-top:16px">
+    <div class="row"><span>Start Fling when Windows starts</span><label class="switch"><input type="checkbox" id="login"><span></span></label></div>
+    <div class="row"><span>Received files are saved in <b id="inbox"></b></span><button id="openInbox">Open folder</button></div>
+    <div class="row">
+      <span class="muted">On the laptop: drag a card off the <b>right edge</b> to throw it to your phone. Throw it off the <b>bottom</b> to clear it. Drop files on the glowing tab on the right edge to send them. Use ⇱ on a card to drag it into any app.</span>
+    </div>
+  </section>
+</main>
+<script src="pair.js"></script>
+</body>
+</html>

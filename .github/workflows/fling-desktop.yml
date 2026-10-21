@@ -1,0 +1,58 @@
+name: Fling for Windows
+
+on:
+  push:
+    paths:
+      - "fling/**"
+      - ".github/workflows/fling-desktop.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fling-desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: fling/desktop
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: fling/desktop/package-lock.json
+
+      - run: npm ci
+
+      - name: Receiver tests
+        run: npm test
+
+      - name: Build installer
+        run: npm run dist
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Fling-Setup
+          path: fling/desktop/dist/Fling-Setup-*.exe
+          if-no-files-found: error
+
+      # One always-current download link: the "fling-latest" release.
+      - name: Publish to the fling-latest release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete fling-latest --yes --cleanup-tag || true
+          gh release create fling-latest dist/Fling-Setup-*.exe \
+            --target "${GITHUB_SHA}" --prerelease \
+            --title "Fling for Windows (latest)" \
+            --notes "Built from ${GITHUB_REF_NAME} @ ${GITHUB_SHA::7}. Download Fling-Setup and run it."

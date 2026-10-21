@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b0b12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fling">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+<title>Fling</title>
+</head>
+<body>
+<div class="beam" id="beam" aria-hidden="true"></div>
+
+<header>
+  <div class="brand">Fling</div>
+  <button class="status" id="status" type="button"><span class="dot"></span><span id="statusText">Connecting…</span></button>
+</header>
+
+<section class="inbound" id="inbound" hidden>
+  <div class="inbound-title">From laptop</div>
+  <div class="inbound-row" id="inboundRow"></div>
+</section>
+
+<main id="main">
+  <div class="unpaired" id="unpaired" hidden>
+    <div class="big-glyph">⌁</div>
+    <h1>Scan the code on your laptop</h1>
+    <p>Open Fling on your Windows laptop. Point the iPhone camera at the QR code and open the link here.</p>
+  </div>
+
+  <div class="deck" id="deck">
+    <div class="empty" id="empty">
+      <button class="pick" id="pickBig" type="button" aria-label="Choose photos and files"><span>+</span></button>
+      <div class="empty-title">Choose photos &amp; files</div>
+      <div class="empty-sub">Then fling them left ←</div>
+    </div>
+  </div>
+
+  <div class="hint" id="hint" hidden>← Fling to laptop · Swipe right to remove</div>
+</main>
+
+<footer>
+  <div class="outbox" id="outbox" hidden>
+    <div class="outbox-line"><span id="outName"></span><span id="outPct"></span></div>
+    <div class="bar"><div id="outBar"></div></div>
+    <div class="outbox-sub" id="outSub">Keep Fling open until it lands</div>
+  </div>
+  <div class="actions">
+    <button type="button" id="pick" class="act">＋ Add</button>
+    <button type="button" id="textBtn" class="act">Aa Text</button>
+    <button type="button" id="all" class="act primary" disabled>Fling all</button>
+  </div>
+</footer>
+
+<input type="file" id="files" multiple hidden>
+
+<div class="sheet" id="textSheet" hidden>
+  <div class="sheet-card">
+    <div class="sheet-title">Fling text or a link</div>
+    <textarea id="textIn" rows="5" placeholder="Paste or type here"></textarea>
+    <div class="sheet-actions">
+      <button type="button" id="textCancel" class="act">Cancel</button>
+      <button type="button" id="textSend" class="act primary">Fling it ←</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="viewer" hidden>
+  <div class="viewer-card">
+    <div class="viewer-media" id="viewerMedia"></div>
+    <div class="viewer-tip" id="viewerTip"></div>
+    <div class="sheet-actions">
+      <button type="button" id="viewerClose" class="act">Done</button>
+      <a id="viewerDl" class="act primary" download>Download</a>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<!-- iOS gives a haptic tick when a switch checkbox is toggled; Fling uses it on each throw. -->
+<label id="haptic" class="haptic"><input type="checkbox" switch></label>
+
+<script src="app.js"></script>
+</body>
+</html>

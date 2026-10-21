@@ -1,0 +1,141 @@
+:root {
+  --glow-a: #8b5cf6;
+  --glow-b: #22d3ee;
+  --card-bg: rgba(18, 18, 28, 0.92);
+  --card-line: rgba(255, 255, 255, 0.12);
+  --text: #f4f4f8;
+  --muted: #a1a1b5;
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font: 13px/1.35 "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  color: var(--text);
+  user-select: none;
+}
+
+#trails { position: fixed; inset: 0; pointer-events: none; }
+#desk { position: fixed; inset: 0; }
+
+.card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 208px;
+  border-radius: 18px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-line);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(18px);
+  overflow: hidden;
+  cursor: grab;
+  will-change: transform;
+  touch-action: none;
+}
+.card.dragging { cursor: grabbing; }
+.card.moving, .card.flying {
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 0 26px 4px rgba(139, 92, 246, 0.55), 0 0 60px 10px rgba(34, 211, 238, 0.22);
+}
+
+.media {
+  height: 150px;
+  display: grid;
+  place-items: center;
+  background: #0d0d16;
+  overflow: hidden;
+  position: relative;
+}
+.media img, .media video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.media img.icon { width: 64px; height: 64px; object-fit: contain; }
+.media .glyph { font-size: 46px; opacity: 0.9; }
+.media .note {
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
+  align-self: start;
+  width: 100%;
+}
+
+.meta { padding: 9px 12px 11px; display: flex; flex-direction: column; gap: 2px; }
+.name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sub { color: var(--muted); font-size: 12px; }
+
+/* Upload progress: a ring of light around the card while the file is still on its way. */
+.card.flying::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(var(--glow-b) calc(var(--p, 0) * 1turn), rgba(255, 255, 255, 0.08) 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.landed { animation: land 520ms cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes land {
+  0% { filter: brightness(1.8); }
+  100% { filter: brightness(1); }
+}
+
+.tools {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 140ms, transform 140ms;
+}
+.card:hover .tools { opacity: 1; transform: none; }
+.card.flying .tools { display: none; }
+.tool {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(10, 10, 18, 0.78);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 0;
+}
+.tool:hover { background: rgba(139, 92, 246, 0.85); }
+.tool.grip { cursor: copy; }
+
+#hud {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+}
+.toast {
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(14, 14, 22, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 18px rgba(139, 92, 246, 0.35);
+  font-weight: 500;
+  animation: toast-in 240ms ease-out;
+}
+.toast.out { opacity: 0; transform: translateY(-8px); transition: opacity 300ms, transform 300ms; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(-10px); } }
