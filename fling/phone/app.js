@@ -75,7 +75,7 @@
     if (!key) return;
     if (ws && (ws.readyState === 0 || ws.readyState === 1)) return;
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    ws = new WebSocket(`${proto}//${location.host}${api('/ws')}`);
+    ws = new WebSocket(`${proto}//${location.host}${api('/ws', '&role=phone')}`);
     ws.onopen = () => { retry = 0; };
     ws.onmessage = (e) => {
       let m;
@@ -84,10 +84,17 @@
         laptopName = m.name || 'laptop';
         linked = true;
         setStatus('on', `Linked · ${laptopName}`);
+      } else if (m.t === 'peers') {
+        // Fling Web: the laptop side is a browser tab that may be closed.
+        linked = m.desks > 0;
+        setStatus(linked ? 'on' : 'bad', linked ? 'Laptop tab open' : 'Laptop tab closed · files will wait');
+      } else if (m.t === 'cancel') {
+        const o = inbound.get(m.id);
+        if (o) { o.el.remove(); inbound.delete(m.id); }
       } else if (m.t === 'offer') {
         addInbound({ id: m.id, name: m.name, type: m.type || '', size: m.size || 0 });
       } else if (m.t === 'text') {
-        addInbound({ id: 'txt' + Date.now(), name: 'Text', type: 'text/plain', text: m.text });
+        addInbound({ id: m.id || 'txt' + Date.now(), name: 'Text', type: 'text/plain', text: m.text });
       }
     };
     ws.onclose = () => {
@@ -274,9 +281,8 @@
     while (queue.length) {
       const it = queue.shift();
       try {
-        if (it.text != null) await sendText(it);
-        else await sendFile(it);
-        toast(`Landed on ${laptopName || 'laptop'} ✓`, 1600);
+        const r = it.text != null ? await sendText(it) : await sendFile(it);
+        toast(r && r.waiting ? 'Sent · it lands when the laptop tab is open' : `Landed on ${laptopName || 'laptop'} ✓`, r && r.waiting ? 3200 : 1600);
       } catch (err) {
         toast(`Didn't land: ${it.name} — ${err.message || err}`, 4000);
       }
@@ -347,13 +353,14 @@
         await new Promise((r) => setTimeout(r, 800 * 2 ** tries));
       }
     }
-    await postJson('/api/end', {}, `&id=${encodeURIComponent(id)}`);
+    const r = await postJson('/api/end', {}, `&id=${encodeURIComponent(id)}`);
     showOut(it.name, 1, 1, 'Landed ✓');
+    return r;
   }
 
   async function sendText(it) {
     showOut('Text', 0, 1);
-    await postJson('/api/text', { text: it.text, fy: it.fy, vy: it.vy });
+    return postJson('/api/text', { text: it.text, fy: it.fy, vy: it.vy });
   }
 
   // --- picking -------------------------------------------------------------------------------

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0b12">
+<title>Fling</title>
+<link rel="icon" href="/icon-192.png">
+<link rel="stylesheet" href="/desk/desk.css">
+</head>
+<body>
+<canvas id="trails"></canvas>
+<div id="desk"></div>
+
+<div class="bar">
+  <div class="brand">Fling</div>
+  <div class="status" id="status"><span class="dot"></span><span id="statusText">Connecting…</span></div>
+  <div class="bar-actions">
+    <button type="button" id="sendBtn">Send to phone</button>
+    <button type="button" id="pairBtn">Pair phone</button>
+    <button type="button" id="alertBtn" hidden>Turn on alerts</button>
+    <button type="button" id="clearBtn" class="ghost">Clear all</button>
+  </div>
+</div>
+
+<div class="edge" id="edge" aria-hidden="true"><span>Phone</span></div>
+
+<div class="empty" id="empty">
+  <div class="empty-title">Fling something from your phone</div>
+  <div class="empty-sub">It flies in from the right and stays here. Throw a card off the right edge to send it back. Drop files anywhere on this page to send them to your phone.</div>
+</div>
+
+<div class="drop" id="drop" hidden><div>Drop to fling to your phone →</div></div>
+
+<div class="modal" id="pair" hidden>
+  <div class="modal-card">
+    <h2>Pair your iPhone</h2>
+    <p>Point the iPhone camera here and open the link. Then in Safari tap Share → <b>Add to Home Screen</b>.</p>
+    <img id="qr" alt="Pairing code">
+    <button type="button" id="pairClose">Done</button>
+  </div>
+</div>
+
+<div class="locked" id="locked" hidden>
+  <div class="modal-card">
+    <h2>Open your Fling link</h2>
+    <p>This page needs the private link Claude gave you (it ends in <code>#k=…</code>). Open that link once and this browser remembers it.</p>
+  </div>
+</div>
+
+<input type="file" id="files" multiple hidden>
+<div id="hud"></div>
+<script src="/desk/desk.js"></script>
+</body>
+</html>

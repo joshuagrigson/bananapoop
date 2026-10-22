@@ -3,7 +3,8 @@ name: Fling for Windows
 on:
   push:
     paths:
-      - "fling/**"
+      - "fling/desktop/**"
+      - "fling/phone/**"
       - ".github/workflows/fling-desktop.yml"
   workflow_dispatch:
 

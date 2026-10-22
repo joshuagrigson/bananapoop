@@ -9,6 +9,7 @@ Fling files between an iPhone and a Windows laptop. Pick photos, videos or files
 | Windows app | `desktop/` (Electron) | Receiver on port 47777, the desk overlay where cards land, the edge tab for sending to the phone, pairing window, tray |
 | Phone page | `phone/` | Served by the laptop; add it to the iPhone Home Screen. Pick, fling, catch |
 | Anywhere mode | `desktop/tunnel.js` | Free Cloudflare quick tunnel so the phone can reach the laptop from any network |
+| Fling Web | `web/` | For laptops where you can't install anything: a relay on Render plus a desk page at `/desk` in the browser. Both sides connect out, so any network works |
 
 ## How the connection works
 
@@ -31,3 +32,11 @@ Every request carries the pairing key from the QR code. Files are uploaded in 8 
 GitHub Actions (`.github/workflows/fling-desktop.yml`) builds `Fling-Setup-<version>.exe` on every push that touches `fling/` and publishes it to the `fling-latest` release. The installer adds a Windows Firewall rule for TCP 47777 (private and public profiles, because Windows puts the iPhone hotspot under Public).
 
 Local: `cd desktop && npm install && npm test && npm start`.
+
+## Fling Web (no install)
+
+`web/server.js` is a relay that serves the phone page at `/` and the laptop desk at `/desk`. The phone uses the same API as the Windows receiver; the desk is a browser tab where cards land and stay (kept in IndexedDB), with drag-out (⇱), Save, throw-back off the right edge, drop-to-send, and background alerts.
+
+- Pairing key: the `FLING_KEY` environment variable (16+ characters). Open `/desk#k=<key>` once on the laptop; **Pair phone** shows the QR code for the phone.
+- Files sit in temporary storage only until the other side picks them up (deleted then, or after a day). Render's free plan wipes that storage whenever the server sleeps, which happens after 15 idle minutes.
+- Run locally: `cd web && npm install && FLING_KEY=… npm start`.
