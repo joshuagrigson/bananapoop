@@ -11,8 +11,8 @@
   const CARD_W = 208;
   const CARD_H = 196;
   const FRICTION = 0.0042;
+  const EXIT_SPEED = 0.7; // Clear all throws cards off the bottom
   const BOUNCE = 0.45;
-  const EXIT_SPEED = 0.7;
   const CHUNK = 8 * 1024 * 1024;
 
   // --- key ----------------------------------------------------------------------
@@ -105,7 +105,6 @@
   // --- cards ----------------------------------------------------------------------------
   const cards = new Map();
   let zTop = 1;
-  let dragging = null;
   const particles = [];
 
   function updateEmpty() { $('empty').hidden = cards.size > 0; }
@@ -170,19 +169,10 @@
     if (c.kind === 'text') {
       mk('⧉', 'Copy', () => copyText(c));
     } else {
-      // Drag this onto the desktop, a folder, or an email to drop the file there.
-      const grip = mk('⇱', 'Drag into a folder or app', () => {}, 'grip');
-      grip.draggable = true;
-      grip.addEventListener('dragstart', (e) => {
-        if (!c.url) return;
-        const abs = new URL(c.url, location.href).href;
-        e.dataTransfer.setData('DownloadURL', `${c.type || 'application/octet-stream'}:${c.name}:${abs}`);
-        e.dataTransfer.setData('text/uri-list', abs);
-        e.dataTransfer.effectAllowed = 'copy';
-      });
       mk('⬇', 'Save to Downloads', () => saveFile(c));
       mk('↗', 'Open', () => { if (c.url) window.open(c.url, '_blank', 'noopener'); });
     }
+    mk('📱', 'Send to phone', () => throwToPhone(c));
     mk('✕', 'Clear from desk', () => removeCard(c, true));
   }
 
@@ -213,51 +203,60 @@
     c.el.style.transform = `translate3d(${c.x}px, ${c.y}px, 0) rotate(${tilt}deg)`;
   }
 
+  // Cards use the browser's own drag: drop one on the Phone tab to send it, anywhere on the
+  // page to move it, or outside the browser (desktop, another monitor, an email) to drop the file there.
+  let dragCard = null;
   function bindCard(c) {
     const root = c.el;
-    root.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0 || c.leaving) return;
-      root.setPointerCapture(e.pointerId);
+    root.draggable = true;
+    root.addEventListener('dragstart', (e) => {
+      if (c.leaving || (c.kind === 'file' && !c.url)) { e.preventDefault(); return; }
+      dragCard = { c, dx: e.clientX - c.x, dy: e.clientY - c.y };
       root.style.zIndex = ++zTop;
-      dragging = { c, dx: e.clientX - c.x, dy: e.clientY - c.y, hist: [{ x: e.clientX, y: e.clientY, t: performance.now() }] };
-      c.held = true;
-      c.vx = c.vy = 0;
-      root.classList.add('dragging');
+      e.dataTransfer.setData('application/x-fling-card', c.id);
+      if (c.kind === 'text') {
+        e.dataTransfer.setData('text/plain', c.text);
+      } else {
+        const abs = new URL(c.url, location.href).href;
+        e.dataTransfer.setData('DownloadURL', `${c.type || 'application/octet-stream'}:${c.name}:${abs}`);
+      }
+      e.dataTransfer.effectAllowed = 'copyMove';
+      document.body.classList.add('carrying');
+      setTimeout(() => root.classList.add('dragging'), 0);
     });
-    root.addEventListener('pointermove', (e) => {
-      if (!dragging || dragging.c !== c) return;
-      c.x = e.clientX - dragging.dx;
-      c.y = e.clientY - dragging.dy;
-      const now = performance.now();
-      dragging.hist.push({ x: e.clientX, y: e.clientY, t: now });
-      while (dragging.hist.length > 2 && now - dragging.hist[0].t > 90) dragging.hist.shift();
-      $('edge').classList.toggle('hot', c.x > W() - CARD_W * 0.9);
-      place(c);
-    });
-    const release = () => {
-      if (!dragging || dragging.c !== c) return;
-      const h = dragging.hist;
-      const a = h[0];
-      const b = h[h.length - 1];
-      const dt = Math.max(16, b.t - a.t);
-      const fresh = performance.now() - b.t < 60;
-      c.vx = fresh ? (b.x - a.x) / dt : 0;
-      c.vy = fresh ? (b.y - a.y) / dt : 0;
-      c.held = false;
-      dragging = null;
+    root.addEventListener('dragend', () => {
       root.classList.remove('dragging');
+      document.body.classList.remove('carrying');
       $('edge').classList.remove('hot');
-      if (c.x > W() - CARD_W * 0.75) { throwToPhone(c); return; }
-      if (c.y > H() - CARD_H * 0.5) { removeCard(c, true); return; }
-      saveCard(c);
-      wake();
-    };
-    root.addEventListener('pointerup', release);
-    root.addEventListener('pointercancel', release);
+      dragCard = null;
+    });
     root.addEventListener('dblclick', () => {
       if (c.kind === 'text') copyText(c); else if (c.url) window.open(c.url, '_blank', 'noopener');
     });
   }
+
+  function overPhone(x, y) {
+    const r = $('edge').getBoundingClientRect();
+    return x >= r.left - 24 && y >= r.top - 40 && y <= r.bottom + 40;
+  }
+  window.addEventListener('dragover', (e) => {
+    if (!dragCard) return;
+    e.preventDefault();
+    const hot = overPhone(e.clientX, e.clientY);
+    $('edge').classList.toggle('hot', hot);
+    e.dataTransfer.dropEffect = hot ? 'copy' : 'move';
+  });
+  window.addEventListener('drop', (e) => {
+    if (!dragCard) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const { c, dx, dy } = dragCard;
+    if (overPhone(e.clientX, e.clientY)) { throwToPhone(c); return; }
+    c.x = Math.max(0, Math.min(W() - CARD_W, e.clientX - dx));
+    c.y = Math.max(64, Math.min(H() - CARD_H, e.clientY - dy));
+    place(c);
+    saveCard(c);
+  }, true);
 
   function removeCard(c, animate) {
     cards.delete(c.id);
@@ -305,7 +304,6 @@
       if (c.entering) {
         if (c.x <= maxX) c.entering = false;
       } else if (c.x > maxX) {
-        if (c.vx > EXIT_SPEED && c.x > maxX + 20) { throwToPhone(c); continue; }
         c.x = maxX; c.vx = -Math.abs(c.vx) * BOUNCE;
       }
       if (c.y > maxY) {

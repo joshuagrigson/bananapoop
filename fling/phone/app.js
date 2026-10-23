@@ -448,20 +448,45 @@
     if (o.text == null) fetch(api('/api/got', `&id=${encodeURIComponent(o.id)}`), { method: 'POST' }).catch(() => {});
   }
 
-  async function openInbound(o) {
-    if (o.blob && navigator.canShare) {
-      const file = new File([o.blob], o.name, { type: o.type || o.blob.type });
-      if (navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file] });
-          markGot(o);
-          return;
-        } catch (err) {
-          if (err && err.name === 'AbortError') return;
-        }
+  // Tapping something from the laptop opens the viewer: save it, or put it back in the deck to fling again.
+  function openInbound(o) {
+    showViewer(o);
+  }
+
+  async function shareOrFalse(o) {
+    if (!o.blob || !navigator.canShare) return false;
+    const file = new File([o.blob], o.name, { type: o.type || o.blob.type });
+    if (!navigator.canShare({ files: [file] })) return false;
+    try {
+      await navigator.share({ files: [file] });
+      markGot(o);
+    } catch {}
+    return true;
+  }
+
+  async function flingBack(o) {
+    $('viewer').hidden = true;
+    $('viewerMedia').textContent = '';
+    if (o.text != null) {
+      items.push({ text: o.text, name: 'Text', type: 'text/plain', size: o.text.length });
+      render();
+      toast('Ready · fling it left');
+      return;
+    }
+    let blob = o.blob;
+    if (!blob) {
+      try {
+        const r = await fetch(api(`/api/dl/${encodeURIComponent(o.id)}`));
+        if (!r.ok) throw new Error();
+        blob = await r.blob();
+      } catch {
+        toast("That file isn't on the server anymore");
+        return;
       }
     }
-    showViewer(o);
+    markGot(o);
+    addFiles([new File([blob], o.name, { type: o.type || blob.type, lastModified: Date.now() })]);
+    toast('Ready · fling it left');
   }
 
   function showViewer(o) {
@@ -499,11 +524,19 @@
         media.appendChild(g);
         tip.textContent = o.name;
       }
-      dl.textContent = 'Download';
+      dl.textContent = o.blob && navigator.canShare ? 'Save' : 'Download';
       dl.href = api(`/api/dl/${encodeURIComponent(o.id)}`);
       dl.setAttribute('download', o.name);
-      dl.onclick = () => markGot(o);
+      dl.onclick = async (e) => {
+        if (o.blob && navigator.canShare) {
+          e.preventDefault();
+          if (await shareOrFalse(o)) return;
+          location.href = dl.href;
+        }
+        markGot(o);
+      };
     }
+    $('viewerBack').onclick = () => flingBack(o);
     $('viewer').hidden = false;
   }
   $('viewerClose').addEventListener('click', () => { $('viewer').hidden = true; $('viewerMedia').textContent = ''; });
