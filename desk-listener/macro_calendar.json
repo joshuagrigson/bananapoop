@@ -1,0 +1,8 @@
+[
+  {"name": "FOMC decision", "time_et": "2026-10-28T14:00:00", "note": "Warsh presser 14:30"},
+  {"name": "Q3 GDP advance + Sept PCE", "time_et": "2026-10-29T08:30:00"},
+  {"name": "October jobs report", "time_et": "2026-11-06T08:30:00"},
+  {"name": "October CPI", "time_et": "2026-11-12T08:30:00"},
+  {"name": "FOMC minutes", "time_et": "2026-11-18T14:00:00"},
+  {"name": "FOMC decision", "time_et": "2026-12-16T14:00:00", "note": "Dec hike ~80% priced as of 10/26"}
+]

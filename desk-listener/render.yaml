@@ -1,0 +1,26 @@
+services:
+  - type: worker
+    name: desk-listener
+    runtime: python
+    plan: starter
+    rootDir: desk-listener
+    buildCommand: pip install -r requirements.txt
+    startCommand: python listener.py
+    autoDeploy: true
+    envVars:
+      - key: CLAUDE_TRIGGER_URL
+        sync: false
+      - key: CLAUDE_TRIGGER_TOKEN
+        sync: false
+      - key: SLACK_WEBHOOK_URL
+        sync: false
+      - key: UNIVERSE
+        value: NVDA,META,AMZN,AAPL,GOOGL,NFLX,MSFT
+      - key: PRICE_MOVE_PCT
+        value: "3.0"
+      - key: INDEX_MOVE_PCT
+        value: "1.5"
+      - key: POLL_SECONDS
+        value: "120"
+      - key: MAX_WAKES_PER_HOUR
+        value: "4"
