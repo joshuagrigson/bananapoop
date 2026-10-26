@@ -77,6 +77,9 @@ NOISE = re.compile(
 
 session = requests.Session()
 session.headers["User-Agent"] = UA
+# First loop after a (re)start only records what already exists; it never
+# fires, so a restart cannot replay a feed's backlog into the desk.
+PRIMING = True
 
 
 # ---------------------------------------------------------------- state ----
@@ -154,6 +157,9 @@ def fire(reason: str, detail: dict) -> None:
             "single sweep focused on this event; decide whether any ledger call "
             "changes; report in the alert format."),
     }
+    if PRIMING:
+        log.info("prime: seen %s %s", reason, json.dumps(detail)[:120])
+        return
     log.info("WAKE %s %s", reason, json.dumps(detail)[:300])
     if DRY_RUN or not TRIGGER_URL:
         log.info("dry run / no trigger url; not firing")
@@ -209,13 +215,33 @@ def check_edgar(state: State, cik_map: dict[str, str]) -> None:
                 fire("sec_8k", {"ticker": ticker, "title": title, "url": href})
 
 
+PRICE_POLL_SECONDS = int(os.environ.get("PRICE_POLL_SECONDS", "300"))
+BROWSER_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+              "(KHTML, like Gecko) Chrome/130.0 Safari/537.36")
+_last_price_poll = 0.0
+
+
 def check_prices(state: State) -> None:
-    if not market_open():
+    """Yahoo rate-limits bot user agents fast; use a browser UA, poll every
+    PRICE_POLL_SECONDS, space the calls, and back off on 429."""
+    global _last_price_poll
+    if not market_open() or time.time() - _last_price_poll < PRICE_POLL_SECONDS:
         return
+    _last_price_poll = time.time()
     for sym in UNIVERSE + INDEXES:
-        r = get(f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}",
-                params={"interval": "5m", "range": "1d"})
-        if not r:
+        time.sleep(1.5)
+        try:
+            r = session.get(f"https://query2.finance.yahoo.com/v8/finance/chart/{sym}",
+                            params={"interval": "1d", "range": "1d"},
+                            headers={"User-Agent": BROWSER_UA}, timeout=20)
+        except requests.RequestException as e:
+            log.warning("yahoo %s failed: %s", sym, e)
+            continue
+        if r.status_code == 429:
+            log.warning("yahoo 429; backing off this cycle")
+            _last_price_poll = time.time() + 600
+            return
+        if r.status_code != 200:
             continue
         try:
             meta = r.json()["chart"]["result"][0]["meta"]
@@ -283,6 +309,7 @@ def main() -> int:
     state = State()
     cik_map = load_cik_map()
     log.info("cik map: %s", cik_map)
+    global PRIMING
     once = os.environ.get("ONCE") == "1"
     while True:
         try:
@@ -293,6 +320,9 @@ def main() -> int:
             state.save()
         except Exception:
             log.exception("loop error")
+        if PRIMING:
+            PRIMING = False
+            log.info("primed; live from next loop")
         if once:
             return 0
         time.sleep(POLL_SECONDS)

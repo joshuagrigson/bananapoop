@@ -32,8 +32,14 @@ DRY_RUN=1 ONCE=1 python listener.py
 |---|---|---|
 | PRICE_MOVE_PCT | 3.0 | wake when a universe stock is ±3% vs prior close (market hours only) |
 | INDEX_MOVE_PCT | 1.5 | same for SPY/QQQ |
-| POLL_SECONDS | 120 | loop interval |
+| POLL_SECONDS | 120 | loop interval (filings, news, macro) |
+| PRICE_POLL_SECONDS | 300 | price check interval; Yahoo 429s bot user agents polled faster than this |
 | MAX_WAKES_PER_HOUR | 4 | hard cap on sweeps fired |
 
 Add macro dates to `macro_calendar.json` (ET, ISO format). A wake fires
 within 10 minutes after each.
+
+The first loop after any start only primes the seen-set and never fires, so
+a restart can't replay a feed's backlog. Stooq was tried as a batched price
+source and is unreachable from the Claude sandbox; Yahoo works with a
+browser user agent.
