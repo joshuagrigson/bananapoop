@@ -16,7 +16,7 @@ Joshua approved this desk ("we're in robinhood, GO"). Act, don't ask. Call him J
 | Individual (default, cash) | account_number `418812194` |
 | Roth IRA | account_number `552655359` |
 | Agentic "MCP" account | account_number `928799923` — the only one an agent may trade; crypto flows use rhs_account_number (same digits) |
-| Trade approvals | read with `get_trade_approval_setting(928799923)`; only Joshua can flip it, in the app. Desk rule: must be ON before any Phase 2 trading |
+| Trade approvals | read with `get_trade_approval_setting(928799923)`; only Joshua can flip it, in the mobile app: home tab → account switcher → MCP → tap "Claude" → Safety controls → Trade approvals (not on the web). Turned ON 2026-10-26 18:54 UTC. Desk rule: must be ON before any Phase 2 trading |
 | Ledger | Google Sheet "Robinhood Desk Ledger", id `19iCmOpuCKgHWn1oIpzRb1iQyz5cN5ZfpUlkNdtOy2sU`, in Brain folder `1zFTLpUzFbY_kWTL8afU5f3KhmaqU-BFn` |
 | Universe | holdings in all 3 accounts + "Buy now" watchlist (NVDA META AMZN AAPL GOOGL NFLX MSFT) + SPY, QQQ. Other lists: Growth (23), Dividend (18), Crypto (4) |
 | Brain | Drive folder `1zFTLpUzFbY_kWTL8afU5f3KhmaqU-BFn`; append-only, never edit |
