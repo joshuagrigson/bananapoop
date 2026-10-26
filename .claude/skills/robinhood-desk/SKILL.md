@@ -68,7 +68,15 @@ A missing tool NAME is not a missing capability: only a failed call with a quote
 
 ## 6. Scheduling (known limit)
 
-`create_trigger` from a cloud session stores NO connectors in this org, so a fired session has no Robinhood or Drive tools. The hourly sweep must be created from the claude.ai routines UI (Joshua's hands) with the Robinhood Trading + Google Drive connectors attached. Schedule: `CRON_TZ=America/New_York 5 8-16 * * 1-5`. Prompt = sections 1–5 of this file.
+`create_trigger` from a cloud session stores NO connectors in this org, so a fired session has no Robinhood or Drive tools. The sweeps therefore live in claude.ai → Scheduled tasks (created by Joshua 2026-10-26), where all connectors are on by default. One time per task, so three tasks share one prompt (sections 1–5 of this file):
+
+| Task | Schedule (ET) |
+|---|---|
+| Robinhood desk sweep - morning | weekdays 8:05 AM |
+| Robinhood desk sweep - midday | weekdays 12:05 PM |
+| Robinhood desk sweep - close | 4:05 PM (set to Daily at creation; should be Weekdays) |
+
+The scheduled-task form also offers an **API** trigger ("run when your own code calls it"): that is the hook for the Phase-2 event listener (Render worker polling EDGAR/news) to fire an off-schedule sweep.
 
 ## Pitfalls seen on run 1
 
