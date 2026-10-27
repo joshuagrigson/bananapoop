@@ -120,6 +120,38 @@ Create a new Google Doc in the Brain folder. Never edit an existing doc or the l
 
 Never store credentials or account numbers in a doc.
 
+## Paper account (the proof)
+
+Joshua gave the desk $500 of play money on 2026-10-27 to prove the analytics before real money.
+Every call the desk makes is executed as a PAPER fill, never a real order.
+
+- Ledger sheet (read only, never edit): `[PAPER] Robinhood desk paper account`, id
+  `1ROWFH4VLrm425Sk3fHx6ycXeBR8WLpHbPQ-ynM00lM0`.
+- Current holdings live in the newest `[PAPER-STATE]` doc in the Brain folder. Read it in step 1.
+- Benchmark: $500 of SPY bought at the same moment the account opened (0.649587 sh at 769.72).
+- Sizing on $500: core target $350 (VTI 75% / VXUS 25%) entered in three tranches; satellite
+  sleeve $150, up to 5 names, $30 each, entered in thirds ($10 lots). Fractional shares to 6
+  decimals. No commissions. Fill price = the live quote at the time of the sweep (regular-session
+  last trade; if after hours, the official close).
+- Every call in step 4 that is a BUY, SELL, or TRIM becomes a fill in the same sweep, under the
+  same rules (earnings blackout, valuation gate, thirds, 5% cap of the paper NAV at cost).
+- Every sweep, changed or not, computes paper NAV (cash + holdings at live quotes), its return
+  since open, the SPY benchmark's return, and the gap. Add one line to the final reply even on a
+  "no change" day: `Paper $<nav> (<signed % since open>) vs SPY <signed %>, gap <signed pts>.`
+- Every fill writes a doc titled `[PAPER-FILL] YYYY-MM-DD <ticker> <BUY|SELL> $<amount> @ <price>`
+  with one CSV line: `date,time_ct,ticker,side,dollars,shares,price,cash_after,reason,call_doc`.
+  The nightly cycle merges fills into the sheet.
+- The `[PAPER-STATE]` doc is rewritten (as a new doc) in step 6 whenever a fill happens, carrying
+  the full holdings table, cash, NAV, benchmark, and the scoreboard below.
+
+Scoreboard (carried in every [PAPER-STATE]): days since open, NAV return, SPY return, gap, max
+drawdown of each, number of calls, hit rate (calls that beat SPY over their own holding period).
+
+Graduation test, read at 60 trading days (about 2027-01-23): the desk earns real money only if
+the paper NAV beat SPY after the same period AND its max drawdown was no worse than SPY's by more
+than 2 points AND at least 6 single-stock calls were scored. Failing any one means the rules
+change and the clock restarts. Nobody softens this.
+
 ## Kill switch
 
 Every call is scored against holding the S&P at 5, 20, and 60 days. If the calls do not beat
