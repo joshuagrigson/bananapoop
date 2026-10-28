@@ -53,7 +53,10 @@ is never traded by this skill. Never place an order. Never change approvals.
 
 Robinhood side:
 - `get_equity_quotes` on `SPY QQQ IWM VTI VXUS SCHD`, every held symbol, and every symbol on the
-  `Buy now`, `Growth`, and `Dividend` watchlists.
+  `Buy now`, `Growth`, `Dividend`, and `Desk: Winter + FORTRESS` watchlists. The last one
+  (list id `5cda8c9f-a335-4734-b442-3ff233396534`) is thematic: backup power, grid hardening,
+  Texas power, water, storm retail. Names there are watch-only unless one falls 15% or more from
+  its 52-week high and passes the step 4 valuation gate; then it is a candidate like any other.
 - `get_earnings_calendar` for today and tomorrow with `filter=high_market_cap`.
 - `run_scan` on the saved screen. Note names that entered or left since the last state.
 - `get_alert_log` for fired alerts.
