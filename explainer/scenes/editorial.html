@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Editorial explainer scene</title>
+<style>
+/* Editorial motion graphics. Deterministic: window.seek(t) paints the exact frame for time t.
+   Layout scales with the viewport so 1080x1920 (Reels/Stories/Pins) and 1920x1080 both work. */
+:root{
+  --bg:#0f2a2a; --bg2:#163b39; --paper:#f4efe4; --ink:#10201f; --muted:#a9b9b3;
+  --accent:#e8703f; --accent2:#f2c14e;
+  --u: 1vmin;
+}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"Inter",system-ui,sans-serif;color:var(--paper)}
+#stage{position:relative;width:100vw;height:100vh;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(calc(var(--u)*6));opacity:.55}
+.blob.a{width:70vmin;height:70vmin;background:var(--accent);left:-20vmin;top:-10vmin}
+.blob.b{width:60vmin;height:60vmin;background:#2d7a6c;right:-18vmin;bottom:8vmin}
+.grain{position:absolute;inset:0;background:
+  repeating-linear-gradient(0deg,rgba(255,255,255,.015) 0 2px,transparent 2px 4px);mix-blend-mode:overlay}
+.frame{position:absolute;inset:0;display:flex;flex-direction:column;padding:7vmin 7vmin 6vmin;box-sizing:border-box}
+.eyebrow{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:2.6vmin;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.eyebrow .n{font-variant-numeric:tabular-nums;color:var(--accent2)}
+.icon{margin-top:6vmin;width:22vmin;height:22vmin}
+.icon svg{width:100%;height:100%;overflow:visible}
+.icon path,.icon circle,.icon polyline,.icon line,.icon rect{fill:none;stroke:var(--accent2);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.head{margin-top:5vmin;font-family:"Inter Display","Inter",sans-serif;font-weight:800;font-size:9.6vmin;line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+.head .w{display:inline-block;will-change:transform,opacity}
+.lines{margin-top:5vmin;display:flex;flex-direction:column;gap:2.4vmin;font-size:3.9vmin;font-weight:500;line-height:1.3;max-width:62vmin}
+.lines .l{display:flex;gap:2.4vmin;align-items:flex-start;opacity:0;transform:translateX(3vmin)}
+.lines .l::before{content:"";flex:none;margin-top:1.3vmin;width:2.2vmin;height:2.2vmin;border-radius:.4vmin;background:var(--accent)}
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:8vmin}
+.spacer{flex:0}
+.cap{background:var(--paper);color:var(--ink);border-radius:2vmin;padding:3.2vmin 3.6vmin;font-size:4.1vmin;font-weight:600;line-height:1.3;min-height:16vmin;box-shadow:0 1.5vmin 4vmin rgba(0,0,0,.35)}
+.cap .w{color:#9aa39f}
+.cap .w.on{color:var(--ink)}
+.cap .w.now{color:var(--accent)}
+.bar{margin-top:3.5vmin;height:1vmin;border-radius:1vmin;background:rgba(255,255,255,.14);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent2)}
+.brand{position:absolute;left:7vmin;bottom:2.2vmin;font-size:2.3vmin;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+/* wide (16:9) tweaks */
+@media (min-aspect-ratio: 4/3){
+  .frame{padding:6vmin 10vmin 5vmin}
+  .body{display:grid;grid-template-columns:1fr 1fr;gap:6vmin;align-items:center;flex:1;padding-bottom:0}
+  .head{font-size:9vmin}
+  .lines{max-width:none;font-size:3.6vmin}
+  .cap{font-size:3.4vmin;min-height:12vmin}
+  .icon{width:18vmin;height:18vmin;margin-top:4vmin}
+}
+.title{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:10vmin;box-sizing:border-box;background:var(--bg)}
+.title[hidden]{display:none}
+.title h1{font-family:"Inter Display","Inter",sans-serif;font-weight:900;font-size:11vmin;line-height:1;letter-spacing:-.025em;margin:0;text-wrap:balance}
+.title .sub{margin-top:3vmin;font-size:3.4vmin;letter-spacing:.2em;text-transform:uppercase;color:var(--accent2);font-weight:700}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="blob a"></div><div class="blob b"></div><div class="grain"></div>
+  <div class="frame" id="frame">
+    <div class="eyebrow"><span id="brand">BRAND</span><span class="n" id="counter">01 / 06</span></div>
+    <div class="body">
+      <div>
+        <div class="icon" id="icon"></div>
+        <div class="head" id="head"></div>
+      </div>
+      <div class="lines" id="lines"></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="cap" id="cap"></div>
+    <div class="bar"><i id="bar"></i></div>
+  </div>
+  <div class="title" id="title" hidden><h1 id="t1"></h1><div class="sub" id="t2"></div></div>
+</div>
+
+<script>
+const ICONS = {
+  map:   '<svg viewBox="0 0 100 100"><path d="M10 25 L38 15 L62 25 L90 15 L90 75 L62 85 L38 75 L10 85 Z"/><line x1="38" y1="15" x2="38" y2="75"/><line x1="62" y1="25" x2="62" y2="85"/></svg>',
+  clock: '<svg viewBox="0 0 100 100"><circle cx="50" cy="52" r="36"/><polyline points="50,30 50,52 68,62"/><line x1="30" y1="10" x2="42" y2="16"/><line x1="70" y1="10" x2="58" y2="16"/></svg>',
+  phone: '<svg viewBox="0 0 100 100"><path d="M30 12 h40 a6 6 0 0 1 6 6 v64 a6 6 0 0 1 -6 6 h-40 a6 6 0 0 1 -6 -6 v-64 a6 6 0 0 1 6 -6 z"/><line x1="42" y1="22" x2="58" y2="22"/><circle cx="50" cy="76" r="4"/><path d="M14 38 q-6 14 0 28"/><path d="M86 38 q6 14 0 28"/></svg>',
+  key:   '<svg viewBox="0 0 100 100"><circle cx="32" cy="50" r="18"/><circle cx="32" cy="50" r="5"/><line x1="50" y1="50" x2="90" y2="50"/><line x1="78" y1="50" x2="78" y2="64"/><line x1="90" y1="50" x2="90" y2="60"/></svg>',
+  star:  '<svg viewBox="0 0 100 100"><path d="M50 10 L62 38 L92 40 L68 59 L76 88 L50 72 L24 88 L32 59 L8 40 L38 38 Z"/></svg>',
+  check: '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="38"/><polyline points="30,52 44,66 72,36"/></svg>',
+  dollar:'<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="38"/><path d="M62 36 q-12 -8 -22 0 q-8 10 6 14 q16 4 10 16 q-8 8 -22 0"/><line x1="50" y1="24" x2="50" y2="76"/></svg>',
+};
+let D = null, cache = {};
+const $ = id => document.getElementById(id);
+const clamp = (x,a,b)=>Math.max(a,Math.min(b,x));
+const ease = x => 1 - Math.pow(1 - clamp(x,0,1), 3);
+const pad2 = n => String(n).padStart(2,'0');
+
+window.setData = (data) => {
+  D = data; cache = {};
+  $('brand').textContent = (D.brand || '').toUpperCase();
+  if (D.accent) document.documentElement.style.setProperty('--accent', D.accent);
+  $('t1').textContent = D.title || ''; $('t2').textContent = D.brand || '';
+};
+
+function buildBlock(b){
+  if (cache[b.index]) return cache[b.index];
+  const headWords = (b.headline||'').split(/\s+/).map(w=>`<span class="w">${w}</span>`).join(' ');
+  const lines = (b.lines||[]).map(l=>`<div class="l">${l}</div>`).join('');
+  const words = b.narration.trim().split(/\s+/);
+  // caption chunks: ~7 words each, highlighted by uniform character timing
+  const chunks = []; let cur = [];
+  for (const w of words){ cur.push(w); if (cur.length >= 7 || /[.!?]$/.test(w)) { chunks.push(cur); cur = []; } }
+  if (cur.length) chunks.push(cur);
+  const totalChars = words.join(' ').length;
+  let pos = 0; const timed = [];
+  for (const c of chunks){ const rows = []; for (const w of c){ const s = pos/totalChars; pos += w.length + 1; rows.push({w, s, e: pos/totalChars}); } timed.push(rows); }
+  cache[b.index] = { headWords, lines, icon: ICONS[b.icon] || ICONS.check, timed };
+  return cache[b.index];
+}
+
+let lastIdx = -1;
+window.seek = (t, opt={}) => {
+  if (!D) return;
+  const blocks = D.blocks;
+  let b = blocks.find(x => t >= x.start && t < x.end) || (t < blocks[0].start ? null : blocks[blocks.length-1]);
+  const titleCard = !b && t < blocks[0].start;
+  $('title').hidden = !titleCard; $('frame').style.visibility = titleCard ? 'hidden' : 'visible';
+  $('bar').style.width = (100 * clamp(t / D.duration, 0, 1)) + '%';
+  if (titleCard || !b) return;
+
+  const built = buildBlock(b);
+  if (lastIdx !== b.index){
+    lastIdx = b.index;
+    $('counter').textContent = `${pad2(b.index+1)} / ${pad2(blocks.length)}`;
+    $('icon').innerHTML = built.icon; $('head').innerHTML = built.headWords; $('lines').innerHTML = built.lines;
+    for (const el of $('icon').querySelectorAll('path,circle,polyline,line')) { const L = el.getTotalLength ? el.getTotalLength() : 200; el.dataset.len = L; el.style.strokeDasharray = L; }
+  }
+  const local = t - b.start, span = b.end - b.start;
+  const fadeOut = 1 - ease((local - (span - 0.3)) / 0.3);
+  $('frame').style.opacity = opt.thumbnail ? 1 : Math.min(ease(local / 0.35), fadeOut);
+
+  // icon draw-on over the first second
+  const drawP = opt.thumbnail ? 1 : ease(local / 1.0);
+  for (const el of $('icon').querySelectorAll('[data-len]')) el.style.strokeDashoffset = (1 - drawP) * el.dataset.len;
+
+  // headline words stagger in
+  $('head').querySelectorAll('.w').forEach((el,i)=>{ const p = opt.thumbnail ? 1 : ease((local - 0.08*i) / 0.45);
+    el.style.opacity = p; el.style.transform = `translateY(${(1-p)*0.6}em)`; });
+
+  // supporting lines appear across the speech
+  const ls = $('lines').querySelectorAll('.l'); const n = ls.length;
+  ls.forEach((el,i)=>{ const at = 0.9 + (b.speech - 1.2) * (i / Math.max(n,1)); const p = opt.thumbnail ? 1 : ease((local - at) / 0.4);
+    el.style.opacity = p; el.style.transform = `translateX(${(1-p)*3}vmin)`; });
+
+  // captions: karaoke by uniform character timing over the speech
+  const prog = clamp(local / b.speech, 0, 1.001);
+  const chunk = built.timed.find(rows => prog < rows[rows.length-1].e) || built.timed[built.timed.length-1];
+  $('cap').innerHTML = chunk.map(r => `<span class="w${prog>=r.e?' on':(prog>=r.s?' now':'')}">${r.w}</span>`).join(' ');
+};
+</script>
+</body>
+</html>
