@@ -155,6 +155,40 @@ the paper NAV beat SPY after the same period AND its max drawdown was no worse t
 than 2 points AND at least 6 single-stock calls were scored. Failing any one means the rules
 change and the clock restarts. Nobody softens this.
 
+## Swing account (the second proof)
+
+A second $500 paper account, opened 2026-10-29, whose goal is short-term gains. Separate holdings,
+cash, benchmark and scoreboard from the long-term paper account. Never mix the two.
+
+- Ledger sheet (read only, never edit): `[PAPER-SWING] Robinhood desk swing account`.
+- Holdings live in the newest `[PAPER-SWING-STATE]` doc. Read it in step 1 with the other state.
+- Benchmark: $500 of SPY at the open of the account (0.651424 sh at 767.55).
+
+Rules:
+- Max 5 positions, $100 each, $500 total. No options, leverage, or shorting.
+- Setups allowed, and only these: (a) post-earnings drift: a beat on EPS and revenue with a gap up
+  of 2% or more, entered the same or next sweep; (b) momentum: a close at a 20-day high on volume
+  at least 1.5x its 30-day average; (c) mean reversion: a name from the quality screen down 8% or
+  more in a day on news that does not touch the thesis.
+- Every position carries three exits set at entry: stop at -5%, target at +8%, time stop at 10
+  trading days or the sweep before that company's earnings, whichever comes first.
+- Exits are checked at every sweep against the live quote. A stop or target that was crossed
+  fills at the live quote when the sweep sees it, not at the stop price. Record the slippage.
+- Max 2 new entries per sweep. No entries in the sweep right before a scheduled macro release.
+- Four closed losers in a row pauses new entries until the next Monday's morning sweep.
+- Every fill (entry or exit) writes `[PAPER-SWING-FILL] YYYY-MM-DD <ticker> <BUY|SELL> $<amount> @
+  <price>` with one CSV line: `date,time_ct,ticker,side,dollars,shares,price,stop,target,time_stop,
+  cash_after,setup,reason,pnl_if_exit`. Every fill also rewrites `[PAPER-SWING-STATE]` as a new doc.
+- Every sweep adds a second line to the final reply, after the long-term line:
+  `Swing $<nav> (<signed % since open>) vs SPY <signed %>, <n> open, <w>/<l> closed.`
+
+Scoreboard (in every [PAPER-SWING-STATE]): NAV return, SPY return, gap, open and closed trade
+counts, win rate, average win vs average loss, max drawdown, worst slippage.
+
+Graduation test at 60 trading days (about 2027-01-27): win rate 55% or better AND average win
+larger than average loss AND NAV ahead of SPY by 3 points or more AND max drawdown under 10%.
+Failing any one closes the swing desk and the finding is recorded as the result.
+
 ## Kill switch
 
 Every call is scored against holding the S&P at 5, 20, and 60 days. If the calls do not beat
