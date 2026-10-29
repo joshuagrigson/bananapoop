@@ -189,6 +189,23 @@ Graduation test at 60 trading days (about 2027-01-27): win rate 55% or better AN
 larger than average loss AND NAV ahead of SPY by 3 points or more AND max drawdown under 10%.
 Failing any one closes the swing desk and the finding is recorded as the result.
 
+## Quick exit check (the cheap mode)
+
+When the task prompt says "quick exit check" instead of "sweep", do ONLY this. No web search, no
+earnings calendar, no scan, no macro, no new entries, no Opus unless a fill happens.
+
+1. Load tools (step 0). Read the newest `[PAPER-SWING-STATE]` doc only.
+2. `get_equity_quotes` on SPY plus every open swing position.
+3. For each position compare the live quote to its stop, target and time stop. If any is crossed,
+   fill the exit at the live quote, record the slippage versus the stop or target price, write the
+   `[PAPER-SWING-FILL]` doc and a new `[PAPER-SWING-STATE]` doc, and end the reply with one line
+   naming the exit and the P&L. That line is the push.
+4. If nothing is crossed, write nothing and end with one line: `Exit check <time CT>: all <n>
+   holding. SPY <price>.` Keep it under 15 words so the push stays quiet.
+5. Also note, without acting, if SPY is within 0.3% of its 50-day; the next full sweep decides.
+
+The long-term paper account is never touched in a quick check. It has no stops.
+
 ## Kill switch
 
 Every call is scored against holding the S&P at 5, 20, and 60 days. If the calls do not beat
