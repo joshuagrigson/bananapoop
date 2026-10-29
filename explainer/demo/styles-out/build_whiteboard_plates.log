@@ -1,0 +1,19 @@
++ /usr/bin/python3 /home/user/bananapoop/explainer/scripts/assets.py demo/styles-script.json whiteboard demo/styles-out/work/assets --tier final
+reusing 3 plates in demo/styles-out/work/assets/whiteboard (set ASSETS_FORCE=1 to repaint)
++ node /home/user/bananapoop/explainer/scripts/render.mjs demo/styles-out/work/timeline_whiteboard_plates.json scenes/whiteboard.html demo/styles-out/work/whiteboard_plates_silent.mp4 --fps 30 --w 1080 --h 1920
+frame 0/517  0.0s  (1s elapsed)
+frame 150/517  5.0s  (36s elapsed)
+frame 300/517  10.0s  (82s elapsed)
+frame 450/517  15.0s  (129s elapsed)
+rendered 517 frames -> demo/styles-out/work/whiteboard_plates_silent.mp4
++ ffmpeg -y -loglevel error -i demo/styles-out/work/whiteboard_plates_silent.mp4 -i demo/styles-out/work/narration.wav -c:v copy -c:a aac -b:a 160k -shortest -movflags +faststart demo/styles-out/whiteboard_plates.mp4
++ node /home/user/bananapoop/explainer/scripts/thumbnail.mjs demo/styles-out/work/timeline_whiteboard_plates.json scenes/whiteboard.html demo/styles-out/whiteboard_plates.png --w 1080 --h 1920
+thumbnail -> demo/styles-out/whiteboard_plates.png
+codec_type=video
+width=1080
+height=1920
+codec_type=audio
+duration=17.210000
+
+done -> demo/styles-out/whiteboard_plates.mp4
+W_EXIT 0

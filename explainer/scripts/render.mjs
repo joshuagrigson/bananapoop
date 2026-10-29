@@ -24,6 +24,7 @@ const page = await browser.newPage({ viewport: { width: opt.w, height: opt.h }, 
 await page.goto(pathToFileURL(path.resolve(scenePath)).href);
 await page.evaluate((data) => window.setData(data), timeline);
 await page.waitForFunction(() => document.fonts.status === 'loaded');
+await page.evaluate(d => Promise.all((d.blocks||[]).filter(b=>b.plate).map(b=>new Promise(r=>{const i=new Image();i.onload=i.onerror=r;i.src=b.plate;}))), timeline);
 
 const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-vcodec', 'png', '-framerate', String(opt.fps),
   '-i', '-', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', String(opt.fps), outPath],
@@ -33,6 +34,7 @@ const t0 = Date.now();
 for (let f = 0; f < frames; f++) {
   const t = f / opt.fps;
   await page.evaluate((t) => window.seek(t), t);
+  await page.waitForFunction(() => [...document.images].every(i => i.complete));
   const png = await page.screenshot({ type: 'png' });
   if (!ff.stdin.write(png)) await new Promise(r => ff.stdin.once('drain', r));
   if (f % (opt.fps * 5) === 0) process.stderr.write(`frame ${f}/${frames}  ${(t).toFixed(1)}s  (${((Date.now()-t0)/1000).toFixed(0)}s elapsed)\n`);

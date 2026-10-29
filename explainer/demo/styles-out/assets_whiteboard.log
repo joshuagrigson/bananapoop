@@ -1,0 +1,24 @@
+/usr/local/lib/python3.13/dist-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+[transformers] `CLIPImageProcessor` requires torchvision (not installed); falling back to `CLIPImageProcessorPil` for backward compatibility. Install torchvision to use the default backend, or import `CLIPImageProcessorPil` directly to silence this warning.
+[transformers] `SiglipImageProcessor` requires torchvision (not installed); falling back to `SiglipImageProcessorPil` for backward compatibility. Install torchvision to use the default backend, or import `SiglipImageProcessorPil` directly to silence this warning.
+[transformers] `Siglip2ImageProcessor` requires torchvision (not installed); falling back to `Siglip2ImageProcessorPil` for backward compatibility. Install torchvision to use the default backend, or import `Siglip2ImageProcessorPil` directly to silence this warning.
+/usr/local/lib/python3.13/dist-packages/huggingface_hub/utils/_validators.py:205: UserWarning: The `local_dir_use_symlinks` argument is deprecated and ignored in `hf_hub_download`. Downloading to a local directory does not use symlinks anymore.
+  warnings.warn(
+/usr/local/lib/python3.13/dist-packages/diffusers/utils/deprecation_utils.py:23: FutureWarning: `torch_dtype` is deprecated and will be removed in version 1.0.0. Please use `dtype` instead.
+  deprecate("torch_dtype", "1.0.0", _TORCH_DTYPE_DEPRECATION_MESSAGE)
+Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/517 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 517/517 [00:00<00:00, 6583.01it/s]
+Loading pipeline components...:  14%|█▍        | 1/7 [00:00<00:02,  2.40it/s]Loading pipeline components...:  57%|█████▋    | 4/7 [00:00<00:00,  8.94it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 18419.15it/s]
+Loading pipeline components...: 100%|██████████| 7/7 [00:00<00:00, 10.71it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:00<00:00,  9.07it/s]
+stabilityai/sdxl-turbo loaded in 1.4s; 640x896 4 steps
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (79 > 77). Running this sequence through the model will result in indexing errors
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer CLIPTokenizer. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['no shading']
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (79 > 77). Running this sequence through the model will result in indexing errors
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['no shading']
+block 01 273.5s  simple black line art illustration, thick black marker outlines, pure white background, fl
+block 02  43.6s  simple black line art illustration, thick black marker outlines, pure white background, fl
+block 03  47.1s  simple black line art illustration, thick black marker outlines, pure white background, fl
+3 plates -> demo/styles-out/work/assets/whiteboard

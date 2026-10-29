@@ -17,6 +17,7 @@ const page = await browser.newPage({ viewport: { width: opt.w, height: opt.h } }
 await page.goto(pathToFileURL(path.resolve(scenePath)).href);
 await page.evaluate((d) => window.setData(d), timeline);
 await page.waitForFunction(() => document.fonts.status === 'loaded');
+await page.evaluate(d => Promise.all((d.blocks||[]).filter(b=>b.plate).map(b=>new Promise(r=>{const i=new Image();i.onload=i.onerror=r;i.src=b.plate;}))), timeline);
 await page.evaluate((t) => window.seek(t, { thumbnail: true }), t);
 await page.screenshot({ path: outPath, type: 'png' });
 await browser.close();

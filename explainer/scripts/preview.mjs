@@ -8,6 +8,7 @@ const br = await chromium.launch({ args: ['--use-gl=angle','--use-angle=swiftsha
 const pg = await br.newPage({ viewport:{width:w,height:h} });
 pg.on('console', m => { if (m.type()==='error') console.log('  console.error:', m.text()); }); pg.on('pageerror', e => console.log('  pageerror:', e.message));
 await pg.goto(pathToFileURL(path.resolve(scene)).href); await pg.evaluate(d=>window.setData(d), tl); await pg.waitForFunction(()=>document.fonts.status==='loaded');
+await pg.evaluate(d => Promise.all((d.blocks||[]).filter(b=>b.plate).map(b=>new Promise(r=>{const i=new Image();i.onload=i.onerror=r;i.src=b.plate;}))), tl);
 const name = path.basename(scene,'.html');
 for (const t of times.split(',').map(Number)) { const t0=Date.now(); await pg.evaluate(t=>window.seek(t),t); await pg.screenshot({ path:`${outdir}/${name}_${t}.png` }); console.log(`  ${name} t=${t} ${Date.now()-t0}ms`); }
 await br.close();

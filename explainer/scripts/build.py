@@ -21,6 +21,7 @@ ap.add_argument("--size", default="1080x1920", help="WxH; 1080x1920 for Reels/St
 ap.add_argument("--models", default=os.path.join(ROOT, ".models"))
 ap.add_argument("--name", default=None, help="output basename (default: script slug)")
 ap.add_argument("--reuse-audio", action="store_true", help="skip narration if work/timeline.json already exists")
+ap.add_argument("--assets", default=None, choices=[None, "draft", "final"], help="paint one plate per block with a local image model at this tier")
 a = ap.parse_args()
 
 doc = json.load(open(a.script))
@@ -36,6 +37,15 @@ def run(cmd):
 timeline = os.path.join(work, "timeline.json")
 if not (a.reuse_audio and os.path.exists(timeline)):
     run([sys.executable, os.path.join(HERE, "tts.py"), a.script, work, "--models", a.models])
+style = os.path.splitext(os.path.basename(a.scene))[0]
+if a.assets:
+    run([sys.executable, os.path.join(HERE, "assets.py"), a.script, style, os.path.join(work, "assets"), "--tier", a.assets])
+    plates = json.load(open(os.path.join(work, "assets", style, "manifest.json")))
+    tl = json.load(open(timeline))
+    for blk in tl["blocks"]:
+        blk["plate"] = "file://" + plates[str(blk["index"])]
+    timeline = os.path.join(work, f"timeline_{name}.json")
+    json.dump(tl, open(timeline, "w"), indent=1)
 silent = os.path.join(work, f"{name}_silent.mp4")
 w, h = a.size.lower().split("x")
 run(["node", os.path.join(HERE, "render.mjs"), timeline, a.scene, silent, "--fps", a.fps, "--w", w, "--h", h])
