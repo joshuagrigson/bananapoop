@@ -13,6 +13,14 @@ BASE="https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-
 [ -s "$MODELS/kokoro-v1.0.onnx" ] || curl -sSL -o "$MODELS/kokoro-v1.0.onnx" "$BASE/kokoro-v1.0.onnx"
 [ -s "$MODELS/voices-v1.0.bin" ]  || curl -sSL -o "$MODELS/voices-v1.0.bin"  "$BASE/voices-v1.0.bin"
 
+# Painted plates (build.py --assets): the free Hugging Face Space client, plus the local
+# SDXL-Turbo fallback (CPU torch ~200 MB; the model itself, ~7 GB, downloads on first use).
+python3 -c "import gradio_client" 2>/dev/null || pip install --quiet gradio_client
+if [ -z "${EXPLAINER_NO_LOCAL_MODEL:-}" ]; then
+  python3 -c "import torch" 2>/dev/null || pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
+  python3 -c "import diffusers, transformers, accelerate" 2>/dev/null || pip install --quiet diffusers transformers accelerate
+fi
+
 node -e "require('playwright')" 2>/dev/null || echo "WARN: playwright not importable from node; the cloud sandbox has it preinstalled, elsewhere run: npm i playwright && npx playwright install chromium"
 command -v ffmpeg >/dev/null || { echo "ffmpeg is required"; exit 1; }
 echo "ready: models in $MODELS"

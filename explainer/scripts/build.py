@@ -5,7 +5,7 @@
               --> render.mjs (Playwright + ffmpeg) --> video.mp4 (silent)
               --> ffmpeg mux --> <name>.mp4   and   thumbnail.mjs --> <name>.png
 
-Usage: build.py script.json [--out DIR] [--scene explainer/scenes/editorial.html] [--fps 30]
+Usage: build.py script.json [--out DIR] [--scene explainer/scenes/editorial.html] [--fps 30] [--assets [qwen|flux|draft|final]]
 """
 import argparse, json, os, subprocess, sys, shutil
 
@@ -21,7 +21,10 @@ ap.add_argument("--size", default="1080x1920", help="WxH; 1080x1920 for Reels/St
 ap.add_argument("--models", default=os.path.join(ROOT, ".models"))
 ap.add_argument("--name", default=None, help="output basename (default: script slug)")
 ap.add_argument("--reuse-audio", action="store_true", help="skip narration if work/timeline.json already exists")
-ap.add_argument("--assets", default=None, choices=[None, "draft", "final"], help="paint one plate per block with a local image model at this tier")
+ap.add_argument("--assets", nargs="?", const="qwen", default=None, choices=["qwen", "flux", "draft", "final"],
+                help="paint one plate per block. qwen (default) / flux = free Hugging Face Space, "
+                     "falls back to the local SDXL-Turbo 'final' tier if the Space or its quota fails; "
+                     "draft / final = local CPU model only")
 a = ap.parse_args()
 
 doc = json.load(open(a.script))
@@ -39,8 +42,16 @@ if not (a.reuse_audio and os.path.exists(timeline)):
     run([sys.executable, os.path.join(HERE, "tts.py"), a.script, work, "--models", a.models])
 style = os.path.splitext(os.path.basename(a.scene))[0]
 if a.assets:
-    run([sys.executable, os.path.join(HERE, "assets.py"), a.script, style, os.path.join(work, "assets"), "--tier", a.assets])
-    plates = json.load(open(os.path.join(work, "assets", style, "manifest.json")))
+    adir = os.path.join(work, "assets")
+    if a.assets in ("qwen", "flux"):
+        cmd = [sys.executable, os.path.join(HERE, "hf_spaces.py"), a.script, style, adir, "--model", a.assets]
+        print("+", " ".join(cmd), flush=True)
+        if subprocess.run(cmd).returncode != 0:
+            print(f"!! {a.assets} Space failed (quota or network); falling back to local SDXL-Turbo for the missing plates", flush=True)
+            run([sys.executable, os.path.join(HERE, "assets.py"), a.script, style, adir, "--tier", "final"])
+    else:
+        run([sys.executable, os.path.join(HERE, "assets.py"), a.script, style, adir, "--tier", a.assets])
+    plates = json.load(open(os.path.join(adir, style, "manifest.json")))
     tl = json.load(open(timeline))
     for blk in tl["blocks"]:
         blk["plate"] = "file://" + plates[str(blk["index"])]

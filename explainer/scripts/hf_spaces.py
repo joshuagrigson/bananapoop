@@ -2,7 +2,7 @@
 """Paint plates (and optionally animate one) on free Hugging Face ZeroGPU Spaces.
 
 Usage:
-  hf_spaces.py script.json style outdir --model flux|qwen        # one plate per block
+  hf_spaces.py script.json style outdir [--model qwen|flux]      # one plate per block (qwen default)
   hf_spaces.py --animate plate.png out.mp4 [--motion "..."]       # Wan 2.2 image-to-video
 
 Needs an HF token reaching huggingface.co (env HF_TOKEN, or a proxy that injects it).
@@ -46,29 +46,53 @@ def client(space):
 
 
 def paint(script, style, out, model, seed):
+    """Writes out/<style>/blockNN.png + manifest.json, the same layout assets.py uses, so build.py
+    can read either. Existing plates are kept (set ASSETS_FORCE=1 to repaint). If the Space fails
+    part-way (ZeroGPU quota is per day and small), the plates already painted stay on disk and the
+    process exits 2 so build.py can hand the rest to the local model."""
     doc = json.load(open(script))
-    outdir = os.path.join(out, f"{style}-{model}"); os.makedirs(outdir, exist_ok=True)
+    outdir = os.path.join(out, style); os.makedirs(outdir, exist_ok=True)
     prefix = STYLE_PREFIX.get(style, ""); suffix = SUFFIX.get(style, SUFFIX["default"])
     portrait = str(doc.get("orientation", "portrait")).lower().startswith("p")
-    c = client(SPACES[model]); manifest = {}
-    for i, b in enumerate(doc["blocks"]):
+    force = bool(os.environ.get("ASSETS_FORCE"))
+    mpath = os.path.join(outdir, "manifest.json")
+    manifest = json.load(open(mpath)) if os.path.exists(mpath) and not force else {}
+    manifest = {k: v for k, v in manifest.items() if os.path.exists(v)}
+    todo = [(i, b) for i, b in enumerate(doc["blocks"]) if str(i) not in manifest]
+    if not todo:
+        print(f"reusing {len(manifest)} plates in {outdir} (set ASSETS_FORCE=1 to repaint)"); return
+    try:
+        c = client(SPACES[model])
+    except Exception as e:
+        print(f"!! cannot reach {SPACES[model]}: {e}", file=sys.stderr); sys.exit(2)
+    failed = False
+    for i, b in todo:
         prompt = f"{prefix}{b.get('scene') or b.get('headline') or b['narration']}, {suffix}"
         t = time.time()
-        if model == "flux":
-            w, h = (768, 1344) if portrait else (1344, 768)
-            r = c.predict(prompt=prompt, seed=seed + i, randomize_seed=False, width=w, height=h,
-                          num_inference_steps=4, api_name="/infer")
-        else:
-            r = c.predict(prompt=prompt, seed=seed + i, randomize_seed=False,
-                          aspect_ratio="9:16" if portrait else "16:9", guidance_scale=1.0,
-                          num_inference_steps=8, api_name="/generate_image")
-        src = r[0]["path"] if isinstance(r[0], dict) else r[0]
-        path = os.path.join(outdir, f"block{i+1:02d}.png")
-        from PIL import Image; Image.open(src).save(path)
-        manifest[str(i)] = os.path.abspath(path)
+        try:
+            manifest[str(i)] = _one(c, model, prompt, seed + i, portrait, os.path.join(outdir, f"block{i+1:02d}.png"))
+        except Exception as e:
+            print(f"!! block {i+1:02d} failed on {SPACES[model]}: {str(e)[:200]}", file=sys.stderr)
+            failed = True; break
         print(f"block {i+1:02d} {time.time()-t:5.1f}s  {prompt[:90]}", flush=True)
-    json.dump(manifest, open(os.path.join(outdir, "manifest.json"), "w"), indent=1)
-    print(f"{len(manifest)} plates -> {outdir}")
+    json.dump(manifest, open(mpath, "w"), indent=1)
+    print(f"{len(manifest)}/{len(doc['blocks'])} plates -> {outdir}")
+    if failed:
+        sys.exit(2)
+
+
+def _one(c, model, prompt, seed, portrait, path):
+    if model == "flux":
+        w, h = (768, 1344) if portrait else (1344, 768)
+        r = c.predict(prompt=prompt, seed=seed, randomize_seed=False, width=w, height=h,
+                      num_inference_steps=4, api_name="/infer")
+    else:
+        r = c.predict(prompt=prompt, seed=seed, randomize_seed=False,
+                      aspect_ratio="9:16" if portrait else "16:9", guidance_scale=1.0,
+                      num_inference_steps=8, api_name="/generate_image")
+    src = r[0]["path"] if isinstance(r[0], dict) else r[0]
+    from PIL import Image; Image.open(src).save(path)
+    return os.path.abspath(path)
 
 
 def animate(image, out, motion, seconds, seed):
@@ -84,7 +108,7 @@ def animate(image, out, motion, seconds, seed):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("args", nargs="*")
-    ap.add_argument("--model", default="flux", choices=["flux", "qwen"])
+    ap.add_argument("--model", default="qwen", choices=["qwen", "flux"])
     ap.add_argument("--animate", action="store_true")
     ap.add_argument("--motion", default="gentle camera dolly, subtle natural motion, smooth animation")
     ap.add_argument("--seconds", type=float, default=3.5)

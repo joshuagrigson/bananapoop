@@ -35,10 +35,14 @@ suffix = SUFFIX.get(a.style, SUFFIX["default"])
 portrait = str(doc.get("orientation", "portrait")).lower().startswith("p")
 
 mpath = os.path.join(outdir, "manifest.json")
-if os.path.exists(mpath):
-    m = json.load(open(mpath))
-    if len(m) == len(doc["blocks"]) and all(os.path.exists(v) for v in m.values()) and not os.environ.get("ASSETS_FORCE"):
-        print(f"reusing {len(m)} plates in {outdir} (set ASSETS_FORCE=1 to repaint)"); sys.exit(0)
+manifest = {}
+if os.path.exists(mpath) and not os.environ.get("ASSETS_FORCE"):
+    manifest = {k: v for k, v in json.load(open(mpath)).items() if os.path.exists(v)}
+todo = [(i, b) for i, b in enumerate(doc["blocks"]) if str(i) not in manifest]
+if not todo:
+    print(f"reusing {len(manifest)} plates in {outdir} (set ASSETS_FORCE=1 to repaint)"); sys.exit(0)
+if manifest:
+    print(f"keeping {len(manifest)} existing plates, painting {len(todo)} more locally", flush=True)
 
 import torch
 from diffusers import AutoPipelineForText2Image
@@ -51,8 +55,7 @@ pipe = AutoPipelineForText2Image.from_pretrained(model, torch_dtype=torch.float3
 pipe.set_progress_bar_config(disable=True)
 print(f"{model} loaded in {time.time()-t0:.1f}s; {w}x{h} {steps} steps", flush=True)
 
-manifest = {}
-for i, b in enumerate(doc["blocks"]):
+for i, b in todo:
     subject = b.get("scene") or b.get("headline") or b["narration"]
     prompt = f"{prefix}{subject}, {suffix}"
     g = torch.Generator("cpu").manual_seed(a.seed + i)
@@ -61,5 +64,5 @@ for i, b in enumerate(doc["blocks"]):
     path = os.path.join(outdir, f"block{i+1:02d}.png"); img.save(path)
     manifest[str(i)] = os.path.abspath(path)
     print(f"block {i+1:02d} {time.time()-t1:5.1f}s  {prompt[:90]}", flush=True)
-json.dump(manifest, open(os.path.join(outdir, "manifest.json"), "w"), indent=1)
+json.dump(manifest, open(mpath, "w"), indent=1)
 print(f"{len(manifest)} plates -> {outdir}")

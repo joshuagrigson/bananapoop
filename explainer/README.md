@@ -20,6 +20,25 @@ python3 explainer/scripts/build.py explainer/demo/script.json
 
 A 55-second vertical video takes about 3 minutes on a 4-core box, most of it screenshotting frames.
 
+### Painted plates (one picture per block)
+
+```bash
+python3 explainer/scripts/build.py explainer/demo/styles-script.json --scene explainer/scenes/colorful3d.html --assets
+```
+
+`--assets` paints one plate per block from the block's `scene` text, in the look of the chosen scene
+style, and the scene page shows it behind the icon. The default model is **Qwen-Image-Fast** on a free
+Hugging Face Space (about 3 to 12 seconds a plate). `--assets flux` uses FLUX.1-schnell (4 seconds a
+plate, a little less on-style). If the Space is unreachable or the day's free ZeroGPU quota is spent, the
+missing plates are painted locally with SDXL-Turbo on the CPU (about 50 seconds each after a one-time
+model load). `--assets draft` or `--assets final` skips the Space and uses only the local model.
+
+The Space needs a Hugging Face token that reaches huggingface.co (an `HF_TOKEN` environment variable,
+or a proxy that injects it). A free account's ZeroGPU quota covers roughly one video's plates a day.
+
+`explainer/scripts/hf_spaces.py --animate plate.png out.mp4` turns a plate into a 3.5-second motion clip
+with Wan 2.2 on the same free quota (about 40 seconds).
+
 ## Script format
 
 ```json
@@ -66,6 +85,6 @@ Add a new style by copying it and keeping those two functions.
 
 ## Limits
 
-- No AI-generated imagery: photoreal or 3D styles need an image or video model, which is where the money goes.
+- Painted plates depend on a free Hugging Face quota, or on a slow CPU fallback; there is no paid tier wired in.
 - No lip-sync or on-screen presenter.
 - Kokoro voices are good broadcast-neutral narrators, not ElevenLabs-grade actors.
