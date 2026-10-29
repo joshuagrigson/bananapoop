@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Pixel Art</title>
+<style>
+@font-face{font-family:"Press Start 2P";src:url(fonts/PressStart2P.ttf)}
+html,body{margin:0;height:100%;overflow:hidden;background:#0d0f24}
+#c{position:absolute;inset:0;width:100vw;height:100vh;image-rendering:pixelated;image-rendering:crisp-edges}
+#fontload{position:absolute;left:-9999px;font-family:"Press Start 2P"}
+</style></head>
+<body>
+<canvas id="c"></canvas><span id="fontload">load</span>
+<script>
+// Everything is drawn on a tiny canvas (180x320 portrait / 320x180 landscape) and scaled up with nearest-neighbour.
+const PAL={bg:'#0d0f24',bg2:'#1a1f4a',bg3:'#27306b',star:'#8fa3ff',ink:'#fdfdf5',dim:'#8d93b8',y:'#ffd23f',g:'#4ade80',r:'#ff5c5c',p:'#ff7ad9',c:'#56e0ff',o:'#ff9f43'};
+let cv,ctx,W,HH;
+function px(x,y,w,h,col){ctx.fillStyle=col;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+function text(str,x,y,size,col,maxW){ctx.font=`${size}px "Press Start 2P"`;ctx.fillStyle=col;ctx.textBaseline='top';
+  const words=str.split(' ');let line='',yy=y;const lines=[];
+  for(const w of words){const test=line?line+' '+w:w;if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=w}else line=test}
+  if(line)lines.push(line);for(const l of lines){ctx.fillText(l,x,yy);yy+=size+Math.round(size*.6)}return yy}
+function icon(name,x,y,s,p){ // chunky procedural sprites, s = scale unit, p = draw progress 0..1 (grows up)
+  const h=Math.round(12*s*p); ctx.save(); ctx.beginPath(); ctx.rect(x-20*s,y+12*s-h,40*s,h); ctx.clip();
+  switch(name){
+    case 'map': px(x-6*s,y,4*s,12*s,PAL.y);px(x-2*s,y+1*s,4*s,12*s,PAL.g);px(x+2*s,y,4*s,12*s,PAL.y);px(x-5*s,y+5*s,2*s,2*s,PAL.r);break;
+    case 'phone': px(x-4*s,y,8*s,12*s,PAL.ink);px(x-3*s,y+1.5*s,6*s,8*s,PAL.c);px(x-1*s,y+10.5*s,2*s,1*s,PAL.dim);break;
+    case 'clock': ctx.fillStyle=PAL.y;ctx.beginPath();ctx.arc(x,y+6*s,6*s,0,7);ctx.fill();ctx.fillStyle=PAL.bg;ctx.beginPath();ctx.arc(x,y+6*s,4.8*s,0,7);ctx.fill();px(x-.5*s,y+2*s,1*s,4.5*s,PAL.ink);px(x,y+5.5*s,3*s,1*s,PAL.ink);break;
+    case 'key': ctx.fillStyle=PAL.y;ctx.beginPath();ctx.arc(x-4*s,y+6*s,3.5*s,0,7);ctx.fill();ctx.fillStyle=PAL.bg;ctx.beginPath();ctx.arc(x-4*s,y+6*s,1.5*s,0,7);ctx.fill();px(x-1*s,y+5*s,8*s,2*s,PAL.y);px(x+3*s,y+7*s,1.5*s,2*s,PAL.y);px(x+6*s,y+7*s,1.5*s,2.5*s,PAL.y);break;
+    case 'star': ctx.fillStyle=PAL.y;ctx.beginPath();for(let i=0;i<10;i++){const r=i%2?2.6*s:6*s,a=i/10*Math.PI*2-Math.PI/2;ctx.lineTo(x+Math.cos(a)*r,y+6*s+Math.sin(a)*r)}ctx.fill();break;
+    case 'dollar': ctx.fillStyle=PAL.y;ctx.beginPath();ctx.arc(x,y+6*s,6*s,0,7);ctx.fill();text('$',x-3*s,y+3*s,6*s,PAL.bg,99);break;
+    default: ctx.fillStyle=PAL.g;ctx.beginPath();ctx.arc(x,y+6*s,6*s,0,7);ctx.fill();px(x-3.5*s,y+5*s,2*s,4*s,PAL.bg);px(x-3.5*s,y+8*s,7*s,2*s,PAL.bg);ctx.save();ctx.translate(x+.5*s,y+9*s);ctx.rotate(-Math.PI/4);px(0,-1*s,7*s,2*s,PAL.bg);ctx.restore();
+  }
+  ctx.restore();
+}
+const STARS=Array.from({length:40},(_,i)=>[(i*37)%100/100,(i*53)%100/100,(i%3)+1]);
+function bg(t){
+  px(0,0,W,HH,PAL.bg);
+  for(let y=0;y<HH;y+=2){ if(y>HH*.55) px(0,y,W,1,(y/2)%2?PAL.bg2:PAL.bg); }
+  for(const [sx,sy,k] of STARS){const tw=(Math.sin(t*2+sx*20)+1)/2; px(sx*W,sy*HH*.6,1,1,tw>.5?PAL.star:PAL.dim); if(k===3&&tw>.8)px(sx*W-1,sy*HH*.6,3,1,PAL.star)}
+  // ground band
+  px(0,HH*.86,W,HH*.14,PAL.bg3); for(let x=0;x<W;x+=6) px(x,HH*.86,3,1,PAL.bg2);
+}
+window.Style={
+  setup(){ cv=document.getElementById('c'); const portrait=innerHeight>innerWidth; W=portrait?180:320; HH=portrait?320:180; cv.width=W;cv.height=HH; ctx=cv.getContext('2d'); ctx.imageSmoothingEnabled=false; this.portrait=portrait; this.D=D; },
+  title(f){ bg(f.t); text(this.D.title.toUpperCase(),10,this.portrait?110:50,this.portrait?10:12,PAL.y,W-20); text(this.D.brand.toUpperCase(),10,this.portrait?220:130,6,PAL.c,W-20); },
+  draw(f){
+    bg(f.t); const P=this.portrait;
+    ctx.globalAlpha=f.alpha;
+    text(this.D.brand.toUpperCase(),6,6,5,PAL.dim,W-40); text(`${H.pad2(f.b.index+1)}/${H.pad2(this.D.blocks.length)}`,W-34,6,5,PAL.y,40);
+    const bob=Math.round(Math.sin(f.t*4)*1.5);
+    if(P){ icon(f.built.iconName,W/2,36+bob,4,f.iconP); }
+    else { icon(f.built.iconName,W-56,34+bob,4,f.iconP); }
+    // headline, words revealed one by one
+    const shown=f.built.headWords.filter((_,i)=>f.headP(i)>0.5).join(' ');
+    let y=text(shown,8,P?104:40,P?10:11,PAL.ink,P?W-16:W-120);
+    y+=4; f.built.lines.forEach((l,i)=>{ if(f.lineP(i)>0.5){ px(8,y+1,4,4,PAL.g); y=text(l,16,y,6,PAL.c,W-24)+2; } });
+    // caption band
+    const capY=HH-(P?62:48); px(0,capY,W,HH-capY-10,'#000'); px(0,capY,W,1,PAL.y);
+    ctx.font='6px "Press Start 2P"'; let cx=8,cy=capY+8; const words=f.captionWords();
+    for(const wd of words){ const w=ctx.measureText(wd.w).width; if(cx+w>W-8){cx=8;cy+=10} ctx.fillStyle=wd.state==='on'?PAL.ink:wd.state==='now'?PAL.y:PAL.dim; ctx.textBaseline='top'; ctx.fillText(wd.w,cx,cy); cx+=w+6; }
+    // progress blocks
+    const n=Math.floor(W/8), done=Math.round(n*H.clamp(f.t/this.D.duration,0,1)); for(let i=0;i<n;i++) px(i*8+1,HH-6,6,3,i<done?PAL.y:PAL.bg3);
+    ctx.globalAlpha=1;
+  }
+};
+// core.js expects setup(D) with D passed; capture it:
+const _setup=Style.setup; Style.setup=function(d){window.D=d;_setup.call(Style)};
+</script>
+<script src="lib/core.js"></script>
+</body></html>

@@ -12,7 +12,7 @@ const opt = { w: 1080, h: 1920, at: null };
 for (let i = 0; i < rest.length; i += 2) opt[rest[i].replace('--', '')] = Number(rest[i + 1]);
 const timeline = JSON.parse(readFileSync(timelinePath, 'utf8'));
 const t = opt.at ?? (timeline.blocks[0].start + Math.min(2.5, timeline.blocks[0].speech * 0.6));
-const browser = await chromium.launch();
+const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: opt.w, height: opt.h } });
 await page.goto(pathToFileURL(path.resolve(scenePath)).href);
 await page.evaluate((d) => window.setData(d), timeline);

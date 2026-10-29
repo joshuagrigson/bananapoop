@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Hand Drawn</title>
+<style>
+@font-face{font-family:"Caveat";src:url(fonts/Caveat-Bold.ttf);font-weight:700}
+@font-face{font-family:"Patrick Hand";src:url(fonts/PatrickHand.ttf)}
+:root{--paper:#efe7d4;--ink:#35322e;--soft:#6f6a62;--red:#b3372b;--ochre:#c99a3a}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--paper);color:var(--ink);font-family:"Patrick Hand",cursive}
+#stage{position:relative;width:100vw;height:100vh;overflow:hidden;background:var(--paper)}
+.grain{position:absolute;inset:0;opacity:.5;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.18  0 0 0 0 0.15  0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.border{position:absolute;inset:3vmin;pointer-events:none;border:.35vmin solid var(--ink);opacity:.7;filter:url(#sketch)}
+.frame{position:absolute;inset:0;display:flex;flex-direction:column;padding:8vmin;box-sizing:border-box}
+.eyebrow{display:flex;justify-content:space-between;font-size:3.4vmin;color:var(--soft);letter-spacing:.08em;transform:rotate(-.6deg)}
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:6vmin}
+.icon{position:relative;width:26vmin;height:26vmin;transform:rotate(-3deg)}
+.icon svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:url(#sketch)}
+.icon svg.ghost{transform:translate(.6vmin,.5vmin) rotate(1.5deg);opacity:.45}
+.icon *{fill:none;stroke:var(--ink);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.hatch{position:absolute;inset:14% 10% 10% 14%;z-index:-1;background:repeating-linear-gradient(135deg,transparent 0 1.1vmin,rgba(201,154,58,.55) 1.1vmin 1.5vmin);transform:rotate(2deg);clip-path:inset(0 100% 0 0)}
+.head{margin-top:3vmin;font-family:"Caveat",cursive;font-weight:700;font-size:12vmin;line-height:.98;transform:rotate(-1.2deg)}
+.head .w{display:inline-block}
+.lines{margin-top:5vmin;display:flex;flex-direction:column;gap:2.6vmin;font-size:5.2vmin;line-height:1.2}
+.lines .l{display:flex;gap:2vmin;align-items:center;transform:rotate(.5deg)}
+.lines .l:nth-child(2n){transform:rotate(-.7deg)}
+.lines .l svg{flex:none;width:5vmin;height:5vmin;filter:url(#sketch)}
+.lines .l svg *{fill:none;stroke:var(--red);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+.lines .l span{display:inline-block}
+.cap{position:relative;font-size:4.8vmin;line-height:1.25;padding:2.6vmin 3vmin;min-height:14vmin;transform:rotate(-.4deg)}
+.cap::before{content:"";position:absolute;inset:0;border:.4vmin solid var(--ink);filter:url(#sketch);background:repeating-linear-gradient(45deg,transparent 0 1.4vmin,rgba(53,50,46,.07) 1.4vmin 1.7vmin);z-index:-1}
+.cap .w{color:var(--soft)} .cap .w.on{color:var(--ink)} .cap .w.now{color:var(--red)}
+.barwrap{margin-top:3.2vmin;height:1vmin}
+.bar{height:100%;width:0;background:var(--red);filter:url(#sketch)}
+.title{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:10vmin;box-sizing:border-box;background:var(--paper)}
+.title[hidden]{display:none}
+.title h1{font-family:"Caveat",cursive;font-weight:700;font-size:14vmin;line-height:.95;margin:0;transform:rotate(-1.5deg)}
+.title .sub{margin-top:3vmin;font-size:4.4vmin;color:var(--red);letter-spacing:.08em}
+@media (min-aspect-ratio:4/3){.body{display:grid;grid-template-columns:1fr 1fr;gap:6vmin;align-items:center;padding-bottom:0}.head{font-size:11vmin}.lines{font-size:4.6vmin}.cap{font-size:4vmin;min-height:11vmin}}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute"><filter id="sketch"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" seed="2"/><feDisplacementMap in="SourceGraphic" scale="2.5"/></filter></svg>
+<div id="stage">
+  <div class="grain"></div>
+  <div class="border"></div>
+  <div class="frame" id="frame">
+    <div class="eyebrow"><span id="brand"></span><span id="counter"></span></div>
+    <div class="body">
+      <div><div class="icon" id="icon"><div class="hatch" id="hatch"></div></div><div class="head" id="head"></div></div>
+      <div class="lines" id="lines"></div>
+    </div>
+    <div class="cap" id="cap"></div>
+    <div class="barwrap"><div class="bar" id="bar"></div></div>
+  </div>
+  <div class="title" id="title" hidden><h1 id="t1"></h1><div class="sub" id="t2"></div></div>
+</div>
+<script>
+const TICK='<svg viewBox="0 0 100 100"><polyline points="18,55 42,78 84,24"/></svg>';
+window.Style={
+  draw(f){
+    const $=id=>document.getElementById(id);
+    if(f.first){
+      $('icon').innerHTML='<div class="hatch" id="hatch"></div>'+f.built.iconSVG+f.built.iconSVG.replace('<svg','<svg class="ghost"');
+      for(const el of $('icon').querySelectorAll('path,circle,polyline,line')){const L=el.getTotalLength();el.dataset.len=L;el.style.strokeDasharray=L}
+      $('head').innerHTML=f.built.headWords.map(w=>`<span class="w">${w}</span>`).join(' ');
+      $('lines').innerHTML=f.built.lines.map(l=>`<div class="l">${TICK}<span>${l}</span></div>`).join('');
+      for(const el of $('lines').querySelectorAll('polyline')){const L=el.getTotalLength();el.dataset.len=L;el.style.strokeDasharray=L}
+    }
+    $('frame').style.opacity=f.alpha;
+    for(const el of $('icon').querySelectorAll('[data-len]')) el.style.strokeDashoffset=(1-f.iconP)*el.dataset.len;
+    $('hatch').style.clipPath=`inset(0 ${(1-(f.thumbnail?1:H.ease((f.local-0.8)/0.7)))*100}% 0 0)`;
+    $('head').querySelectorAll('.w').forEach((el,i)=>{const p=f.headP(i);el.style.clipPath=`inset(0 ${(1-p)*100}% -10% 0)`;el.style.opacity=.2+.8*p});
+    $('lines').querySelectorAll('.l').forEach((el,i)=>{const p=f.lineP(i);const pl=el.querySelector('polyline');pl.style.strokeDashoffset=(1-p)*pl.dataset.len;el.querySelector('span').style.clipPath=`inset(0 ${(1-p)*100}% -10% 0)`});
+    $('cap').innerHTML=f.captionHTML();
+  }
+};
+</script>
+<script src="lib/core.js"></script>
+</body></html>

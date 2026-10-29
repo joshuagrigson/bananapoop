@@ -19,10 +19,12 @@ ap.add_argument("--scene", default=os.path.join(ROOT, "scenes", "editorial.html"
 ap.add_argument("--fps", default="30")
 ap.add_argument("--size", default="1080x1920", help="WxH; 1080x1920 for Reels/Stories/Pins, 1920x1080 for YouTube")
 ap.add_argument("--models", default=os.path.join(ROOT, ".models"))
+ap.add_argument("--name", default=None, help="output basename (default: script slug)")
+ap.add_argument("--reuse-audio", action="store_true", help="skip narration if work/timeline.json already exists")
 a = ap.parse_args()
 
 doc = json.load(open(a.script))
-name = doc.get("slug") or os.path.splitext(os.path.basename(a.script))[0]
+name = a.name or doc.get("slug") or os.path.splitext(os.path.basename(a.script))[0]
 out = a.out or os.path.join(os.path.dirname(os.path.abspath(a.script)), "out")
 work = os.path.join(out, "work")
 os.makedirs(work, exist_ok=True)
@@ -31,9 +33,10 @@ def run(cmd):
     print("+", " ".join(cmd), flush=True)
     subprocess.run(cmd, check=True)
 
-run([sys.executable, os.path.join(HERE, "tts.py"), a.script, work, "--models", a.models])
 timeline = os.path.join(work, "timeline.json")
-silent = os.path.join(work, "video_silent.mp4")
+if not (a.reuse_audio and os.path.exists(timeline)):
+    run([sys.executable, os.path.join(HERE, "tts.py"), a.script, work, "--models", a.models])
+silent = os.path.join(work, f"{name}_silent.mp4")
 w, h = a.size.lower().split("x")
 run(["node", os.path.join(HERE, "render.mjs"), timeline, a.scene, silent, "--fps", a.fps, "--w", w, "--h", h])
 

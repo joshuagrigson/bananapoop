@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Whiteboard Doodle</title>
+<style>
+@font-face{font-family:"Caveat";src:url(fonts/Caveat-Bold.ttf);font-weight:700}
+@font-face{font-family:"Patrick Hand";src:url(fonts/PatrickHand.ttf)}
+:root{--bg:#fbfbf8;--ink:#1d2b3a;--blue:#1f4f9a;--red:#c8372d;--grey:#8d97a1;--hl:#ffe45c}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:"Patrick Hand",cursive}
+#stage{position:relative;width:100vw;height:100vh;overflow:hidden;
+  background:radial-gradient(ellipse at 20% 10%,rgba(0,0,0,.035),transparent 50%),radial-gradient(ellipse at 80% 90%,rgba(0,0,0,.04),transparent 50%),var(--bg)}
+.frame{position:absolute;inset:0;display:flex;flex-direction:column;padding:7vmin;box-sizing:border-box}
+.eyebrow{display:flex;justify-content:space-between;font-size:3.4vmin;color:var(--grey);letter-spacing:.06em}
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:6vmin}
+.icon{width:26vmin;height:26vmin;filter:url(#wobble)}
+.icon svg{width:100%;height:100%;overflow:visible}
+.icon *{fill:none;stroke:var(--ink);stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round}
+.head{margin-top:3vmin;font-family:"Caveat",cursive;font-weight:700;font-size:12vmin;line-height:.98;color:var(--blue)}
+.head .w{display:inline-block}
+.under{width:60vmin;height:3vmin;margin-top:1vmin}
+.under path{fill:none;stroke:var(--red);stroke-width:5;stroke-linecap:round;filter:url(#wobble)}
+.lines{margin-top:5vmin;display:flex;flex-direction:column;gap:2.6vmin;font-size:5.2vmin;line-height:1.2}
+.lines .l{display:flex;gap:2vmin;align-items:center}
+.lines .l svg{flex:none;width:5vmin;height:5vmin;filter:url(#wobble)}
+.lines .l svg *{fill:none;stroke:var(--red);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+.lines .l span{display:inline-block}
+.cap{font-size:4.8vmin;line-height:1.25;padding:2.5vmin 3vmin;border:0.5vmin dashed var(--grey);border-radius:1.5vmin;min-height:14vmin;filter:url(#wobble)}
+.cap .w{color:var(--grey)} .cap .w.on{color:var(--ink)} .cap .w.now{color:var(--red)}
+.barwrap{margin-top:3vmin;height:1.2vmin}
+.bar{height:100%;width:0;background:var(--blue);border-radius:1vmin;filter:url(#wobble)}
+.title{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:10vmin;box-sizing:border-box;background:var(--bg)}
+.title[hidden]{display:none}
+.title h1{font-family:"Caveat",cursive;font-weight:700;font-size:14vmin;line-height:.95;margin:0;color:var(--blue)}
+.title .sub{margin-top:3vmin;font-size:4.4vmin;color:var(--grey);letter-spacing:.08em}
+@media (min-aspect-ratio:4/3){.body{display:grid;grid-template-columns:1fr 1fr;gap:6vmin;align-items:center;padding-bottom:0}.head{font-size:11vmin}.lines{font-size:4.6vmin}.cap{font-size:4vmin;min-height:11vmin}}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute"><filter id="wobble"><feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="3.5"/></filter></svg>
+<div id="stage">
+  <div class="frame" id="frame">
+    <div class="eyebrow"><span id="brand"></span><span id="counter"></span></div>
+    <div class="body">
+      <div><div class="icon" id="icon"></div><div class="head" id="head"></div>
+        <svg class="under" viewBox="0 0 600 30" preserveAspectRatio="none"><path id="under" d="M4 18 C120 8, 240 26, 360 14 S520 10, 596 18"/></svg></div>
+      <div class="lines" id="lines"></div>
+    </div>
+    <div class="cap" id="cap"></div>
+    <div class="barwrap"><div class="bar" id="bar"></div></div>
+  </div>
+  <div class="title" id="title" hidden><h1 id="t1"></h1><div class="sub" id="t2"></div></div>
+</div>
+<script>
+const CHECK='<svg viewBox="0 0 100 100"><polyline points="18,55 42,78 84,24"/></svg>';
+window.Style={
+  draw(f){
+    const $=id=>document.getElementById(id);
+    if(f.first){
+      $('icon').innerHTML=f.built.iconSVG;
+      for(const el of $('icon').querySelectorAll('path,circle,polyline,line')){const L=el.getTotalLength();el.dataset.len=L;el.style.strokeDasharray=L}
+      $('head').innerHTML=f.built.headWords.map(w=>`<span class="w">${w}</span>`).join(' ');
+      $('lines').innerHTML=f.built.lines.map(l=>`<div class="l">${CHECK}<span>${l}</span></div>`).join('');
+      for(const el of $('lines').querySelectorAll('polyline')){const L=el.getTotalLength();el.dataset.len=L;el.style.strokeDasharray=L}
+      const u=$('under');const L=u.getTotalLength();u.dataset.len=L;u.style.strokeDasharray=L;
+    }
+    $('frame').style.opacity=f.alpha;
+    for(const el of $('icon').querySelectorAll('[data-len]')) el.style.strokeDashoffset=(1-f.iconP)*el.dataset.len;
+    $('head').querySelectorAll('.w').forEach((el,i)=>{const p=f.headP(i);el.style.clipPath=`inset(0 ${(1-p)*100}% -10% 0)`});
+    const u=$('under');const up=f.thumbnail?1:H.ease((f.local-0.9)/0.5);u.style.strokeDashoffset=(1-up)*u.dataset.len;
+    $('lines').querySelectorAll('.l').forEach((el,i)=>{const p=f.lineP(i);const pl=el.querySelector('polyline');pl.style.strokeDashoffset=(1-p)*pl.dataset.len;el.querySelector('span').style.clipPath=`inset(0 ${(1-p)*100}% -10% 0)`});
+    $('cap').innerHTML=f.captionHTML();
+  }
+};
+</script>
+<script src="lib/core.js"></script>
+</body></html>

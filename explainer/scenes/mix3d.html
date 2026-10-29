@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>3D Mix</title>
+<style>
+:root{--yellow:#f6d84a;--blue:#2b50e0;--ink:#121212;--cream:#fff6dc;--red:#ff4747}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--yellow);font-family:"Inter",system-ui,sans-serif;color:var(--ink)}
+#stage{position:absolute;inset:0;overflow:hidden;background:var(--yellow)}
+.shape{position:absolute}
+.circle{width:70vmin;height:70vmin;border-radius:50%;background:var(--cream);right:-20vmin;top:-12vmin}
+.block{width:46vmin;height:30vmin;background:var(--blue);left:-8vmin;bottom:28vmin;transform:rotate(-8deg)}
+.dots{width:40vmin;height:40vmin;right:4vmin;bottom:14vmin;background-image:radial-gradient(var(--ink) 1.1vmin,transparent 1.2vmin);background-size:4vmin 4vmin;opacity:.9;transform:rotate(12deg)}
+#gl{position:absolute;inset:0;width:100vw;height:100vh}
+.frame{position:absolute;inset:0;display:flex;flex-direction:column;padding:7vmin;box-sizing:border-box;pointer-events:none}
+.eyebrow{display:flex;justify-content:space-between;font-size:2.7vmin;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+.eyebrow .n{background:var(--ink);color:var(--yellow);padding:.4vmin 1.4vmin}
+.body{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:5vmin}
+.sticker{display:inline-block;background:#fff;padding:2.5vmin 3vmin;transform:rotate(-2deg);box-shadow:1vmin 1vmin 0 var(--ink);max-width:84vmin}
+.head{font-family:"Inter Display","Inter",sans-serif;font-weight:900;font-size:9.6vmin;line-height:.98;letter-spacing:-.03em;text-transform:uppercase}
+.head .w{display:inline-block}
+.lines{margin-top:3.5vmin;display:flex;flex-direction:column;gap:1.6vmin;font-size:3.6vmin;font-weight:800}
+.lines .l{display:inline-block;align-self:flex-start;background:var(--ink);color:var(--yellow);padding:1vmin 2.2vmin;transform:rotate(1deg)}
+.lines .l:nth-child(2n){background:var(--red);color:#fff;transform:rotate(-1.2deg)}
+.cap{background:var(--ink);color:#fff;padding:3vmin 3.4vmin;font-size:4vmin;font-weight:800;line-height:1.3;min-height:15vmin;text-transform:uppercase;letter-spacing:.01em}
+.cap .w{color:#6f6f6f}.cap .w.on{color:#fff}.cap .w.now{color:var(--yellow)}
+.barwrap{margin-top:3vmin;height:1.4vmin;background:#fff;border:.4vmin solid var(--ink);box-sizing:border-box}
+.bar{height:100%;width:0;background:var(--ink)}
+.title{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:10vmin;box-sizing:border-box;background:var(--yellow)}
+.title[hidden]{display:none}
+.title h1{font-family:"Inter Display","Inter",sans-serif;font-weight:900;font-size:13vmin;line-height:.9;letter-spacing:-.04em;margin:0;text-transform:uppercase}
+.title .sub{margin-top:3vmin;display:inline-block;align-self:flex-start;background:var(--ink);color:var(--yellow);padding:1vmin 2vmin;font-size:3.2vmin;letter-spacing:.2em;text-transform:uppercase;font-weight:900}
+@media (min-aspect-ratio:4/3){.body{justify-content:center;padding-bottom:0;max-width:48vw}.cap{max-width:48vw}.block{bottom:8vmin}.dots{right:30vmin;bottom:6vmin}}
+</style></head>
+<body>
+<div id="stage">
+  <div class="shape circle" id="circle"></div><div class="shape block" id="block"></div><div class="shape dots" id="dots"></div>
+  <canvas id="gl"></canvas>
+  <div class="frame" id="frame">
+    <div class="eyebrow"><span id="brand"></span><span class="n" id="counter"></span></div>
+    <div class="body"><div class="sticker"><div class="head" id="head"></div></div><div class="lines" id="lines"></div></div>
+    <div class="cap" id="cap"></div>
+    <div class="barwrap"><div class="bar" id="bar"></div></div>
+  </div>
+  <div class="title" id="title" hidden><h1 id="t1"></h1><div class="sub" id="t2"></div></div>
+</div>
+<script src="vendor/three.min.js"></script>
+<script src="lib/icons3d.js"></script>
+<script>
+let R,S,C,icon,matA,matB,portrait;
+window.Style={
+  setup(){
+    portrait=innerHeight>innerWidth;
+    R=new THREE.WebGLRenderer({canvas:document.getElementById('gl'),antialias:true,alpha:true,preserveDrawingBuffer:true});
+    R.setPixelRatio(1);R.setSize(innerWidth,innerHeight);R.setClearColor(0,0);R.outputColorSpace=THREE.SRGBColorSpace;
+    S=new THREE.Scene();C=new THREE.PerspectiveCamera(portrait?45:36,innerWidth/innerHeight,.1,100);C.position.set(0,portrait?3.6:1.0,portrait?9.5:9);C.lookAt(0,portrait?3.6:1.0,0);
+    S.add(new THREE.HemisphereLight('#ffffff','#7a6a20',1.2));const key=new THREE.DirectionalLight('#ffffff',2.6);key.position.set(4,7,5);S.add(key);const rim=new THREE.DirectionalLight('#2b50e0',1.2);rim.position.set(-5,2,-5);S.add(rim);
+    matA=new THREE.MeshStandardMaterial({color:'#2b50e0',roughness:.3});matB=new THREE.MeshStandardMaterial({color:'#ff4747',roughness:.35});
+  },
+  draw(f){
+    const $=id=>document.getElementById(id);
+    if(f.first){ if(icon)S.remove(icon); icon=makeIcon3D(f.built.iconName,matA,matB); S.add(icon);
+      $('head').innerHTML=f.built.headWords.map(w=>`<span class="w">${w}</span>`).join(' ');
+      $('lines').innerHTML=f.built.lines.map(l=>`<div class="l">${l}</div>`).join(''); }
+    const s=f.thumbnail?1:H.ease(f.local/0.5)*(1+0.25*Math.sin(Math.min(f.local,0.5)/0.5*Math.PI));
+    icon.scale.setScalar((portrait?1.0:1.4)*Math.max(.001,s)); icon.position.set(portrait?-0.6:0,(portrait?4.6:1.0)+Math.sin(f.t*1.5)*.15,0); icon.rotation.y=-0.6+f.local*0.7; icon.rotation.x=-0.15;
+    R.render(S,C);
+    $('circle').style.transform=`translate(${Math.sin(f.t*.4)*2}vmin,${Math.cos(f.t*.5)*2}vmin)`;
+    $('block').style.transform=`rotate(${-8+Math.sin(f.t*.7)*2}deg)`;
+    $('frame').style.opacity=f.alpha;
+    $('head').querySelectorAll('.w').forEach((el,i)=>{const p=f.headP(i);el.style.opacity=p;el.style.transform=`translateY(${(1-p)*.5}em)`});
+    $('lines').querySelectorAll('.l').forEach((el,i)=>{const p=f.lineP(i);el.style.opacity=p;el.style.transform=`translateX(${(1-p)*-4}vmin) rotate(${i%2?-1.2:1}deg)`});
+    $('cap').innerHTML=f.captionHTML();
+  },
+  title(){ R.render(S,C); }
+};
+</script>
+<script src="lib/core.js"></script>
+</body></html>

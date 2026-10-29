@@ -1,0 +1,16 @@
++ node /home/user/bananapoop/explainer/scripts/render.mjs demo/styles-out/work/timeline.json /home/user/bananapoop/explainer/scripts/../scenes/whiteboard.html demo/styles-out/work/whiteboard_silent.mp4 --fps 30 --w 1080 --h 1920
+frame 0/517  0.0s  (1s elapsed)
+frame 150/517  5.0s  (24s elapsed)
+frame 300/517  10.0s  (51s elapsed)
+frame 450/517  15.0s  (78s elapsed)
+rendered 517 frames -> demo/styles-out/work/whiteboard_silent.mp4
++ ffmpeg -y -loglevel error -i demo/styles-out/work/whiteboard_silent.mp4 -i demo/styles-out/work/narration.wav -c:v copy -c:a aac -b:a 160k -shortest -movflags +faststart demo/styles-out/whiteboard.mp4
++ node /home/user/bananapoop/explainer/scripts/thumbnail.mjs demo/styles-out/work/timeline.json /home/user/bananapoop/explainer/scripts/../scenes/whiteboard.html demo/styles-out/whiteboard.png --w 1080 --h 1920
+thumbnail -> demo/styles-out/whiteboard.png
+codec_type=video
+width=1080
+height=1920
+codec_type=audio
+duration=17.210000
+
+done -> demo/styles-out/whiteboard.mp4

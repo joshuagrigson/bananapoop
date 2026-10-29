@@ -18,7 +18,8 @@ const timeline = JSON.parse(readFileSync(timelinePath, 'utf8'));
 const total = timeline.duration;
 const frames = Math.ceil(total * opt.fps);
 
-const browser = await chromium.launch();
+// ANGLE + SwiftShader gives software WebGL for the three.js styles; harmless for DOM-only styles.
+const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: opt.w, height: opt.h }, deviceScaleFactor: 1 });
 await page.goto(pathToFileURL(path.resolve(scenePath)).href);
 await page.evaluate((data) => window.setData(data), timeline);
