@@ -5,9 +5,10 @@
  * needs no server, no install, and no credentials beyond the one-time OAuth
  * consent on first run. It overwrites three fixed Drive files every night:
  *
- *   observatory-brief.json  (~2 KB)  Claude's daily read: totals, lane truth,
- *                                    14-day cadence, newest root MAP age,
- *                                    material changes since last night.
+ *   observatory-brief.json  (~3 KB)  Claude's daily read: totals, lane truth,
+ *                                    INBOX on disk split fresh/aged, genuinely
+ *                                    untagged docs, 14-day cadence, newest root
+ *                                    MAP age, material changes since last night.
  *   mirror-self.md          (~20 KB) Who we have been: MOMENT + SELF-MODEL with
  *                                    a 300-char excerpt each; DECISIONS + META
  *                                    titles only. Chronological, read whole.
@@ -32,6 +33,11 @@
  *
  * The three target files were pre-created on 2026-10-30 so their IDs are fixed
  * and the MAP / profile can reference them by ID instead of by title search.
+ *
+ * UPDATING: paste the new file over Code.gs, save, run installObservatory again
+ * (it replaces the trigger and re-scans). v2 2026-10-30: runs 2:30 AM CT so the
+ * 3:09 AM sleep cycle reads tonight's census, not yesterday's; ZZ-SUPERSEDED /
+ * STRUCTURAL lanes; INBOX fresh/aged split; untagged list in the brief.
  */
 
 var CONFIG = {
@@ -40,7 +46,8 @@ var CONFIG = {
   MIRROR_FILE_ID: '1HUAQZYKFZZEtXN-Ud8LwWOd9zRXDnA1e',   // mirror-self.md
   DATA_FILE_ID: '1I3CfCXC54SkxyW49PF1zD6c6ztVbt4RL',     // observatory-data.json
   TIMEZONE: 'America/Chicago',
-  RUN_HOUR: 4,                                            // 4:30 AM CT, after brain-vector's reindex
+  RUN_HOUR: 2,                                            // 2:30 AM CT, BEFORE the 3:09 AM sleep cycle reads the brief
+  INBOX_FRESH_DAYS: 14,                                   // INBOX younger than this counts as "fresh"
   PROSE_LANES: ['MOMENT', 'SELF-MODEL'],                  // get an excerpt
   TITLE_LANES: ['DECISION', 'DECISIONS', 'DECISION-PENDING', 'META'], // titles only
   EXCERPT_CHARS: 300,
@@ -130,10 +137,20 @@ function scanFolder_() {
 /**
  * Title convention: "[TYPE] YYYY-MM-DD — summary | tags: a, b, c"
  * Tolerates a plain hyphen for the dash, missing tags, and files with no lane.
+ * Known un-bracketed families get their own lane so UNTAGGED means "really untagged":
+ *   ZZ-SUPERSEDED ... / ZZ-ERROR ...  -> ZZ-SUPERSEDED / ZZ-ERROR (retired docs, housekeeping)
+ *   "00 — BRAIN README", "01 — BRAIN SYSTEM STATE", CLAUDE-BRAIN-HANDOFF.md -> STRUCTURAL
+ *   *.json / *.md / *.txt / *.csv -> FILE (the Observatory's own outputs)
  */
 function parseTitle_(t) {
   var laneMatch = t.match(/^\[([A-Z][A-Z0-9-]*)\]/);
-  var lane = laneMatch ? laneMatch[1] : (/\.(json|md|txt|csv)$/i.test(t) ? 'FILE' : 'UNTAGGED');
+  var lane;
+  if (laneMatch) lane = laneMatch[1];
+  else if (/^ZZ-SUPERSEDED/i.test(t)) lane = 'ZZ-SUPERSEDED';
+  else if (/^ZZ-/i.test(t)) lane = 'ZZ-ERROR';
+  else if (/^0\d\s/.test(t) || /^CLAUDE-BRAIN-HANDOFF/i.test(t)) lane = 'STRUCTURAL';
+  else if (/\.(json|md|txt|csv)$/i.test(t)) lane = 'FILE';
+  else lane = 'UNTAGGED';
   var dateMatch = t.match(/(\d{4}-\d{2}-\d{2})/);
   var body = t.replace(/^\[[^\]]*\]\s*/, '').replace(/^\d{4}-\d{2}-\d{2}\s*[—–-]*\s*/, '');
   var parts = body.split(/\s*\|\s*tags?:\s*/i);
@@ -162,6 +179,17 @@ function buildBrief_(docs, prev) {
   var last24 = docs.filter(function (d) {
     return new Date(d.created).getTime() > now.getTime() - dayMs;
   }).length;
+
+  // INBOX is never deleted, so "open INBOX" as a running tally drifts. Report what is
+  // on disk, split by age: fresh (still worth triaging) vs aged (left in place).
+  var inboxDocs = docs.filter(function (d) { return d.lane === 'INBOX'; });
+  var freshCutoff = now.getTime() - CONFIG.INBOX_FRESH_DAYS * dayMs;
+  var inboxFresh = inboxDocs.filter(function (d) { return new Date(d.created).getTime() > freshCutoff; }).length;
+
+  // Genuinely untagged docs are rare; list them so a session can see what they are.
+  var untaggedList = docs.filter(function (d) { return d.lane === 'UNTAGGED'; })
+    .slice(0, 20)
+    .map(function (d) { return { id: d.id, title: d.title.slice(0, 100), created: d.created.slice(0, 10) }; });
 
   var rootMaps = docs.filter(function (d) {
     return d.lane === 'MAP' && /root/i.test(d.title);
@@ -198,7 +226,18 @@ function buildBrief_(docs, prev) {
     status: 'LIVE',
     generatedAt: now.toISOString(),
     previousGeneratedAt: prev && prev.generatedAt ? prev.generatedAt : null,
-    totals: { docs: docs.length, lanes: Object.keys(lanes).length, last24h: last24, openInbox: lanes.INBOX || 0 },
+    totals: {
+      docs: docs.length,
+      lanes: Object.keys(lanes).length,
+      last24h: last24,
+      inboxOnDisk: inboxDocs.length,
+      inboxFresh: inboxFresh,
+      inboxFreshDays: CONFIG.INBOX_FRESH_DAYS,
+      inboxAged: inboxDocs.length - inboxFresh,
+      untagged: lanes.UNTAGGED || 0,
+      retired: (lanes['ZZ-SUPERSEDED'] || 0) + (lanes['ZZ-ERROR'] || 0)
+    },
+    untaggedDocs: untaggedList,
     lanes: lanes,
     cadence14d: cadence,
     newestRootMap: newestRootInfo,
