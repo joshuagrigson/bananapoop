@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The First 30 Days — Caregiver Starter Kit</title>
+<style>
+  @page { size: Letter; margin: 0; }
+  :root {
+    --ink: #22262a;
+    --muted: #6b7278;
+    --rule: #c9ced3;
+    --rule-light: #e3e7ea;
+    --teal: #1f4e5f;
+    --teal-soft: #e6eef1;
+    --clay: #c2673f;
+    --sand: #f6f1ea;
+    --white: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--white); color: var(--ink); font-family: "Inter", "DejaVu Sans", Arial, sans-serif; font-size: 10.5pt; line-height: 1.35; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 8.5in; height: 11in; padding: 0.6in 0.65in 0.55in; position: relative; page-break-after: always; overflow: hidden; display: flex; flex-direction: column; }
+  .page:last-child { page-break-after: auto; }
+  .kicker { font-size: 8pt; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clay); font-weight: 600; margin: 0 0 4px; }
+  h1 { font-size: 20pt; font-weight: 700; color: var(--teal); margin: 0 0 6px; letter-spacing: -0.01em; }
+  h2 { font-size: 12pt; font-weight: 700; color: var(--teal); margin: 14px 0 6px; }
+  p { margin: 0 0 6px; }
+  .lead { color: var(--muted); font-size: 10pt; margin-bottom: 10px; }
+  .foot { position: absolute; bottom: 0.35in; left: 0.65in; right: 0.65in; display: flex; justify-content: space-between; font-size: 7.5pt; color: var(--muted); border-top: 1px solid var(--rule-light); padding-top: 6px; }
+  .grow { flex: 1; display: flex; flex-direction: column; }
+
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  th { text-align: left; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.06em; color: var(--teal); background: var(--teal-soft); padding: 6px 7px; border: 1px solid var(--rule); font-weight: 700; }
+  td { border: 1px solid var(--rule); padding: 6px 7px; vertical-align: top; font-size: 9.5pt; }
+  td.label { background: var(--sand); font-weight: 600; width: 28%; color: var(--ink); }
+  tr.tall td { height: 34px; }
+  tr.taller td { height: 46px; }
+  tr.xl td { height: 64px; }
+  td.hint { color: var(--muted); font-size: 8.5pt; }
+
+  .box { border: 1px solid var(--rule); border-radius: 6px; padding: 9px 11px; background: var(--sand); margin: 0 0 8px; }
+  .box.teal { background: var(--teal-soft); border-color: #b9ccd3; }
+  .box h3 { margin: 0 0 4px; font-size: 10pt; color: var(--teal); }
+  .box.plain { background: var(--white); }
+
+  .check { list-style: none; margin: 0; padding: 0; }
+  .check li { position: relative; padding: 4px 0 4px 24px; border-bottom: 1px solid var(--rule-light); font-size: 9.6pt; }
+  .check li::before { content: ""; position: absolute; left: 2px; top: 6px; width: 12px; height: 12px; border: 1.4px solid var(--teal); border-radius: 3px; background: var(--white); }
+  .check li small { color: var(--muted); display: block; font-size: 8.3pt; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .cols3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  .lines { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 21px, var(--rule) 21px, var(--rule) 22px); background-size: 100% 22px; min-height: 66px; }
+  .lines.tall { min-height: 110px; }
+  .lines.xtall { min-height: 176px; }
+
+  .scale { display: flex; gap: 3px; }
+  .scale span { flex: 1; text-align: center; border: 1px solid var(--rule); border-radius: 3px; font-size: 8pt; padding: 2px 0; color: var(--muted); }
+
+  /* cover */
+  .cover { background: var(--teal); color: var(--white); padding: 0; }
+  .cover .band { position: absolute; inset: 0.55in; border: 1.5px solid rgba(255,255,255,0.35); border-radius: 10px; }
+  .cover .inner { position: absolute; left: 1in; right: 1in; top: 1.6in; }
+  .cover .kicker { color: #f0c9b4; }
+  .cover h1 { color: var(--white); font-size: 40pt; line-height: 1.02; margin: 0 0 14px; letter-spacing: -0.02em; }
+  .cover .sub { font-size: 13.5pt; color: #d7e3e8; max-width: 5.6in; line-height: 1.4; }
+  .cover .contents { position: absolute; left: 1in; right: 1in; bottom: 1.25in; }
+  .cover .contents h4 { margin: 0 0 8px; font-size: 8.5pt; letter-spacing: 0.14em; text-transform: uppercase; color: #f0c9b4; }
+  .cover .contents ul { margin: 0; padding: 0; list-style: none; columns: 2; column-gap: 24px; font-size: 10pt; color: #e7eef1; }
+  .cover .contents li { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.14); break-inside: avoid; }
+  .cover .tag { position: absolute; right: 1in; top: 0.95in; background: var(--clay); color: #fff; font-weight: 700; font-size: 8.5pt; letter-spacing: 0.1em; padding: 6px 10px; border-radius: 999px; text-transform: uppercase; }
+
+  .belongs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  .belongs .box { margin: 0; }
+  .belongs .lines { min-height: 44px; }
+
+  .wk { border-left: 4px solid var(--clay); padding-left: 10px; margin-bottom: 10px; }
+  .wk h3 { margin: 0 0 3px; font-size: 10.5pt; color: var(--teal); }
+  .wk .why { color: var(--muted); font-size: 8.8pt; margin-bottom: 4px; }
+  .wk .check li { padding: 3px 0 3px 22px; font-size: 9.2pt; }
+
+  .fridge h1 { font-size: 22pt; }
+  .fridge .alert { background: var(--clay); color: #fff; padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 10pt; margin: 0 0 10px; }
+</style>
+</head>
+<body>
+
+<!-- 1 COVER -->
+<section class="page cover">
+  <div class="band"></div>
+  <div class="tag">Printable kit · 14 pages</div>
+  <div class="inner">
+    <p class="kicker">For adult children of aging parents</p>
+    <h1>The First<br>30 Days</h1>
+    <p class="sub">A caregiver's starter kit for the month after you realize a parent needs your help. One page for each thing that keeps you up at night, in the order you'll need them.</p>
+  </div>
+  <div class="contents">
+    <h4>What's inside</h4>
+    <ul>
+      <li>How to use this kit</li>
+      <li>30-day roadmap, week by week</li>
+      <li>Emergency fridge sheet</li>
+      <li>Care team &amp; contacts</li>
+      <li>Current medication list</li>
+      <li>Weekly medication log</li>
+      <li>Appointment tracker</li>
+      <li>Questions to ask the doctor</li>
+      <li>Important documents checklist</li>
+      <li>Daily care &amp; symptom log</li>
+      <li>Home safety walkthrough</li>
+      <li>Weekly caregiver check-in</li>
+      <li>Call &amp; decision log</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 2 HOW TO USE -->
+<section class="page">
+  <p class="kicker">Start here</p>
+  <h1>How to use this kit</h1>
+  <p class="lead">You don't have to do all of this at once. The roadmap on the next page spreads it across four weeks. Print what you need, when you need it.</p>
+
+  <div class="cols">
+    <div class="box teal">
+      <h3>Print once</h3>
+      <ul class="check">
+        <li>Emergency fridge sheet<small>Fill it in first. Tape it to the fridge and keep a photo on your phone.</small></li>
+        <li>Care team &amp; contacts</li>
+        <li>Current medication list<small>Reprint whenever a medication changes.</small></li>
+        <li>Important documents checklist</li>
+        <li>Home safety walkthrough</li>
+        <li>30-day roadmap</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Print weekly or as needed</h3>
+      <ul class="check">
+        <li>Weekly medication log<small>One sheet per week. Five copies covers the month.</small></li>
+        <li>Weekly caregiver check-in<small>Sunday night, five minutes, for you.</small></li>
+        <li>Daily care &amp; symptom log<small>Use it when something feels off, or daily if a doctor asked you to watch for changes.</small></li>
+        <li>Appointment tracker<small>Bring it to every visit.</small></li>
+        <li>Questions to ask the doctor<small>Fill it in the night before a visit.</small></li>
+        <li>Call &amp; decision log</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Three habits that make the rest easier</h2>
+  <div class="box plain">
+    <p><strong>1. Keep one binder.</strong> Everything from this kit goes in one place, in this order. When another family member steps in, you hand them the binder, not a phone call.</p>
+    <p><strong>2. Write down every call.</strong> Insurance, pharmacy, the doctor's office. Date, who you spoke to, what they said. The call log at the back exists because you will be asked "who told you that?"</p>
+    <p><strong>3. Bring the medication list everywhere.</strong> Every provider will ask. A current list in your hand is the single most useful thing you can carry into an appointment or an emergency room.</p>
+  </div>
+
+  <div class="belongs">
+    <div class="box"><h3>This binder is for</h3><div class="lines"></div></div>
+    <div class="box"><h3>Kept by (primary caregiver)</h3><div class="lines"></div></div>
+  </div>
+
+  <div class="box plain" style="margin-top:auto">
+    <p style="font-size:8.6pt;color:var(--muted);margin:0">This kit is an organizer. It helps you record and track information so you can share it accurately with your parent's doctors, pharmacist, and family. It is not medical, legal, or financial advice. For decisions about care, medications, or legal documents, talk with the professionals involved in your parent's care.</p>
+  </div>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>How to use this kit</span></div>
+</section>
+
+<!-- 3 ROADMAP -->
+<section class="page">
+  <p class="kicker">The plan</p>
+  <h1>30-day roadmap</h1>
+  <p class="lead">Four weeks, one focus each. Check things off as you go. If a week slips, it slips. The order matters more than the pace.</p>
+
+  <div class="cols">
+    <div>
+      <div class="wk">
+        <h3>Week 1 · Stabilize</h3>
+        <p class="why">Make sure anyone who walks in the door can keep your parent safe.</p>
+        <ul class="check">
+          <li>Fill in the emergency fridge sheet and tape it up</li>
+          <li>Build the current medication list (bottles in hand, not from memory)</li>
+          <li>Fill in care team &amp; contacts</li>
+          <li>Confirm the pharmacy and set up refill reminders</li>
+          <li>Start the weekly medication log</li>
+          <li>Save the primary doctor's after-hours number in your phone</li>
+        </ul>
+      </div>
+      <div class="wk">
+        <h3>Week 2 · Paperwork</h3>
+        <p class="why">Find out what exists before you need it in a hurry.</p>
+        <ul class="check">
+          <li>Work through the important documents checklist</li>
+          <li>Locate insurance cards, Medicare card, photo ID; photograph both sides</li>
+          <li>Ask whether a healthcare power of attorney and advance directive exist</li>
+          <li>Ask the doctor's office which release form lets them talk to you</li>
+          <li>List recurring bills and how each one is paid</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="wk">
+        <h3>Week 3 · Care team &amp; routine</h3>
+        <p class="why">Turn a crisis into a schedule.</p>
+        <ul class="check">
+          <li>Book or confirm the next appointment with every current provider</li>
+          <li>Fill in "Questions to ask the doctor" before the first visit</li>
+          <li>Write down the daily routine: meals, meds, sleep, activity</li>
+          <li>Decide who does what among family; write names next to tasks</li>
+          <li>Ask the doctor's office what to watch for and when to call</li>
+          <li>Start the daily care log if anything is being monitored</li>
+        </ul>
+      </div>
+      <div class="wk">
+        <h3>Week 4 · Home, money, and you</h3>
+        <p class="why">The things that go wrong quietly.</p>
+        <ul class="check">
+          <li>Do the home safety walkthrough, room by room</li>
+          <li>Fix the three cheapest, highest-risk items first</li>
+          <li>Set up the call &amp; decision log as your running record</li>
+          <li>Ask what local help exists: Area Agency on Aging, senior center, respite care</li>
+          <li>Do your first weekly caregiver check-in</li>
+          <li>Put one thing on the calendar that is only for you</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="box teal" style="margin-top:auto">
+    <h3>At the end of 30 days you should have</h3>
+    <p style="margin:0">A fridge sheet anyone can act on · a medication list you trust · the location of every important document · a care team with a next appointment · a home you've walked through with fresh eyes · and a weekly five minutes for yourself.</p>
+  </div>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>30-day roadmap</span></div>
+</section>
+
+<!-- 4 FRIDGE SHEET -->
+<section class="page fridge">
+  <p class="kicker">Post on the fridge · keep a photo on your phone</p>
+  <h1>Emergency information</h1>
+  <div class="alert">In an emergency, call 911 first. Then use this sheet.</div>
+
+  <table>
+    <tr class="tall"><td class="label">Full name</td><td></td><td class="label">Date of birth</td><td></td></tr>
+    <tr class="tall"><td class="label">Address</td><td colspan="3"></td></tr>
+    <tr class="tall"><td class="label">Preferred language</td><td></td><td class="label">Hearing / vision / mobility notes</td><td></td></tr>
+  </table>
+
+  <h2>Medical</h2>
+  <table>
+    <tr class="taller"><td class="label">Diagnoses &amp; conditions</td><td colspan="3"></td></tr>
+    <tr class="taller"><td class="label">Allergies (medications, food, latex)</td><td colspan="3"></td></tr>
+    <tr class="taller"><td class="label">Current medications<br><span style="font-weight:400;color:var(--muted);font-size:8.3pt">Full list in binder</span></td><td colspan="3"></td></tr>
+    <tr class="tall"><td class="label">Blood type (if known)</td><td></td><td class="label">Pacemaker / implants / devices</td><td></td></tr>
+    <tr class="tall"><td class="label">Advance directive / DNR on file?</td><td></td><td class="label">Where the paperwork is kept</td><td></td></tr>
+  </table>
+
+  <h2>Who to call</h2>
+  <table>
+    <tr><th style="width:30%">Role</th><th style="width:34%">Name</th><th>Phone</th></tr>
+    <tr class="tall"><td class="label">Primary caregiver</td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Second contact</td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Primary doctor</td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Pharmacy</td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Preferred hospital</td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Insurance (plan &amp; member ID)</td><td></td><td></td></tr>
+  </table>
+  <p style="margin-top:8px;font-size:8.5pt;color:var(--muted)">Updated on: ____________ &nbsp;&nbsp; Reprint this sheet whenever a medication, doctor, or contact changes.</p>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>Emergency information</span></div>
+</section>
+
+<!-- 5 CARE TEAM -->
+<section class="page">
+  <p class="kicker">Week 1</p>
+  <h1>Care team &amp; contacts</h1>
+  <p class="lead">Everyone involved in your parent's care, on one page. Include the office's after-hours number when they have one.</p>
+  <table>
+    <tr><th style="width:22%">Role</th><th style="width:24%">Name</th><th style="width:22%">Phone</th><th>Notes (portal login hint, best time to call, fax)</th></tr>
+    <tr class="taller"><td class="label">Primary care doctor</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Specialist</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Specialist</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Specialist</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Pharmacy</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Dentist</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Eye doctor / hearing</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Home health / aide agency</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Insurance / Medicare</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Attorney / financial advisor</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Clergy / faith community</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Neighbor with a key</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Family member</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Family member</td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label"></td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>Care team &amp; contacts</span></div>
+</section>
+
+<!-- 6 MEDICATION LIST -->
+<section class="page">
+  <p class="kicker">Week 1 · bring to every appointment</p>
+  <h1>Current medication list</h1>
+  <p class="lead">Fill this in with the bottles in front of you. Include vitamins, supplements, and anything over the counter. Reprint when anything changes.</p>
+  <table>
+    <tr><th style="width:22%">Medication &amp; strength</th><th style="width:12%">Dose</th><th style="width:16%">When taken</th><th style="width:18%">Prescribed by</th><th style="width:18%">What it's for</th><th>Refill due</th></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="cols" style="margin-top:10px">
+    <div class="box"><h3>Allergies &amp; past reactions</h3><div class="lines"></div></div>
+    <div class="box"><h3>Stopped medications (name, date, why)</h3><div class="lines"></div></div>
+  </div>
+  <p style="font-size:8.5pt;color:var(--muted)">Pharmacy: ____________________ &nbsp; Phone: ____________________ &nbsp; Updated on: ____________</p>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>Current medication list</span></div>
+</section>
+
+<!-- 7 WEEKLY MED LOG -->
+<section class="page">
+  <p class="kicker">Weekly · print one per week</p>
+  <h1>Weekly medication log</h1>
+  <p class="lead">Write each medication in the left column with its time slot. Initial the box when it's given. A blank box is the fastest way to spot a missed dose.</p>
+  <p style="font-size:9pt">Week of: ______________________</p>
+  <table>
+    <tr><th style="width:26%">Medication · time</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr>
+    <tr class="taller"><td><span class="hint" style="color:var(--muted);font-size:8pt">Morning</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td><span class="hint" style="color:var(--muted);font-size:8pt">Midday</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td><span class="hint" style="color:var(--muted);font-size:8pt">Evening</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td><span class="hint" style="color:var(--muted);font-size:8pt">Bedtime</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td><span class="hint" style="color:var(--muted);font-size:8pt">As needed (write dose &amp; time)</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="box" style="margin-top:10px"><h3>Missed doses, side effects, refills ordered</h3><div class="lines tall"></div></div>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>Weekly medication log</span></div>
+</section>
+
+<!-- 8 APPOINTMENT TRACKER -->
+<section class="page">
+  <p class="kicker">Week 3 · bring to every visit</p>
+  <h1>Appointment tracker</h1>
+  <p class="lead">One row per visit. The last column is the one people forget, and it's the one that matters a week later.</p>
+  <table>
+    <tr><th style="width:14%">Date &amp; time</th><th style="width:20%">Provider</th><th style="width:20%">Reason for visit</th><th style="width:23%">What they said</th><th>Next steps &amp; follow-up date</th></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="box teal" style="margin-top:10px">
+    <h3>Before you leave the office, ask</h3>
+    <p style="margin:0">Is there anything I should watch for before the next visit? &nbsp;·&nbsp; Who do I call if it happens after hours? &nbsp;·&nbsp; Did anything change on the medication list today?</p>
+  </div>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>Appointment tracker</span></div>
+</section>
+
+<!-- 9 QUESTIONS FOR THE DOCTOR -->
+<section class="page">
+  <p class="kicker">Week 3 · fill in the night before</p>
+  <h1>Questions to ask the doctor</h1>
+  <p class="lead">Check the ones that apply, add your own, and write the answers during the visit. Hand the sheet to the doctor if it's easier than reading it aloud.</p>
+  <p style="font-size:9pt">Appointment with: ____________________ &nbsp; Date: ____________</p>
+
+  <div class="cols">
+    <div>
+      <h2 style="margin-top:4px">About the condition</h2>
+      <ul class="check">
+        <li>What is the diagnosis, in plain words?</li>
+        <li>What should we expect over the next few months?</li>
+        <li>What changes should we watch for, and which ones mean we call you right away?</li>
+        <li>Is there anything we should stop doing, or start doing, at home?</li>
+      </ul>
+      <h2>About medications</h2>
+      <ul class="check">
+        <li>Here is the full list. Does anything on it concern you?</li>
+        <li>What is each new medication for, and how will we know it's working?</li>
+        <li>What side effects are common, and which ones should we report?</li>
+        <li>Is there anything that should not be taken together, or with food or alcohol?</li>
+      </ul>
+    </div>
+    <div>
+      <h2 style="margin-top:4px">About care and support</h2>
+      <ul class="check">
+        <li>Who do we call after hours, and when should we go to the ER instead?</li>
+        <li>Would home health, physical therapy, or other services help? Who orders them?</li>
+        <li>Is it still safe for them to drive / live alone / manage their own medications?</li>
+        <li>Which release form lets you talk with me about their care?</li>
+        <li>When is the next visit, and what should we bring?</li>
+      </ul>
+      <h2>Our own questions</h2>
+      <div class="lines tall"></div>
+    </div>
+  </div>
+
+  <div class="box plain" style="margin-top:10px"><h3>Answers &amp; notes from the visit</h3><div class="lines xtall"></div></div>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>Questions to ask the doctor</span></div>
+</section>
+
+<!-- 10 DOCUMENTS CHECKLIST -->
+<section class="page">
+  <p class="kicker">Week 2</p>
+  <h1>Important documents checklist</h1>
+  <p class="lead">You are not creating these documents this month. You are finding out which ones exist and where they live. Names vary by state; ask the attorney or clinic for the local equivalent.</p>
+  <table>
+    <tr><th style="width:36%">Document</th><th style="width:9%">Exists?</th><th style="width:27%">Where it's kept</th><th>Notes (who has copies, date signed)</th></tr>
+    <tr class="tall"><td><strong>Healthcare power of attorney</strong><br><span class="hint">Who speaks for them on medical decisions</span></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Advance directive / living will</strong><br><span class="hint">Their wishes for end-of-life care</span></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Medical records release (HIPAA)</strong><br><span class="hint">Lets providers talk to you</span></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Do-not-resuscitate order</strong> (if any)<br><span class="hint">Must be the state's own form to be honored</span></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Financial power of attorney</strong><br><span class="hint">Who can handle money and bills</span></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Will or trust</strong></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Photo ID, Social Security card, birth certificate</strong></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Medicare / insurance cards</strong> &amp; supplemental policies</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Long-term care insurance policy</strong></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Life insurance policies</strong></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Bank &amp; investment accounts</strong><br><span class="hint">Institution and last 4 digits only</span></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Pension, retirement, Social Security statements</strong></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Deed, mortgage, or lease</strong></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Vehicle title &amp; insurance</strong></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Military discharge papers</strong> (DD-214)</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Marriage / divorce certificates</strong></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>Funeral or burial pre-arrangements</strong></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td><strong>List of online accounts &amp; where passwords are kept</strong><br><span class="hint">Never write passwords on this page</span></td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>Important documents checklist</span></div>
+</section>
+
+<!-- 11 DAILY CARE LOG -->
+<section class="page">
+  <p class="kicker">As needed · one page per day</p>
+  <h1>Daily care &amp; symptom log</h1>
+  <p class="lead">Use this when a doctor asked you to watch for something, or when your gut says something is off. Patterns show up on paper long before they show up in memory.</p>
+  <p style="font-size:9pt">Date: ____________ &nbsp;&nbsp; Logged by: ____________________</p>
+
+  <table>
+    <tr><th style="width:22%">Check-in</th><th style="width:26%">Morning</th><th style="width:26%">Afternoon</th><th>Evening</th></tr>
+    <tr class="tall"><td class="label">Mood &amp; alertness</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Ate &amp; drank</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Bathroom</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Mobility &amp; balance</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Sleep / naps</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Vitals, if tracking<br><span class="hint">BP · pulse · temp · glucose · weight</span></td><td></td><td></td><td></td></tr>
+  </table>
+
+  <div class="cols" style="margin-top:10px">
+    <div class="box">
+      <h3>Pain today (circle)</h3>
+      <div class="scale"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+      <p style="font-size:8.5pt;color:var(--muted);margin:4px 0 0">Where, and what helped:</p>
+      <div class="lines"></div>
+    </div>
+    <div class="box">
+      <h3>Medications given as planned?</h3>
+      <p style="font-size:9pt;margin:0 0 4px">☐ Yes &nbsp; ☐ Missed / late (note which):</p>
+      <div class="lines" style="min-height:74px"></div>
+    </div>
+  </div>
+
+  <div class="box plain"><h3>Anything new or different today</h3><div class="lines tall"></div></div>
+  <div class="box teal"><h3>To report to the doctor / to tell the next caregiver</h3><div class="lines"></div></div>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>Daily care &amp; symptom log</span></div>
+</section>
+
+<!-- 12 HOME SAFETY -->
+<section class="page">
+  <p class="kicker">Week 4</p>
+  <h1>Home safety walkthrough</h1>
+  <p class="lead">Walk through the house the way your parent moves through it: from the bed to the bathroom at night, from the chair to the kitchen. Check what's fine, note what isn't.</p>
+
+  <div class="cols3">
+    <div>
+      <h2 style="margin-top:0">Everywhere</h2>
+      <ul class="check">
+        <li>Loose rugs removed or taped down</li>
+        <li>Clear paths, cords off the floor</li>
+        <li>Night lights bedroom → bathroom</li>
+        <li>Smoke &amp; CO detectors tested</li>
+        <li>Emergency numbers posted (fridge sheet)</li>
+        <li>Phone reachable from bed and chair</li>
+        <li>Thermostat easy to read and reach</li>
+      </ul>
+      <h2>Entry &amp; stairs</h2>
+      <ul class="check">
+        <li>Sturdy handrails on both sides</li>
+        <li>Steps even, edges visible, lit</li>
+        <li>Door locks they can work easily</li>
+        <li>A neighbor or lockbox has a key</li>
+      </ul>
+    </div>
+    <div>
+      <h2 style="margin-top:0">Bathroom</h2>
+      <ul class="check">
+        <li>Grab bars by toilet and in shower</li>
+        <li>Non-slip mat in tub or shower</li>
+        <li>Shower chair or bench if standing is hard</li>
+        <li>Raised toilet seat if needed</li>
+        <li>Water heater set to 120°F or lower</li>
+        <li>Door can be unlocked from outside</li>
+      </ul>
+      <h2>Bedroom</h2>
+      <ul class="check">
+        <li>Lamp reachable from bed</li>
+        <li>Bed height lets feet touch the floor</li>
+        <li>Clear path to the bathroom</li>
+        <li>Glasses, phone, water within reach</li>
+      </ul>
+    </div>
+    <div>
+      <h2 style="margin-top:0">Kitchen</h2>
+      <ul class="check">
+        <li>Everyday items at waist to shoulder height</li>
+        <li>No step stools needed for daily use</li>
+        <li>Stove knobs clearly marked; auto-off if forgetful</li>
+        <li>Fire extinguisher within reach</li>
+        <li>Expired food and medicine cleared out</li>
+      </ul>
+      <h2>Medications</h2>
+      <ul class="check">
+        <li>One storage place, not scattered</li>
+        <li>Weekly pill organizer if more than 3 meds</li>
+        <li>Old prescriptions removed</li>
+        <li>List on the fridge matches the bottles</li>
+      </ul>
+    </div>
+  </div>
+
+  <table style="margin-top:8px">
+    <tr><th style="width:46%">What needs fixing</th><th style="width:22%">Who will do it</th><th style="width:16%">By when</th><th>Done</th></tr>
+    <tr class="tall"><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>Home safety walkthrough</span></div>
+</section>
+
+<!-- 13 CAREGIVER CHECK-IN -->
+<section class="page">
+  <p class="kicker">Weekly · Sunday night · five minutes</p>
+  <h1>Weekly caregiver check-in</h1>
+  <p class="lead">This page is about you. Caregivers who burn out usually saw it coming on paper weeks before they felt it. This is the paper.</p>
+  <p style="font-size:9pt">Week of: ______________________</p>
+
+  <div class="cols">
+    <div class="box">
+      <h3>This week I slept</h3>
+      <p style="font-size:9pt;margin:0">☐ Enough &nbsp; ☐ Not quite &nbsp; ☐ Badly, most nights</p>
+    </div>
+    <div class="box">
+      <h3>My own health</h3>
+      <p style="font-size:9pt;margin:0">☐ Kept my appointments &nbsp; ☐ Skipped or postponed one &nbsp; ☐ Haven't scheduled</p>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="box plain"><h3>What went well</h3><div class="lines tall"></div></div>
+    <div class="box plain"><h3>What was hardest</h3><div class="lines tall"></div></div>
+  </div>
+
+  <div class="cols">
+    <div class="box plain"><h3>One task I will hand to someone else next week</h3><p style="font-size:8.5pt;color:var(--muted);margin:0 0 4px">Task, and who I'll ask:</p><div class="lines"></div></div>
+    <div class="box plain"><h3>One thing I will do that is only for me</h3><p style="font-size:8.5pt;color:var(--muted);margin:0 0 4px">On the calendar, day and time:</p><div class="lines"></div></div>
+  </div>
+
+  <div class="box teal">
+    <h3>Warning signs worth taking seriously</h3>
+    <ul class="check" style="columns:2;column-gap:20px">
+      <li>Snapping at my parent or family</li>
+      <li>Skipping meals or living on coffee</li>
+      <li>Not sleeping even when I can</li>
+      <li>Dreading the phone ringing</li>
+      <li>Nobody else knows the routine</li>
+      <li>Haven't seen a friend in weeks</li>
+    </ul>
+    <p style="font-size:8.8pt;margin:6px 0 0">Three or more checked for two weeks running: that is the moment to call someone. Your doctor, a caregiver support line, your Area Agency on Aging, or the person on the contacts page you trust most.</p>
+  </div>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>Weekly caregiver check-in</span></div>
+</section>
+
+<!-- 14 CALL LOG -->
+<section class="page">
+  <p class="kicker">Ongoing · the running record</p>
+  <h1>Call &amp; decision log</h1>
+  <p class="lead">Every call with insurance, the pharmacy, a doctor's office, or a family decision. Date, who, what was said, what happens next. Reprint as the pages fill.</p>
+  <table>
+    <tr><th style="width:12%">Date</th><th style="width:20%">Who I spoke with<br><span style="font-weight:400;text-transform:none;letter-spacing:0">Name &amp; organization</span></th><th style="width:18%">About</th><th style="width:28%">What was said / decided</th><th>Follow-up &amp; reference #</th></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="box" style="margin-top:10px">
+    <h3>Tip</h3>
+    <p style="margin:0;font-size:9pt">Ask for a reference or case number on every insurance call and write it in the last column. It turns "someone told me" into something the next person can look up.</p>
+  </div>
+  <div class="foot"><span>The First 30 Days · Caregiver Starter Kit</span><span>Call &amp; decision log</span></div>
+</section>
+
+</body>
+</html>
