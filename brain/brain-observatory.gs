@@ -38,6 +38,8 @@
  * (it replaces the trigger and re-scans). v2 2026-10-30: runs 2:30 AM CT so the
  * 3:09 AM sleep cycle reads tonight's census, not yesterday's; ZZ-SUPERSEDED /
  * STRUCTURAL lanes; INBOX fresh/aged split; untagged list in the brief.
+ * v3 2026-10-30: brief.protocolLive names the current "[PROTOCOL] LIVE v<n>" doc by
+ * ID (highest version), so no surface has to find the rulebook by title search.
  */
 
 var CONFIG = {
@@ -186,6 +188,21 @@ function buildBrief_(docs, prev) {
   var freshCutoff = now.getTime() - CONFIG.INBOX_FRESH_DAYS * dayMs;
   var inboxFresh = inboxDocs.filter(function (d) { return new Date(d.created).getTime() > freshCutoff; }).length;
 
+  // The executing rulebook lives in the Brain as "[PROTOCOL] ... LIVE v<n>". Drive title
+  // search is unreliable, so the census names the current one by ID: highest version wins,
+  // newest createdTime breaks ties. The bootloader and the sleep cycle read this field.
+  var protocolLive = null;
+  docs.forEach(function (d) {
+    if (d.lane !== 'PROTOCOL') return;
+    var m = d.title.match(/\bLIVE v(\d+)\b/);
+    if (!m) return;
+    var v = parseInt(m[1], 10);
+    if (!protocolLive || v > protocolLive.version ||
+        (v === protocolLive.version && d.created > protocolLive.created)) {
+      protocolLive = { id: d.id, version: v, date: d.date, created: d.created, title: d.title.slice(0, 120) };
+    }
+  });
+
   // Genuinely untagged docs are rare; list them so a session can see what they are.
   var untaggedList = docs.filter(function (d) { return d.lane === 'UNTAGGED'; })
     .slice(0, 20)
@@ -238,6 +255,7 @@ function buildBrief_(docs, prev) {
       retired: (lanes['ZZ-SUPERSEDED'] || 0) + (lanes['ZZ-ERROR'] || 0)
     },
     untaggedDocs: untaggedList,
+    protocolLive: protocolLive,
     lanes: lanes,
     cadence14d: cadence,
     newestRootMap: newestRootInfo,
