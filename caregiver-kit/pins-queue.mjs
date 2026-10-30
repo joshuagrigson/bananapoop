@@ -79,5 +79,5 @@ for (const p of Q) {
 }
 await browser.close();
 const queue = Q.map((p, i) => ({ seq: i + 1, kind: p.kind, image_url: `${SITE}/pins/q/${p.file}`, title: p.title, description: p.desc, alt_text: p.head, link: p.link }));
-await writeFile(join(here, 'site', 'pins', 'queue.json'), JSON.stringify({ board_id: '669769844523888735', per_run: 2, pins: queue }, null, 2));
+await writeFile(join(here, 'site', 'pins', 'queue.json'), JSON.stringify({ board_id: '669769844523888735', per_run: 4, pins: queue }, null, 2));
 console.log(`${Q.length} queue pins written`);

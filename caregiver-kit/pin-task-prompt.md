@@ -3,7 +3,7 @@
 Create this in claude.ai → Scheduled tasks. Settings:
 
 - Name: `First 30 Days: weekly Pinterest pins`
-- Schedule: Tuesday and Friday, 12:17 PM Central (cron `17 12 * * 2,5`, America/Chicago)
+- Schedule: weekly, Tuesday 12:17 PM Central (one run posts 4 pins)
 - New session each run: yes
 - Connectors: Zapier, Google Drive
 - Prompt: everything below the line.
