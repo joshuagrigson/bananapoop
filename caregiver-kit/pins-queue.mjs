@@ -10,6 +10,7 @@ const { chromium } = require('playwright');
 
 const here = dirname(fileURLToPath(import.meta.url));
 const kit = (n) => pathToFileURL(join(here, 'out', 'pages', `page-${String(n).padStart(2, '0')}.png`)).href;
+const hos = (n) => pathToFileURL(join(here, 'out', 'hospital', 'pages', `page-${String(n).padStart(2, '0')}.png`)).href;
 const hol = (n) => pathToFileURL(join(here, 'out', 'holidays', 'pages', `page-${String(n).padStart(2, '0')}.png`)).href;
 const outDir = join(here, 'site', 'pins', 'q');
 await mkdir(outDir, { recursive: true });
@@ -17,6 +18,7 @@ await mkdir(outDir, { recursive: true });
 const SITE = 'https://first30days-kit.netlify.app';
 const link = (c) => `${SITE}/?utm_source=pinterest&utm_medium=pin&utm_campaign=first30days&utm_content=${c}`;
 const hlink = (c) => `${SITE}/#holidays?utm_source=pinterest&utm_medium=pin&utm_campaign=holidays&utm_content=${c}`;
+const slink = (c) => `${SITE}/#hospital?utm_source=pinterest&utm_medium=pin&utm_campaign=hospital&utm_content=${c}`;
 const flink = (c) => `${SITE}/#free?utm_source=pinterest&utm_medium=pin&utm_campaign=free&utm_content=${c}`;
 
 // kind: product (kit), holidays, free (lead magnet), seasonal. Order = posting order, 4 per week.
@@ -41,6 +43,11 @@ const Q = [
   { file: 'q14.png', kind: 'holidays', img: hol(2), head: 'You’re not there to inspect. You’re there for the holiday.', sub: 'Three rules for noticing without turning dinner into an intervention.', title: 'How to check on aging parents at the holidays without an intervention', desc: 'One thing at a time. Curious, not corrective. Their life, their say. Plus what can’t wait. From Home for the Holidays: Is It Time?, an 8-page printable kit for adult children, $8.', link: hlink('three-rules') },
   { file: 'q15.png', kind: 'product', img: kit(2), head: 'Print once. Print weekly. Hand it over.', sub: 'How the 14-page caregiver kit is meant to be used.', title: 'How to set up a caregiver binder in one evening', desc: 'Which pages to print once (fridge sheet, contacts, medication list, documents, home safety) and which to print weekly (medication log, check-in, daily log). Three habits that make the rest easier. The First 30 Days, $12 printable kit.', link: link('how-to-use') },
   { file: 'q16.png', kind: 'seasonal', img: hol(8), head: 'New Year, same worry about Dad? Start with the paperwork.', sub: 'What you decided at Thanksgiving, who owns it, and when to look again.', title: 'The next steps tracker: turning a holiday worry into a January plan', desc: 'Visit date, overall color, three steps with owners and outcomes, questions for the doctor, when to look again. From Home for the Holidays: Is It Time?, $8. Pairs with The First 30 Days for the paperwork month.', link: hlink('tracker') },
+  // Week 5: After the Hospital
+  { file: 'q17.png', kind: 'hospital', dark: true, img: hos(1), head: 'Bringing a parent home from the hospital this week?', sub: 'What to get before you leave, and what to watch for each day after.', title: 'After the Hospital: the first 7 days home, a printable discharge kit', desc: 'An 11-page printable kit for the week most readmissions start: before you leave the hospital, a medication changes sheet, when to call vs 911, a 7-day plan, follow-ups tracker, daily vitals log, house setup, help roster, follow-up questions, call log. $12, instant download.', link: slink('home-this-week') },
+  { file: 'q18.png', kind: 'hospital', img: hos(3), head: 'Two medication lists in the house is how readmissions start', sub: 'One sheet: new, changed, same, stopped. Then the old bottles go.', title: 'Medication changes sheet for hospital discharge (printable)', desc: 'Mark every medication new, changed, same or stopped, with dose, purpose and what it replaces. Three questions for the pharmacist and a log of old bottles removed. From After the Hospital: The First 7 Days Home, $12 printable kit.', link: slink('med-changes') },
+  { file: 'q19.png', kind: 'hospital', img: hos(4), head: 'Who to call at 2 a.m., and when it\u2019s 911', sub: 'Fill it in from the discharge papers. Post it by the fridge.', title: 'When to call the doctor vs 911 after a hospital discharge (printable)', desc: 'General red and yellow warning signs, with space to copy the condition-specific ones from the discharge papers, and the four numbers that matter. From After the Hospital: The First 7 Days Home, an 11-page printable kit, $12.', link: slink('when-to-call') },
+  { file: 'q20.png', kind: 'hospital', img: hos(9), head: 'One person can\u2019t do seven nights', sub: 'The help roster: a name in every box, before day 3, while people are still offering.', title: 'The help roster: dividing the first week home after a hospital stay', desc: 'Morning, midday, evening, overnight, rides, meals, seven days across, plus a helpers list. If your name is in every row, that is the first problem to fix. From After the Hospital: The First 7 Days Home, $12 printable kit.', link: slink('help-roster') },
 ];
 
 const shadow = 'box-shadow:0 24px 50px rgba(31,78,95,.25),0 2px 6px rgba(0,0,0,.08);border-radius:8px;';
@@ -49,6 +56,7 @@ html,body{margin:0;width:1000px;height:1500px;overflow:hidden;font-family:"Inter
 .f{position:relative;width:1000px;height:1500px;background:#f6f1ea;color:#1f4e5f}
 .f.dark{background:#1f4e5f;color:#fff}
 .f.hol{background:#fbe9df}
+.f.hos{background:#ece6f1}
 .tag{position:absolute;left:70px;top:64px;background:#c2673f;color:#fff;font-weight:700;font-size:21px;letter-spacing:.08em;text-transform:uppercase;padding:11px 20px;border-radius:999px}
 .f.free .tag{background:#2f7d5b}
 .head{position:absolute;left:70px;right:70px;top:136px;font-size:60px;line-height:1.08;font-weight:700;letter-spacing:-.015em}
@@ -60,10 +68,10 @@ html,body{margin:0;width:1000px;height:1500px;overflow:hidden;font-family:"Inter
 .f.dark .band{background:#c2673f}
 .band span:last-child{font-weight:500;opacity:.9}
 </style>`;
-const tagFor = (p) => p.kind === 'free' ? 'Free printable' : p.kind === 'product' ? 'Printable kit · 14 pages' : 'Printable kit · 8 pages';
-const brandFor = (p) => p.kind === 'product' || p.kind === 'free' ? ['The First 30 Days', 'Caregiver starter kit · PDF'] : ['Home for the Holidays', 'Is It Time? · PDF'];
+const tagFor = (p) => p.kind === 'free' ? 'Free printable' : p.kind === 'product' ? 'Printable kit · 14 pages' : p.kind === 'hospital' ? 'Printable kit · 11 pages' : 'Printable kit · 8 pages';
+const brandFor = (p) => p.kind === 'product' || p.kind === 'free' ? ['The First 30 Days', 'Caregiver starter kit · PDF'] : p.kind === 'hospital' ? ['After the Hospital', 'The First 7 Days Home · PDF'] : ['Home for the Holidays', 'Is It Time? · PDF'];
 const html = (p) => { const [b1, b2] = brandFor(p); return `<!doctype html><html><head><meta charset="utf-8">${css}</head><body>
-<div class="f ${p.dark ? 'dark' : ''} ${p.kind === 'free' ? 'free' : ''} ${(p.kind === 'holidays' || p.kind === 'seasonal') && !p.dark ? 'hol' : ''}">
+<div class="f ${p.dark ? 'dark' : ''} ${p.kind === 'free' ? 'free' : ''} ${(p.kind === 'holidays' || p.kind === 'seasonal') && !p.dark ? 'hol' : ''} ${p.kind === 'hospital' && !p.dark ? 'hos' : ''}">
   <div class="tag">${tagFor(p)}</div><div class="head">${p.head}</div><div class="sub">${p.sub}</div>
   <div class="art"><img src="${p.img}"></div>
   <div class="band"><span>${b1}</span><span>${b2}</span></div>

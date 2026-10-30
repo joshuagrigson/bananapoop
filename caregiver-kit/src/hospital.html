@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>After the Hospital: The First 7 Days Home</title>
+<style>
+  @page { size: Letter; margin: 0; }
+  :root { --ink:#22262a; --muted:#6b7278; --rule:#c9ced3; --rule-light:#e3e7ea; --teal:#1f4e5f; --teal-soft:#e6eef1; --clay:#c2673f; --clay-soft:#f6e3da; --sand:#f6f1ea; --white:#fff; --green:#2f7d5b; --green-soft:#e3f0e9; --amber:#b7791f; --amber-soft:#f8ecd4; --red:#a93d35; --red-soft:#f5dfdd; --plum:#5b4a6b; --plum-soft:#ece6f1; }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#fff;color:var(--ink);font-family:"Inter","DejaVu Sans",Arial,sans-serif;font-size:10.5pt;line-height:1.35;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{width:8.5in;height:11in;padding:.6in .65in .55in;position:relative;page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+  .page:last-child{page-break-after:auto}
+  .kicker{font-size:8pt;letter-spacing:.14em;text-transform:uppercase;color:var(--clay);font-weight:600;margin:0 0 4px}
+  h1{font-size:20pt;font-weight:700;color:var(--teal);margin:0 0 6px;letter-spacing:-.01em}
+  h2{font-size:12pt;font-weight:700;color:var(--teal);margin:12px 0 6px}
+  p{margin:0 0 6px}
+  .lead{color:var(--muted);font-size:10pt;margin-bottom:10px}
+  .foot{position:absolute;bottom:.35in;left:.65in;right:.65in;display:flex;justify-content:space-between;font-size:7.5pt;color:var(--muted);border-top:1px solid var(--rule-light);padding-top:6px}
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+  th{text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:var(--teal);background:var(--teal-soft);padding:5px 7px;border:1px solid var(--rule);font-weight:700}
+  td{border:1px solid var(--rule);padding:5px 7px;vertical-align:top;font-size:9.4pt}
+  td.label{background:var(--sand);font-weight:600}
+  td.hint{color:var(--muted);font-size:8.3pt}
+  tr.tall td{height:34px} tr.taller td{height:46px} tr.xl td{height:62px}
+  .box{border:1px solid var(--rule);border-radius:6px;padding:9px 11px;background:var(--sand);margin:0 0 8px}
+  .box.teal{background:var(--teal-soft);border-color:#b9ccd3} .box.plain{background:#fff}
+  .box.green{background:var(--green-soft);border-color:#b9d8c7} .box.amber{background:var(--amber-soft);border-color:#e3cfa1} .box.red{background:var(--red-soft);border-color:#e4b9b5} .box.plum{background:var(--plum-soft);border-color:#cfc3dc}
+  .box h3{margin:0 0 4px;font-size:10pt;color:var(--teal)}
+  .box.green h3{color:var(--green)} .box.amber h3{color:var(--amber)} .box.red h3{color:var(--red)} .box.plum h3{color:var(--plum)}
+  .check{list-style:none;margin:0;padding:0}
+  .check li{position:relative;padding:4px 0 4px 24px;border-bottom:1px solid var(--rule-light);font-size:9.4pt}
+  .check li::before{content:"";position:absolute;left:2px;top:6px;width:12px;height:12px;border:1.4px solid var(--teal);border-radius:3px;background:#fff}
+  .check li small{color:var(--muted);display:block;font-size:8.2pt}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:12px} .cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .lines{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 21px,var(--rule) 21px,var(--rule) 22px);background-size:100% 22px;min-height:66px}
+  .lines.tall{min-height:110px} .lines.xtall{min-height:176px}
+  .cover{background:var(--plum);color:#fff;padding:0}
+  .cover .band{position:absolute;inset:.55in;border:1.5px solid rgba(255,255,255,.35);border-radius:10px}
+  .cover .inner{position:absolute;left:1in;right:1in;top:1.6in}
+  .cover .kicker{color:#e3d6ef}
+  .cover h1{color:#fff;font-size:40pt;line-height:1.02;margin:0 0 14px;letter-spacing:-.02em}
+  .cover .sub{font-size:13.5pt;color:#eae2f1;max-width:5.6in;line-height:1.4}
+  .cover .contents{position:absolute;left:1in;right:1in;bottom:1.25in}
+  .cover .contents h4{margin:0 0 8px;font-size:8.5pt;letter-spacing:.14em;text-transform:uppercase;color:#e3d6ef}
+  .cover .contents ul{margin:0;padding:0;list-style:none;columns:2;column-gap:24px;font-size:10pt;color:#f3eef7}
+  .cover .contents li{padding:3px 0;border-bottom:1px solid rgba(255,255,255,.18);break-inside:avoid}
+  .cover .tag{position:absolute;right:1in;top:.95in;background:var(--clay);color:#fff;font-weight:700;font-size:8.5pt;letter-spacing:.1em;padding:6px 10px;border-radius:999px;text-transform:uppercase}
+  .day{display:grid;grid-template-columns:.9in 1fr;border:1px solid var(--rule);border-radius:6px;overflow:hidden;margin-bottom:6px}
+  .day .d{background:var(--teal-soft);color:var(--teal);font-weight:700;padding:8px;font-size:10pt;display:flex;flex-direction:column;justify-content:center}
+  .day .d small{font-weight:500;color:var(--muted);font-size:8pt}
+  .day .body{padding:6px 10px;font-size:9.2pt}
+  .day .body ul{margin:0;padding:0;list-style:none;columns:2;column-gap:16px}
+  .day .body li{padding:2px 0 2px 18px;position:relative;break-inside:avoid}
+  .day .body li::before{content:"";position:absolute;left:0;top:5px;width:10px;height:10px;border:1.3px solid var(--teal);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- 1 COVER -->
+<section class="page cover">
+  <div class="band"></div>
+  <div class="tag">Printable kit · 11 pages</div>
+  <div class="inner">
+    <p class="kicker">For the week that decides whether they go back</p>
+    <h1>After the Hospital:<br>The First 7 Days Home</h1>
+    <p class="sub">What to get before you leave the hospital, how to sort the new medications from the old, what to watch for each day, and who's covering which shift.</p>
+  </div>
+  <div class="contents">
+    <h4>What's inside</h4>
+    <ul>
+      <li>Before you leave the hospital</li>
+      <li>Medication changes sheet</li>
+      <li>The 7-day plan</li>
+      <li>When to call, when to go</li>
+      <li>Follow-ups &amp; services tracker</li>
+      <li>Daily vitals &amp; symptom log</li>
+      <li>Setting up the house</li>
+      <li>The help roster</li>
+      <li>Questions for the follow-up visit</li>
+      <li>Call log</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 2 BEFORE YOU LEAVE -->
+<section class="page">
+  <p class="kicker">Discharge day · in the hospital room</p>
+  <h1>Before you leave the hospital</h1>
+  <p class="lead">Discharge happens fast, usually when you're both tired. Most of what goes wrong in the first week traces back to something that wasn't asked here. Check these off before the wheelchair arrives.</p>
+
+  <div class="cols">
+    <div>
+      <h2 style="margin-top:0">Papers in hand</h2>
+      <ul class="check">
+        <li>Discharge summary, printed<small>Diagnosis, what was done, what's next, in writing.</small></li>
+        <li>The new medication list, printed<small>Copy it onto page 3 with the nurse while they're in the room.</small></li>
+        <li>Written care instructions<small>Wound care, diet, activity limits, bathing, lifting.</small></li>
+        <li>Follow-up appointments, with dates<small>If they say "call to schedule," ask them to book it now.</small></li>
+        <li>Prescriptions sent to the pharmacy, confirmed<small>Ask which ones are new and which replace something.</small></li>
+        <li>The after-hours number for the team that treated them</li>
+      </ul>
+    </div>
+    <div>
+      <h2 style="margin-top:0">Questions for the discharge nurse</h2>
+      <ul class="check">
+        <li>What should I watch for, and what exactly do I do if I see it?</li>
+        <li>Which symptoms mean call you, and which mean call 911?</li>
+        <li>What was stopped, changed, or added on the medication list, and why?</li>
+        <li>Can they shower? Climb stairs? Drive? Be alone? For how long?</li>
+        <li>What equipment do they need at home, and who is delivering it?</li>
+        <li>Is home health, physical therapy, or a visiting nurse ordered? Who calls whom?</li>
+        <li>What's the diet, in plain words?</li>
+        <li>When is the next appointment, and what should we bring?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="box amber" style="margin-top:6px">
+    <h3>Before you drive away</h3>
+    <ul class="check" style="columns:2;column-gap:20px">
+      <li>Pharmacy has the prescriptions and they're ready, or you know when</li>
+      <li>Equipment (walker, oxygen, commode, bed) is home or arriving today</li>
+      <li>Someone is staying the first night</li>
+      <li>Fridge has food that matches the diet</li>
+      <li>Pathway from car to bed is clear</li>
+      <li>Page 4 of this kit is filled in from the discharge papers</li>
+    </ul>
+  </div>
+
+  <div class="box plain" style="margin-top:auto">
+    <p style="font-size:8.6pt;color:var(--muted);margin:0">This kit organizes the instructions your care team gives you. It does not replace them. When this kit and your discharge papers disagree, the discharge papers win, and the after-hours number is the tiebreaker.</p>
+  </div>
+  <div class="foot"><span>After the Hospital · The First 7 Days Home</span><span>Before you leave the hospital</span></div>
+</section>
+
+<!-- 3 MEDICATION CHANGES -->
+<section class="page">
+  <p class="kicker">Discharge day · fill in with the nurse, confirm with the pharmacist</p>
+  <h1>Medication changes sheet</h1>
+  <p class="lead">Readmissions often start with two lists in the house: the old bottles in the cabinet and the new ones from the pharmacy. This page is the one list. Then clear the old bottles out.</p>
+
+  <table>
+    <tr><th style="width:24%">Medication &amp; strength</th><th style="width:12%">Status</th><th style="width:16%">Dose &amp; when</th><th style="width:20%">What it's for</th><th>Notes (replaces what? with food? stop date?)</th></tr>
+    <tr class="tall"><td></td><td class="hint">☐ New ☐ Changed<br>☐ Same ☐ Stopped</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td class="hint">☐ New ☐ Changed<br>☐ Same ☐ Stopped</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td class="hint">☐ New ☐ Changed<br>☐ Same ☐ Stopped</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td class="hint">☐ New ☐ Changed<br>☐ Same ☐ Stopped</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td class="hint">☐ New ☐ Changed<br>☐ Same ☐ Stopped</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td class="hint">☐ New ☐ Changed<br>☐ Same ☐ Stopped</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td class="hint">☐ New ☐ Changed<br>☐ Same ☐ Stopped</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td class="hint">☐ New ☐ Changed<br>☐ Same ☐ Stopped</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td class="hint">☐ New ☐ Changed<br>☐ Same ☐ Stopped</td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td class="hint">☐ New ☐ Changed<br>☐ Same ☐ Stopped</td><td></td><td></td><td></td></tr>
+  </table>
+
+  <div class="cols" style="margin-top:10px">
+    <div class="box">
+      <h3>Three questions for the pharmacist</h3>
+      <ul class="check">
+        <li>Is anything on this list a duplicate of something they already take under another name?</li>
+        <li>Does anything here interact with their old medications or supplements?</li>
+        <li>Which of these can be stopped on a date, and which continue?</li>
+      </ul>
+    </div>
+    <div class="box plain"><h3>Old bottles removed from the house (name, date)</h3><div class="lines tall"></div></div>
+  </div>
+  <p style="font-size:8.5pt;color:var(--muted)">Reviewed with: ____________________ (nurse / pharmacist) &nbsp; Date: ____________</p>
+  <div class="foot"><span>After the Hospital · The First 7 Days Home</span><span>Medication changes sheet</span></div>
+</section>
+
+<!-- 4 WHEN TO CALL -->
+<section class="page">
+  <p class="kicker">Fill in from the discharge papers · post it next to the fridge sheet</p>
+  <h1>When to call, when to go</h1>
+  <p class="lead">Your discharge papers list the warning signs for this condition. Copy them into the boxes below so nobody has to find the paperwork at 2 a.m. The general signs printed here apply to almost every discharge.</p>
+
+  <div class="box red">
+    <h3>Call 911 now</h3>
+    <p style="font-size:9.3pt;margin:0 0 6px">Chest pain or pressure · trouble breathing · face drooping, arm weakness, slurred speech · sudden severe confusion or can't wake them · heavy bleeding that won't stop · a fall with a head strike, or they can't get up · fever with shaking chills after surgery</p>
+    <p style="font-size:8.6pt;color:var(--muted);margin:0 0 4px">Condition-specific, from the discharge papers:</p>
+    <div class="lines"></div>
+  </div>
+
+  <div class="box amber">
+    <h3>Call the care team today (use the after-hours number if needed)</h3>
+    <p style="font-size:9.3pt;margin:0 0 6px">Fever · redness, swelling, warmth, or drainage at an incision or wound · new or worse pain not controlled by what was prescribed · not keeping food or fluids down · no urine for many hours, or burning · new swelling in a leg · new confusion, dizziness, or a near-fall · a missed or doubled medication you're unsure about</p>
+    <p style="font-size:8.6pt;color:var(--muted);margin:0 0 4px">Condition-specific, from the discharge papers:</p>
+    <div class="lines"></div>
+  </div>
+
+  <div class="box green">
+    <h3>Watch and note (bring to the follow-up)</h3>
+    <p style="font-size:9.3pt;margin:0">Appetite, sleep, energy, mood, bathroom changes, mild soreness that's improving. Write it on the daily log; it's what the doctor will ask about.</p>
+  </div>
+
+  <table style="margin-top:4px">
+    <tr><th style="width:36%">Who</th><th style="width:30%">Number</th><th>When to use it</th></tr>
+    <tr class="tall"><td class="label">Care team after-hours line</td><td></td><td>Nights, weekends, anything on the yellow list</td></tr>
+    <tr class="tall"><td class="label">Primary care doctor</td><td></td><td>Follow-up, refills, questions in office hours</td></tr>
+    <tr class="tall"><td class="label">Pharmacy</td><td></td><td>Medication questions, missed doses</td></tr>
+    <tr class="tall"><td class="label">Home health / visiting nurse</td><td></td><td>Wound checks, vitals, therapy</td></tr>
+  </table>
+  <div class="foot"><span>After the Hospital · The First 7 Days Home</span><span>When to call, when to go</span></div>
+</section>
+
+<!-- 5 THE 7-DAY PLAN -->
+<section class="page">
+  <p class="kicker">The week</p>
+  <h1>The 7-day plan</h1>
+  <p class="lead">A default rhythm for the week, to adjust to your discharge instructions. Check boxes as you go. The daily log on page 7 holds the numbers.</p>
+
+  <div class="day"><div class="d">Day 1<small>Home day</small></div><div class="body"><ul>
+    <li>Medication changes sheet done, old bottles out</li><li>Pill organizer filled for the week</li><li>"When to call" page filled and posted</li><li>Fluids and a real meal, per the diet</li><li>Someone stays overnight</li><li>Confirm pharmacy pickup and equipment</li></ul></div></div>
+  <div class="day"><div class="d">Day 2<small>Settle</small></div><div class="body"><ul>
+    <li>First full day on the new medication schedule</li><li>Call to confirm every follow-up on page 6</li><li>Wound / incision check per instructions</li><li>Short walk or exercises, if allowed</li><li>Daily log started: vitals, pain, appetite</li><li>Help roster filled for the week</li></ul></div></div>
+  <div class="day"><div class="d">Day 3<small>Watch</small></div><div class="body"><ul>
+    <li>Compare today's log to yesterday's; note anything worse</li><li>Bathroom and fluids on track?</li><li>Pain controlled with what was prescribed?</li><li>Home health / nurse visit, if ordered</li><li>Refill anything running low</li></ul></div></div>
+  <div class="day"><div class="d">Day 4<small>Midweek</small></div><div class="body"><ul>
+    <li>Caregiver check: did you sleep? Who relieves you?</li><li>Activity up a notch only if the instructions allow</li><li>Write questions for the follow-up (page 10)</li><li>Fridge: still matches the diet?</li></ul></div></div>
+  <div class="day"><div class="d">Day 5<small>Routine</small></div><div class="body"><ul>
+    <li>Medications: any side effects to report?</li><li>Wound / incision check</li><li>Mood and sleep: note changes</li><li>Call the office with yellow-list items before the weekend</li></ul></div></div>
+  <div class="day"><div class="d">Day 6<small>Prepare</small></div><div class="body"><ul>
+    <li>Gather for the follow-up: this kit, med list, daily log, discharge papers</li><li>Confirm ride and time</li><li>Pill organizer refilled for next week</li></ul></div></div>
+  <div class="day"><div class="d">Day 7<small>Review</small></div><div class="body"><ul>
+    <li>Read the week's log together: better, same, or worse?</li><li>Decide what help continues and what can stop</li><li>Follow-up visit (often within 7 to 14 days)</li><li>Update the fridge sheet and medication list</li></ul></div></div>
+  <div class="foot"><span>After the Hospital · The First 7 Days Home</span><span>The 7-day plan</span></div>
+</section>
+
+<!-- 6 FOLLOW-UPS -->
+<section class="page">
+  <p class="kicker">Day 1 to 2</p>
+  <h1>Follow-ups &amp; services tracker</h1>
+  <p class="lead">Everything that was "ordered" or "arranged" at discharge, with a date and a phone number. If a line has no date by day 2, call and get one.</p>
+
+  <table>
+    <tr><th style="width:26%">What</th><th style="width:16%">Date &amp; time</th><th style="width:20%">Who / where</th><th style="width:18%">Phone</th><th>Confirmed? Ride? Notes</th></tr>
+    <tr class="taller"><td class="label">Primary care follow-up<br><span class="hint">Usually within 7 to 14 days</span></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Specialist / surgeon follow-up</td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Home health / visiting nurse<br><span class="hint">First visit date</span></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Physical / occupational therapy</td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Equipment delivery<br><span class="hint">Walker, bed, oxygen, commode</span></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Lab work or imaging</td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Pharmacy pickup / delivery</td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Insurance / case manager call</td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label"></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label"></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+
+  <div class="box teal" style="margin-top:10px">
+    <h3>If something that was "ordered" hasn't called by day 3</h3>
+    <p style="margin:0;font-size:9.3pt">Call the hospital's discharge planner or case manager (the number is usually on the discharge summary). Orders get lost between the hospital and the agency more often than anyone admits. Write the call on the log on page 11.</p>
+  </div>
+  <div class="foot"><span>After the Hospital · The First 7 Days Home</span><span>Follow-ups &amp; services tracker</span></div>
+</section>
+
+<!-- 7 DAILY LOG -->
+<section class="page">
+  <p class="kicker">Every day this week · bring to the follow-up</p>
+  <h1>Daily vitals &amp; symptom log</h1>
+  <p class="lead">Only track what the care team asked for, plus the basics. A week of numbers side by side shows a trend that no single day does.</p>
+  <p style="font-size:9pt">Week starting: ____________ &nbsp;&nbsp; Target ranges from the care team (if given): BP ________ &nbsp; Weight ________ &nbsp; Other ____________</p>
+
+  <table>
+    <tr><th style="width:21%"></th><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Day 4</th><th>Day 5</th><th>Day 6</th><th>Day 7</th></tr>
+    <tr class="tall"><td class="label">Temperature</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Blood pressure / pulse</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Weight</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Oxygen / breathing</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Pain 0–10</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Ate &amp; drank</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Bathroom</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Sleep</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Mood &amp; alertness</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Wound / incision</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Activity / exercises</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td class="label">Meds all given?</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+
+  <div class="box plain" style="margin-top:10px"><h3>Anything new, different, or reported to the care team (date it)</h3><div class="lines tall"></div></div>
+  <div class="foot"><span>After the Hospital · The First 7 Days Home</span><span>Daily vitals &amp; symptom log</span></div>
+</section>
+
+<!-- 8 SETTING UP THE HOUSE -->
+<section class="page">
+  <p class="kicker">Before they come home, or day 1</p>
+  <h1>Setting up the house</h1>
+  <p class="lead">Recovery happens in about four places: bed, bathroom, chair, kitchen. Make the path between them short, lit, and clear, and put what they need within arm's reach of each.</p>
+
+  <div class="cols3">
+    <div>
+      <h2 style="margin-top:0">Bed</h2>
+      <ul class="check">
+        <li>On the main floor if stairs are limited</li>
+        <li>Height lets feet touch the floor</li>
+        <li>Lamp, phone, water, glasses within reach</li>
+        <li>Night light to the bathroom</li>
+        <li>Extra pillows for positioning, if instructed</li>
+        <li>Commode or urinal nearby if the bathroom is far</li>
+      </ul>
+      <h2>Bathroom</h2>
+      <ul class="check">
+        <li>Grab bars or a sturdy hold at toilet and shower</li>
+        <li>Shower chair and handheld sprayer if bathing is allowed</li>
+        <li>Non-slip mat; rugs removed</li>
+        <li>Raised toilet seat if standing up is hard</li>
+      </ul>
+    </div>
+    <div>
+      <h2 style="margin-top:0">Chair &amp; living space</h2>
+      <ul class="check">
+        <li>A firm chair with arms, not the low sofa</li>
+        <li>Walker or cane parked where they sit</li>
+        <li>Remote, phone, water, tissues, medications list at hand</li>
+        <li>Cords, rugs, pet beds out of the path</li>
+        <li>Chair to bathroom and chair to kitchen both clear</li>
+      </ul>
+      <h2>Kitchen</h2>
+      <ul class="check">
+        <li>Meals for the week matching the diet, portioned</li>
+        <li>Fluids they'll actually drink</li>
+        <li>Everyday items at counter height</li>
+        <li>Pill organizer on the counter, filled</li>
+      </ul>
+    </div>
+    <div>
+      <h2 style="margin-top:0">Equipment</h2>
+      <ul class="check">
+        <li>Walker / cane adjusted to their height</li>
+        <li>Oxygen set up and explained, tubing routed safely</li>
+        <li>Hospital bed, if ordered, placed and tested</li>
+        <li>Thermometer, BP cuff, scale if the team asked for readings</li>
+        <li>Wound supplies in one bin</li>
+      </ul>
+      <h2>Paper</h2>
+      <ul class="check">
+        <li>"When to call" page posted</li>
+        <li>Medication list on the fridge</li>
+        <li>Discharge papers in one folder</li>
+        <li>This kit on the counter</li>
+      </ul>
+    </div>
+  </div>
+
+  <table style="margin-top:8px">
+    <tr><th style="width:46%">Still needed</th><th style="width:22%">Who</th><th style="width:16%">By</th><th>Done</th></tr>
+    <tr class="tall"><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="foot"><span>After the Hospital · The First 7 Days Home</span><span>Setting up the house</span></div>
+</section>
+
+<!-- 9 HELP ROSTER -->
+<section class="page">
+  <p class="kicker">Day 1 · fill in with whoever is helping</p>
+  <h1>The help roster</h1>
+  <p class="lead">One person can't do seven nights. Write names in boxes, not "we'll figure it out." Friends who ask "what can I do?" get a box.</p>
+
+  <table>
+    <tr><th style="width:16%"></th><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Day 4</th><th>Day 5</th><th>Day 6</th><th>Day 7</th></tr>
+    <tr class="taller"><td class="label">Morning<br><span class="hint">Meds, breakfast, wash</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Midday<br><span class="hint">Lunch, exercises, check-in</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Evening<br><span class="hint">Dinner, meds, wound check</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Overnight</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Rides &amp; errands<br><span class="hint">Pharmacy, appointments</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td class="label">Meals dropped off</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+
+  <h2>Helpers &amp; how to reach them</h2>
+  <table>
+    <tr><th style="width:30%">Name</th><th style="width:26%">Phone</th><th>Good for (nights, rides, meals, sitting, dog)</th></tr>
+    <tr class="tall"><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td></td><td></td></tr>
+    <tr class="tall"><td></td><td></td><td></td></tr>
+  </table>
+
+  <div class="box plum" style="margin-top:10px">
+    <h3>For the primary caregiver</h3>
+    <p style="margin:0;font-size:9.3pt">Your box on this grid matters as much as theirs. If your name is in every row, that's the first problem to fix, before day 3, while people are still offering.</p>
+  </div>
+  <div class="foot"><span>After the Hospital · The First 7 Days Home</span><span>The help roster</span></div>
+</section>
+
+<!-- 10 QUESTIONS FOR FOLLOW-UP -->
+<section class="page">
+  <p class="kicker">Day 4 to 6 · bring to the first visit</p>
+  <h1>Questions for the follow-up visit</h1>
+  <p class="lead">Check the ones that apply, add your own from the week's log, and write the answers during the visit. Bring this kit, the medication sheet, and the daily log.</p>
+  <p style="font-size:9pt">Appointment with: ____________________ &nbsp; Date: ____________</p>
+
+  <div class="cols">
+    <div>
+      <h2 style="margin-top:4px">About recovery</h2>
+      <ul class="check">
+        <li>Is this where you'd expect them to be a week out?</li>
+        <li>Here's the daily log. Does anything in it concern you?</li>
+        <li>What should improve next, and by when?</li>
+        <li>What activity is allowed now: stairs, driving, lifting, bathing, being alone?</li>
+        <li>What would make you want to see them sooner?</li>
+      </ul>
+      <h2>About medications</h2>
+      <ul class="check">
+        <li>Here's the changes sheet. Is this list right?</li>
+        <li>Which of the new medications stop, and when?</li>
+        <li>We noticed ______ since starting ______. Related?</li>
+        <li>Can the old prescriptions be cancelled at the pharmacy?</li>
+      </ul>
+    </div>
+    <div>
+      <h2 style="margin-top:4px">About services</h2>
+      <ul class="check">
+        <li>Should home health or therapy continue, change, or stop?</li>
+        <li>Is any equipment no longer needed, or newly needed?</li>
+        <li>Who coordinates between you and the specialist?</li>
+        <li>Which release lets you talk with me directly?</li>
+        <li>When is the next visit, and with whom?</li>
+      </ul>
+      <h2>Our own questions</h2>
+      <div class="lines tall"></div>
+    </div>
+  </div>
+
+  <div class="box plain" style="margin-top:10px"><h3>Answers &amp; notes from the visit</h3><div class="lines xtall"></div></div>
+  <div class="foot"><span>After the Hospital · The First 7 Days Home</span><span>Questions for the follow-up visit</span></div>
+</section>
+
+<!-- 11 CALL LOG -->
+<section class="page">
+  <p class="kicker">Ongoing</p>
+  <h1>Call log</h1>
+  <p class="lead">Every call with the care team, the pharmacy, the agency, insurance, or the equipment company. Date, who, what was said, what happens next. Ask for a reference number on insurance calls.</p>
+  <table>
+    <tr><th style="width:12%">Date</th><th style="width:20%">Who I spoke with</th><th style="width:18%">About</th><th style="width:28%">What was said / decided</th><th>Follow-up &amp; reference #</th></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="xl"><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="box" style="margin-top:10px">
+    <h3>After the first week</h3>
+    <p style="margin:0;font-size:9.2pt">If care continues past this week, the companion kit <em>The First 30 Days</em> carries on from here: the fridge sheet, the full medication list and weekly log, the documents checklist, and a weekly check-in for the caregiver.</p>
+  </div>
+  <div class="box plain" style="margin-top:auto">
+    <p style="font-size:8.6pt;color:var(--muted);margin:0">This kit is an organizer for the instructions your care team gives you. It is not medical advice. The warning signs printed here are general; the ones in your discharge papers are specific to this hospital stay and take priority. When in doubt, call the number on page 4.</p>
+  </div>
+  <div class="foot"><span>After the Hospital · The First 7 Days Home</span><span>Call log</span></div>
+</section>
+
+</body>
+</html>

@@ -145,6 +145,42 @@
       "description": "Visit date, overall color, three steps with owners and outcomes, questions for the doctor, when to look again. From Home for the Holidays: Is It Time?, $8. Pairs with The First 30 Days for the paperwork month.",
       "alt_text": "New Year, same worry about Dad? Start with the paperwork.",
       "link": "https://first30days-kit.netlify.app/#holidays?utm_source=pinterest&utm_medium=pin&utm_campaign=holidays&utm_content=tracker"
+    },
+    {
+      "seq": 17,
+      "kind": "hospital",
+      "image_url": "https://first30days-kit.netlify.app/pins/q/q17.png",
+      "title": "After the Hospital: the first 7 days home, a printable discharge kit",
+      "description": "An 11-page printable kit for the week most readmissions start: before you leave the hospital, a medication changes sheet, when to call vs 911, a 7-day plan, follow-ups tracker, daily vitals log, house setup, help roster, follow-up questions, call log. $12, instant download.",
+      "alt_text": "Bringing a parent home from the hospital this week?",
+      "link": "https://first30days-kit.netlify.app/#hospital?utm_source=pinterest&utm_medium=pin&utm_campaign=hospital&utm_content=home-this-week"
+    },
+    {
+      "seq": 18,
+      "kind": "hospital",
+      "image_url": "https://first30days-kit.netlify.app/pins/q/q18.png",
+      "title": "Medication changes sheet for hospital discharge (printable)",
+      "description": "Mark every medication new, changed, same or stopped, with dose, purpose and what it replaces. Three questions for the pharmacist and a log of old bottles removed. From After the Hospital: The First 7 Days Home, $12 printable kit.",
+      "alt_text": "Two medication lists in the house is how readmissions start",
+      "link": "https://first30days-kit.netlify.app/#hospital?utm_source=pinterest&utm_medium=pin&utm_campaign=hospital&utm_content=med-changes"
+    },
+    {
+      "seq": 19,
+      "kind": "hospital",
+      "image_url": "https://first30days-kit.netlify.app/pins/q/q19.png",
+      "title": "When to call the doctor vs 911 after a hospital discharge (printable)",
+      "description": "General red and yellow warning signs, with space to copy the condition-specific ones from the discharge papers, and the four numbers that matter. From After the Hospital: The First 7 Days Home, an 11-page printable kit, $12.",
+      "alt_text": "Who to call at 2 a.m., and when it’s 911",
+      "link": "https://first30days-kit.netlify.app/#hospital?utm_source=pinterest&utm_medium=pin&utm_campaign=hospital&utm_content=when-to-call"
+    },
+    {
+      "seq": 20,
+      "kind": "hospital",
+      "image_url": "https://first30days-kit.netlify.app/pins/q/q20.png",
+      "title": "The help roster: dividing the first week home after a hospital stay",
+      "description": "Morning, midday, evening, overnight, rides, meals, seven days across, plus a helpers list. If your name is in every row, that is the first problem to fix. From After the Hospital: The First 7 Days Home, $12 printable kit.",
+      "alt_text": "One person can’t do seven nights",
+      "link": "https://first30days-kit.netlify.app/#hospital?utm_source=pinterest&utm_medium=pin&utm_campaign=hospital&utm_content=help-roster"
     }
   ]
 }
