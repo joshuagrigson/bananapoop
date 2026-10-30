@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home for the Holidays: Is It Time?</title>
+<style>
+  @page { size: Letter; margin: 0; }
+  :root { --ink:#22262a; --muted:#6b7278; --rule:#c9ced3; --rule-light:#e3e7ea; --teal:#1f4e5f; --teal-soft:#e6eef1; --clay:#c2673f; --clay-soft:#f6e3da; --sand:#f6f1ea; --white:#fff; --green:#2f7d5b; --green-soft:#e3f0e9; --amber:#b7791f; --amber-soft:#f8ecd4; --red:#a93d35; --red-soft:#f5dfdd; }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#fff;color:var(--ink);font-family:"Inter","DejaVu Sans",Arial,sans-serif;font-size:10.5pt;line-height:1.35;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{width:8.5in;height:11in;padding:.6in .65in .55in;position:relative;page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+  .page:last-child{page-break-after:auto}
+  .kicker{font-size:8pt;letter-spacing:.14em;text-transform:uppercase;color:var(--clay);font-weight:600;margin:0 0 4px}
+  h1{font-size:20pt;font-weight:700;color:var(--teal);margin:0 0 6px;letter-spacing:-.01em}
+  h2{font-size:12pt;font-weight:700;color:var(--teal);margin:12px 0 6px}
+  p{margin:0 0 6px}
+  .lead{color:var(--muted);font-size:10pt;margin-bottom:10px}
+  .foot{position:absolute;bottom:.35in;left:.65in;right:.65in;display:flex;justify-content:space-between;font-size:7.5pt;color:var(--muted);border-top:1px solid var(--rule-light);padding-top:6px}
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+  th{text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:var(--teal);background:var(--teal-soft);padding:5px 7px;border:1px solid var(--rule);font-weight:700}
+  td{border:1px solid var(--rule);padding:5px 7px;vertical-align:top;font-size:9.4pt}
+  td.c{text-align:center;width:11%}
+  tr.tall td{height:34px} tr.taller td{height:46px}
+  .box{border:1px solid var(--rule);border-radius:6px;padding:9px 11px;background:var(--sand);margin:0 0 8px}
+  .box.teal{background:var(--teal-soft);border-color:#b9ccd3} .box.plain{background:#fff}
+  .box.green{background:var(--green-soft);border-color:#b9d8c7} .box.amber{background:var(--amber-soft);border-color:#e3cfa1} .box.red{background:var(--red-soft);border-color:#e4b9b5}
+  .box h3{margin:0 0 4px;font-size:10pt;color:var(--teal)}
+  .box.green h3{color:var(--green)} .box.amber h3{color:var(--amber)} .box.red h3{color:var(--red)}
+  .check{list-style:none;margin:0;padding:0}
+  .check li{position:relative;padding:4px 0 4px 24px;border-bottom:1px solid var(--rule-light);font-size:9.4pt}
+  .check li::before{content:"";position:absolute;left:2px;top:6px;width:12px;height:12px;border:1.4px solid var(--teal);border-radius:3px;background:#fff}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:12px} .cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .lines{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 21px,var(--rule) 21px,var(--rule) 22px);background-size:100% 22px;min-height:66px}
+  .lines.tall{min-height:110px} .lines.xtall{min-height:176px}
+  .script{border-left:4px solid var(--clay);padding:6px 10px;margin:0 0 8px;background:#fff;border-radius:0 6px 6px 0}
+  .script .who{font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:var(--clay);font-weight:700;margin:0 0 3px}
+  .script p{font-size:9.6pt;margin:0 0 4px}
+  .script em{color:var(--muted)}
+  .cover{background:var(--clay);color:#fff;padding:0}
+  .cover .band{position:absolute;inset:.55in;border:1.5px solid rgba(255,255,255,.35);border-radius:10px}
+  .cover .inner{position:absolute;left:1in;right:1in;top:1.6in}
+  .cover .kicker{color:#ffe1d3}
+  .cover h1{color:#fff;font-size:40pt;line-height:1.02;margin:0 0 14px;letter-spacing:-.02em}
+  .cover .sub{font-size:13.5pt;color:#fbe9df;max-width:5.6in;line-height:1.4}
+  .cover .contents{position:absolute;left:1in;right:1in;bottom:1.25in}
+  .cover .contents h4{margin:0 0 8px;font-size:8.5pt;letter-spacing:.14em;text-transform:uppercase;color:#ffe1d3}
+  .cover .contents ul{margin:0;padding:0;list-style:none;columns:2;column-gap:24px;font-size:10pt;color:#fff3ec}
+  .cover .contents li{padding:3px 0;border-bottom:1px solid rgba(255,255,255,.18);break-inside:avoid}
+  .cover .tag{position:absolute;right:1in;top:.95in;background:var(--teal);color:#fff;font-weight:700;font-size:8.5pt;letter-spacing:.1em;padding:6px 10px;border-radius:999px;text-transform:uppercase}
+  .area h3{margin:0 0 2px;font-size:10.2pt;color:var(--teal)}
+  .area .why{font-size:8.4pt;color:var(--muted);margin:0 0 4px}
+  .legend{display:flex;gap:14px;font-size:8.6pt;color:var(--muted);margin:0 0 8px}
+  .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  .legend .g::before{background:var(--green)} .legend .a::before{background:var(--amber)} .legend .r::before{background:var(--red)}
+</style>
+</head>
+<body>
+
+<!-- 1 COVER -->
+<section class="page cover">
+  <div class="band"></div>
+  <div class="tag">Printable kit · 8 pages</div>
+  <div class="inner">
+    <p class="kicker">Before you visit your parents this season</p>
+    <h1>Home for the Holidays:<br>Is It Time?</h1>
+    <p class="sub">A quiet way to notice whether a parent needs more help, three conversations that don't start a fight, and a plan for the drive home.</p>
+  </div>
+  <div class="contents">
+    <h4>What's inside</h4>
+    <ul>
+      <li>How to use this weekend</li>
+      <li>36 signs across six areas</li>
+      <li>The kitchen walk</li>
+      <li>Three conversations that work</li>
+      <li>What not to say</li>
+      <li>The family debrief</li>
+      <li>Green, yellow, red: what to do next</li>
+      <li>Next steps tracker</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 2 HOW TO USE -->
+<section class="page">
+  <p class="kicker">Start here</p>
+  <h1>How to use this weekend</h1>
+  <p class="lead">You're not there to inspect. You're there for the holiday. This kit lets you notice things while you're carving the turkey, and gives you words for the conversation if you need them.</p>
+
+  <div class="cols">
+    <div class="box teal">
+      <h3>Before you go</h3>
+      <ul class="check">
+        <li>Read the 36 signs once so they're in the back of your mind</li>
+        <li>Pick one sibling or relative to compare notes with afterward</li>
+        <li>Decide: this visit is for noticing, not fixing</li>
+        <li>Print the debrief page; keep it in the car</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>While you're there</h3>
+      <ul class="check">
+        <li>Offer to cook or clean up. The kitchen tells you the most.</li>
+        <li>Ride along somewhere if they drive</li>
+        <li>Look at the mail pile and the pill bottles without commenting</li>
+        <li>Notice how they move from chair to kitchen to bathroom</li>
+        <li>Mark the signs page privately, later, not in front of them</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>The three rules</h2>
+  <div class="box plain">
+    <p><strong>1. One thing at a time.</strong> If you see twelve problems, you still raise one. The conversation you want to have is the first of several, not the only one.</p>
+    <p><strong>2. Curious, not corrective.</strong> "I noticed the stairs seemed harder this year" opens a door. "You shouldn't be using those stairs" closes it. Scripts on page 5.</p>
+    <p><strong>3. Their life, their say.</strong> Unless safety is immediate, the goal is to be invited in, not to take over. Parents who feel managed start hiding things.</p>
+  </div>
+
+  <div class="box amber" style="margin-top:auto">
+    <h3>If you see something that can't wait</h3>
+    <p style="margin:0;font-size:9.4pt">A burn or fall they didn't mention, spoiled food they're eating, medications badly mixed up, a car with new dents, confusion about who you are. Skip to page 7. Those are red, and red means this week, not after New Year's.</p>
+  </div>
+  <div class="foot"><span>Home for the Holidays: Is It Time?</span><span>How to use this weekend</span></div>
+</section>
+
+<!-- 3 THE 36 SIGNS -->
+<section class="page">
+  <p class="kicker">Mark privately, after</p>
+  <h1>36 signs, six areas</h1>
+  <div class="legend"><span class="g">Fine</span><span class="a">Not sure / small change</span><span class="r">Noticed clearly</span></div>
+
+  <div class="cols3">
+    <div class="area">
+      <h3>The house</h3>
+      <p class="why">Upkeep slips before anything else.</p>
+      <ul class="check">
+        <li>Clutter or mail piling up where it didn't before</li>
+        <li>Dishes, laundry, or bathroom noticeably less clean</li>
+        <li>Burned pots, scorch marks, a smoke detector with no battery</li>
+        <li>Lights out, repairs undone, yard let go</li>
+        <li>Rugs, cords, or stacks in the walking path</li>
+        <li>Pets or plants not cared for the way they were</li>
+      </ul>
+    </div>
+    <div class="area">
+      <h3>The kitchen</h3>
+      <p class="why">Food is the most honest record of a week.</p>
+      <ul class="check">
+        <li>Expired or spoiled food in the fridge</li>
+        <li>Very little fresh food; mostly cans, crackers, sweets</li>
+        <li>Same few meals, or skipping meals</li>
+        <li>Weight loss you can see in their clothes or face</li>
+        <li>Multiples of the same item bought (forgot they had it)</li>
+        <li>Stove or appliances they've stopped using</li>
+      </ul>
+    </div>
+    <div class="area">
+      <h3>Their body</h3>
+      <p class="why">Watch how they move, not what they say.</p>
+      <ul class="check">
+        <li>Holding furniture or walls to get around</li>
+        <li>Bruises, especially arms and shins, or a fall they minimized</li>
+        <li>Slower on stairs, or avoiding them</li>
+        <li>Trouble hearing the conversation, or TV very loud</li>
+        <li>Grooming slipping: hair, nails, shaving, same clothes</li>
+        <li>Shortness of breath or new unsteadiness</li>
+      </ul>
+    </div>
+    <div class="area">
+      <h3>Mind &amp; mood</h3>
+      <p class="why">Repetition and withdrawal are the early tells.</p>
+      <ul class="check">
+        <li>Repeating the same story or question in one visit</li>
+        <li>Losing the thread of a conversation or a recipe they know</li>
+        <li>Mixing up names, dates, or recent events</li>
+        <li>Irritable, suspicious, or flat in a way that's new</li>
+        <li>Dropped hobbies, church, friends, or calls</li>
+        <li>Sleeping much more, or up at odd hours</li>
+      </ul>
+    </div>
+    <div class="area">
+      <h3>Money &amp; mail</h3>
+      <p class="why">Where exploitation shows up first.</p>
+      <ul class="check">
+        <li>Unopened bills, or late notices</li>
+        <li>Unusual purchases, subscriptions, or charity mailings</li>
+        <li>Checks written to unfamiliar names</li>
+        <li>Talk of a new "friend," prize, or investment</li>
+        <li>Confusion about what's been paid</li>
+        <li>Unusually guarded about money questions</li>
+      </ul>
+    </div>
+    <div class="area">
+      <h3>Driving &amp; out and about</h3>
+      <p class="why">Ask to ride along. Don't lecture in the car.</p>
+      <ul class="check">
+        <li>New dents, scrapes, or a mirror knocked off</li>
+        <li>Drifting, slow reactions, missed signs</li>
+        <li>Getting lost on a familiar route</li>
+        <li>Driving only in daylight, or avoiding it entirely</li>
+        <li>Missed appointments or stopped going places</li>
+        <li>Traffic tickets or a warning they mentioned in passing</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>Home for the Holidays: Is It Time?</span><span>36 signs, six areas</span></div>
+</section>
+
+<!-- 4 THE KITCHEN WALK -->
+<section class="page">
+  <p class="kicker">While you cook or clean up</p>
+  <h1>The kitchen walk</h1>
+  <p class="lead">Offer to make coffee, load the dishwasher, put leftovers away. Ten minutes in the kitchen tells you more than an hour of asking "how are you doing, really?"</p>
+
+  <table>
+    <tr><th style="width:30%">Look at</th><th>What you're checking</th><th style="width:30%">What you saw</th></tr>
+    <tr class="taller"><td><strong>Fridge</strong></td><td>Dates on milk, meat, leftovers. Fresh produce present? Same containers as last visit?</td><td></td></tr>
+    <tr class="taller"><td><strong>Pantry</strong></td><td>Duplicates (three of the same jar). Mostly shelf-stable, sugary, or easy-open food?</td><td></td></tr>
+    <tr class="taller"><td><strong>Stove &amp; microwave</strong></td><td>Scorched pans, burnt smell, splatter left for weeks, knobs they avoid.</td><td></td></tr>
+    <tr class="taller"><td><strong>Counter</strong></td><td>Pill bottles: how many, any from the same drug twice, expired dates, a pill organizer with wrong days filled.</td><td></td></tr>
+    <tr class="taller"><td><strong>Mail pile</strong></td><td>Unopened envelopes, "final notice," sweepstakes or charity mail in volume.</td><td></td></tr>
+    <tr class="taller"><td><strong>Trash</strong></td><td>Lots of takeout, or almost nothing (not eating). Broken glass or evidence of a spill nobody mentioned.</td><td></td></tr>
+    <tr class="taller"><td><strong>Floor &amp; lighting</strong></td><td>Sticky spots, crumbs, dim bulbs, a rug that slides.</td><td></td></tr>
+    <tr class="taller"><td><strong>Them, in the kitchen</strong></td><td>Reaching high shelves, opening jars, reading labels, remembering where things go.</td><td></td></tr>
+  </table>
+
+  <div class="cols" style="margin-top:10px">
+    <div class="box"><h3>Other rooms, if it's natural</h3><p style="font-size:9.2pt;margin:0">Bathroom: grab bars, a slippery tub, towels, how clean. Bedroom: clear path to the bathroom, lamp within reach. Entry: can they manage the steps and the locks?</p></div>
+    <div class="box plain"><h3>Notes</h3><div class="lines tall"></div></div>
+  </div>
+  <div class="foot"><span>Home for the Holidays: Is It Time?</span><span>The kitchen walk</span></div>
+</section>
+
+<!-- 5 THREE CONVERSATIONS -->
+<section class="page">
+  <p class="kicker">Only if you need them</p>
+  <h1>Three conversations that work</h1>
+  <p class="lead">Pick one. Have it one-on-one, not at the table, not on the last morning. Say your line, then stop talking. The silence is where they answer.</p>
+
+  <div class="script">
+    <p class="who">1 · The "I noticed" opener · for one specific thing</p>
+    <p>"Mom, I noticed the stairs seemed harder this year. How are they feeling to you?"</p>
+    <p>"Dad, I saw a couple of bills on the counter from October. Want me to sit with you and go through the pile before I leave?"</p>
+    <p><em>Why it works: one observation, no diagnosis, a question they can answer honestly. If they brush it off, you've still planted it. Let it go for now.</em></p>
+  </div>
+
+  <div class="script">
+    <p class="who">2 · The future framing · for the bigger picture</p>
+    <p>"You're doing fine right now. I'm asking about later. If a day came when you needed more help at home, what would you want that to look like? Who would you want involved?"</p>
+    <p>"I'd rather know what you want while you can tell me, than guess in a hospital hallway."</p>
+    <p><em>Why it works: it's about their wishes, not your worries. It opens the door to paperwork (power of attorney, directives) without making it about decline.</em></p>
+  </div>
+
+  <div class="script">
+    <p class="who">3 · The ask for help · when you need them to accept something</p>
+    <p>"It would honestly take a weight off me if you'd let someone come by once a week to help with the house. Would you do that for me, even if you don't think you need it?"</p>
+    <p>"Would you be willing to see Dr. ___ in January and let me come along? I'd just like to hear it from her."</p>
+    <p><em>Why it works: parents will do for you what they won't do for themselves. A specific, small, time-limited ask beats a general one.</em></p>
+  </div>
+
+  <div class="cols">
+    <div class="box red">
+      <h3>What not to say</h3>
+      <p style="font-size:9.2pt;margin:0">"You can't live like this." "We've decided." "You're not safe here anymore." "Remember, I told you that yesterday." Anything that starts with "You always" or "You never." Anything said in front of the grandkids.</p>
+    </div>
+    <div class="box green">
+      <h3>If they get angry</h3>
+      <p style="font-size:9.2pt;margin:0">"Okay. I hear you. I'm not going to push today." Then don't. You can come back to it by phone in two weeks. One hard conversation that ends calmly is worth more than winning it.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Home for the Holidays: Is It Time?</span><span>Three conversations that work</span></div>
+</section>
+
+<!-- 6 FAMILY DEBRIEF -->
+<section class="page">
+  <p class="kicker">In the car, or on the phone that week</p>
+  <h1>The family debrief</h1>
+  <p class="lead">Siblings see different things and remember them differently. Compare notes within a week, while it's fresh, and agree on three next steps with names on them. Fill one copy per person, or one together.</p>
+
+  <table>
+    <tr><th style="width:24%">Who</th><th>What I noticed (the facts, not the worry)</th><th style="width:16%">Green / Yellow / Red</th></tr>
+    <tr class="taller"><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td></tr>
+  </table>
+
+  <div class="cols" style="margin-top:10px">
+    <div class="box plain"><h3>Where we agree</h3><div class="lines"></div></div>
+    <div class="box plain"><h3>Where we see it differently</h3><div class="lines"></div></div>
+  </div>
+
+  <h2>Three next steps, with names</h2>
+  <table>
+    <tr><th style="width:52%">Step</th><th style="width:24%">Who</th><th>By when</th></tr>
+    <tr class="tall"><td>1.</td><td></td><td></td></tr>
+    <tr class="tall"><td>2.</td><td></td><td></td></tr>
+    <tr class="tall"><td>3.</td><td></td><td></td></tr>
+  </table>
+
+  <div class="box teal" style="margin-top:10px">
+    <h3>Things worth deciding now</h3>
+    <ul class="check" style="columns:2;column-gap:20px">
+      <li>Who is the point person for Mom/Dad</li>
+      <li>Who talks to the doctor</li>
+      <li>Who looks at the money, if anyone</li>
+      <li>How often we check in with each other</li>
+      <li>What we tell Mom/Dad we're doing</li>
+      <li>When we revisit this (date)</li>
+    </ul>
+  </div>
+  <div class="foot"><span>Home for the Holidays: Is It Time?</span><span>The family debrief</span></div>
+</section>
+
+<!-- 7 WHAT TO DO NEXT -->
+<section class="page">
+  <p class="kicker">Decision guide</p>
+  <h1>Green, yellow, red: what to do next</h1>
+  <p class="lead">Count your marks from the signs page. The color isn't a diagnosis. It's how fast to move.</p>
+
+  <div class="box green">
+    <h3>Green · Mostly fine, a few small changes</h3>
+    <ul class="check">
+      <li>Say nothing heavy. Enjoy the visit.</li>
+      <li>Write down what you saw and the date; it's your baseline for next time</li>
+      <li>Have conversation #2 (the future framing) sometime this year, not this weekend</li>
+      <li>Make sure someone knows where their important papers are</li>
+      <li>Call more often. Weekly beats quarterly for catching change.</li>
+    </ul>
+  </div>
+
+  <div class="box amber">
+    <h3>Yellow · Several "not sure" marks, or one area clearly slipping</h3>
+    <ul class="check">
+      <li>Have one conversation (#1 or #3), about one thing</li>
+      <li>Ask for a doctor's visit in the next 60 days and offer to come along; many changes have treatable causes (medications, hearing, vision, thyroid, depression, infections)</li>
+      <li>Set up the basics: a current medication list and an emergency information sheet on the fridge</li>
+      <li>Light help first: a cleaner every two weeks, grocery delivery, a neighbor who checks in</li>
+      <li>Debrief with family and set a date to look again, 60 to 90 days out</li>
+    </ul>
+    <p style="font-size:8.8pt;color:var(--muted);margin:6px 0 0">Yellow is where our companion kit, <em>The First 30 Days</em>, picks up: the fridge sheet, medication list, questions for the doctor, documents checklist, and a month-long plan.</p>
+  </div>
+
+  <div class="box red">
+    <h3>Red · Safety, health, or money is at risk now</h3>
+    <ul class="check">
+      <li>Falls or injuries they hid; burns; spoiled food being eaten; medications badly mixed up; confusion about who you are; a car with fresh damage; money going to a stranger</li>
+      <li>This week: call their doctor's office, describe what you saw, ask for an urgent appointment or a home health evaluation</li>
+      <li>Today, if it's acute (sudden confusion, a fall with pain, chest or breathing trouble): urgent care or 911</li>
+      <li>Someone stays, or someone comes daily, until there's a plan</li>
+      <li>Driving: if you'd be afraid to ride with them, don't let the grandkids. Say so plainly and take the keys conversation to the doctor.</li>
+      <li>Money: freeze what you can, call the bank's elder-fraud line, and the Area Agency on Aging for Adult Protective Services guidance</li>
+    </ul>
+  </div>
+  <div class="foot"><span>Home for the Holidays: Is It Time?</span><span>What to do next</span></div>
+</section>
+
+<!-- 8 NEXT STEPS TRACKER -->
+<section class="page">
+  <p class="kicker">After the visit</p>
+  <h1>Next steps tracker</h1>
+  <p class="lead">What you decided, who owns it, and what happened. Keep it with the debrief page and bring both to the next visit.</p>
+  <p style="font-size:9pt">Visit date: ____________ &nbsp;&nbsp; Overall: ☐ Green &nbsp; ☐ Yellow &nbsp; ☐ Red &nbsp;&nbsp; Look again on: ____________</p>
+
+  <table>
+    <tr><th style="width:12%">Date</th><th style="width:32%">Step</th><th style="width:16%">Who</th><th style="width:26%">Outcome</th><th>Follow-up</th></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="taller"><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+
+  <div class="cols" style="margin-top:10px">
+    <div class="box plain"><h3>What I want to remember about this visit</h3><div class="lines tall"></div></div>
+    <div class="box plain"><h3>Questions for the doctor, if we get there</h3><div class="lines tall"></div></div>
+  </div>
+
+  <div class="box plain" style="margin-top:auto">
+    <p style="font-size:8.6pt;color:var(--muted);margin:0">This kit helps you notice and talk. It is not medical, legal, or financial advice, and a checklist can't diagnose anything. Changes you notice deserve a conversation with your parent's doctor, who can tell the difference between normal aging and something treatable.</p>
+  </div>
+  <div class="foot"><span>Home for the Holidays: Is It Time?</span><span>Next steps tracker</span></div>
+</section>
+
+</body>
+</html>
