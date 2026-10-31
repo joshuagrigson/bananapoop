@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {"hooks": [{"type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/brain_gate.py start"}]}
+    ],
+    "Stop": [
+      {"hooks": [{"type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/brain_gate.py stop"}]}
+    ]
+  }
+}
