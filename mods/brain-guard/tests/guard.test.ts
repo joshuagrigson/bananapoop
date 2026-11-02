@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-import { checkBash, checkTool } from '../hooks/rules'
+import { checkBash, checkTool, question } from '../hooks/rules'
 
 test('bash: destructive commands are caught', () => {
   for (const cmd of [
@@ -53,7 +53,7 @@ test('tools: money, deletes and outside messages are caught; Joshua-only passes'
 
 test('hook: "No" blocks, "Yes" runs, a dismissed dialog blocks', async ($, on) => {
   let ran = 0
-  let reply: string | null = 'No, block it'
+  let reply: string | null = 'Block it'
   on('ui.toast', () => ({ value: undefined }))
   on('store.get', () => ({ value: [] }))
   on('store.set', () => ({ value: undefined }))
@@ -71,7 +71,7 @@ test('hook: "No" blocks, "Yes" runs, a dismissed dialog blocks', async ($, on) =
   expect(String(blocked.deny ?? (blocked as any).text)).toContain('Brain Guard blocked')
   expect(ran).toBe(0)
 
-  reply = 'Yes, run it'
+  reply = 'Allow: run it for real'
   await $.tool.call({ tool: 'Bash', command: 'git reset --hard' })
   expect(ran).toBe(1)
 
@@ -82,4 +82,19 @@ test('hook: "No" blocks, "Yes" runs, a dismissed dialog blocks', async ($, on) =
 
   await $.tool.call({ tool: 'Bash', command: 'git status' })
   expect(ran).toBe(2)
+})
+
+test('the dialog says it is real, what happens, and whether it can be undone', () => {
+  const input = { command: 'git branch -D old-work' }
+  const hit = checkTool('Bash', input)
+  expect(hit).not.toBe(null)
+  const q = question(hit!, 'Bash', input)
+  expect(q).toContain('REAL action, not a test')
+  expect(q).toContain('delete a local git branch')
+  expect(q).toContain('git branch -D old-work')
+  expect(q).toContain('Can it be undone?')
+  expect(q).toContain('If you\'re not sure, block it')
+  const mail = question(checkTool('mcp__Gmail__send_message', { to: ['boss@x.com'] })!, 'mcp__Gmail__send_message', { to: ['boss@x.com'] })
+  expect(mail).toContain('send an email from your Gmail to boss@x.com')
+  expect(mail).toContain('cannot be unsent')
 })
