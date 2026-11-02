@@ -10,6 +10,9 @@ export type BrainSnapshot = {
   hands: HandsItem[]
   projects: Project[]
   countdowns: Countdown[]
+  lastBuild?: string
+  lastMiss?: string
+  noteToSelf?: string
 }
 export type RepoSnapshot = {
   asOf: string

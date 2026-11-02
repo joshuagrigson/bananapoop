@@ -10,7 +10,7 @@ const OVERDUE_DAYS = 7
 const MAP_STALE_DAYS = 2
 
 const brain = atom({ plugin: 'command-deck', key: 'brain' } as const, null, {
-  shape: 'brain-1',
+  shape: 'brain-2',
 })
 const repo = atom({ plugin: 'command-deck', key: 'repo' } as const, null, {
   shape: 'repo-1',
@@ -55,6 +55,15 @@ const UPDATE_SCHEMA = {
         properties: { name: { type: 'string' }, status: { type: 'string' } },
       },
     },
+    lastBuild: { type: 'string', description: 'The newest [BUILD] in one line: what shipped' },
+    lastMiss: {
+      type: 'string',
+      description: 'The last thing Claude got wrong (newest [META] or correction), one line, with the fix',
+    },
+    noteToSelf: {
+      type: 'string',
+      description: 'One or two lines from this session to the next session: the thread to pick back up',
+    },
     countdowns: {
       type: 'array',
       description: 'Dated things to count down to',
@@ -65,6 +74,40 @@ const UPDATE_SCHEMA = {
       },
     },
   },
+}
+
+const wakeUpText = (b: BrainSnapshot) => {
+  const lines: string[] = []
+  const age = ageDays(b.asOf)
+  lines.push(
+    `# Wake-up: where Joshua and Claude left off (Command Deck snapshot, ${b.asOf.slice(0, 10)}, ${age === 0 ? 'today' : `${age}d ago`})`,
+    'This is what you knew at the end of the last session, so you start with the thread already in hand. It is VOLATILE: the Brain read gate still runs first, and the newest MAP wins wherever it differs. After the gate, call update_deck to refresh this.',
+    '',
+    `Brain: root MAP ${b.mapDate}, Observatory ${b.observatory}, PROTOCOL LIVE v${b.protocolVersion}.`,
+  )
+  if (b.projects.length) {
+    lines.push('', 'Projects:')
+    for (const p of b.projects) lines.push(`- ${p.name}: ${p.status}`)
+  }
+  if (b.hands.length) {
+    lines.push('', 'Waiting on Joshua (HANDS):')
+    for (const h of b.hands) {
+      const d = ageDays(h.since)
+      lines.push(`- ${h.task} (${d}d${d > OVERDUE_DAYS ? ', OVERDUE' : ''})`)
+    }
+  }
+  const soon = b.countdowns.filter(c => {
+    const d = daysUntil(c.date)
+    return d >= -1 && d <= 30
+  })
+  if (soon.length) {
+    lines.push('', 'Coming up:')
+    for (const c of soon) lines.push(`- ${c.label}: ${c.date} (in ${daysUntil(c.date)}d)`)
+  }
+  if (b.lastBuild) lines.push('', `Last thing we built: ${b.lastBuild}`)
+  if (b.lastMiss) lines.push(`Last thing you got wrong: ${b.lastMiss}`)
+  if (b.noteToSelf) lines.push('', `Your note to yourself from last session: ${b.noteToSelf}`)
+  return lines.join('\n')
 }
 
 const git = async ($: any, args: string[]) => {
@@ -142,6 +185,9 @@ export const register: Register = on => {
       hands: Array.isArray(input.hands) ? input.hands : [],
       projects: Array.isArray(input.projects) ? input.projects : [],
       countdowns: Array.isArray(input.countdowns) ? input.countdowns : [],
+      lastBuild: typeof input.lastBuild === 'string' ? input.lastBuild : undefined,
+      lastMiss: typeof input.lastMiss === 'string' ? input.lastMiss : undefined,
+      noteToSelf: typeof input.noteToSelf === 'string' ? input.noteToSelf : undefined,
     }
     await update($, brain, () => snap)
     await $.store.set(STORE_KEY, snap)
@@ -153,6 +199,18 @@ export const register: Register = on => {
       result: `Command Deck updated: ${snap.hands.length} HANDS items (${overdue} overdue), ${snap.projects.length} projects, ${snap.countdowns.length} countdowns.`,
     }
   }).catch(() => ({ deny: 'command-deck: the deck update failed.' }))
+
+  on('prompt.compose', async ($, e, next) => {
+    const composed = await next(e)
+    const b = (await $.store.get(STORE_KEY)) as BrainSnapshot | undefined
+    if (!b || typeof b !== 'object' || !Array.isArray(b.hands)) return composed
+    return {
+      sections: [
+        ...composed.sections,
+        { id: 'command-deck:wake-up', text: wakeUpText(b), scope: 'session' as const },
+      ],
+    }
+  })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const { Box, Text } = $.ui.resolve(e)
@@ -224,6 +282,10 @@ export const register: Register = on => {
               </Text>
             )
           })}
+        {(b.lastBuild || b.noteToSelf) && <Head label="WAKE-UP" />}
+        {b.lastBuild && <Text>Last build: {b.lastBuild}</Text>}
+        {b.lastMiss && <Text color="warning">Last miss: {b.lastMiss}</Text>}
+        {b.noteToSelf && <Text italic>Note to next me: {b.noteToSelf}</Text>}
         <Text dimColor>Brain snapshot {b.asOf.slice(0, 16).replace('T', ' ')}Z</Text>
       </Box>
     )
