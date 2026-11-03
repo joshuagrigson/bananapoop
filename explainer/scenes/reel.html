@@ -55,7 +55,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0b1420;color:#fff}
 const $ = id => document.getElementById(id);
 // Words wrapped in *stars* in a headline are highlighted in the accent colour.
 const headHTML = h => (h||'').split(/(\*[^*]+\*)/).filter(Boolean).map(seg => { const hl = /^\*.*\*$/.test(seg);
-  return seg.replace(/\*/g,'').split(/\s+/).filter(Boolean).map(w => `<span class="w${hl?' hl':''}">${w}</span>`).join(' '); }).join(' ');
+  return seg.replace(/\*/g,'').split(/\s+/).filter(Boolean).map(w => `<span class="w${hl?' hl':''}">${w}</span>`).join(' '); }).join(' ').replace(/ (<span class="w">[.,!?:;])/g, '$1');
 const STAGE = {g:'var(--g)', b:'var(--b)', y:'var(--y)', o:'var(--o)'};
 // A line may start with "g|", "b|", "y|" or "o|" to colour its chip with a stage colour.
 const lineHTML = l => { const m = /^([gbyo])\|(.*)$/.exec(l); return `<div class="l" style="--c:${m?STAGE[m[1]]:'var(--accent)'}">${m?m[2]:l}</div>`; };
