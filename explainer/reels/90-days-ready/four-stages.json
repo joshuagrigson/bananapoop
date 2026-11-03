@@ -1,0 +1,61 @@
+{
+ "title": "90 days without going broke",
+ "brand": "Prepared at Home",
+ "slug": "pah-four-stages",
+ "voice": "af_heart",
+ "speed": 1.0,
+ "gap": 0.35,
+ "lead": 0.4,
+ "accent": "#f5c518",
+ "orientation": "portrait",
+ "blocks": [
+  {
+   "headline": "90 days of food and water, *without going broke*.",
+   "narration": "Nobody can buy ninety days of supplies in one trip. So don't. Build it one payday at a time.",
+   "scene": "a well organized pantry shelf with canned goods, rice, beans and jars, warm farmhouse light"
+  },
+  {
+   "headline": "Stage 1: *72 hours*.",
+   "lines": [
+    "g|Water, a flashlight, your medicines, a little cash"
+   ],
+   "narration": "Stage one is seventy two hours. Water, a flashlight, your medicines, and a little cash.",
+   "scene": "a flashlight, water bottles, a pill organizer and folded cash on a wooden kitchen table"
+  },
+  {
+   "headline": "Stage 2: *two weeks* at home.",
+   "lines": [
+    "b|What the Red Cross recommends"
+   ],
+   "narration": "Stage two is two weeks at home, which is what the American Red Cross recommends.",
+   "scene": "stacked water jugs and canned food in a tidy closet of a country home"
+  },
+  {
+   "headline": "Stage 3: *30 days*.",
+   "lines": [
+    "y|Only food you already eat",
+    "y|Rotate it into normal meals"
+   ],
+   "narration": "Stage three is thirty days. Only the food you already eat, rotated into normal meals so nothing goes to waste.",
+   "scene": "a woman's hands placing jars of home canned vegetables on a pantry shelf, soft morning light"
+  },
+  {
+   "headline": "Stage 4: *90 days*.",
+   "lines": [
+    "o|Built slowly. Nothing wasted."
+   ],
+   "narration": "Stage four is ninety days, built slowly, with nothing wasted. One payday at a time.",
+   "scene": "a full farmhouse pantry at golden hour, shelves of food and water neatly labeled"
+  },
+  {
+   "headline": "Comment *READY*",
+   "lines": [
+    "g|The 90-Day Home Readiness Kit",
+    "y|13 printable pages · $9"
+   ],
+   "cta": "COMMENT  READY",
+   "narration": "Comment ready, and we'll message you the ninety day kit. Thirteen printable pages, nine dollars.",
+   "scene": "a printed home emergency checklist on a clipboard on a kitchen table beside a mug of coffee and a pencil, morning window light"
+  }
+ ]
+}

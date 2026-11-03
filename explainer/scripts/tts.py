@@ -58,6 +58,7 @@ for i, b in enumerate(doc["blocks"]):
         "lines": b.get("lines", []),
         "icon": b.get("icon", ""),
         "narration": b["narration"],
+        **({"cta": b["cta"]} if b.get("cta") else {}),
     })
     track.append(samples)
     track.append(np.zeros(int(gap * SR), dtype=np.float32))

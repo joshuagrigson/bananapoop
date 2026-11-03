@@ -1,2 +1,4 @@
 .models/
 **/out/
+**/out-*/
+reels/**/log-*.txt

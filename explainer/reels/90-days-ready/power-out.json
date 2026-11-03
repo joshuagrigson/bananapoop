@@ -1,0 +1,73 @@
+{
+ "title": "Power out tonight? 5 rules",
+ "brand": "Prepared at Home",
+ "slug": "pah-power-out",
+ "voice": "af_heart",
+ "speed": 1.0,
+ "gap": 0.35,
+ "lead": 0.4,
+ "accent": "#f5c518",
+ "orientation": "portrait",
+ "blocks": [
+  {
+   "headline": "Power out tonight? *5 rules* that keep your family safe.",
+   "narration": "If the power goes out tonight, these five rules matter more than anything in your pantry.",
+   "scene": "a dark farmhouse living room lit by one camping lantern on a wooden table, frost on the window, winter night, pine trees outside"
+  },
+  {
+   "headline": "1. Generator: *20 feet* from the house.",
+   "lines": [
+    "o|Never in the garage, even with the door open",
+    "o|Exhaust away from windows and doors"
+   ],
+   "narration": "Run a generator at least twenty feet from the house. Never in the garage, even with the door open.",
+   "scene": "a portable generator sitting on a gravel driveway far from a farmhouse, overcast winter afternoon, extension cord across the yard"
+  },
+  {
+   "headline": "2. Grills and camp stoves stay *outside*.",
+   "lines": [
+    "o|Never heat the house with the oven"
+   ],
+   "narration": "Grills and camp stoves stay outside. And never use your oven or stovetop to heat the house.",
+   "scene": "a charcoal grill on an open back porch with light snow on the railing, winter dusk"
+  },
+  {
+   "headline": "3. A *battery* CO alarm.",
+   "lines": [
+    "y|Outside every sleeping area",
+    "y|Test it before the storm"
+   ],
+   "narration": "Put a battery carbon monoxide alarm outside every sleeping area, and test it before the storm hits.",
+   "scene": "a white carbon monoxide alarm mounted on a hallway wall outside a bedroom door, soft lamp light"
+  },
+  {
+   "headline": "4. Too cold inside? *Go somewhere warm.*",
+   "lines": [
+    "b|A warming center or a warm friend's house",
+    "b|Older adults and babies chill fastest"
+   ],
+   "narration": "In the 2021 Texas freeze, the cold itself took the most lives. If your house gets dangerously cold, go somewhere warm.",
+   "scene": "a pickup truck on an icy East Texas country road at dusk, headlights on, frozen pine trees"
+  },
+  {
+   "headline": "5. Keep the fridge *shut*.",
+   "lines": [
+    "g|Fridge: about 4 hours",
+    "g|Full freezer: about 48 hours",
+    "g|Half-full freezer: about 24"
+   ],
+   "narration": "Keep the fridge closed. Food stays safe about four hours. A full freezer holds about two days, half full about one.",
+   "scene": "a closed white refrigerator in a dim farmhouse kitchen during a power outage, candle on the counter"
+  },
+  {
+   "headline": "Comment *READY*",
+   "lines": [
+    "g|The 90-Day Home Readiness Kit",
+    "y|13 printable pages · $9"
+   ],
+   "cta": "COMMENT  READY",
+   "narration": "Comment ready, and we'll message you the ninety day kit. Thirteen printable pages, nine dollars.",
+   "scene": "a printed home emergency checklist on a clipboard on a kitchen table beside a mug of coffee and a pencil, morning window light"
+  }
+ ]
+}

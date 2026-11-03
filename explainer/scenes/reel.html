@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reel scene</title>
+<style>
+/* "Reel" look: full-bleed photo with a slow push-in, big centred serif hook, burned-in captions,
+   brand pill. Built for Facebook/Instagram Reels at 1080x1920; text stays inside the safe zone
+   (clear of the top bar, the right-hand button rail and the bottom caption overlay).
+   Deterministic: window.seek(t) paints the exact frame for time t (lib/core.js). */
+@font-face{font-family:"DM Serif Display";src:url(fonts/DMSerifDisplay.ttf)}
+@font-face{font-family:"Oswald";src:url(fonts/Oswald.ttf);font-weight:200 700}
+:root{--accent:#f5c518;--ink:#0b1420;--g:#3fa34d;--b:#2f7fd1;--y:#f5c518;--o:#ef7d22}
+html,body{margin:0;height:100%;overflow:hidden;background:#0b1420;color:#fff}
+#stage{position:relative;width:100vw;height:100vh;overflow:hidden}
+#frame{position:absolute;inset:0;z-index:4}
+.ph{position:absolute;inset:0;overflow:hidden}
+.ph img{position:absolute;inset:-2%;width:104%;height:104%;object-fit:cover;transform-origin:50% 45%}
+.shade{position:absolute;inset:0;z-index:3;background:linear-gradient(180deg,rgba(6,10,16,.55) 0%,rgba(6,10,16,.18) 22%,rgba(6,10,16,.30) 45%,rgba(6,10,16,.62) 70%,rgba(6,10,16,.85) 100%)}
+.top{position:absolute;z-index:4;left:7vw;right:7vw;top:5.2vh;display:flex;align-items:center;gap:2.6vw}
+.top img{width:11vw;height:11vw;border-radius:50%;box-shadow:0 0 0 .5vw rgba(255,255,255,.85)}
+.top .nm{font-family:Oswald,sans-serif;font-weight:600;font-size:4.2vw;letter-spacing:.14em;text-shadow:0 .3vw 1vw rgba(0,0,0,.6)}
+.top .nm b{color:var(--accent);font-weight:600}
+.bar{position:absolute;z-index:5;left:0;top:0;height:.7vh;background:var(--accent)}
+.mid{position:absolute;left:8vw;right:14vw;top:20vh;bottom:36vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.head{font-family:"DM Serif Display",serif;font-size:9.4vw;line-height:1.08;text-wrap:balance;text-shadow:0 .4vw 2.2vw rgba(0,0,0,.75)}
+.head .w{display:inline-block}
+.head .w.hl{color:var(--accent)}
+.lines{margin-top:4.5vh;display:flex;flex-direction:column;gap:1.6vh;align-items:stretch;width:100%}
+.l{display:flex;align-items:center;gap:3vw;background:rgba(8,14,22,.72);border-radius:2vw;padding:2.2vw 3.6vw;font-family:Oswald,sans-serif;font-weight:500;font-size:5.6vw;line-height:1.15;text-align:left;letter-spacing:.01em}
+.l::before{content:"";flex:none;width:1.6vw;align-self:stretch;border-radius:1vw;background:var(--c,var(--accent))}
+.cap{position:absolute;left:8vw;right:14vw;top:66vh;text-align:center;font-family:Oswald,sans-serif;font-weight:600;font-size:6.4vw;line-height:1.2;text-transform:uppercase;text-shadow:0 .3vw 1.2vw rgba(0,0,0,.9),0 0 .4vw rgba(0,0,0,.9)}
+.cap .w{color:rgba(255,255,255,.55)}
+.cap .w.on{color:#fff}
+.cap .w.now{color:var(--accent)}
+.cta .head{font-size:11vw}
+.pill{display:inline-block;margin-top:3.5vh;background:var(--accent);color:var(--ink);font-family:Oswald,sans-serif;font-weight:700;font-size:7vw;letter-spacing:.04em;padding:1.6vh 7vw;border-radius:10vw;box-shadow:0 1vw 4vw rgba(0,0,0,.5)}
+@media (min-aspect-ratio:4/3){.head{font-size:5.4vw}.l{font-size:2.8vw}.cap{font-size:3.2vw;top:72vh}.mid{left:12vw;right:12vw;top:16vh;bottom:30vh}.top img{width:6vw;height:6vw}.top .nm{font-size:2.4vw}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="ph" id="ph0"><img id="im0" alt=""></div>
+  <div class="ph" id="ph1"><img id="im1" alt=""></div>
+  <div class="shade"></div>
+  <div class="bar" id="bar"></div>
+  <div class="top"><img src="img/prepared-at-home-logo.png" alt=""><div class="nm">PREPARED <b>AT HOME</b></div></div>
+  <div id="frame">
+    <div class="mid" id="mid"><div class="head" id="head"></div><div class="lines" id="lines"></div><div id="pillw"></div></div>
+    <div class="cap" id="cap"></div>
+  </div>
+  <div id="title" hidden></div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+// Words wrapped in *stars* in a headline are highlighted in the accent colour.
+const headHTML = h => (h||'').split(/(\*[^*]+\*)/).filter(Boolean).map(seg => { const hl = /^\*.*\*$/.test(seg);
+  return seg.replace(/\*/g,'').split(/\s+/).filter(Boolean).map(w => `<span class="w${hl?' hl':''}">${w}</span>`).join(' '); }).join(' ');
+const STAGE = {g:'var(--g)', b:'var(--b)', y:'var(--y)', o:'var(--o)'};
+// A line may start with "g|", "b|", "y|" or "o|" to colour its chip with a stage colour.
+const lineHTML = l => { const m = /^([gbyo])\|(.*)$/.exec(l); return `<div class="l" style="--c:${m?STAGE[m[1]]:'var(--accent)'}">${m?m[2]:l}</div>`; };
+let D = null, shown = -1;
+
+function setPhoto(i, t, thumbnail){
+  // Two stacked layers: the current block's photo fades in over the previous one, each with its own slow push-in.
+  const b = D.blocks[i], prev = D.blocks[i-1];
+  const top = $('im'+(i%2)), under = $('im'+((i+1)%2));
+  if (b.plate && top.getAttribute('src') !== b.plate) top.src = b.plate;
+  if (prev && prev.plate && under.getAttribute('src') !== prev.plate) under.src = prev.plate;
+  $('ph'+(i%2)).style.zIndex = 2; $('ph'+((i+1)%2)).style.zIndex = 1;
+  const kb = (blk, img) => { const p = H.clamp((t - blk.start) / Math.max(blk.end - blk.start, 1), 0, 1.4);
+    const dir = blk.index % 2 ? -1 : 1; img.style.transform = `scale(${1.04 + 0.10*p}) translateX(${dir*1.2*p}%)`; };
+  kb(b, top); if (prev) kb(prev, under);
+  $('ph'+(i%2)).style.opacity = thumbnail || i === 0 ? 1 : H.ease((t - b.start) / 0.6);
+  $('ph'+((i+1)%2)).style.opacity = prev ? 1 : 0;
+}
+
+function paintText(b, f){
+  const isCta = !!b.cta;
+  $('mid').className = 'mid' + (isCta ? ' cta' : '');
+  $('head').innerHTML = headHTML(b.headline);
+  $('lines').innerHTML = (b.lines||[]).map(lineHTML).join('');
+  $('pillw').innerHTML = isCta ? `<div class="pill">${b.cta}</div>` : '';
+}
+
+window.Style = {
+  setup(d){ D = d; shown = -1; },
+  title(f){ // lead-in before the first word: show block 1 fully so the first frame is already the hook
+    const b = D.blocks[0]; $('frame').style.visibility = 'visible'; $('title').hidden = true;
+    if (shown !== 0) { paintText(b); shown = 0; }
+    setPhoto(0, b.start, true); $('frame').style.opacity = 1; $('cap').innerHTML = '';
+    $('head').querySelectorAll('.w').forEach(el=>{el.style.opacity=1;el.style.transform='none'});
+    $('lines').querySelectorAll('.l').forEach(el=>{el.style.opacity=0});
+  },
+  draw(f){
+    const b = f.b;
+    if (shown !== b.index) { paintText(b); shown = b.index; }
+    setPhoto(b.index, f.t, f.thumbnail);
+    const last = b.index === D.blocks.length - 1;
+    // keep the last block on screen to the end instead of fading out
+    $('frame').style.opacity = last ? Math.min(1, f.thumbnail ? 1 : H.ease(f.local/0.35)) : (b.index === 0 ? Math.min(1, 1 - H.ease((f.local - (f.span - 0.3)) / 0.3)) : f.alpha);
+    $('head').querySelectorAll('.w').forEach((el,i)=>{ const p = b.index === 0 ? 1 : f.headP(i); el.style.opacity = p; el.style.transform = `translateY(${(1-p)*0.35}em)`; });
+    $('lines').querySelectorAll('.l').forEach((el,i,all)=>{ const p = f.lineP(i, all.length); el.style.opacity = p; el.style.transform = `translateY(${(1-p)*2}vh)`; });
+    const pill = $('pillw').firstElementChild; if (pill) { const p = f.thumbnail ? 1 : H.ease((f.local - 0.5)/0.4); pill.style.opacity = p; pill.style.transform = `scale(${0.85 + 0.15*p})`; }
+    $('cap').innerHTML = f.thumbnail ? '' : f.captionHTML();
+  }
+};
+</script>
+<script src="lib/core.js"></script>
+</body>
+</html>

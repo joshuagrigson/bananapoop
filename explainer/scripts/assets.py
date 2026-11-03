@@ -19,8 +19,9 @@ STYLE_PREFIX = {
     "mix3d":      "bold flat vector poster illustration, yellow and blue and black, halftone dots, screen-print texture, ",
     "pixel":      "16-bit pixel art, retro video game scene, limited palette, crisp pixels, ",
     "mannequin":  "wooden artist mannequin figure posed in a simple grey studio, soft light, ",
+    "reel":       "photorealistic documentary photograph, rural East Texas home, natural light, muted warm colors, shallow depth of field, 35mm film grain, ",
 }
-SUFFIX = {"whiteboard": "no text, no watermark, no photo, no hands, no shading", "handdrawn": "no text", "default": "no text, no watermark, no people's faces close up"}
+SUFFIX = {"reel": "calm and quiet, a real lived-in place", "whiteboard": "no text, no watermark, no photo, no hands, no shading", "handdrawn": "no text", "default": "no text, no watermark, no people's faces close up"}
 
 ap = argparse.ArgumentParser()
 ap.add_argument("script"); ap.add_argument("style"); ap.add_argument("out")
