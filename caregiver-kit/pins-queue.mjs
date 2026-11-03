@@ -16,10 +16,11 @@ const outDir = join(here, 'site', 'pins', 'q');
 await mkdir(outDir, { recursive: true });
 
 const SITE = 'https://first30days-kit.netlify.app';
-const link = (c) => `${SITE}/?utm_source=pinterest&utm_medium=pin&utm_campaign=first30days&utm_content=${c}`;
-const hlink = (c) => `${SITE}/#holidays?utm_source=pinterest&utm_medium=pin&utm_campaign=holidays&utm_content=${c}`;
-const slink = (c) => `${SITE}/#hospital?utm_source=pinterest&utm_medium=pin&utm_campaign=hospital&utm_content=${c}`;
-const flink = (c) => `${SITE}/#free?utm_source=pinterest&utm_medium=pin&utm_campaign=free&utm_content=${c}`;
+const LINK = 'https://preparedathome.netlify.app';
+const link = (c) => `${LINK}/#care?utm_source=pinterest&utm_medium=pin&utm_campaign=first30days&utm_content=${c}`;
+const hlink = (c) => `${LINK}/#holidays?utm_source=pinterest&utm_medium=pin&utm_campaign=holidays&utm_content=${c}`;
+const slink = (c) => `${LINK}/#hospital?utm_source=pinterest&utm_medium=pin&utm_campaign=hospital&utm_content=${c}`;
+const flink = (c) => `${LINK}/#free?utm_source=pinterest&utm_medium=pin&utm_campaign=free&utm_content=${c}`;
 
 // kind: product (kit), holidays, free (lead magnet), seasonal. Order = posting order, 4 per week.
 const Q = [
