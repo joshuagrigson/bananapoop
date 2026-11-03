@@ -79,6 +79,24 @@ Works for anything you use up: coffee, dish soap, pet food.
 #prepping #pantrystock #emergencyprep #preparedathome
 ```
 
+## 5. No room for 20 feet? (pah-no-twenty-feet.mp4, 49 s)
+
+```
+The rule says run a generator 20 feet from the house. But what if your yard isn't that big? 👇
+
+• As far from the house as your yard allows, out in the open. Never under a porch or carport, never in the garage.
+• Point the exhaust away from your house and your neighbor's. Close the windows and doors on that side.
+• Carbon monoxide alarms inside: battery, or plug-in with a battery backup. If one goes off, shut the generator down and get everyone outside.
+• Buying one? Get carbon monoxide auto-shutoff. Look for UL 2201 or PGMA G300 on the box.
+• No yard at all? Skip the gas generator. A battery power station has no exhaust and is safe indoors. Or head to a warming center.
+
+Share this with the friend in the apartment or the townhouse.
+
+📌 Comment READY and we'll message you the 90-Day Home Readiness Kit, with the Paycheck Plan.
+
+#generator #powerout #winterstorm #carbonmonoxide #preparedathome
+```
+
 ---
 
 ## The DM to send everyone who comments READY
