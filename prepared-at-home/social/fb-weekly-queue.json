@@ -1,31 +1,72 @@
 {
   "page_id": "1340911372449312",
-  "zapier": { "selected_api": "FacebookV2CLIAPI", "action": "page_photo", "tool_name": "facebook_pages_create_page_photo", "connection_id": "02e3e8ac-d32e-842c-92fd-92dd15e6b0c7" },
+  "zapier": {
+    "selected_api": "FacebookV2CLIAPI",
+    "action": "page_photo",
+    "tool_name": "facebook_pages_create_page_photo",
+    "connection_id": "02e3e8ac-d32e-842c-92fd-92dd15e6b0c7"
+  },
   "schedule": "Thursdays 18:13 America/Chicago; post the entry whose date is today, else do nothing",
   "posts": [
-    { "date": "2026-11-12", "image": "https://preparedathome.netlify.app/img/90-day-kit-stages.png",
-      "message": "Getting ready for winter doesn't take a $500 shopping trip. It takes 90 days and one small list per payday: water first, then food, then the outage plan.\n\nThe 90-Day Home Readiness Kit, $9 printable: https://preparedathome.netlify.app/?s=fb#ready" },
-    { "date": "2026-11-19", "image": "https://first30days-kit.netlify.app/pins/q/q07.png",
-      "message": "One week until Thanksgiving. If you're going home to Mom or Dad, here are 36 small signs worth noticing: the mail pile, the fridge, the stairs, the medicine cabinet. Notice quietly, talk later.\n\nThe Home for the Holidays checklist: https://preparedathome.netlify.app/?s=fb#holidays" },
-    { "date": "2026-11-26", "image": "https://first30days-kit.netlify.app/pins/q/q12.png",
-      "message": "Happy Thanksgiving. If today left you with a knot in your stomach about a parent, you're not alone. Green, yellow, red: a simple way to sort what you saw today and decide what, if anything, comes next.\n\nhttps://preparedathome.netlify.app/?s=fb#holidays" },
-    { "date": "2026-12-03", "image": "https://first30days-kit.netlify.app/pins/q/q09.png",
-      "message": "The hardest part usually isn't Mom or Dad. It's getting the siblings on the same page. The family debrief: one conversation, one page, everyone leaves knowing who does what.\n\nhttps://preparedathome.netlify.app/?s=fb#holidays" },
-    { "date": "2026-12-10", "image": "https://preparedathome.netlify.app/img/90-day-kit-cover.png",
-      "message": "Ice season is coming to the Ark-La-Tex. The night before a storm is the worst time to make a plan. Water, meds, phone charged, the one sheet on the fridge that says what to do if the power is out for three days.\n\n90 Days Ready, $9: https://preparedathome.netlify.app/?s=fb#ready" },
-    { "date": "2026-12-17", "image": "https://first30days-kit.netlify.app/pins/q/q17.png",
-      "message": "Winter is when a lot of parents end up in the hospital. If yours comes home this season, the first 7 days are the ones that matter most. This kit covers the medication changes, when to call the doctor vs 911, and who's covering which day.\n\nAfter the Hospital, $12: https://preparedathome.netlify.app/?s=fb#hospital" },
-    { "date": "2026-12-24", "image": "https://first30days-kit.netlify.app/pins/q/q14.png",
-      "message": "Going home for Christmas? You can check on an aging parent without it turning into an intervention. Look, listen, and save the big talk for after the holiday.\n\nMerry Christmas from Prepared at Home. https://preparedathome.netlify.app/?s=fb#holidays" },
-    { "date": "2026-12-31", "image": "https://preparedathome.netlify.app/img/90-day-kit-stages.png",
-      "message": "A New Year's resolution that actually sticks: by April, have three days of water, two weeks of food and a plan for the next outage. One small list per payday.\n\nhttps://preparedathome.netlify.app/?s=fb#ready" },
-    { "date": "2027-01-07", "image": "https://first30days-kit.netlify.app/pins/q/q16.png",
-      "message": "Did the holidays leave you worried about a parent? January is the time to turn that worry into a plan: three next steps, who owns each one, and a date to check back.\n\nhttps://preparedathome.netlify.app/?s=fb#care" },
-    { "date": "2027-01-14", "image": "https://preparedathome.netlify.app/img/binder-three.png",
-      "message": "The three hardest weeks of the first year of caring for a parent, in one binder: the holiday visit, the hospital week, and the first 30 days. All three kits for $24 (save $8).\n\nThe Caregiver Binder: https://preparedathome.netlify.app/?s=fb#bundle" },
-    { "date": "2027-01-21", "image": "https://preparedathome.netlify.app/img/90-day-kit-cover.png",
-      "message": "The last ice storm caught a lot of us without water or a charged phone. This time, the plan fits on the fridge: what to fill, what to unplug, who to check on next door.\n\n90-Day Home Readiness Kit, $9: https://preparedathome.netlify.app/?s=fb#ready" },
-    { "date": "2027-01-28", "image": "https://first30days-kit.netlify.app/pins/q/q15.png",
-      "message": "You can set up a caregiver binder in one evening: medications, doctors, insurance cards, the people to call. When something happens, everything's in one place for whoever walks in first.\n\nThe First 30 Days kit: https://preparedathome.netlify.app/?s=fb#care" }
+    {
+      "date": "2026-11-12",
+      "image": "https://preparedathome.netlify.app/img/90-day-kit-paycheck-plan.png",
+      "message": "Getting ready for winter doesn't take a $500 shopping trip. Paycheck 1: water, a can opener, a flashlight. About $25. Paycheck 2: three days of food you don't have to cook. Eight paychecks later, you're two weeks ready.\n\nThe 90-Day Home Readiness Kit + the Paycheck Plan, $9: https://preparedathome.netlify.app/?s=fb#ready"
+    },
+    {
+      "date": "2026-11-19",
+      "image": "https://first30days-kit.netlify.app/pins/q/q07.png",
+      "message": "One week until Thanksgiving. If you're going home to Mom or Dad, here are 36 small signs worth noticing: the mail pile, the fridge, the stairs, the medicine cabinet. Notice quietly, talk later.\n\nThe Home for the Holidays checklist: https://preparedathome.netlify.app/?s=fb#holidays"
+    },
+    {
+      "date": "2026-11-26",
+      "image": "https://first30days-kit.netlify.app/pins/q/q12.png",
+      "message": "Happy Thanksgiving. If today left you with a knot in your stomach about a parent, you're not alone. Green, yellow, red: a simple way to sort what you saw today and decide what, if anything, comes next.\n\nhttps://preparedathome.netlify.app/?s=fb#holidays"
+    },
+    {
+      "date": "2026-12-03",
+      "image": "https://first30days-kit.netlify.app/pins/q/q09.png",
+      "message": "The hardest part usually isn't Mom or Dad. It's getting the siblings on the same page. The family debrief: one conversation, one page, everyone leaves knowing who does what.\n\nhttps://preparedathome.netlify.app/?s=fb#holidays"
+    },
+    {
+      "date": "2026-12-10",
+      "image": "https://preparedathome.netlify.app/img/90-day-kit-cover.png",
+      "message": "Ice season is coming to the Ark-La-Tex. The night before a storm is the worst time to make a plan. Water, meds, phones charged, and a power-out plan on the fridge.\n\n90 Days Ready, $9, now with a paycheck-by-paycheck buying plan: https://preparedathome.netlify.app/?s=fb#ready"
+    },
+    {
+      "date": "2026-12-17",
+      "image": "https://first30days-kit.netlify.app/pins/q/q17.png",
+      "message": "Winter is when a lot of parents end up in the hospital. If yours comes home this season, the first 7 days are the ones that matter most. This kit covers the medication changes, when to call the doctor vs 911, and who's covering which day.\n\nAfter the Hospital, $12: https://preparedathome.netlify.app/?s=fb#hospital"
+    },
+    {
+      "date": "2026-12-24",
+      "image": "https://first30days-kit.netlify.app/pins/q/q14.png",
+      "message": "Going home for Christmas? You can check on an aging parent without it turning into an intervention. Look, listen, and save the big talk for after the holiday.\n\nMerry Christmas from Prepared at Home. https://preparedathome.netlify.app/?s=fb#holidays"
+    },
+    {
+      "date": "2026-12-31",
+      "image": "https://preparedathome.netlify.app/img/90-day-kit-paycheck-plan.png",
+      "message": "A New Year's resolution that actually sticks: by spring, have two weeks of water and food and a plan for the next outage. The Paycheck Plan tells you what to buy with each paycheck, about $25–40 at a time.\n\nhttps://preparedathome.netlify.app/?s=fb#ready"
+    },
+    {
+      "date": "2027-01-07",
+      "image": "https://first30days-kit.netlify.app/pins/q/q16.png",
+      "message": "Did the holidays leave you worried about a parent? January is the time to turn that worry into a plan: three next steps, who owns each one, and a date to check back.\n\nhttps://preparedathome.netlify.app/?s=fb#care"
+    },
+    {
+      "date": "2027-01-14",
+      "image": "https://preparedathome.netlify.app/img/binder-three.png",
+      "message": "The three hardest weeks of the first year of caring for a parent, in one binder: the holiday visit, the hospital week, and the first 30 days. All three kits for $24 (save $8).\n\nThe Caregiver Binder: https://preparedathome.netlify.app/?s=fb#bundle"
+    },
+    {
+      "date": "2027-01-21",
+      "image": "https://preparedathome.netlify.app/img/90-day-kit-cover.png",
+      "message": "The last ice storm caught a lot of us without water or a charged phone. This time, start with one paycheck: 3 gallons of water per person, a can opener, a flashlight. The kit lays out the rest, paycheck by paycheck.\n\n90-Day Home Readiness Kit, $9: https://preparedathome.netlify.app/?s=fb#ready"
+    },
+    {
+      "date": "2027-01-28",
+      "image": "https://first30days-kit.netlify.app/pins/q/q15.png",
+      "message": "You can set up a caregiver binder in one evening: medications, doctors, insurance cards, the people to call. When something happens, everything's in one place for whoever walks in first.\n\nThe First 30 Days kit: https://preparedathome.netlify.app/?s=fb#care"
+    }
   ]
 }
