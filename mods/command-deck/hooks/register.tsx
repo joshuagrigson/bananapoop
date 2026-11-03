@@ -232,18 +232,18 @@ export const register: Register = on => {
       <Box flexDirection="column">
         <Head label={`HANDS QUEUE (${b.hands.length})`} />
         {b.hands.length === 0 && <Text color="success">Nothing waiting on you.</Text>}
-        {b.hands.map(h => {
-          const age = ageDays(h.since)
+        {b.hands.map(item => {
+          const age = ageDays(item.since)
           const late = age > OVERDUE_DAYS
           const soon = !late && age >= OVERDUE_DAYS - 2
           return (
             <Box flexDirection="column">
               <Text color={late ? 'error' : soon ? 'warning' : undefined}>
                 {late ? '!! ' : soon ? '!  ' : '•  '}
-                {age}d  {h.task}
+                {age}d  {item.task}
                 {late ? '  OVERDUE' : soon ? `  overdue in ${OVERDUE_DAYS + 1 - age}d` : ''}
               </Text>
-              {h.where && <Text dimColor>      {h.where}</Text>}
+              {item.where && <Text dimColor>      {item.where}</Text>}
             </Box>
           )
         })}
