@@ -14,7 +14,7 @@ const SNAP = {
   noteToSelf: 'hello next me',
 }
 
-test('the pane draws with HANDS items, on every surface', async ($, on) => {
+test('the pane draws with HANDS items, on terminal, desktop and mobile', async ($, on) => {
   on('command.register', () => ({ value: { command: 'deck' } }))
   on('tool.register', () => ({ value: { tool: 'mcp__command-deck__update_deck' } }))
   on('ui.open', () => ({ value: { isPlaced: true } }))
@@ -23,7 +23,7 @@ test('the pane draws with HANDS items, on every surface', async ($, on) => {
   on('session.start', (_, e) => ({ cwd: e.cwd }))
   await $.session.start({ cwd: '/', surface: 'desktop', isInteractive: true })
 
-  for (const surface of ['terminal', 'desktop'] as const) {
+  for (const surface of ['terminal', 'desktop', 'mobile'] as const) {
     const ui = await $.ui.mount({
       plugin: 'command-deck', surface, component: 'Pane', requestId: 'command-deck',
       props: { title: 'Command Deck', isFocused: false, bodyColumns: 80, placement: 'dock', scroll: { offset: 0, bodyRows: 60 }, view: {} },
