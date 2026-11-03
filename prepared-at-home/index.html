@@ -177,5 +177,38 @@
 </section>
 
 <div class="wrap"><footer>© 2026 Prepared at Home · Instant digital downloads, nothing is shipped · For personal use · Planning and organizing tools, not medical, legal, financial or professional advice.</footer></div>
+<script>
+// Attribution: work out where this visitor came from and carry it onto every Shopify buy link,
+// so Shopify's reports can tell Pinterest from Facebook from flyers. Short codes keep visible links clean:
+// ?s=fb  ?s=ig  ?s=grp  ?s=storm  ?s=flyer  ?s=pin  (full utm_* params also work, in the query or after # like #ready?utm_source=pinterest)
+(function () {
+  var SHORT = { fb: ['facebook', 'social'], ig: ['instagram', 'social'], grp: ['facebook-group', 'social'],
+                storm: ['facebook', 'storm-alert'], flyer: ['flyer', 'print'], pin: ['pinterest', 'social'] };
+  var q = new URLSearchParams(location.search);
+  var hashParts = location.hash.split('?');
+  if (hashParts[1]) new URLSearchParams(hashParts[1]).forEach(function (v, k) { if (!q.has(k)) q.set(k, v); });
+  var src = q.get('utm_source'), med = q.get('utm_medium'), camp = q.get('utm_campaign'), content = q.get('utm_content');
+  if (!src && q.get('s') && SHORT[q.get('s')]) { src = SHORT[q.get('s')][0]; med = SHORT[q.get('s')][1]; }
+  if (!src && document.referrer) {
+    var h = ''; try { h = new URL(document.referrer).hostname; } catch (e) {}
+    if (/pinterest\./.test(h)) src = 'pinterest'; else if (/facebook\.com$/.test(h)) src = 'facebook';
+    else if (/instagram\.com$/.test(h)) src = 'instagram'; else if (h && h !== location.hostname) src = h;
+    if (src) med = 'referral';
+  }
+  var saved = null; try { saved = JSON.parse(sessionStorage.getItem('pah_src') || 'null'); } catch (e) {}
+  if (src) { saved = { s: src, m: med || 'referral', c: camp || '', t: content || '' }; try { sessionStorage.setItem('pah_src', JSON.stringify(saved)); } catch (e) {} }
+  if (!saved) saved = { s: 'site-direct', m: 'referral', c: '', t: '' };
+  document.querySelectorAll('a[href*="myshopify.com/products/"]').forEach(function (a) {
+    var u = new URL(a.href), sec = a.closest('section');
+    u.searchParams.set('utm_source', saved.s);
+    u.searchParams.set('utm_medium', saved.m);
+    u.searchParams.set('utm_campaign', saved.c || (sec && sec.id) || 'site');
+    if (saved.t) u.searchParams.set('utm_content', saved.t);
+    a.href = u.toString();
+  });
+  // Pin links look like #holidays?utm_source=..., which the browser can't match to an id; scroll there ourselves.
+  if (hashParts[1]) { var el = document.getElementById(hashParts[0].slice(1)); if (el) el.scrollIntoView(); }
+})();
+</script>
 </body>
 </html>

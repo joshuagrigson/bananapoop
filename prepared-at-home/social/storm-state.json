@@ -1,0 +1,5 @@
+{
+  "note": "Storm-alert task state. last_post_utc = when the last storm post went to the Facebook page; cooldown 4 days.",
+  "last_post_utc": null,
+  "last_event": null
+}
