@@ -1,0 +1,72 @@
+{
+ "title": "No room for 20 feet?",
+ "brand": "Prepared at Home",
+ "slug": "pah-no-twenty-feet",
+ "voice": "am_onyx",
+ "speed": 1.0,
+ "gap": 0.35,
+ "lead": 0.4,
+ "accent": "#f5c518",
+ "orientation": "portrait",
+ "blocks": [
+  {
+   "headline": "No room for *20 feet*? Do this instead.",
+   "narration": "The rule says run a generator twenty feet from the house. But what if your yard isn't that big?",
+   "scene": "exterior view from the street of a small one story house very close to the house next door, narrow strip of grass between them, winter, bare trees"
+  },
+  {
+   "headline": "As far as you can. *Out in the open.*",
+   "lines": [
+    "o|Not under a porch, carport or eave",
+    "o|Never in the garage"
+   ],
+   "narration": "Put it as far from the house as your yard allows, out in the open. Never under a porch or carport, and never in the garage.",
+   "scene": "an orange and black portable gas generator with wheels sitting on frosty grass in a small backyard, wooden privacy fence behind it, exterior daytime"
+  },
+  {
+   "headline": "Point the *exhaust away*.",
+   "lines": [
+    "o|Away from your house and the neighbor's",
+    "o|Close the windows on that side"
+   ],
+   "narration": "Point the exhaust away from your house and your neighbor's, and close the windows and doors on that side.",
+   "scene": "exterior side wall of a small white wooden house with closed windows, frosty lawn in front, overcast winter sky"
+  },
+  {
+   "headline": "Carbon monoxide alarms *inside*.",
+   "lines": [
+    "y|Battery, or plug-in with battery backup",
+    "y|Alarm goes off? Shut it down, get out"
+   ],
+   "narration": "Keep carbon monoxide alarms inside, battery or plug-in with a battery backup. If one goes off, shut the generator down and get everyone outside.",
+   "scene": "a white carbon monoxide alarm on a living room wall above a lamp, cozy small home, evening light"
+  },
+  {
+   "headline": "Buying one? Get *auto shutoff*.",
+   "lines": [
+    "g|Look for UL 2201 or PGMA G300 on the box"
+   ],
+   "narration": "Buying a generator? Get one with carbon monoxide shutoff. Look for U.L. twenty-two oh one, or P.G.M.A. G three hundred, on the box.",
+   "scene": "a new portable generator in its cardboard box in a hardware store aisle, bright store lighting"
+  },
+  {
+   "headline": "No yard? *Skip the gas.*",
+   "lines": [
+    "b|A battery power station is safe indoors",
+    "b|Or head to a warming center"
+   ],
+   "narration": "No yard at all? Skip the gas generator. A battery power station has no exhaust and is safe indoors. Or head to a warming center.",
+   "scene": "a portable battery power station on a kitchen table charging a phone and powering a small lamp, dark winter evening"
+  },
+  {
+   "headline": "Comment *READY*",
+   "lines": [
+    "g|The 90-Day Home Readiness Kit",
+    "y|13 printable pages · $9"
+   ],
+   "cta": "COMMENT  READY",
+   "narration": "Comment ready, and we'll message you the ninety day kit. Thirteen printable pages, nine dollars.",
+   "scene": "a printed home emergency checklist on a clipboard on a kitchen table beside a mug of coffee and a pencil, morning window light"
+  }
+ ]
+}
