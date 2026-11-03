@@ -110,6 +110,72 @@ const wakeUpText = (b: BrainSnapshot) => {
   return lines.join('\n')
 }
 
+// The whole deck as plain text: what /deck prints, which every surface
+// shows (the mobile app draws no mod panes).
+const deckText = (b: BrainSnapshot | null, r: RepoSnapshot | null) => {
+  const out: string[] = ['COMMAND DECK']
+  if (!b) {
+    out.push('', 'No Brain snapshot yet. Ask Claude to read the Brain and update the deck.')
+  } else {
+    out.push('', `HANDS QUEUE (${b.hands.length})`)
+    if (!b.hands.length) out.push('  Nothing waiting on you.')
+    for (const item of b.hands) {
+      const age = ageDays(item.since)
+      const late = age > OVERDUE_DAYS
+      const soon = !late && age >= OVERDUE_DAYS - 2
+      out.push(`${late ? '🔴' : soon ? '🟠' : '⚪'} ${age}d  ${item.task}${late ? '  OVERDUE' : soon ? `  (overdue in ${OVERDUE_DAYS + 1 - age}d)` : ''}`)
+      if (item.where) out.push(`      ${item.where}`)
+    }
+    const mapAge = ageDays(b.mapDate)
+    out.push(
+      '',
+      'BRAIN HEALTH',
+      `${mapAge > MAP_STALE_DAYS ? '🔴' : '🟢'} MAP ${b.mapDate} (${mapAge === 0 ? 'today' : `${mapAge}d old`})`,
+      `${/LIVE/i.test(b.observatory) ? '🟢' : '🔴'} Observatory ${b.observatory}`,
+      `   PROTOCOL LIVE v${b.protocolVersion} · ${b.docsLast24h} docs in 24h`,
+      '',
+      'PROJECTS',
+      ...b.projects.map(p => `• ${p.name}: ${p.status}`),
+    )
+    if (b.countdowns.length) {
+      out.push('', 'COUNTDOWNS')
+      for (const c of [...b.countdowns].sort((x, y) => dayOf(x.date) - dayOf(y.date))) {
+        const d = daysUntil(c.date)
+        out.push(`  ${d < 0 ? `${-d}d ago` : d === 0 ? 'today' : `in ${d}d`}  ${c.label} (${c.date})`)
+      }
+    }
+    if (b.lastBuild || b.noteToSelf || b.lastMiss) out.push('', 'WAKE-UP')
+    if (b.lastBuild) out.push(`Last build: ${b.lastBuild}`)
+    if (b.lastMiss) out.push(`Last miss: ${b.lastMiss}`)
+    if (b.noteToSelf) out.push(`Note to next me: ${b.noteToSelf}`)
+    out.push('', `Brain snapshot ${b.asOf.slice(0, 16).replace('T', ' ')}Z`)
+  }
+  out.push('', 'REPO')
+  if (!r) out.push('  (not read yet)')
+  else if (r.error) out.push(`  ${r.error}`)
+  else {
+    out.push(`  ${r.branch}  ${r.dirty.length ? `${r.dirty.length} uncommitted` : 'clean'}`)
+    for (const c of r.commits) out.push(`  ${c}`)
+  }
+  return out.join('\n')
+}
+
+// One line for the band above the prompt: what needs Joshua next.
+const bandText = (b: BrainSnapshot) => {
+  const ages = b.hands.map(item => ageDays(item.since))
+  const late = ages.filter(a => a > OVERDUE_DAYS).length
+  const soon = ages.filter(a => a <= OVERDUE_DAYS && a >= OVERDUE_DAYS - 2).length
+  const next = [...b.countdowns]
+    .filter(c => daysUntil(c.date) >= 0)
+    .sort((x, y) => dayOf(x.date) - dayOf(y.date))[0]
+  const parts = [
+    late ? `🔴 ${late} HANDS overdue` : soon ? `🟠 ${soon} HANDS due soon` : `${b.hands.length} HANDS`,
+    next ? `next: ${next.label} ${daysUntil(next.date) === 0 ? 'today' : `in ${daysUntil(next.date)}d`}` : '',
+    '/deck for all',
+  ]
+  return parts.filter(Boolean).join(' · ')
+}
+
 const git = async ($: any, args: string[]) => {
   const ran = await $.process.run(['git', ...args], { timeoutMs: 10_000 })
   if (ran.exitCode !== 0) throw new Error(ran.stderr.trim() || `git ${args[0]} failed`)
@@ -170,8 +236,8 @@ export const register: Register = on => {
 
   on('command.run', { command: 'deck' }, async $ => {
     await refreshRepo($)
-    await $.ui.open({ id: PANE, title: TITLE })
-    return { text: 'Command Deck opened. Repo refreshed; ask Claude to re-read the Brain to refresh the rest.' }
+    void $.ui.open({ id: PANE, title: TITLE })
+    return { text: deckText(await read($, brain), await read($, repo)) }
   })
 
   on('tool.call', { tool: 'mcp__command-deck__update_deck' }, async ($, e) => {
@@ -210,6 +276,13 @@ export const register: Register = on => {
         { id: 'command-deck:wake-up', text: wakeUpText(b), scope: 'session' as const },
       ],
     }
+  })
+
+  on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+    const b = await read($, brain)
+    if (!b || (e.props as any)?.hasSurvey) return next(e)
+    const { Text } = $.ui.resolve(e)
+    return <Text dimColor>{bandText(b)}</Text>
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {

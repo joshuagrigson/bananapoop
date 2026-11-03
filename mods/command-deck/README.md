@@ -9,7 +9,7 @@ A Claude Code mod: a pane beside the chat showing Joshua's working state.
 
 A mod can't call Drive, so the Brain sections are filled by Claude through the tool the mod registers,
 `mcp__command-deck__update_deck`, after the Brain read gate. The last snapshot is kept in `$.store`.
-`/deck` reopens the pane and refreshes the repo section.
+`/deck` prints the whole deck as text (the mobile app draws no mod panes, but it shows command output) and opens the pane where the surface has one. A one-line band above the prompt shows overdue HANDS and the next countdown.
 
 ## Wake-Up (v0.2)
 
