@@ -45,5 +45,6 @@ test('no snapshot means no wake-up section', async ($, on) => {
   }))
 
   const { sections } = await $.prompt.compose(INPUT)
-  expect(sections.length).toBe(1)
+  expect(sections.find(x => x.id === 'command-deck:wake-up')).toBeUndefined()
+  expect(sections.find(x => x.id === 'command-deck:session')).toBeDefined()
 })

@@ -16,6 +16,8 @@ const SNAP = {
 
 test('the pane draws with HANDS items, on terminal, desktop and mobile', async ($, on) => {
   on('command.register', () => ({ value: { command: 'deck' } }))
+  on('agent.register', () => ({ value: { agent: 'command-deck:brain-reader' } }))
+  on('ui.toast', () => ({ value: undefined }))
   on('tool.register', () => ({ value: { tool: 'mcp__command-deck__update_deck' } }))
   on('ui.open', () => ({ value: { isPlaced: true } }))
   on('store.get', () => ({ value: SNAP }))
@@ -36,6 +38,8 @@ test('the pane draws with HANDS items, on terminal, desktop and mobile', async (
 
 const boot = async ($: any, on: any) => {
   on('command.register', () => ({ value: { command: 'deck' } }))
+  on('agent.register', () => ({ value: { agent: 'command-deck:brain-reader' } }))
+  on('ui.toast', () => ({ value: undefined }))
   on('tool.register', () => ({ value: { tool: 'mcp__command-deck__update_deck' } }))
   on('ui.open', () => ({ value: { isPlaced: false } }))
   on('store.get', () => ({ value: SNAP }))

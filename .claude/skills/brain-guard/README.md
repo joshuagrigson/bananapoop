@@ -11,7 +11,7 @@ A matching call stops and asks Joshua in a dialog. The dialog says in plain word
 `--force-with-lease` and drafts are allowed on purpose.
 
 ```bash
-claude --plugin-dir mods/brain-guard
+claude --plugin-dir .claude/skills/brain-guard
 ```
 
-Tests: `claude plugin test mods/brain-guard`.
+Tests: `claude plugin test .claude/skills/brain-guard`.

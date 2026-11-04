@@ -3,6 +3,8 @@ import type { Register } from 'claude-code'
 
 import type { BrainSnapshot, RepoSnapshot } from '../types'
 
+import { registerExtras, sessionSection, startExtras } from './extras'
+
 const PANE = 'command-deck'
 const TITLE = 'Command Deck'
 const STORE_KEY = 'brain-snapshot'
@@ -209,6 +211,8 @@ const refreshRepo = async ($: any) => {
 }
 
 export const register: Register = on => {
+  registerExtras(on)
+
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'deck',
@@ -227,6 +231,7 @@ export const register: Register = on => {
       await update($, brain, current => current ?? stored)
     }
 
+    await startExtras($)
     void refreshRepo($)
     $.clock.every(60_000, () => refreshRepo($))
     void $.ui.open({ id: PANE, title: TITLE })
@@ -269,11 +274,13 @@ export const register: Register = on => {
   on('prompt.compose', async ($, e, next) => {
     const composed = await next(e)
     const b = (await $.store.get(STORE_KEY)) as BrainSnapshot | undefined
-    if (!b || typeof b !== 'object' || !Array.isArray(b.hands)) return composed
+    const extra = [{ id: 'command-deck:session', text: sessionSection(), scope: 'session' as const }]
+    if (!b || typeof b !== 'object' || !Array.isArray(b.hands)) return { sections: [...composed.sections, ...extra] }
     return {
       sections: [
         ...composed.sections,
         { id: 'command-deck:wake-up', text: wakeUpText(b), scope: 'session' as const },
+        ...extra,
       ],
     }
   })
