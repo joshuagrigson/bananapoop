@@ -1,0 +1,40 @@
+{
+  "about": "Breadcrumbs: one-line lessons pinned to files. Shown to Claude whenever it reads or edits the path. Managed by the breadcrumbs mod; commit this file.",
+  "crumbs": [
+    {
+      "id": "0ffb8ef6",
+      "path": ".claude/skills/command-deck/hooks/register.tsx",
+      "note": "JSX compiles against the global h: never name a variable h (or Fragment) where JSX is in scope. A .map(h => ...) here once broke the whole pane silently.",
+      "at": "2026-11-04",
+      "commit": "ecbf4a6"
+    },
+    {
+      "id": "9a514500",
+      "path": ".claude/skills/",
+      "note": "Mod engine rules: a module may hook an event WITHOUT a matcher only once; $ may cross files only into a `function` declaration, not an arrow; a tool.call `context` must be a list of strings. Run `claude plugin test` before every push.",
+      "at": "2026-11-04",
+      "commit": "ecbf4a6"
+    },
+    {
+      "id": "d85dfcdb",
+      "path": ".claude/skills/",
+      "note": "The Claude mobile app shows NO mod panes (verified on Josh's iPhone). Anything Josh must see goes through a command's { text } reply or a chat answer.",
+      "at": "2026-11-04",
+      "commit": "ecbf4a6"
+    },
+    {
+      "id": "b49b3006",
+      "path": ".claude/skills/brain-guard/hooks/rules.ts",
+      "note": "Every dialog line is read by Josh deciding fast: plain words, say it is REAL (not a test), what happens, whether it can be undone, Block first. Jargon here once got a yes he didn't understand.",
+      "at": "2026-11-04",
+      "commit": "ecbf4a6"
+    },
+    {
+      "id": "e3cf55f3",
+      "path": ".claude/skills/",
+      "note": "Cloud sessions start from the repo's DEFAULT branch, so a mod here reaches new sessions only once it is merged there.",
+      "at": "2026-11-04",
+      "commit": "ecbf4a6"
+    }
+  ]
+}
