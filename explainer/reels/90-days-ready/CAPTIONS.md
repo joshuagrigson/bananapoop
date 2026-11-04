@@ -41,7 +41,7 @@ Boil notice, or no water at all? Here's exactly how much bleach makes a gallon s
 
 Amounts from the CDC and EPA. Screenshot it and tape it inside a cabinet door.
 
-📌 Comment READY and we'll send you the full kit with the water card, pantry log and power-out plan.
+📌 Comment READY and we'll message you our free printable Water Card (this whole chart on one page) and the full 90-day kit.
 
 #watersafety #boilwaternotice #emergencyprep #preparedathome
 ```
@@ -58,7 +58,7 @@ Stage 4: 90 days, built slowly, nothing wasted.
 
 One payday at a time. No bunker, no big budget.
 
-📌 Comment READY and we'll message you the 90-Day Home Readiness Kit: a checklist for every stage, $9.
+📌 Comment READY and we'll message you our free Water Card, plus the 90-Day Home Readiness Kit with a checklist for every stage and the Paycheck Plan.
 
 #prepping #budgetprepping #pantry #emergencyprep #preparedathome
 ```
@@ -74,7 +74,7 @@ How much toilet paper does your family need for 90 days? Don't guess 👇
 
 Works for anything you use up: coffee, dish soap, pet food.
 
-📌 Comment READY and we'll send you the kit with the Two-Week Count calculator built in.
+📌 Comment READY and we'll message you our free Water Card, plus the kit with the Two-Week Count calculator built in.
 
 #prepping #pantrystock #emergencyprep #preparedathome
 ```
@@ -92,7 +92,7 @@ The rule says run a generator 20 feet from the house. But what if your yard isn'
 
 Share this with the friend in the apartment or the townhouse.
 
-📌 Comment READY and we'll message you the 90-Day Home Readiness Kit, with the Paycheck Plan.
+📌 Comment READY and we'll message you our free Water Card, plus the 90-Day Home Readiness Kit with the Paycheck Plan.
 
 #generator #powerout #winterstorm #carbonmonoxide #preparedathome
 ```
@@ -102,11 +102,16 @@ Share this with the friend in the apartment or the townhouse.
 ## The DM to send everyone who comments READY
 
 ```
-Hey! Here's the 90-Day Home Readiness Kit 👇
-https://a1i1cx-ew.myshopify.com/products/the-90-day-home-readiness-kit-printable-pdf-13-pages
+Hey! Here's your free Water Card 💧 (print it, tape it inside a cabinet door):
+https://cdn.shopify.com/s/files/1/0837/6945/8861/files/prepared-at-home-water-card.pdf?v=1793830876
 
-13 printable pages: a checklist for 72 hours, 2 weeks, 30 days and 90 days, the bleach water card, a pantry log and a power-out plan. $9, instant download. Built to do one payday at a time.
+And when you're ready for the whole plan, the 90-Day Home Readiness Kit is here 👇
+https://a1i1cx-ew.myshopify.com/products/the-90-day-home-readiness-kit-printable-pdf-13-pages
+13 printable pages plus the 2-page Paycheck Plan: a checklist for 72 hours, 2 weeks, 30 days and 90 days, a pantry log and a power-out plan. $9, instant download, one payday at a time.
 ```
+
+The Water Card source is `freebies/water-card/` (card.html, `node render.mjs`). Figures: EPA emergency
+disinfection table, CDC boil times, Ready.gov storage.
 
 Also reply under the comment so others see it work: `Sent! Check your messages 📬`
 
