@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>For agencies — Prepared at Home</title>
+<meta name="description" content="Printable caregiver handouts for home health, hospice, discharge planners, Area Agencies on Aging and care ministries. Free handout and a $49/year print license.">
+<link rel="icon" href="/img/prepared-at-home-logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#111923;--ink:#1f2933;--muted:#5d6874;--paper:#f7f4ee;--white:#fff;--rule:#e2ded6;--yellow:#ffd23f;
+    --display:"Anton","Impact","Arial Narrow",sans-serif;--body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);line-height:1.5}
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px}
+  .band{background:var(--navy);color:var(--white)}
+  header{display:flex;align-items:center;gap:12px;padding:18px 0}
+  header a{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+  header img{width:44px;height:44px;border-radius:10px}
+  header span{font-family:var(--display);font-size:22px;letter-spacing:.02em}
+  h1{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(36px,6vw,60px);line-height:1;margin:18px 0 12px}
+  h1 em{font-style:normal;color:var(--yellow)}
+  .hero p{color:#c9d2dc;font-size:18px;max-width:38em;margin:0;padding-bottom:40px}
+  section{padding:40px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .card{background:var(--white);border:1px solid var(--rule);border-radius:14px;padding:22px}
+  .card.paid{border:2px solid var(--yellow)}
+  .card h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:28px;margin:0 0 4px}
+  .card .price{font-weight:700;margin:0 0 10px}
+  .card ul{padding-left:20px;margin:8px 0}
+  .card a{color:var(--navy)}
+  form{background:var(--white);border:1px solid var(--rule);border-radius:14px;padding:22px;display:grid;gap:12px}
+  label{font-weight:600;font-size:14px;display:grid;gap:4px}
+  input,select,textarea{font:inherit;padding:10px 12px;border:1px solid #c5ccd4;border-radius:8px;background:#fff;width:100%}
+  textarea{min-height:90px}
+  button{background:var(--yellow);color:var(--navy);border:0;border-radius:10px;padding:14px 18px;font-weight:700;font-size:16px;cursor:pointer;justify-self:start}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .note{font-size:13px;color:var(--muted)}
+  footer{font-size:13px;color:var(--muted);padding:24px 0 40px}
+  @media (max-width:700px){.grid,.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="band"><div class="wrap">
+  <header><a href="/"><img src="/img/prepared-at-home-logo.png" alt=""><span>Prepared at Home</span></a></header>
+  <div class="hero">
+    <h1>Printable handouts for <em>the families you serve</em></h1>
+    <p>Plain-language planning pages for adult children caring for an aging parent: what to ask the doctor, what to track, and what to do the first week home from the hospital.</p>
+  </div>
+</div></div>
+
+<section><div class="wrap grid">
+  <div class="card">
+    <h2>Free handout</h2>
+    <p class="price">$0 · print as many as you like</p>
+    <p><b>13 questions to ask the doctor.</b> One page with room for the answers. Good for intake packets, waiting rooms and discharge folders.</p>
+    <p><a href="/free/questions-to-ask-the-doctor.pdf">Download the PDF</a></p>
+  </div>
+  <div class="card paid">
+    <h2>Print license</h2>
+    <p class="price">$49 a year per location</p>
+    <p>Print unlimited copies of all three kits for your own clients, patients or members:</p>
+    <ul>
+      <li><b>After the Hospital</b>: the first 7 days home (11 pages)</li>
+      <li><b>The First 30 Days</b>: caregiver starter kit (14 pages)</li>
+      <li><b>Home for the Holidays</b>: is it time? (8 pages)</li>
+    </ul>
+    <p>Includes every update during the year.</p>
+  </div>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <form name="agency-inquiry" method="POST" data-netlify="true" netlify-honeypot="company_website" action="/agencies/thanks.html">
+    <input type="hidden" name="form-name" value="agency-inquiry">
+    <input type="hidden" name="source" id="source" value="">
+    <p style="display:none"><label>Website <input name="company_website"></label></p>
+    <h2 style="font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:28px;margin:0">Request a free review copy</h2>
+    <p class="note" style="margin:0">We'll email all three kits as PDFs within one business day, so you can see them before deciding.</p>
+    <div class="two">
+      <label for="f-name">Your name<input id="f-name" name="name" required autocomplete="name"></label>
+      <label for="f-org">Organization<input id="f-org" name="organization" required autocomplete="organization"></label>
+    </div>
+    <div class="two">
+      <label for="f-email">Work email<input id="f-email" type="email" name="email" required autocomplete="email"></label>
+      <label for="f-type">Type of organization
+        <select id="f-type" name="type">
+          <option>Home health or hospice</option>
+          <option>Hospital or discharge planning</option>
+          <option>Area Agency on Aging</option>
+          <option>Senior center or adult day</option>
+          <option>Church or care ministry</option>
+          <option>Elder law or financial planning</option>
+          <option>Other</option>
+        </select>
+      </label>
+    </div>
+    <label for="f-msg">Anything we should know? (optional)<textarea id="f-msg" name="message" placeholder="How many families you serve, a bulk order, a version with your name on it…"></textarea></label>
+    <button type="submit">Send me the review copy</button>
+  </form>
+</div></section>
+
+<div class="wrap"><footer>The license covers printing and handing out copies to the people your organization serves. It does not allow reselling or posting the files online. Planning and organizing tools, not medical, legal or professional advice. © 2026 Prepared at Home.</footer></div>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), s = q.get('utm_source') || q.get('s') || '';
+  if (!s && document.referrer) { try { var h = new URL(document.referrer).hostname; if (h !== location.hostname) s = h; } catch (e) {} }
+  document.getElementById('source').value = s || 'direct';
+})();
+</script>
+</body>
+</html>

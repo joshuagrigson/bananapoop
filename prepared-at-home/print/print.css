@@ -1,0 +1,25 @@
+@page { size: Letter; margin: 0 }
+* { box-sizing: border-box }
+:root { --ink: #111923; --muted: #4b5866; --line: #c9d2dc; --yellow: #ffd23f; --soft: #fff6cf; --display: "Anton", Impact, "Arial Narrow", sans-serif; --body: "Inter", "DejaVu Sans", Arial, sans-serif }
+html, body { margin: 0; color: var(--ink); font-family: var(--body); -webkit-print-color-adjust: exact; print-color-adjust: exact }
+.page { width: 8.5in; height: 11in; position: relative; overflow: hidden; padding: .55in .6in 0 }
+.brand { display: flex; align-items: center; gap: .12in; font-weight: 700; font-size: 11pt; letter-spacing: .08em; text-transform: uppercase }
+.brand img { width: .5in; height: .5in; border-radius: 8px }
+h1 { font-family: var(--display); font-weight: 400; text-transform: uppercase; line-height: 1.12; margin: .2in 0 .12in; letter-spacing: .005em }
+h1 mark { background: var(--yellow); color: var(--ink); padding: 0 .06in }
+.lede { font-size: 15pt; line-height: 1.35; margin: 0 0 .2in; max-width: 6.6in }
+.row { display: grid; grid-template-columns: 1fr 2.1in; gap: .3in; align-items: start }
+ul.list { margin: 0; padding: 0; list-style: none; font-size: 12.5pt; line-height: 1.4 }
+ul.list li { padding: .05in 0 .05in .3in; position: relative; border-bottom: 1px solid var(--line) }
+ul.list li::before { content: ""; position: absolute; left: 0; top: .1in; width: .16in; height: .16in; border: 2px solid var(--ink); border-radius: 3px }
+.qr { text-align: center; border: 3px solid var(--ink); border-radius: 12px; padding: .14in }
+.qr img { width: 100%; display: block }
+.qr b { display: block; font-size: 12pt; margin-top: .08in }
+.qr small { display: block; font-size: 9pt; color: var(--muted); margin-top: .04in; line-height: 1.3 }
+.note { font-size: 10pt; color: var(--muted); line-height: 1.4 }
+.box { background: var(--soft); border-left: 6px solid var(--yellow); padding: .14in .18in; border-radius: 6px; font-size: 11.5pt; line-height: 1.4 }
+.tabs { position: absolute; left: 0; right: 0; bottom: 0; height: 2.05in; border-top: 2px dashed var(--ink); display: grid; grid-template-columns: repeat(7, 1fr) }
+.tabs div { border-right: 1px dashed var(--muted); writing-mode: vertical-rl; transform: rotate(180deg); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 8pt; line-height: 1.3; text-align: center; padding: 0; white-space: nowrap; overflow: hidden }
+.tabs div:last-child { border-right: 0 }
+.tabs b { font-size: 8.5pt }
+.scissor { position: absolute; left: .2in; bottom: 1.93in; font-size: 9pt; background: #fff; padding: 0 4px; color: var(--muted) }

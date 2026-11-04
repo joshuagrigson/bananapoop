@@ -169,6 +169,7 @@
     <p>One printable page from The First 30 Days. Fill it in the night before the visit and hand it over if that's easier than reading it aloud.</p>
     <form name="free-download" method="POST" data-netlify="true" netlify-honeypot="company" action="/free/thanks.html">
       <input type="hidden" name="form-name" value="free-download">
+      <input type="hidden" name="source" id="free-source" value="">
       <p style="display:none"><label>Company <input name="company"></label></p>
       <input type="email" id="email" name="email" placeholder="you@example.com" required aria-label="Email address">
       <button type="submit">Send me the page</button>
@@ -199,6 +200,7 @@
   var saved = null; try { saved = JSON.parse(sessionStorage.getItem('pah_src') || 'null'); } catch (e) {}
   if (src) { saved = { s: src, m: med || 'referral', c: camp || '', t: content || '' }; try { sessionStorage.setItem('pah_src', JSON.stringify(saved)); } catch (e) {} }
   if (!saved) saved = { s: 'site-direct', m: 'referral', c: '', t: '' };
+  var fs = document.getElementById('free-source'); if (fs) fs.value = saved.s;
   document.querySelectorAll('a[href*="myshopify.com/products/"]').forEach(function (a) {
     var u = new URL(a.href), sec = a.closest('section');
     u.searchParams.set('utm_source', saved.s);
