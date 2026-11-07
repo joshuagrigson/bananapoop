@@ -14,7 +14,7 @@ microphone. The real app is the Swift/Android WebView shell in
 | `index.html` + `styles.css` + `gesture-core.js` + `app.js` | The same interface as editable source files. `build.py` rebuilds the standalone from them. |
 | `adapter.example.js` | The command contract for wiring the UI to the real TV service (`NexusRemote.setAdapter`, `NexusRemote.setState`). |
 | `assets/approved-reference-black.png` | The design target (1328 × 1184, Trackpad left, D-pad right). |
-| `tests/gesture-core.test.cjs` | 5 dependency-free gesture-logic tests (one swipe = one move; extras by distance only). |
+| `tests/gesture-core.test.cjs` | 6 dependency-free gesture-logic tests (quick swipe = one move, extras by distance; slow pull steps as it creeps). |
 | `tests/browser.test.cjs` | Playwright checks: mode isolation, stable layout, select routing, volume, tap-select, host state, no horizontal overflow. Writes `previews/`. |
 | `previews/` | Screenshots produced by the browser test in this environment. |
 

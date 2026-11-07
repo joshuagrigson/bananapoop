@@ -48,7 +48,7 @@
   let requestSequence = 0;
   let voiceActive = false;
   const commandLog = [];
-  const gestureConfig = Object.freeze({tapSlop:9,tapMaxMs:350,swipePx:30,axisRatio:1.25,heavyPx:140,veryHeavyPx:230,extraIntervalMs:90,holdDelayMs:420,holdIntervalMs:120});
+  const gestureConfig = Object.freeze({tapSlop:9,tapMaxMs:350,swipePx:30,axisRatio:1.25,heavyPx:140,veryHeavyPx:230,extraIntervalMs:90,slowSpeed:.45,pullPx:36,holdDelayMs:420,holdIntervalMs:120});
 
   function notify(message) {
     const node=$('#toast'); node.textContent=message; node.classList.add('visible');
@@ -94,7 +94,7 @@
       <div class="inputs" aria-label="TV inputs">${inputCards()}</div><p class="hidden-count">1 hidden</p>
       <section class="navigation" aria-label="Navigation controls">
         <div class="mode-selector" role="tablist" aria-label="Navigation mode"><button class="mode" role="tab" id="${id}-track-tab" data-mode="trackpad" aria-selected="true" aria-controls="${id}-track">Trackpad</button><button class="mode" role="tab" id="${id}-dpad-tab" data-mode="dpad" aria-selected="false" aria-controls="${id}-dpad" tabindex="-1">D-pad</button></div>
-        <div class="track-surface" id="${id}-track" role="tabpanel" aria-labelledby="${id}-track-tab" tabindex="0" aria-description="One swipe moves the selection one step. Tap to select. Arrow keys navigate and Enter selects."><span class="contact"></span><p class="track-copy">Swipe to navigate<br>Tap to select</p></div>
+        <div class="track-surface" id="${id}-track" role="tabpanel" aria-labelledby="${id}-track-tab" tabindex="0" aria-description="A quick swipe moves the selection one step; a slow pull steps as you go. Tap to select. Arrow keys navigate and Enter selects."><span class="contact"></span><p class="track-copy">Swipe to navigate<br>Tap to select</p></div>
         <div class="dpad" id="${id}-dpad" role="tabpanel" aria-labelledby="${id}-dpad-tab" hidden>${dpadArt(id)}
           ${[['up','▲'],['left','◀'],['right','▶'],['down','▼']].map(([direction,glyph])=>`<button class="direction ${direction}" data-action="navigate" data-value="${direction}" data-repeat="true" aria-label="${direction}"><span class="triangle">${glyph}</span><span>${direction.toUpperCase()}</span></button>`).join('')}
           <button class="center-select" data-action="select">SELECT</button>
@@ -222,13 +222,21 @@
       const dx=event.clientX-g.x,dy=event.clientY-g.y;
       if(Math.hypot(dx,dy)>gestureConfig.tapSlop) g.moved=true;
       const dt=Math.max(1,event.timeStamp-g.lastT);
-      g.velocity=Math.hypot(event.clientX-g.lastX,event.clientY-g.lastY)/dt;
+      const instant=Math.hypot(event.clientX-g.lastX,event.clientY-g.lastY)/dt;
+      g.velocity=g.velocity?g.velocity*.5+instant*.5:instant;
       g.lastX=event.clientX;g.lastY=event.clientY;g.lastT=event.timeStamp;
       const r=pad.getBoundingClientRect();contact.style.left=Math.max(0,Math.min(r.width,event.clientX-r.left))+'px';contact.style.top=Math.max(0,Math.min(r.height,event.clientY-r.top))+'px';
-      if(g.direction)return; // One swipe, one move: the direction was already sent.
-      const direction=gestureMath.swipeDirection(dx,dy,gestureConfig.swipePx,gestureConfig.axisRatio);
-      if(!direction)return; // Ambiguous diagonal or too short stays inert.
-      g.direction=direction;g.steps=1;send('navigate',direction,'trackpad');
+      if(!g.direction){
+        const direction=gestureMath.swipeDirection(dx,dy,gestureConfig.swipePx,gestureConfig.axisRatio);
+        if(!direction)return; // Ambiguous diagonal or too short stays inert.
+        g.direction=direction;g.steps=1;g.ax=event.clientX;g.ay=event.clientY;send('navigate',direction,'trackpad');return;
+      }
+      // Slow pull: steady steps while the finger creeps. Fast movement only moves the anchor.
+      const sx=event.clientX-g.ax,sy=event.clientY-g.ay;
+      if(g.velocity>gestureConfig.slowSpeed){g.ax=event.clientX;g.ay=event.clientY;return;}
+      const pull=gestureMath.pullStep(sx,sy,g.velocity,gestureConfig.slowSpeed,gestureConfig.pullPx);
+      if(!pull)return;
+      g.pulled=true;g.ax=event.clientX;g.ay=event.clientY;send('navigate',pull,'pull');
     });
     function finish(event,cancelled=false) {
       const g=gesture; if(!g||g.id!==event.pointerId)return;
@@ -236,7 +244,7 @@
       if(cancelled)return;
       markTrackUsed();
       if(gestureMath.isTap(g.moved,event.timeStamp-g.startT,gestureConfig.tapMaxMs)){send('select',undefined,'trackpad');return;}
-      if(!g.direction)return;
+      if(!g.direction||g.pulled)return;
       const dx=event.clientX-g.x,dy=event.clientY-g.y;
       const along={right:dx,left:-dx,down:dy,up:-dy}[g.direction];
       let remaining=gestureMath.extraSteps(along,gestureConfig.heavyPx,gestureConfig.veryHeavyPx);

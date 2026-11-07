@@ -157,10 +157,11 @@ function nxSetMode(m){nxMode=m;lsSet('nxMode',m);
 (function(){
   var panel=document.getElementById('nxNav');if(!panel)return;
   var pad=document.getElementById('nxTrack'),contact=document.getElementById('nxContact'),g=null,inertia=null;
-  // ONE SWIPE, ONE MOVE. The first clear movement sends one press and locks the direction for the
-  // rest of the gesture. Only a long swipe adds more at release: +1 past 140 px, +2 past 230 px,
-  // measured along the locked direction. Speed never counts; nothing else moves.
-  var SWIPE=30,RATIO=1.25,SLOP=9,TAPMS=350,HEAVY=140,VERYHEAVY=230,EXTRAMS=90;
+  // TWO WAYS TO MOVE. A quick swipe: the first clear movement sends one press and locks the
+  // direction; a long swipe adds +1 past 140 px, +2 past 230 px at release, by distance only.
+  // A slow steady pull: while the finger creeps (under 0.45 px/ms) it steps every 36 px in
+  // whatever direction it is creeping, for fine control. A pull never earns release extras.
+  var SWIPE=30,RATIO=1.25,SLOP=9,TAPMS=350,HEAVY=140,VERYHEAVY=230,EXTRAMS=90,SLOWV=.45,PULL=36;
   function swipeDir(sx,sy){var h=Math.abs(sx)>Math.abs(sy)*RATIO,v=Math.abs(sy)>Math.abs(sx)*RATIO;if(!h&&!v)return null;
     var d=h?sx:sy;if(Math.abs(d)<SWIPE)return null;return h?(d>0?'right':'left'):(d>0?'down':'up')}
   function extraSteps(dist){return dist>=VERYHEAVY?2:dist>=HEAVY?1:0}
@@ -175,18 +176,21 @@ function nxSetMode(m){nxMode=m;lsSet('nxMode',m);
   panel.addEventListener('pointermove',function(e){
     if(!g||g.id!==e.pointerId)return;
     if(Math.hypot(e.clientX-g.x,e.clientY-g.y)>SLOP)g.moved=true;
-    var dt=Math.max(1,e.timeStamp-g.lt);g.v=Math.hypot(e.clientX-g.lx,e.clientY-g.ly)/dt;g.lx=e.clientX;g.ly=e.clientY;g.lt=e.timeStamp;
+    var dt=Math.max(1,e.timeStamp-g.lt),iv=Math.hypot(e.clientX-g.lx,e.clientY-g.ly)/dt;g.v=g.v?g.v*.5+iv*.5:iv;g.lx=e.clientX;g.ly=e.clientY;g.lt=e.timeStamp;
     var r=pad.getBoundingClientRect();contact.style.left=Math.max(0,Math.min(r.width,e.clientX-r.left))+'px';contact.style.top=Math.max(0,Math.min(r.height,e.clientY-r.top))+'px';
-    if(g.dir)return; // direction already sent for this swipe
-    var d=swipeDir(e.clientX-g.x,e.clientY-g.y);if(!d)return;
-    g.dir=d;g.steps=1;go(d)});
+    if(!g.dir){var d=swipeDir(e.clientX-g.x,e.clientY-g.y);if(!d)return;g.dir=d;g.steps=1;g.ax=e.clientX;g.ay=e.clientY;go(d);return}
+    // Slow pull: steady steps while the finger creeps. Fast movement only moves the anchor.
+    var sx=e.clientX-g.ax,sy=e.clientY-g.ay;
+    if(g.v>SLOWV){g.ax=e.clientX;g.ay=e.clientY;return}
+    var hz=Math.abs(sx)>=Math.abs(sy),dist=hz?sx:sy;if(Math.abs(dist)<PULL)return;
+    g.pulled=true;g.ax=e.clientX;g.ay=e.clientY;go(hz?(sx>0?'right':'left'):(sy>0?'down':'up'))});
   function finish(e,cancelled){
     if(!g||g.id!==e.pointerId)return;var x=g;g=null;
     contact.classList.remove('nx-touching');contact.style.left='';contact.style.top='';
     if(cancelled)return;
     nxTrackUsed();
     if(!x.moved&&e.timeStamp-x.t0<=TAPMS){go('ok');return}
-    if(!x.dir)return;
+    if(!x.dir||x.pulled)return;
     var along={right:e.clientX-x.x,left:x.x-e.clientX,down:e.clientY-x.y,up:x.y-e.clientY}[x.dir];
     var left=extraSteps(along);
     if(left)inertia=setInterval(function(){if(left--<=0){clearInterval(inertia);return}go(x.dir)},EXTRAMS)}

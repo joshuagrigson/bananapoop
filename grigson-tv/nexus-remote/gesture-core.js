@@ -20,6 +20,15 @@
     extraSteps(distanceAlong,heavy=140,veryHeavy=230){
       return distanceAlong>=veryHeavy?2:distanceAlong>=heavy?1:0;
     },
+    // Slow pull: while the finger creeps (speed at or under slowSpeed px/ms), every pullPx of travel
+    // along the dominant axis is one step in that direction. Fast movement is not a pull.
+    pullStep(sx,sy,speed,slowSpeed=.45,pullPx=36){
+      if(speed>slowSpeed)return null;
+      const horizontal=Math.abs(sx)>=Math.abs(sy);
+      const delta=horizontal?sx:sy;
+      if(Math.abs(delta)<pullPx)return null;
+      return horizontal?(delta>0?'right':'left'):(delta>0?'down':'up');
+    },
     isTap(moved,elapsed,maxMs=350){return !moved&&elapsed<=maxMs;},
     clampVolume(value){return Math.max(0,Math.min(100,Math.round(value)));}
   });

@@ -20,6 +20,13 @@ test('a normal swipe earns no extra press; only a long one earns one or two',()=
   assert.equal(gestures.extraSteps(900),2,'never more than two extras');
   assert.equal(gestures.extraSteps(-120),0,'a reversal earns nothing');
 });
+test('a slow pull steps every 36 px in the direction it creeps; a fast move is not a pull',()=>{
+  assert.equal(gestures.pullStep(40,2,.2),'right');
+  assert.equal(gestures.pullStep(-40,2,.2),'left');
+  assert.equal(gestures.pullStep(3,-40,.3),'up');
+  assert.equal(gestures.pullStep(30,0,.2),null,'not far enough yet');
+  assert.equal(gestures.pullStep(80,0,1.5),null,'fast movement never pulls');
+});
 test('drag release and long hold never become a tap-select',()=>{
   assert.equal(gestures.isTap(false,200),true);
   assert.equal(gestures.isTap(true,200),false);
