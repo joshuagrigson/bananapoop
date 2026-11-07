@@ -50,3 +50,5 @@ with this design (run it with `styles.css` and the two pages as arguments). It
 keeps every existing command string and page function, moves the smart row under
 the status row, and leaves the full remote untouched. `previews/live-app-390.png`
 is the patched iPhone page rendered with a stubbed TV bridge.
+
+Patch order for a fresh rebuild from paper-plate d285b38: `integrate-paper-plate.py` (NEXUS layout), then `xbox-id-patch.py` (Xbox client ID in Settings, centred 10), then `all-in-settings-patch.py` (ALL screen inside Settings).
