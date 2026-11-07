@@ -26,7 +26,9 @@ OVERRIDES = """/* Layout 2 (Joshua 2026-11-07): rooms and the smart row at the b
 #simpleRemote .nx-input-card{height:calc(72 * var(--u));font-size:calc(19 * var(--u));padding:calc(4 * var(--u)) calc(3 * var(--u))}
 #simpleRemote .nx-input-card > .nx-icon{width:calc(34 * var(--u));height:calc(22 * var(--u));margin-bottom:0}
 #simpleRemote .nx-input-card .nx-port{font-size:calc(14 * var(--u));margin-top:0}
-#simpleRemote .nx-input-card .nx-state-line{height:calc(18 * var(--u));font-size:calc(13 * var(--u))}
+#simpleRemote .nx-input-card{position:relative;overflow:hidden}
+#simpleRemote .nx-led{position:absolute;top:calc(8 * var(--u));right:calc(9 * var(--u));width:calc(10 * var(--u));height:calc(10 * var(--u));border-radius:50%;background:var(--green);box-shadow:0 0 8px #22e72aa0,0 0 2px #fff6}
+#simpleRemote .nx-input-card .nx-name{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #simpleRemote .nx-hidden-count{height:calc(18 * var(--u));font-size:calc(14 * var(--u))}
 #simpleRemote .nx-primary{height:calc(78 * var(--u));margin-top:calc(14 * var(--u))}
 #simpleRemote .nx-primary button{font-size:calc(24 * var(--u))}
@@ -151,8 +153,8 @@ function paintInputs(){var box=document.getElementById('sInputs');if(!box)return
     var b=document.createElement('button');b.className='nx-input-card nx-chrome';
     b.setAttribute('data-c','hdmi'+x.n);b.setAttribute('aria-pressed',sel?'true':'false');
     b.setAttribute('aria-label',label+', '+port+(on?', device on':'')+(sel?', on screen':''));
-    b.innerHTML=nxIcon(x.icon)+'<span class="nx-name"></span>'+(label!==port?'<span class="nx-port">'+port+'</span>':'')+
-      ((on||sel)?'<span class="nx-state-line">'+(on?'<span class="nx-dot"></span>On':'')+(sel?'<span class="nx-on-screen">On screen</span>':'')+'</span>':'');
+    // A device that is on gets a small green light in the corner; the current input is the lit tile.
+    b.innerHTML=nxIcon(x.icon)+'<span class="nx-name"></span>'+(label!==port?'<span class="nx-port">'+port+'</span>':'')+(on?'<span class="nx-led" aria-hidden="true"></span>':'');
     b.querySelector('.nx-name').textContent=label;
     box.appendChild(b)});
   var hid=all.length-list.length;document.getElementById('nxHidden').textContent=hid?hid+' hidden':'';
