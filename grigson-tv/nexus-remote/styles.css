@@ -64,9 +64,6 @@ button:active, button.is-pressed { filter: brightness(1.2); transform: scale(.98
 .contact.touching { opacity:1; transition:opacity 60ms; }
 .track-copy.used { display:none; }
 .track-copy { position:absolute; width:100%; bottom:calc(58 * var(--u)); text-align:center; margin:0; font-size:calc(21 * var(--u)); line-height:1.35; pointer-events:none; }
-.edge-hint { position:absolute; width:100%; bottom:calc(12 * var(--u)); text-align:center; margin:0; font-size:calc(16 * var(--u)); pointer-events:none; }
-.edge-swipe { position:absolute; z-index:4; right:0; top:calc(62 * var(--u)); bottom:calc(10 * var(--u)); width:24px; touch-action:none; cursor:ew-resize; }
-.edge-swipe::after { content:''; position:absolute; top:33%; right:calc(8 * var(--u)); width:calc(5 * var(--u)); height:calc(66 * var(--u)); border-radius:8px; background:linear-gradient(#f6f6f4,#aaafb1); box-shadow:0 0 7px #fff5; }
 .dpad { position:absolute; inset:calc(66 * var(--u)) calc(10 * var(--u)) calc(10 * var(--u)); }
 .dpad-art { width:100%; height:100%; position:absolute; overflow:visible; pointer-events:none; }
 .direction { position:absolute; border:0; background:transparent; padding:0; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:calc(8 * var(--u)); border-radius:calc(12 * var(--u)); font-size:calc(19 * var(--u)); touch-action:none; }

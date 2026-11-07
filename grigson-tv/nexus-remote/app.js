@@ -48,7 +48,7 @@
   let requestSequence = 0;
   let voiceActive = false;
   const commandLog = [];
-  const gestureConfig = Object.freeze({tapSlop:9,tapMaxMs:350,stepPx:26,axisRatio:1.25,edgeWidth:24,edgeThreshold:50,edgeAxisRatio:1.5,flickMinVelocity:.65,flickMaxSteps:3,flickIntervalMs:95,holdDelayMs:420,holdIntervalMs:120});
+  const gestureConfig = Object.freeze({tapSlop:9,tapMaxMs:350,stepPx:26,axisRatio:1.25,flickMinVelocity:.65,flickMaxSteps:3,flickIntervalMs:95,holdDelayMs:420,holdIntervalMs:120});
 
   function notify(message) {
     const node=$('#toast'); node.textContent=message; node.classList.add('visible');
@@ -94,12 +94,11 @@
       <div class="inputs" aria-label="TV inputs">${inputCards()}</div><p class="hidden-count">1 hidden</p>
       <section class="navigation" aria-label="Navigation controls">
         <div class="mode-selector" role="tablist" aria-label="Navigation mode"><button class="mode" role="tab" id="${id}-track-tab" data-mode="trackpad" aria-selected="true" aria-controls="${id}-track">Trackpad</button><button class="mode" role="tab" id="${id}-dpad-tab" data-mode="dpad" aria-selected="false" aria-controls="${id}-dpad" tabindex="-1">D-pad</button></div>
-        <div class="track-surface" id="${id}-track" role="tabpanel" aria-labelledby="${id}-track-tab" tabindex="0" aria-description="Swipe in any direction to navigate. Tap to select. Arrow keys navigate and Enter selects."><span class="contact"></span><p class="track-copy">Swipe to navigate<br>Tap to select</p><p class="edge-hint">Swipe left from edge to switch</p></div>
+        <div class="track-surface" id="${id}-track" role="tabpanel" aria-labelledby="${id}-track-tab" tabindex="0" aria-description="Swipe in any direction to navigate. Tap to select. Arrow keys navigate and Enter selects."><span class="contact"></span><p class="track-copy">Swipe to navigate<br>Tap to select</p></div>
         <div class="dpad" id="${id}-dpad" role="tabpanel" aria-labelledby="${id}-dpad-tab" hidden>${dpadArt(id)}
           ${[['up','▲'],['left','◀'],['right','▶'],['down','▼']].map(([direction,glyph])=>`<button class="direction ${direction}" data-action="navigate" data-value="${direction}" data-repeat="true" aria-label="${direction}"><span class="triangle">${glyph}</span><span>${direction.toUpperCase()}</span></button>`).join('')}
           <button class="center-select" data-action="select">SELECT</button>
         </div>
-        <div class="edge-swipe" aria-hidden="true"></div>
       </section>
       <div class="primary"><button class="chrome" data-action="back">${icon('back')}Back</button><button class="okay" data-action="select">OK</button><button class="chrome" data-action="home">${icon('home')}Home</button></div>
       <div class="volume-row"><div class="volume-strip"><button class="volume-key chrome" data-action="volume" data-value="-1" data-repeat="true" aria-label="Volume down">−</button><div class="volume-readout"><div class="volume-label">VOLUME<span class="volume-number">18</span></div><div class="meter" role="meter" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="18"><div class="meter-fill" style="width:18%"></div></div></div><button class="volume-key chrome" data-action="volume" data-value="1" data-repeat="true" aria-label="Volume up">+</button></div><button class="mute chrome" data-action="mute" aria-pressed="false">${icon('mute')}Mute</button></div>
@@ -206,12 +205,11 @@
     const root=panel.closest('.remote'); const pad=$('.track-surface',panel); const contact=$('.contact',panel);
     panel.addEventListener('pointerdown',event=>{
       if(!event.isPrimary || (event.pointerType==='mouse'&&event.button!==0)) return;
-      const edge=Boolean(event.target.closest('.edge-swipe'));
-      if(!edge && event.target!==pad && !pad.contains(event.target)) return;
-      if(!edge && pad.hidden) return;
+      if(event.target!==pad && !pad.contains(event.target)) return;
+      if(pad.hidden) return;
       cancelMotion(); panel.setPointerCapture(event.pointerId); event.preventDefault();
-      gesture={id:event.pointerId,edge,x:event.clientX,y:event.clientY,lastX:event.clientX,lastY:event.clientY,lastT:event.timeStamp,startT:event.timeStamp,ax:event.clientX,ay:event.clientY,steps:0,moved:false,direction:null,velocity:0};
-      if(!edge) {const r=pad.getBoundingClientRect();contact.style.left=(event.clientX-r.left)+'px';contact.style.top=(event.clientY-r.top)+'px';contact.classList.add('touching');}
+      gesture={id:event.pointerId,x:event.clientX,y:event.clientY,lastX:event.clientX,lastY:event.clientY,lastT:event.timeStamp,startT:event.timeStamp,ax:event.clientX,ay:event.clientY,steps:0,moved:false,direction:null,velocity:0};
+      const r=pad.getBoundingClientRect();contact.style.left=(event.clientX-r.left)+'px';contact.style.top=(event.clientY-r.top)+'px';contact.classList.add('touching');
     });
     panel.addEventListener('pointermove',event=>{
       const g=gesture; if(!g||g.id!==event.pointerId) return;
@@ -220,7 +218,6 @@
       const dt=Math.max(1,event.timeStamp-g.lastT);
       g.velocity=Math.hypot(event.clientX-g.lastX,event.clientY-g.lastY)/dt;
       g.lastX=event.clientX;g.lastY=event.clientY;g.lastT=event.timeStamp;
-      if(g.edge) return; // No TV commands can escape an edge gesture.
       const r=pad.getBoundingClientRect();contact.style.left=Math.max(0,Math.min(r.width,event.clientX-r.left))+'px';contact.style.top=Math.max(0,Math.min(r.height,event.clientY-r.top))+'px';
       const sx=event.clientX-g.ax,sy=event.clientY-g.ay;
       const step=gestureMath.step(sx,sy,gestureConfig.stepPx,gestureConfig.axisRatio);
@@ -233,11 +230,6 @@
       const g=gesture; if(!g||g.id!==event.pointerId)return;
       gesture=null;contact.classList.remove('touching');contact.style.left='';contact.style.top='';
       if(cancelled)return;
-      const dx=event.clientX-g.x,dy=event.clientY-g.y;
-      if(g.edge){
-        if(gestureMath.isEdgeSwitch(dx,dy,gestureConfig.edgeThreshold,gestureConfig.edgeAxisRatio)) setMode(root,modes.get(root.dataset.remote)==='trackpad'?'dpad':'trackpad');
-        return;
-      }
       markTrackUsed();
       if(gestureMath.isTap(g.moved,event.timeStamp-g.startT,gestureConfig.tapMaxMs)){send('select',undefined,'trackpad');return;}
       const recent=event.timeStamp-g.lastT<100;

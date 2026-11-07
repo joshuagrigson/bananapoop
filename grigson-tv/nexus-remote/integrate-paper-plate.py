@@ -9,7 +9,7 @@ css_src = open(sys.argv[1]).read()
 # ---------- 1. CSS: NEXUS rules scoped under #simpleRemote, classes prefixed nx- ----------
 NAMES = ['icon','chrome','header','brand','settings','rooms','room','status-source','status-alias','status','dot','off',
  'power','inputs-heading','edit','inputs','input-card','port','state-line','on-screen','hidden-count','navigation',
- 'mode-selector','mode','track-surface','contact','touching','track-copy','edge-hint','edge-swipe','dpad-art','dpad',
+ 'mode-selector','mode','track-surface','contact','touching','track-copy','dpad-art','dpad',
  'direction','triangle','up','down','left','right','is-pressed','center-select','primary','okay','volume-row',
  'volume-strip','volume-key','volume-readout','volume-label','volume-number','meter-fill','meter','mute','playback',
  'media-icon','bottom','voice']
@@ -66,9 +66,8 @@ NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
  <div id="sInputs" class="nx-inputs" aria-label="TV inputs"></div><p id="nxHidden" class="nx-hidden-count"></p>
  <section id="nxNav" class="nx-navigation" aria-label="Navigation">
   <div class="nx-mode-selector" role="tablist" aria-label="Navigation mode"><button class="nx-mode" role="tab" data-mode="trackpad" aria-selected="true">Trackpad</button><button class="nx-mode" role="tab" data-mode="dpad" aria-selected="false">D-pad</button></div>
-  <div id="nxTrack" class="nx-track-surface" role="tabpanel"><span id="nxContact" class="nx-contact"></span><p id="nxCopy" class="nx-track-copy">Swipe to navigate<br>Tap to select</p><p class="nx-edge-hint">Swipe left from edge to switch</p></div>
+  <div id="nxTrack" class="nx-track-surface" role="tabpanel"><span id="nxContact" class="nx-contact"></span><p id="nxCopy" class="nx-track-copy">Swipe to navigate<br>Tap to select</p></div>
   <div id="nxDpad" class="nx-dpad" role="tabpanel" hidden>{DPAD_ART}{DIRS}<button class="nx-center-select" data-c="ok">SELECT</button></div>
-  <div class="nx-edge-swipe" aria-hidden="true"></div>
  </section>
  <div class="nx-primary"><button class="nx-chrome" data-c="back">{icon('back')}Back</button><button class="nx-okay" data-c="ok">OK</button><button class="nx-chrome" data-c="home">{icon('home')}Home</button></div>
  <div class="nx-volume-row"><div class="nx-volume-strip"><button class="nx-volume-key nx-chrome" data-c="volumeDown" data-repeat="1" aria-label="Volume down">&minus;</button><div class="nx-volume-readout"><div class="nx-volume-label">VOLUME<span id="nxVol" class="nx-volume-number">–</span></div><div class="nx-meter" role="meter" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="nxMeter" class="nx-meter-fill" style="width:0%"></div></div></div><button class="nx-volume-key nx-chrome" data-c="volumeUp" data-repeat="1" aria-label="Volume up">+</button></div><button id="nxMute" class="nx-mute nx-chrome" data-c="mute" aria-pressed="false">{icon('mute')}Mute</button></div>
@@ -134,7 +133,7 @@ function paintInputs(){var box=document.getElementById('sInputs');if(!box)return
   ['pointerup','pointercancel'].forEach(function(t){document.addEventListener(t,stop,{passive:true})});
   window.addEventListener('blur',stop);document.addEventListener('visibilitychange',function(){if(document.hidden)stop()});
 })();
-// Trackpad / D-pad. The selector (or a left swipe from the panel's right edge) switches only this panel.
+// Trackpad / D-pad. The selector switches only this panel.
 var nxMode='trackpad';
 function nxSetMode(m){nxMode=m;lsSet('nxMode',m);
   document.querySelectorAll('#nxNav .nx-mode').forEach(function(b){b.setAttribute('aria-selected',b.dataset.mode===m?'true':'false')});
@@ -142,23 +141,21 @@ function nxSetMode(m){nxMode=m;lsSet('nxMode',m);
 (function(){
   var panel=document.getElementById('nxNav');if(!panel)return;
   var pad=document.getElementById('nxTrack'),contact=document.getElementById('nxContact'),g=null,inertia=null;
-  var STEP=26,RATIO=1.25,SLOP=9,TAPMS=350,EDGE=50,EDGERATIO=1.5,FLICK=.65,FLICKMAX=3,FLICKMS=95;
+  var STEP=26,RATIO=1.25,SLOP=9,TAPMS=350,FLICK=.65,FLICKMAX=3,FLICKMS=95;
   function step(sx,sy){var h=Math.abs(sx)>Math.abs(sy)*RATIO,v=Math.abs(sy)>Math.abs(sx)*RATIO;if(!h&&!v)return null;
     var d=h?sx:sy,n=Math.min(4,Math.floor(Math.abs(d)/STEP));if(!n)return null;return{count:n,dir:h?(d>0?'right':'left'):(d>0?'down':'up')}}
   panel.addEventListener('click',function(e){var m=e.target.closest('[data-mode]');if(m)nxSetMode(m.dataset.mode)});
   panel.addEventListener('pointerdown',function(e){
     if(!e.isPrimary||(e.pointerType==='mouse'&&e.button!==0))return;
-    var edge=!!e.target.closest('.nx-edge-swipe');
-    if(!edge&&!(e.target===pad||pad.contains(e.target)))return;
-    if(!edge&&pad.hidden)return;
+    if(!(e.target===pad||pad.contains(e.target)))return;
+    if(pad.hidden)return;
     clearInterval(inertia);panel.setPointerCapture(e.pointerId);e.preventDefault();
-    g={id:e.pointerId,edge:edge,x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,lt:e.timeStamp,t0:e.timeStamp,ax:e.clientX,ay:e.clientY,steps:0,moved:false,dir:null,v:0};
-    if(!edge){var r=pad.getBoundingClientRect();contact.style.left=(e.clientX-r.left)+'px';contact.style.top=(e.clientY-r.top)+'px';contact.classList.add('nx-touching')}});
+    g={id:e.pointerId,x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,lt:e.timeStamp,t0:e.timeStamp,ax:e.clientX,ay:e.clientY,steps:0,moved:false,dir:null,v:0};
+    var r=pad.getBoundingClientRect();contact.style.left=(e.clientX-r.left)+'px';contact.style.top=(e.clientY-r.top)+'px';contact.classList.add('nx-touching')});
   panel.addEventListener('pointermove',function(e){
     if(!g||g.id!==e.pointerId)return;
     if(Math.hypot(e.clientX-g.x,e.clientY-g.y)>SLOP)g.moved=true;
     var dt=Math.max(1,e.timeStamp-g.lt);g.v=Math.hypot(e.clientX-g.lx,e.clientY-g.ly)/dt;g.lx=e.clientX;g.ly=e.clientY;g.lt=e.timeStamp;
-    if(g.edge)return;
     var r=pad.getBoundingClientRect();contact.style.left=Math.max(0,Math.min(r.width,e.clientX-r.left))+'px';contact.style.top=Math.max(0,Math.min(r.height,e.clientY-r.top))+'px';
     var s=step(e.clientX-g.ax,e.clientY-g.ay);if(!s)return;
     g.dir=s.dir;for(var i=0;i<s.count;i++)go(g.dir);g.steps+=s.count;g.ax=e.clientX;g.ay=e.clientY});
@@ -166,8 +163,6 @@ function nxSetMode(m){nxMode=m;lsSet('nxMode',m);
     if(!g||g.id!==e.pointerId)return;var x=g;g=null;
     contact.classList.remove('nx-touching');contact.style.left='';contact.style.top='';
     if(cancelled)return;
-    var dx=e.clientX-x.x,dy=e.clientY-x.y;
-    if(x.edge){if(dx<=-EDGE&&Math.abs(dx)>Math.abs(dy)*EDGERATIO)nxSetMode(nxMode==='trackpad'?'dpad':'trackpad');return}
     nxTrackUsed();
     if(!x.moved&&e.timeStamp-x.t0<=TAPMS){go('ok');return}
     var recent=e.timeStamp-x.lt<100;

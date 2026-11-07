@@ -11,10 +11,6 @@ test('diagonals and micro-movement do not choose an arbitrary direction',()=>{
   assert.equal(gestures.step(25,0),null);
 });
 test('large movements are bounded per input event',()=>assert.equal(gestures.step(1000,0).count,4));
-test('edge shortcut requires deliberate leftward horizontal travel',()=>{
-  assert.equal(gestures.isEdgeSwitch(-70,4),true);
-  for(const [x,y] of [[70,0],[-49,0],[-50,50],[0,-70]])assert.equal(gestures.isEdgeSwitch(x,y),false);
-});
 test('drag release and long hold never become a tap-select',()=>{
   assert.equal(gestures.isTap(false,200),true);
   assert.equal(gestures.isTap(true,200),false);

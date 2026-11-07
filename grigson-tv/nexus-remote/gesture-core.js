@@ -15,7 +15,6 @@
       if(!count)return null;
       return {count,direction:horizontal?(delta>0?'right':'left'):(delta>0?'down':'up')};
     },
-    isEdgeSwitch(dx,dy,threshold=50,ratio=1.5){return dx<=-threshold&&Math.abs(dx)>Math.abs(dy)*ratio;},
     isTap(moved,elapsed,maxMs=350){return !moved&&elapsed<=maxMs;},
     flickSteps(velocity,recent,minVelocity=.65,maxSteps=3){return recent&&velocity>=minVelocity?Math.min(maxSteps,Math.floor(velocity/minVelocity)):0;},
     clampVolume(value){return Math.max(0,Math.min(100,Math.round(value)));}

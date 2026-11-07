@@ -34,12 +34,6 @@ const {pathToFileURL}=require('node:url');
     assert.equal((await page.evaluate(()=>NexusRemote.getState())).rooms.living.volume,19);
     await page.locator('.remote').first().getByRole('tab',{name:'Trackpad',exact:true}).click();
     await page.evaluate(()=>NexusRemote.clearCommands());
-    const edge=await page.locator('.remote').first().locator('.edge-swipe').boundingBox();
-    await page.mouse.move(edge.x+edge.width-5,edge.y+edge.height/2);
-    await page.mouse.down();await page.mouse.move(edge.x-80,edge.y+edge.height/2,{steps:8});await page.mouse.up();
-    assert.equal((await page.evaluate(()=>NexusRemote.getModes())).first,'dpad');
-    assert.equal((await page.evaluate(()=>NexusRemote.getCommands())).length,0,'edge switch cannot navigate TV');
-    await page.evaluate(()=>NexusRemote.setMode('trackpad'));
     const pad=await page.locator('.remote').first().locator('.track-surface').boundingBox();
     await page.mouse.click(pad.x+pad.width/2,pad.y+pad.height/2);
     assert.equal((await page.evaluate(()=>NexusRemote.getCommands())).at(-1).type,'select');
@@ -56,6 +50,6 @@ const {pathToFileURL}=require('node:url');
       await page.screenshot({path:path.resolve(__dirname,`../previews/dpad-${width}.png`),fullPage:true});
     }
     assert.deepEqual(errors,[]);
-    console.log('PASS: mode isolation, stable layout, command routing, volume, edge gesture, tap-select, adapter state, mobile overflow. Screenshots written to previews/.');
+    console.log('PASS: mode isolation, stable layout, command routing, volume, tap-select, adapter state, mobile overflow. Screenshots written to previews/.');
   } finally {await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
