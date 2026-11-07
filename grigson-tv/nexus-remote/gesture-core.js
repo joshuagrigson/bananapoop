@@ -6,17 +6,21 @@
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
   'use strict';
   return Object.freeze({
-    step(sx,sy,threshold=26,ratio=1.25){
+    // One swipe, one move: the first clear movement past the threshold names the direction, once.
+    swipeDirection(sx,sy,threshold=30,ratio=1.25){
       const horizontal=Math.abs(sx)>Math.abs(sy)*ratio;
       const vertical=Math.abs(sy)>Math.abs(sx)*ratio;
       if(!horizontal&&!vertical)return null;
       const delta=horizontal?sx:sy;
-      const count=Math.min(4,Math.floor(Math.abs(delta)/threshold));
-      if(!count)return null;
-      return {count,direction:horizontal?(delta>0?'right':'left'):(delta>0?'down':'up')};
+      if(Math.abs(delta)<threshold)return null;
+      return horizontal?(delta>0?'right':'left'):(delta>0?'down':'up');
+    },
+    // Only a long swipe earns extra presses at release: +1 past 140 px, +2 past 230 px, measured
+    // along the locked direction (a reversal counts as zero). Speed never counts.
+    extraSteps(distanceAlong,heavy=140,veryHeavy=230){
+      return distanceAlong>=veryHeavy?2:distanceAlong>=heavy?1:0;
     },
     isTap(moved,elapsed,maxMs=350){return !moved&&elapsed<=maxMs;},
-    flickSteps(velocity,recent,minVelocity=.65,maxSteps=3){return recent&&velocity>=minVelocity?Math.min(maxSteps,Math.floor(velocity/minVelocity)):0;},
     clampVolume(value){return Math.max(0,Math.min(100,Math.round(value)));}
   });
 });

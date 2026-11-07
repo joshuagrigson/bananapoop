@@ -48,7 +48,7 @@
   let requestSequence = 0;
   let voiceActive = false;
   const commandLog = [];
-  const gestureConfig = Object.freeze({tapSlop:9,tapMaxMs:350,stepPx:26,axisRatio:1.25,flickMinVelocity:.65,flickMaxSteps:3,flickIntervalMs:95,holdDelayMs:420,holdIntervalMs:120});
+  const gestureConfig = Object.freeze({tapSlop:9,tapMaxMs:350,swipePx:30,axisRatio:1.25,heavyPx:140,veryHeavyPx:230,extraIntervalMs:90,holdDelayMs:420,holdIntervalMs:120});
 
   function notify(message) {
     const node=$('#toast'); node.textContent=message; node.classList.add('visible');
@@ -94,7 +94,7 @@
       <div class="inputs" aria-label="TV inputs">${inputCards()}</div><p class="hidden-count">1 hidden</p>
       <section class="navigation" aria-label="Navigation controls">
         <div class="mode-selector" role="tablist" aria-label="Navigation mode"><button class="mode" role="tab" id="${id}-track-tab" data-mode="trackpad" aria-selected="true" aria-controls="${id}-track">Trackpad</button><button class="mode" role="tab" id="${id}-dpad-tab" data-mode="dpad" aria-selected="false" aria-controls="${id}-dpad" tabindex="-1">D-pad</button></div>
-        <div class="track-surface" id="${id}-track" role="tabpanel" aria-labelledby="${id}-track-tab" tabindex="0" aria-description="Swipe in any direction to navigate. Tap to select. Arrow keys navigate and Enter selects."><span class="contact"></span><p class="track-copy">Swipe to navigate<br>Tap to select</p></div>
+        <div class="track-surface" id="${id}-track" role="tabpanel" aria-labelledby="${id}-track-tab" tabindex="0" aria-description="One swipe moves the selection one step. Tap to select. Arrow keys navigate and Enter selects."><span class="contact"></span><p class="track-copy">Swipe to navigate<br>Tap to select</p></div>
         <div class="dpad" id="${id}-dpad" role="tabpanel" aria-labelledby="${id}-dpad-tab" hidden>${dpadArt(id)}
           ${[['up','▲'],['left','◀'],['right','▶'],['down','▼']].map(([direction,glyph])=>`<button class="direction ${direction}" data-action="navigate" data-value="${direction}" data-repeat="true" aria-label="${direction}"><span class="triangle">${glyph}</span><span>${direction.toUpperCase()}</span></button>`).join('')}
           <button class="center-select" data-action="select">SELECT</button>
@@ -225,12 +225,10 @@
       g.velocity=Math.hypot(event.clientX-g.lastX,event.clientY-g.lastY)/dt;
       g.lastX=event.clientX;g.lastY=event.clientY;g.lastT=event.timeStamp;
       const r=pad.getBoundingClientRect();contact.style.left=Math.max(0,Math.min(r.width,event.clientX-r.left))+'px';contact.style.top=Math.max(0,Math.min(r.height,event.clientY-r.top))+'px';
-      const sx=event.clientX-g.ax,sy=event.clientY-g.ay;
-      const step=gestureMath.step(sx,sy,gestureConfig.stepPx,gestureConfig.axisRatio);
-      if(!step)return; // Ambiguous diagonal stays inert until one axis wins.
-      const {count}=step;g.direction=step.direction;
-      for(let i=0;i<count;i++)send('navigate',g.direction,'trackpad');
-      g.steps+=count;g.ax=event.clientX;g.ay=event.clientY;
+      if(g.direction)return; // One swipe, one move: the direction was already sent.
+      const direction=gestureMath.swipeDirection(dx,dy,gestureConfig.swipePx,gestureConfig.axisRatio);
+      if(!direction)return; // Ambiguous diagonal or too short stays inert.
+      g.direction=direction;g.steps=1;send('navigate',direction,'trackpad');
     });
     function finish(event,cancelled=false) {
       const g=gesture; if(!g||g.id!==event.pointerId)return;
@@ -238,11 +236,11 @@
       if(cancelled)return;
       markTrackUsed();
       if(gestureMath.isTap(g.moved,event.timeStamp-g.startT,gestureConfig.tapMaxMs)){send('select',undefined,'trackpad');return;}
-      const recent=event.timeStamp-g.lastT<100;
-      if(g.steps&&g.direction&&recent&&g.velocity>=gestureConfig.flickMinVelocity){
-        let remaining=gestureMath.flickSteps(g.velocity,recent,gestureConfig.flickMinVelocity,gestureConfig.flickMaxSteps);
-        inertiaTimer=setInterval(()=>{if(remaining--<=0){clearInterval(inertiaTimer);return;}send('navigate',g.direction,'flick');},gestureConfig.flickIntervalMs);
-      }
+      if(!g.direction)return;
+      const dx=event.clientX-g.x,dy=event.clientY-g.y;
+      const along={right:dx,left:-dx,down:dy,up:-dy}[g.direction];
+      let remaining=gestureMath.extraSteps(along,gestureConfig.heavyPx,gestureConfig.veryHeavyPx);
+      if(remaining)inertiaTimer=setInterval(()=>{if(remaining--<=0){clearInterval(inertiaTimer);return;}send('navigate',g.direction,'flick');},gestureConfig.extraIntervalMs);
     }
     panel.addEventListener('pointerup',event=>finish(event));
     panel.addEventListener('pointercancel',event=>finish(event,true));

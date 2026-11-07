@@ -157,9 +157,13 @@ function nxSetMode(m){nxMode=m;lsSet('nxMode',m);
 (function(){
   var panel=document.getElementById('nxNav');if(!panel)return;
   var pad=document.getElementById('nxTrack'),contact=document.getElementById('nxContact'),g=null,inertia=null;
-  var STEP=26,RATIO=1.25,SLOP=9,TAPMS=350,FLICK=.65,FLICKMAX=3,FLICKMS=95;
-  function step(sx,sy){var h=Math.abs(sx)>Math.abs(sy)*RATIO,v=Math.abs(sy)>Math.abs(sx)*RATIO;if(!h&&!v)return null;
-    var d=h?sx:sy,n=Math.min(4,Math.floor(Math.abs(d)/STEP));if(!n)return null;return{count:n,dir:h?(d>0?'right':'left'):(d>0?'down':'up')}}
+  // ONE SWIPE, ONE MOVE. The first clear movement sends one press and locks the direction for the
+  // rest of the gesture. Only a long swipe adds more at release: +1 past 140 px, +2 past 230 px,
+  // measured along the locked direction. Speed never counts; nothing else moves.
+  var SWIPE=30,RATIO=1.25,SLOP=9,TAPMS=350,HEAVY=140,VERYHEAVY=230,EXTRAMS=90;
+  function swipeDir(sx,sy){var h=Math.abs(sx)>Math.abs(sy)*RATIO,v=Math.abs(sy)>Math.abs(sx)*RATIO;if(!h&&!v)return null;
+    var d=h?sx:sy;if(Math.abs(d)<SWIPE)return null;return h?(d>0?'right':'left'):(d>0?'down':'up')}
+  function extraSteps(dist){return dist>=VERYHEAVY?2:dist>=HEAVY?1:0}
   panel.addEventListener('click',function(e){var m=e.target.closest('[data-mode]');if(m)nxSetMode(m.dataset.mode)});
   panel.addEventListener('pointerdown',function(e){
     if(!e.isPrimary||(e.pointerType==='mouse'&&e.button!==0))return;
@@ -173,17 +177,19 @@ function nxSetMode(m){nxMode=m;lsSet('nxMode',m);
     if(Math.hypot(e.clientX-g.x,e.clientY-g.y)>SLOP)g.moved=true;
     var dt=Math.max(1,e.timeStamp-g.lt);g.v=Math.hypot(e.clientX-g.lx,e.clientY-g.ly)/dt;g.lx=e.clientX;g.ly=e.clientY;g.lt=e.timeStamp;
     var r=pad.getBoundingClientRect();contact.style.left=Math.max(0,Math.min(r.width,e.clientX-r.left))+'px';contact.style.top=Math.max(0,Math.min(r.height,e.clientY-r.top))+'px';
-    var s=step(e.clientX-g.ax,e.clientY-g.ay);if(!s)return;
-    g.dir=s.dir;for(var i=0;i<s.count;i++)go(g.dir);g.steps+=s.count;g.ax=e.clientX;g.ay=e.clientY});
+    if(g.dir)return; // direction already sent for this swipe
+    var d=swipeDir(e.clientX-g.x,e.clientY-g.y);if(!d)return;
+    g.dir=d;g.steps=1;go(d)});
   function finish(e,cancelled){
     if(!g||g.id!==e.pointerId)return;var x=g;g=null;
     contact.classList.remove('nx-touching');contact.style.left='';contact.style.top='';
     if(cancelled)return;
     nxTrackUsed();
     if(!x.moved&&e.timeStamp-x.t0<=TAPMS){go('ok');return}
-    var recent=e.timeStamp-x.lt<100;
-    if(x.steps&&x.dir&&recent&&x.v>=FLICK){var left=Math.min(FLICKMAX,Math.floor(x.v/FLICK));
-      inertia=setInterval(function(){if(left--<=0){clearInterval(inertia);return}go(x.dir)},FLICKMS)}}
+    if(!x.dir)return;
+    var along={right:e.clientX-x.x,left:x.x-e.clientX,down:e.clientY-x.y,up:x.y-e.clientY}[x.dir];
+    var left=extraSteps(along);
+    if(left)inertia=setInterval(function(){if(left--<=0){clearInterval(inertia);return}go(x.dir)},EXTRAMS)}
   panel.addEventListener('pointerup',function(e){finish(e,false)});
   panel.addEventListener('pointercancel',function(e){finish(e,true)});
   nxSetMode(ls('nxMode','trackpad')==='dpad'?'dpad':'trackpad');
