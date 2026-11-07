@@ -1,0 +1,62 @@
+{
+ "title": "TP for 90 days?",
+ "brand": "Prepared at Home",
+ "slug": "pah-toilet-paper",
+ "voice": "am_onyx",
+ "speed": 1.0,
+ "gap": 0.35,
+ "lead": 0.4,
+ "accent": "#f5c518",
+ "orientation": "portrait",
+ "blocks": [
+  {
+   "headline": "How much *toilet paper* for 90 days?",
+   "narration": "How much toilet paper does your family need for ninety days? Don't guess. Here's the math.",
+   "scene": "neatly stacked rolls of toilet paper on a wooden shelf in a farmhouse bathroom, window light"
+  },
+  {
+   "headline": "Count *two weeks* first.",
+   "lines": [
+    "y|Write down what your house really uses"
+   ],
+   "narration": "Count how many rolls your house actually uses in two normal weeks.",
+   "scene": "a small notepad and pencil on a bathroom counter next to a few rolls of toilet paper"
+  },
+  {
+   "headline": "Then multiply by *6.5*.",
+   "lines": [
+    "y|Two weeks × 6.5 ≈ 90 days"
+   ],
+   "narration": "Multiply that by six and a half. That's your ninety day number.",
+   "scene": "a calculator and handwritten list on a kitchen table, coffee mug, morning light"
+  },
+  {
+   "headline": "4 rolls in two weeks? About *26*.",
+   "lines": [
+    "g|4 × 6.5 = 26 rolls"
+   ],
+   "narration": "Use four rolls in two weeks? You need about twenty six for ninety days.",
+   "scene": "a large stack of toilet paper rolls in a hallway linen closet, tidy and organized"
+  },
+  {
+   "headline": "Works for *everything* you use up.",
+   "lines": [
+    "o|Coffee",
+    "o|Dish soap",
+    "o|Pet food"
+   ],
+   "narration": "The same trick works for anything you use up. Coffee, dish soap, pet food.",
+   "scene": "bags of coffee, dish soap bottles and a bag of dog food on a pantry floor, warm light"
+  },
+  {
+   "headline": "Comment *READY*",
+   "lines": [
+    "g|The 90-Day Home Readiness Kit",
+    "y|13 printable pages · $9"
+   ],
+   "cta": "COMMENT  READY",
+   "narration": "Comment ready, and we'll message you the ninety day kit. Thirteen printable pages, nine dollars.",
+   "scene": "a printed home emergency checklist on a clipboard on a kitchen table beside a mug of coffee and a pencil, morning window light"
+  }
+ ]
+}

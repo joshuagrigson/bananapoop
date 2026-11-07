@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Water Card · Prepared at Home</title>
+<style>
+@font-face{font-family:"DM Serif Display";src:url(DMSerifDisplay.ttf)}
+@font-face{font-family:"Oswald";src:url(Oswald.ttf);font-weight:200 700}
+@page{size:Letter;margin:0}
+:root{--navy:#0f1c2e;--ink:#1b2430;--muted:#5b6675;--line:#d9dee5;--blue:#2f7fd1;--blue-l:#e8f1fb;--y:#f5c518;--o:#ef7d22;--g:#3fa34d}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff;color:var(--ink);font-family:"Oswald",sans-serif}
+.page{width:8.5in;height:11in;padding:.34in .45in .3in;display:flex;flex-direction:column;gap:.09in}
+header{display:flex;align-items:center;gap:.18in;background:var(--navy);color:#fff;border-radius:.14in;padding:.14in .22in}
+header img{width:.7in;height:.7in;border-radius:50%}
+header .k{font-size:11pt;letter-spacing:.2em;color:var(--y);font-weight:600}
+header h1{margin:.02in 0 0;font-family:"DM Serif Display",serif;font-weight:400;font-size:26pt;line-height:1}
+header .s{margin-top:.05in;font-size:11pt;color:#c9d3df;font-weight:400;letter-spacing:.02em}
+h2{margin:0 0 .04in;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:.1in}
+h2 i{display:inline-block;width:.09in;height:.22in;border-radius:.04in;background:var(--c,var(--blue))}
+.box{border:1.5pt solid var(--line);border-radius:.12in;padding:.1in .18in}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:.16in}
+p,li{font-size:10.5pt;line-height:1.3;font-weight:400;margin:0}
+ul{margin:0;padding-left:.2in;display:flex;flex-direction:column;gap:.03in}
+b{font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:12pt}
+th{background:var(--blue);color:#fff;font-weight:600;text-align:left;padding:.045in .12in;letter-spacing:.04em}
+th:first-child{border-top-left-radius:.06in}th:last-child{border-top-right-radius:.06in}
+td{padding:.035in .12in;border-bottom:1pt solid var(--line);font-weight:500}
+tr:nth-child(even) td{background:var(--blue-l)}
+td.big{font-size:13pt;font-weight:600;color:var(--navy)}
+.note{font-size:10pt;color:var(--muted);margin-top:.06in}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:.1in}
+.st{background:var(--blue-l);border-radius:.1in;padding:.1in .12in}
+.st .n{font-family:"DM Serif Display",serif;font-size:22pt;color:var(--blue);line-height:1}
+.st p{font-size:10.5pt;margin-top:.03in}
+.warn{border-left:.07in solid var(--o);background:#fff4ea;border-radius:.08in;padding:.1in .16in}
+.cut{margin-top:auto;border:1.5pt dashed #9aa5b3;border-radius:.12in;padding:.09in .16in;display:grid;grid-template-columns:auto 1fr;gap:.18in;align-items:center}
+.cut .lbl{font-size:9pt;color:var(--muted);letter-spacing:.14em;position:relative;top:-.02in}
+.cut .big{font-family:"DM Serif Display",serif;font-size:17pt;color:var(--navy);line-height:1.05}
+.cut .big b{color:var(--blue);font-weight:400}
+.cut p{font-size:10.5pt}
+footer{display:flex;justify-content:space-between;font-size:8.5pt;color:var(--muted);line-height:1.3;gap:.3in}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <img src="prepared-at-home-logo.png" alt="">
+    <div>
+      <div class="k">FREE · PREPARED AT HOME</div>
+      <h1>The Water Card</h1>
+      <div class="s">How much to store, and how to make water safe when the tap isn't. Print it, tape it inside a cabinet door.</div>
+    </div>
+  </header>
+
+  <div class="row">
+    <div class="box">
+      <h2><i style="--c:var(--g)"></i>How much to store</h2>
+      <ul>
+        <li><b>1 gallon per person, per day</b> (drinking and basic hygiene).</li>
+        <li><b>3 days</b> minimum. <b>2 weeks</b> at home if you can.</li>
+        <li>Add water for pets, and extra for nursing mothers, kids, the sick and hot weather.</li>
+        <li>Family of 4 for 2 weeks: <b>56 gallons</b>.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h2><i style="--c:var(--g)"></i>Storing it right</h2>
+      <ul>
+        <li>Buy sealed bottled water, or fill clean <b>food-grade</b> containers.</li>
+        <li>Never use milk jugs or containers that held chemicals.</li>
+        <li>Keep it in a cool, dark place.</li>
+        <li>Replace water you bottled yourself <b>every 6 months</b>. Store-bought: by its date.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2><i></i>Boil first if you can</h2>
+    <p>Bring clear water to a <b>rolling boil for 1 minute</b> (<b>3 minutes</b> above 6,500 feet), let it cool, and store it in clean covered containers. Boiling kills germs that bleach can miss, like <i>Giardia</i> and <i>Cryptosporidium</i>.</p>
+  </div>
+
+  <div class="box">
+    <h2><i></i>No way to boil? Use plain bleach</h2>
+    <table>
+      <tr><th>Water</th><th>Regular bleach (6%)</th><th>Concentrated (8.25%)</th></tr>
+      <tr><td>1 quart or liter</td><td class="big">2 drops</td><td class="big">2 drops</td></tr>
+      <tr><td>1 gallon</td><td class="big">8 drops</td><td class="big">6 drops</td></tr>
+      <tr><td>2 gallons</td><td class="big">16 drops (¼ tsp)</td><td class="big">12 drops (⅛ tsp)</td></tr>
+      <tr><td>4 gallons</td><td class="big">⅓ tsp</td><td class="big">¼ tsp</td></tr>
+      <tr><td>8 gallons</td><td class="big">⅔ tsp</td><td class="big">½ tsp</td></tr>
+    </table>
+    <div class="note">Use only plain, unscented household bleach. Not scented, color-safe or splash-less, and nothing with added cleaners. Check the label for the percent. Use a clean eyedropper.</div>
+  </div>
+
+  <div class="steps">
+    <div class="st"><div class="n">1</div><p><b>Cloudy?</b> Let it settle, pour off the clear water, strain it through a clean cloth.</p></div>
+    <div class="st"><div class="n">2</div><p><b>Add the drops.</b> Cloudy, colored or very cold water: use <b>double</b>.</p></div>
+    <div class="st"><div class="n">3</div><p><b>Stir and wait 30 minutes.</b> It should smell faintly of bleach.</p></div>
+    <div class="st"><div class="n">4</div><p><b>No smell?</b> Add the same dose again and wait 15 more minutes.</p></div>
+  </div>
+
+  <div class="warn"><p><b>When to stop and get help:</b> if officials say the water is contaminated with fuel or chemicals, bleach and boiling won't fix it. Use bottled water and follow local instructions.</p></div>
+
+  <div class="cut">
+    <div class="lbl">✂ FRIDGE CARD</div>
+    <div>
+      <div class="big">Boil <b>1 minute</b>. Or bleach: <b>8 drops</b> a gallon (6%), <b>6 drops</b> (8.25%). Wait <b>30 minutes</b>.</div>
+      <p>Cloudy water: strain, then double it. 1 gallon per person per day.</p>
+    </div>
+  </div>
+
+  <footer>
+    <div>Figures from the U.S. EPA "Emergency Disinfection of Drinking Water," CDC "How to Make Water Safe in an Emergency," and Ready.gov water storage guidance. A planning aid, not professional advice; follow your local officials.</div>
+    <div style="white-space:nowrap;text-align:right"><b>Prepared at Home</b><br>The full 90-Day Home Readiness Kit:<br>preparedathome.netlify.app</div>
+  </footer>
+</div>
+</body>
+</html>

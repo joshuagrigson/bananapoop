@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070809">
+  <title>NEXUS — Smoky Silver Remote</title>
+  <style>
+/* NEXUS / Smoky Silver Black / handoff 1.0.0
+   Source canvas: 558 × 1136. All art dimensions scale with container width.
+   No external fonts, icons, images, libraries or network requests at runtime. */
+:root {
+  color-scheme: dark;
+  --page: #070809;
+  --text: #f3f3f1;
+  --muted: #b7b8b8;
+  --silver: #c5c8ca;
+  --silver-light: #eff1f1;
+  --green: #19ee30;
+  --voice: #04e58b;
+  --coral: #ff8177;
+  --press-ms: 110ms;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: radial-gradient(ellipse at 50% 30%,#111315 0%,var(--page) 65%); color: var(--text); min-height: 100svh; }
+button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+button:disabled { opacity: .45; cursor: wait; }
+button { transition: filter var(--press-ms), transform var(--press-ms), box-shadow 180ms; }
+button:active, button.is-pressed { filter: brightness(1.2); transform: scale(.98); }
+#remotes { display: grid; justify-content: center; padding: 6px 12px 34px; }
+#remotes.comparison { grid-template-columns: repeat(2,minmax(0,558px)); gap: 72px; padding: 6px 24px 44px; }
+.remote { width: min(558px,calc(100vw - 24px)); container-type: inline-size; border-radius: 20px; background: radial-gradient(ellipse at 50% 45%,#0b0d0e 0%,#08090a 75%,#0b0c0d 100%); border: 1px solid #121416; box-shadow: 0 12px 40px #0007; }
+.comparison .remote { width: 100%; }
+.remote-inner { --u: calc(100cqw / 558); padding: calc(6 * var(--u)) calc(24 * var(--u)) calc(52 * var(--u)); font-size: calc(24 * var(--u)); }
+.icon { width: 1.1em; height: 1.1em; vertical-align: middle; flex-shrink: 0; stroke: currentColor; stroke-width: 1.65; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.chrome { background: linear-gradient(160deg,#5f5e58 0%,#3c3b37 26%,#242321 70%,#2f2e2c); border: 1px solid #94948f99; box-shadow: inset 0 1px 1px #ffffff38,inset 0 -2px 3px #0007,0 5px 12px #000a,0 1px 0 #ffffff10; }
+.header { height: calc(39 * var(--u)); display: flex; align-items: flex-start; justify-content: space-between; padding: 0 calc(8 * var(--u)); }
+.brand { font-size: calc(28 * var(--u)); letter-spacing: .055em; font-weight: 700; margin: calc(2 * var(--u)) 0 0; }
+.settings { display: flex; align-items: center; gap: .5em; padding: 0 calc(16 * var(--u)); height: calc(39 * var(--u)); border-radius: calc(22 * var(--u)); font-size: calc(21 * var(--u)); letter-spacing: .04em; }
+.rooms { margin-top: calc(8 * var(--u)); display: flex; height: calc(48 * var(--u)); border: 1px solid #61615c75; border-radius: calc(24 * var(--u)); background: linear-gradient(#292927,#181918); }
+.room { position: relative; border: 0; flex: 1; background: transparent; border-radius: inherit; font-size: calc(24 * var(--u)); letter-spacing: .025em; }
+.room[aria-pressed=true] { background: linear-gradient(155deg,#767470,#3c3c3a 70%,#333332); box-shadow: inset 0 1px 1px #ffffff70; }
+.room[aria-pressed=true]::after { content: ''; position: absolute; bottom: 0; height: calc(6 * var(--u)); width: 54%; left: 23%; border-radius: 8px 8px 0 0; background: linear-gradient(#fff,#abb0b2); box-shadow: 0 -1px 9px #e6e9ee80,0 0 4px #fff6; }
+.status { display: flex; align-items: center; margin-top: calc(9 * var(--u)); height: calc(46 * var(--u)); border-radius: calc(22 * var(--u)); padding-left: calc(21 * var(--u)); gap: calc(16 * var(--u)); font-size: calc(23 * var(--u)); }
+.dot { width: calc(12 * var(--u)); height: calc(12 * var(--u)); border-radius: 50%; background: var(--green); box-shadow: 0 0 8px #22e72a20; display: inline-block; flex: 0 0 auto; }
+.dot.off { background: #656765; box-shadow: none; }
+.status-source { white-space: nowrap; }
+.status-alias { border-left: 1px solid #83837b80; color: #aaa; padding-left: calc(15 * var(--u)); }
+.power { margin-left: auto; width: calc(73 * var(--u)); height: calc(43 * var(--u)); display:grid; place-items:center; border-radius: calc(20 * var(--u)); color: #ffcbc2; border:1px solid #ff978f; background: radial-gradient(ellipse at top,#a25751,#742b28 65%,#562421); box-shadow: inset 0 1px 3px #ffdfc080,0 0 15px #ff67565c; font-size: calc(29 * var(--u)); }
+.power[aria-pressed=false] { background: #342120; box-shadow: 0 0 5px #ff675628; }
+.inputs-heading { height: calc(48 * var(--u)); display:flex; align-items:center; justify-content:space-between; padding:0 calc(8 * var(--u)); }
+.inputs-heading h2 { font-size: calc(17 * var(--u)); font-weight:400; letter-spacing:.18em; margin:0; }
+.edit { border-radius:calc(16 * var(--u)); height:calc(29 * var(--u)); padding:0 calc(14 * var(--u)); display:flex; align-items:center; gap:.45em; font-size:calc(19 * var(--u)); }
+.inputs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:calc(10 * var(--u)); }
+.input-card { height:calc(101 * var(--u)); border-radius:calc(21 * var(--u)); padding:calc(7 * var(--u)) calc(3 * var(--u)); display:flex; align-items:center; justify-content:center; flex-direction:column; font-size:calc(22 * var(--u)); line-height:1.12; }
+.input-card > .icon { width:calc(44 * var(--u)); height:calc(30 * var(--u)); margin-bottom:calc(1 * var(--u)); stroke-width:1.5; }
+.input-card .port { color:var(--muted); font-size:calc(16 * var(--u)); margin-top:calc(1 * var(--u)); }
+.input-card .state-line { display:flex; align-items:center; justify-content:center; gap:calc(5 * var(--u)); height:calc(22 * var(--u)); font-size:calc(15 * var(--u)); white-space:nowrap; }
+.state-line .dot { width:calc(10 * var(--u)); height:calc(10 * var(--u)); }
+.on-screen { border-left:1px solid #a4a4a4; padding-left:calc(7 * var(--u)); color:#fff; }
+.input-card[aria-pressed=true] { background:radial-gradient(ellipse at 50% 0%,#8d8f90,#464848 45%,#2c2e2f 85%); border-color:#f1f4f5; box-shadow: inset 0 1px 4px #fffc,inset 0 0 10px #ffffff22,0 0 14px #f1f7f7cc,0 0 32px #d6dada55; }
+.hidden-count { text-align:center; height:calc(40 * var(--u)); display:grid; place-items:center; font-size:calc(17 * var(--u)); margin:0; }
+.navigation { position:relative; height:calc(378 * var(--u)); border-radius:calc(38 * var(--u)); border:calc(3 * var(--u)) solid #e3e6e6; padding:calc(17 * var(--u)) calc(9 * var(--u)) calc(8 * var(--u)); background:radial-gradient(ellipse at 50% 45%,#1a1b1b,#111212 60%,#1c1e1e); box-shadow:inset 0 0 0 calc(3 * var(--u)) #262828,inset 0 0 0 calc(5 * var(--u)) #b4b7b690,inset 0 2px 8px calc(5 * var(--u)) #000a,0 0 16px #ffffff45,0 0 3px #fff,0 8px 22px #000a; overflow:hidden; }
+.mode-selector { position:relative; z-index:3; display:flex; width:64%; height:calc(38 * var(--u)); margin:auto; border:1px solid #898b8b; background:linear-gradient(#454646,#292b2b); border-radius:calc(22 * var(--u)); }
+.mode { width:50%; border:0; background:transparent; border-radius:inherit; font-size:calc(20 * var(--u)); }
+.mode[aria-selected=true] { background:radial-gradient(ellipse at 50% 20%,#9a9d9f,#555859); border:1px solid #f4f7f8; box-shadow:inset 0 0 8px #fff7,0 0 12px #e4ecec99; }
+.track-surface { position:absolute; inset:calc(62 * var(--u)) calc(26 * var(--u)) calc(13 * var(--u)); touch-action:none; cursor:grab; outline:none; }
+.track-surface:active { cursor:grabbing; }
+.contact { position:absolute; left:50%; top:50%; width:calc(64 * var(--u)); height:calc(64 * var(--u)); border-radius:50%; background:radial-gradient(circle,#f1f5f5a6 0%,#d7dedf59 28%,#b9c2c31f 55%,transparent 72%); transform:translate(-50%,-50%); pointer-events:none; opacity:0; transition:opacity 160ms; }
+.contact.touching { opacity:1; transition:opacity 60ms; }
+.track-copy.used { display:none; }
+.track-copy { position:absolute; width:100%; bottom:calc(58 * var(--u)); text-align:center; margin:0; font-size:calc(21 * var(--u)); line-height:1.35; pointer-events:none; }
+.dpad { position:absolute; inset:calc(66 * var(--u)) calc(10 * var(--u)) calc(10 * var(--u)); }
+.dpad-art { width:100%; height:100%; position:absolute; overflow:visible; pointer-events:none; }
+.direction { position:absolute; border:0; background:transparent; padding:0; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:calc(8 * var(--u)); border-radius:calc(12 * var(--u)); font-size:calc(19 * var(--u)); touch-action:none; }
+.direction .triangle { font-size:calc(29 * var(--u)); line-height:1; text-shadow:0 0 8px #ffffff80; }
+.direction { text-shadow:0 1px 2px #000c; }
+.direction.up { top:0; left:33.333%; width:33.334%; height:30%; }
+.direction.down { bottom:0; left:33.333%; width:33.334%; height:30%; }
+.direction.left { top:30%; left:0; width:38%; height:40%; }
+.direction.right { top:30%; right:0; width:38%; height:40%; }
+.direction:active,.direction.is-pressed { background:#ffffff17; transform:none; box-shadow:inset 0 0 24px #ffffff1a; }
+.center-select { position:absolute; left:41%; top:31%; width:18%; height:29%; border-radius:calc(16 * var(--u)); font-size:calc(18 * var(--u)); border:calc(2 * var(--u)) solid #e8e9e6; background:linear-gradient(140deg,#505252,#292b2b 55%,#1d1f20); box-shadow:inset 0 0 0 2px #090a0b,inset 0 4px 6px #ffffff40,inset 0 -3px 6px #0008,0 0 0 1px #090a0b,0 0 10px #ffffff30; touch-action:none; }
+[hidden] { display:none !important; }
+.primary { display:grid; grid-template-columns:1fr 1.13fr 1fr; gap:calc(12 * var(--u)); margin-top:calc(21 * var(--u)); height:calc(67 * var(--u)); }
+.primary button { border-radius:calc(24 * var(--u)); display:flex; align-items:center; justify-content:center; gap:calc(13 * var(--u)); font-size:calc(22 * var(--u)); }
+.primary .okay { font-size:calc(32 * var(--u)); font-weight:700; color:#090b0d; border:1px solid #eef0f0; background:radial-gradient(ellipse at 40% 0%,#f1f2f2,#bfc1c3 42%,#909497 90%); box-shadow:inset 0 1px 4px #fff,inset 0 -3px 6px #00000030,0 0 20px #eef3f3b3,0 0 40px #c8d0d055,0 5px 12px #0008; }
+.volume-row { margin-top:calc(14 * var(--u)); display:grid; grid-template-columns:3.3fr 1fr; gap:calc(14 * var(--u)); height:calc(72 * var(--u)); }
+.volume-strip { display:grid; grid-template-columns:1fr 1.2fr 1fr; padding:calc(3 * var(--u)); border-radius:calc(25 * var(--u)); border:1px solid #79797591; background:linear-gradient(120deg,#292a28,#121414 70%); gap:calc(4 * var(--u)); }
+.volume-key { border-radius:calc(22 * var(--u)); font-size:calc(46 * var(--u)); line-height:1; touch-action:none; }
+.volume-readout { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:calc(12 * var(--u)); white-space:nowrap; }
+.volume-label { font-size:calc(15 * var(--u)); }
+.volume-number { font-size:calc(23 * var(--u)); padding-left:calc(5 * var(--u)); }
+.meter { width:82%; height:calc(10 * var(--u)); background:#3e4140; border-radius:20px; overflow:hidden; }
+.meter-fill { height:100%; border-radius:20px; background:linear-gradient(#ffffff,#b9bdbe); box-shadow:0 0 6px #ffffff60; }
+.mute { border-radius:calc(23 * var(--u)); border:1px solid #fffbe9; display:flex; justify-content:center; align-items:center; gap:.35em; font-size:calc(21 * var(--u)); box-shadow:inset 0 0 10px #fff6d880,0 0 16px #fff3d2b3,0 0 34px #fff0c850; }
+.mute[aria-pressed=true] { background:linear-gradient(#737573,#393b39); }
+.playback { margin-top:calc(15 * var(--u)); display:grid; grid-template-columns:1fr 1.54fr 1fr; gap:calc(15 * var(--u)); height:calc(75 * var(--u)); }
+.playback button { border-radius:calc(24 * var(--u)); font-size:calc(30 * var(--u)); display:grid; place-items:center; }
+.media-icon { width:calc(62 * var(--u)); height:calc(36 * var(--u)); fill:currentColor; }
+.bottom { margin-top:calc(20 * var(--u)); height:calc(78 * var(--u)); display:grid; grid-template-columns:1fr 1fr; gap:calc(15 * var(--u)); }
+.bottom button { border-radius:calc(25 * var(--u)); display:flex; align-items:center; justify-content:center; gap:calc(20 * var(--u)); font-size:calc(26 * var(--u)); }
+.voice { border:calc(2 * var(--u)) solid #16ffa8; background:radial-gradient(ellipse at top,#4a8a66,#1a4530 60%,#0b2d1e); box-shadow:inset 0 0 18px #00e07a73,0 0 20px #00f08db3,0 0 44px #00ef8755; }
+.voice[aria-pressed=true] { filter:brightness(1.3); }
+.toast { position:fixed; z-index:20; bottom:24px; left:50%; transform:translateX(-50%); background:#292d30; color:#fff; border:1px solid #81868a; border-radius:14px; padding:12px 18px; font-size:14px; max-width:90vw; opacity:0; pointer-events:none; transition:opacity .2s; }
+.toast.visible { opacity:1; }
+dialog { background:#111416; border:1px solid #9ca2a5; border-radius:20px; color:#eee; width:min(450px,90vw); padding:22px; box-shadow:0 20px 90px #000; font-size:16px; }
+dialog::backdrop { background:#000a; backdrop-filter:blur(5px); }
+dialog header { display:flex; justify-content:space-between; align-items:center; gap:20px; }
+dialog h2 { margin:0; font-size:22px; }
+.close { border:0; background:transparent; color:white; font-size:30px; }
+dialog p { line-height:1.5; color:#c9cdd0; }
+dialog label { display:flex; gap:10px; align-items:center; margin:16px 0; }
+dialog input[type=text] { min-width:0; flex:1; background:#272c2f; color:white; border:1px solid #737a7f; padding:10px; border-radius:8px; }
+dialog button.save { padding:10px 18px; border:1px solid #bec2c5; border-radius:10px; background:#43484b; }
+@media(max-width:700px) { #remotes.comparison { grid-template-columns:minmax(0,558px); gap:26px; padding:6px 12px 32px; } }
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition:none !important; animation:none !important; } }
+
+</style>
+</head>
+<body>
+  <main id="remotes" aria-label="TV remote"></main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <dialog id="dialog" aria-labelledby="dialog-title">
+    <form method="dialog"><header><h2 id="dialog-title"></h2><button class="close" aria-label="Close dialog">×</button></header></form>
+    <div id="dialog-body"></div>
+  </dialog>
+  <script>
+/* Pure gesture decisions, shared by the browser and dependency-free Node tests. */
+(function(root,factory){
+  const api=factory();
+  if(typeof module==='object'&&module.exports)module.exports=api;
+  else root.NexusGesture=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+  'use strict';
+  return Object.freeze({
+    // One swipe, one move: the first clear movement past the threshold names the direction, once.
+    swipeDirection(sx,sy,threshold=30,ratio=1.25){
+      const horizontal=Math.abs(sx)>Math.abs(sy)*ratio;
+      const vertical=Math.abs(sy)>Math.abs(sx)*ratio;
+      if(!horizontal&&!vertical)return null;
+      const delta=horizontal?sx:sy;
+      if(Math.abs(delta)<threshold)return null;
+      return horizontal?(delta>0?'right':'left'):(delta>0?'down':'up');
+    },
+    // Only a long swipe earns extra presses at release: +1 past 140 px, +2 past 230 px, measured
+    // along the locked direction (a reversal counts as zero). Speed never counts.
+    extraSteps(distanceAlong,heavy=140,veryHeavy=230){
+      return distanceAlong>=veryHeavy?2:distanceAlong>=heavy?1:0;
+    },
+    // Slow pull: while the finger creeps (speed at or under slowSpeed px/ms), every pullPx of travel
+    // along the dominant axis is one step in that direction. Fast movement is not a pull.
+    pullStep(sx,sy,speed,slowSpeed=.45,pullPx=36){
+      if(speed>slowSpeed)return null;
+      const horizontal=Math.abs(sx)>=Math.abs(sy);
+      const delta=horizontal?sx:sy;
+      if(Math.abs(delta)<pullPx)return null;
+      return horizontal?(delta>0?'right':'left'):(delta>0?'down':'up');
+    },
+    isTap(moved,elapsed,maxMs=350){return !moved&&elapsed<=maxMs;},
+    clampVolume(value){return Math.max(0,Math.min(100,Math.round(value)));}
+  });
+});
+
+</script>
+  <script>
+/* NEXUS 1.0.0 — complete framework-free UI.
+ * Local demo by default. No TV endpoints, credentials, analytics or network calls.
+ * Production: NexusRemote.setAdapter(async command => { ... });
+ * Confirmed device data enters via NexusRemote.setState(patch).
+ */
+(() => {
+  'use strict';
+  const gestureMath = window.NexusGesture;
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const copy = value => JSON.parse(JSON.stringify(value));
+  const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const paths = {
+    settings: '<path d="m9 3 1-2h4l1 2 2 1 2-.2 2 3-1 2v3l1 2-2 3-2-.2-2 1-1 2h-4l-1-2-2-1-2 .2-2-3 1-2v-3l-1-2 2-3 2 .2z"/><circle cx="12" cy="10.5" r="3.4"/>',
+    power: '<path d="M12 2v10M6.4 5.2a9 9 0 1 0 11.2 0"/>',
+    edit: '<path d="m4 16-1 5 5-1L21 7l-4-4zM14.5 5.5l4 4"/>',
+    cable: '<rect x="2" y="6" width="20" height="12" rx="1.5"/><path d="M6 12h.1M15 12h.1M19 12h.1"/>',
+    game: '<path d="M7 5h10q3 0 4 4l2 10q0 3-3 1l-4-4H8l-4 4q-3 2-3-1L3 9q1-4 4-4zM7 8v6M4 11h6M16 10h.1M19 13h.1"/>',
+    hdmi: '<rect x="1.5" y="7" width="21" height="10" rx="3"/><path d="M6 12h12"/>',
+    back: '<path d="m8 5-6 6 6 6M2 11h13a5 5 0 0 1 0 10h-3"/>',
+    home: '<path d="m1 11 11-9 11 9M4 9v13h6v-8h4v8h6V9"/>',
+    mute: '<path d="m3 9 5 0 5-5v16l-5-5H3zM17 7a8 8 0 0 1 3 8M2 2l20 20"/>',
+    mic: '<rect x="9" y="1" width="6" height="14" rx="3"/><path d="M5 10v3a7 7 0 0 0 14 0v-3M12 20v3M8 23h8"/>',
+    apps: '<g fill="currentColor" stroke="none"><rect x="2" y="2" width="8" height="8" rx=".7"/><rect x="14" y="2" width="8" height="8" rx=".7"/><rect x="2" y="14" width="8" height="8" rx=".7"/><rect x="14" y="14" width="8" height="8" rx=".7"/></g>'
+  };
+  const icon = name => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths[name] || ''}</svg>`;
+  const media = name => `<svg class="media-icon" viewBox="0 0 52 30" aria-hidden="true">${name === 'rewind' ? '<path d="M23 4 3 15l20 11zM46 4 26 15l20 11z"/>' : name === 'forward' ? '<path d="m6 4 20 11L6 26zM29 4l20 11-20 11z"/>' : '<path d="m4 3 18 12L4 27z"/><path d="M31 3h4v24h-4zM44 3h4v24h-4z"/>'}</svg>`;
+  const inputs = [
+    {id:'hdmi1',name:'Cable',port:'HDMI 1',icon:'cable',on:true,hidden:false},
+    {id:'hdmi2',name:'PS5',port:'HDMI 2',icon:'game',on:true,hidden:false},
+    {id:'hdmi3',name:'HDMI 3',port:'HDMI 3',icon:'hdmi',on:false,hidden:false},
+    // Original only specifies one hidden input; no invented device identity.
+    {id:'hidden-input',name:'Hidden input',port:'',icon:'hdmi',on:false,hidden:true}
+  ];
+  const state = {room:'living',rooms:{
+    living:{power:true,volume:18,muted:false,playing:false,activeInput:'hdmi2',inputs:copy(inputs)},
+    office:{power:true,volume:18,muted:false,playing:false,activeInput:'hdmi2',inputs:copy(inputs)}
+  }};
+  const current = () => state.rooms[state.room];
+  const settings = {haptics:false};
+  const modes = new Map();
+  const query = new URLSearchParams(location.search);
+  const comparison = query.get('compare') === '1';
+  const host = $('#remotes');
+  host.classList.toggle('comparison',comparison);
+  let adapter = null;
+  let toastTimer, holdDelay, holdTimer, inertiaTimer;
+  let requestSequence = 0;
+  let voiceActive = false;
+  const commandLog = [];
+  const gestureConfig = Object.freeze({tapSlop:9,tapMaxMs:350,swipePx:30,axisRatio:1.25,heavyPx:140,veryHeavyPx:230,extraIntervalMs:90,slowSpeed:.45,pullPx:36,holdDelayMs:420,holdIntervalMs:120});
+
+  function notify(message) {
+    const node=$('#toast'); node.textContent=message; node.classList.add('visible');
+    clearTimeout(toastTimer); toastTimer=setTimeout(()=>node.classList.remove('visible'),2200);
+  }
+  function cancelMotion() {
+    clearTimeout(holdDelay); clearInterval(holdTimer); clearInterval(inertiaTimer);
+    $$('.is-pressed').forEach(b=>b.classList.remove('is-pressed'));
+  }
+  function haptic() { if(settings.haptics && navigator.vibrate) navigator.vibrate(8); }
+  function inputCards() {
+    const s=current();
+    return s.inputs.filter(item=>!item.hidden).map(item=>{
+      const selected=item.id===s.activeInput;
+      return `<button class="input-card chrome" data-action="input" data-value="${escapeHTML(item.id)}" aria-pressed="${selected}" aria-label="${escapeHTML(item.name)}, ${escapeHTML(item.port)}, ${item.on?'device on':'device off'}${selected?', on screen':''}">
+      ${icon(item.icon)}<span>${escapeHTML(item.name)}</span>${item.name!==item.port?`<span class="port">${escapeHTML(item.port)}</span>`:''}
+      ${(item.on||selected)?`<span class="state-line">${item.on?'<span class="dot"></span>On':''}${selected?'<span class="on-screen">On screen</span>':''}</span>`:''}</button>`;
+    }).join('');
+  }
+  function dpadArt(id) {
+    const cross='M184 1H326Q340 1 340 15V76Q340 90 354 90H495Q509 90 509 104V196Q509 210 495 210H354Q340 210 340 224V285Q340 299 326 299H184Q170 299 170 285V224Q170 210 156 210H15Q1 210 1 196V104Q1 90 15 90H156Q170 90 170 76V15Q170 1 184 1Z';
+    return `<svg class="dpad-art" viewBox="0 0 510 300" preserveAspectRatio="none" aria-hidden="true">
+      <defs><linearGradient id="plate-${id}" x1="0" y1="0" x2=".3" y2="1"><stop stop-color="#9a9d9e"/><stop offset=".2" stop-color="#5e6263"/><stop offset=".6" stop-color="#424546"/><stop offset="1" stop-color="#353839"/></linearGradient>
+      <linearGradient id="bevel-${id}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".22"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+      <radialGradient id="void-${id}"><stop stop-color="#121415"/><stop offset="1" stop-color="#070909"/></radialGradient>
+      <filter id="bloom-${id}" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="8"/></filter>
+      <filter id="glow-${id}" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="2.5"/></filter>
+      <clipPath id="clip-${id}"><path d="${cross}"/></clipPath></defs>
+      <rect x="1" y="1" width="508" height="298" rx="22" fill="url(#void-${id})" stroke="#2c2f30"/><g fill="#151717" stroke="#242727"><rect x="8" y="8" width="156" height="78" rx="16"/><rect x="346" y="8" width="156" height="78" rx="16"/><rect x="8" y="214" width="156" height="78" rx="16"/><rect x="346" y="214" width="156" height="78" rx="16"/></g>
+      <path d="${cross}" fill="none" stroke="#ffffff" stroke-width="13" filter="url(#bloom-${id})" opacity=".32"/>
+      <path d="${cross}" fill="none" stroke="#f4f7f7" stroke-width="3" filter="url(#glow-${id})" opacity=".7"/>
+      <path d="${cross}" fill="url(#plate-${id})" stroke="#f3f6f6" stroke-width="2"/>
+      <path d="${cross}" fill="url(#bevel-${id})"/>
+      <path d="${cross}" fill="none" stroke="#ffffff" stroke-width="5" opacity=".28" clip-path="url(#clip-${id})" filter="url(#glow-${id})"/>
+    </svg>`;
+  }
+  function markup(id) {
+    return `<article class="remote" data-remote="${id}" aria-label="${id==='second'?'D-pad comparison remote':'Remote control'}"><div class="remote-inner">
+      <header class="header"><h1 class="brand">REMOTE</h1><button class="settings chrome" data-action="settings">${icon('settings')}Settings</button></header>
+      <div class="rooms" role="group" aria-label="Room"><button class="room" data-action="room" data-value="living" aria-pressed="true">Living room</button><button class="room" data-action="room" data-value="office" aria-pressed="false">Office</button></div>
+      <div class="status chrome"><span class="dot connection" aria-label="TV on"></span><span class="status-source">HDMI 2</span><span class="status-alias">PS5</span><button class="power" data-action="power" aria-label="Power" aria-pressed="true">${icon('power')}</button></div>
+      <div class="inputs-heading"><h2>INPUTS</h2><button class="edit chrome" data-action="edit">${icon('edit')}Edit</button></div>
+      <div class="inputs" aria-label="TV inputs">${inputCards()}</div><p class="hidden-count">1 hidden</p>
+      <section class="navigation" aria-label="Navigation controls">
+        <div class="mode-selector" role="tablist" aria-label="Navigation mode"><button class="mode" role="tab" id="${id}-track-tab" data-mode="trackpad" aria-selected="true" aria-controls="${id}-track">Trackpad</button><button class="mode" role="tab" id="${id}-dpad-tab" data-mode="dpad" aria-selected="false" aria-controls="${id}-dpad" tabindex="-1">D-pad</button></div>
+        <div class="track-surface" id="${id}-track" role="tabpanel" aria-labelledby="${id}-track-tab" tabindex="0" aria-description="A quick swipe moves the selection one step; a slow pull steps as you go. Tap to select. Arrow keys navigate and Enter selects."><span class="contact"></span><p class="track-copy">Swipe to navigate<br>Tap to select</p></div>
+        <div class="dpad" id="${id}-dpad" role="tabpanel" aria-labelledby="${id}-dpad-tab" hidden>${dpadArt(id)}
+          ${[['up','▲'],['left','◀'],['right','▶'],['down','▼']].map(([direction,glyph])=>`<button class="direction ${direction}" data-action="navigate" data-value="${direction}" data-repeat="true" aria-label="${direction}"><span class="triangle">${glyph}</span><span>${direction.toUpperCase()}</span></button>`).join('')}
+          <button class="center-select" data-action="select">SELECT</button>
+        </div>
+      </section>
+      <div class="primary"><button class="chrome" data-action="back">${icon('back')}Back</button><button class="okay" data-action="select">OK</button><button class="chrome" data-action="home">${icon('home')}Home</button></div>
+      <div class="volume-row"><div class="volume-strip"><button class="volume-key chrome" data-action="volume" data-value="-1" data-repeat="true" aria-label="Volume down">−</button><div class="volume-readout"><div class="volume-label">VOLUME<span class="volume-number">18</span></div><div class="meter" role="meter" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="18"><div class="meter-fill" style="width:18%"></div></div></div><button class="volume-key chrome" data-action="volume" data-value="1" data-repeat="true" aria-label="Volume up">+</button></div><button class="mute chrome" data-action="mute" aria-pressed="false">${icon('mute')}Mute</button></div>
+      <div class="playback"><button class="chrome" data-action="rewind" aria-label="Rewind">${media('rewind')}</button><button class="chrome" data-action="playPause" aria-label="Play or pause">${media('play')}</button><button class="chrome" data-action="fastForward" aria-label="Fast forward">${media('forward')}</button></div>
+      <div class="bottom"><button class="voice" data-action="voice" aria-pressed="false">${icon('mic')}Say it</button><button class="chrome" data-action="apps">${icon('apps')}Apps</button></div>
+    </div></article>`;
+  }
+  host.innerHTML=markup('first')+(comparison?markup('second'):'');
+  // One fixed size per load (and per width change), never a live function of the viewport height.
+  let fitWidth=0;
+  function fit(){if(comparison||window.innerWidth===fitWidth)return;fitWidth=window.innerWidth;
+    const w=Math.min(558,window.innerWidth-24,(window.innerHeight-46)*558/1145);
+    $$('.remote').forEach(r=>{r.style.width=Math.max(240,w).toFixed(1)+'px';});}
+  fit();window.addEventListener('resize',fit);window.addEventListener('orientationchange',()=>setTimeout(fit,80));
+  function updateUI(rebuildInputs=false) {
+    const s=current(); const active=s.inputs.find(i=>i.id===s.activeInput);
+    $$('.remote').forEach(root=>{
+      $$('.room',root).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.value===state.room)));
+      $('.status-source',root).textContent=active?.port || active?.name || 'No input';
+      $('.status-alias',root).textContent=active?.name!==active?.port ? active?.name || '' : '';
+      $('.connection',root).classList.toggle('off',!s.power);
+      $('.connection',root).setAttribute('aria-label',s.power?'TV on':'TV off');
+      $('.power',root).setAttribute('aria-pressed',String(s.power));
+      $('.volume-number',root).textContent=s.volume;
+      $('.meter',root).setAttribute('aria-valuenow',s.volume);
+      $('.meter-fill',root).style.width=s.volume+'%';
+      $('.mute',root).setAttribute('aria-pressed',String(s.muted));
+      $('.voice',root).setAttribute('aria-pressed',String(voiceActive));
+      $('.hidden-count',root).textContent=s.inputs.filter(i=>i.hidden).length+' hidden';
+      if(rebuildInputs) $('.inputs',root).innerHTML=inputCards();
+    });
+  }
+  function setMode(root,mode) {
+    if(!['trackpad','dpad'].includes(mode)) throw new Error('Unknown navigation mode');
+    cancelMotion(); modes.set(root.dataset.remote,mode);
+    $$('.mode',root).forEach(b=>{
+      const active=b.dataset.mode===mode; b.setAttribute('aria-selected',String(active)); b.tabIndex=active?0:-1;
+    });
+    $('.track-surface',root).hidden=mode!=='trackpad'; $('.dpad',root).hidden=mode!=='dpad';
+    root.dispatchEvent(new CustomEvent('nexus:modechange',{bubbles:true,detail:{mode}}));
+    // This function intentionally does not call send(), change rooms, or mutate TV state.
+  }
+  $$('.remote').forEach((root,i)=>setMode(root,i===1?'dpad':query.get('mode')==='dpad'?'dpad':'trackpad'));
+
+  async function send(type,value,source='button') {
+    const command=Object.freeze({id:++requestSequence,type,value,roomId:state.room,source,time:Date.now()});
+    commandLog.push(command); if(commandLog.length>500) commandLog.shift();
+    document.dispatchEvent(new CustomEvent('nexus:command',{detail:command})); haptic();
+    if(adapter) {
+      try { await adapter(command); }
+      catch(error) { cancelMotion(); notify('Command failed. Check TV connection.'); document.dispatchEvent(new CustomEvent('nexus:error',{detail:{command,error}})); }
+      return;
+    }
+    const s=current();
+    switch(type) {
+      case 'room': cancelMotion(); state.room=value; updateUI(true); break;
+      case 'input': s.activeInput=value; updateUI(true); break;
+      case 'power': s.power=!s.power; updateUI(); break;
+      case 'volume': s.volume=gestureMath.clampVolume(s.volume+value); updateUI(); break;
+      case 'mute': s.muted=!s.muted; updateUI(); break;
+      case 'playPause': s.playing=!s.playing; notify('Demo: '+(s.playing?'play':'pause')); break;
+      case 'settings': showSettings(); break;
+      case 'edit': showEdit(); break;
+      case 'apps': showDialog('Apps','<p>The Apps command is ready to connect to your existing TV app launcher. No TV apps are connected in this local demo.</p>'); break;
+      case 'voice': showDialog('Voice control','<p>The Say it command is ready for your existing voice service. This demo does not access your microphone or invent a speech-recognition backend.</p>'); break;
+      case 'editInputs': break;
+      default: notify('Demo: '+(type==='navigate'?value:type));
+    }
+  }
+  function showDialog(title,html) { $('#dialog-title').textContent=title; $('#dialog-body').innerHTML=html; $('#dialog').showModal(); }
+  function showSettings() {
+    showDialog('Settings','<p>NEXUS Smoky Silver Black · Local interface demo.</p><label><input type="checkbox" id="haptics-setting"> Button haptics where supported</label><p>Connect a command adapter to use your existing device settings and TV controls.</p>');
+    $('#haptics-setting').checked=settings.haptics; $('#haptics-setting').onchange=e=>settings.haptics=e.target.checked;
+  }
+  function showEdit() {
+    showDialog('Edit inputs',`<p>Demo names and visibility for this room. The active input stays visible.</p><form id="edit-inputs">${current().inputs.map((item,i)=>`<label><input type="text" name="name-${i}" aria-label="Input ${i+1} name" value="${escapeHTML(item.name)}" maxlength="32"><input type="checkbox" name="visible-${i}" aria-label="Show input ${i+1}" ${!item.hidden?'checked':''} ${item.id===current().activeInput?'disabled':''}></label>`).join('')}<button class="save">Save</button></form>`);
+    $('#edit-inputs').onsubmit=e=>{ e.preventDefault(); const form=e.currentTarget;
+      current().inputs.forEach((item,i)=>{ item.name=form.elements['name-'+i].value.trim()||item.name; item.hidden=item.id===current().activeInput?false:!form.elements['visible-'+i].checked; });
+      updateUI(true); send('editInputs',copy(current().inputs),'dialog'); $('#dialog').close();
+    };
+  }
+  function buttonAction(button) {
+    const {action,value}=button.dataset;
+    send(action,action==='volume'?Number(value):value,'button');
+  }
+  host.addEventListener('click',event=>{
+    const mode=event.target.closest('[data-mode]');
+    if(mode) {setMode(mode.closest('.remote'),mode.dataset.mode);return;}
+    const b=event.target.closest('[data-action]'); if(!b) return;
+    // Repeating keys fire on pointerdown; detail=0 is native keyboard activation.
+    if(b.dataset.repeat && event.detail!==0) return;
+    buttonAction(b);
+  });
+  host.addEventListener('pointerdown',event=>{
+    cancelMotion(); if(!event.isPrimary || (event.pointerType==='mouse'&&event.button!==0)) return;
+    const b=event.target.closest('[data-repeat]'); if(!b) return;
+    b.setPointerCapture(event.pointerId); b.classList.add('is-pressed'); buttonAction(b);
+    holdDelay=setTimeout(()=>{holdTimer=setInterval(()=>buttonAction(b),gestureConfig.holdIntervalMs);},gestureConfig.holdDelayMs);
+  });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(type=>host.addEventListener(type,event=>{
+    if(event.target.closest('[data-repeat]')) {clearTimeout(holdDelay);clearInterval(holdTimer);event.target.closest('[data-repeat]').classList.remove('is-pressed');}
+  }));
+
+  // The 'Swipe to navigate / Tap to select' copy shows until the trackpad has been used once on this device.
+  function trackUsed(){try{return localStorage.getItem('nexusTrackUsed')==='1';}catch(e){return false;}}
+  function markTrackUsed(){try{localStorage.setItem('nexusTrackUsed','1');}catch(e){}$$('.track-copy').forEach(p=>p.classList.add('used'));}
+  if(trackUsed())$$('.track-copy').forEach(p=>p.classList.add('used'));
+  $$('.navigation').forEach(panel=>{
+    let gesture=null;
+    const root=panel.closest('.remote'); const pad=$('.track-surface',panel); const contact=$('.contact',panel);
+    panel.addEventListener('pointerdown',event=>{
+      if(!event.isPrimary || (event.pointerType==='mouse'&&event.button!==0)) return;
+      if(event.target!==pad && !pad.contains(event.target)) return;
+      if(pad.hidden) return;
+      cancelMotion(); panel.setPointerCapture(event.pointerId); event.preventDefault();
+      gesture={id:event.pointerId,x:event.clientX,y:event.clientY,lastX:event.clientX,lastY:event.clientY,lastT:event.timeStamp,startT:event.timeStamp,ax:event.clientX,ay:event.clientY,steps:0,moved:false,direction:null,velocity:0};
+      const r=pad.getBoundingClientRect();contact.style.left=(event.clientX-r.left)+'px';contact.style.top=(event.clientY-r.top)+'px';contact.classList.add('touching');
+    });
+    panel.addEventListener('pointermove',event=>{
+      const g=gesture; if(!g||g.id!==event.pointerId) return;
+      const dx=event.clientX-g.x,dy=event.clientY-g.y;
+      if(Math.hypot(dx,dy)>gestureConfig.tapSlop) g.moved=true;
+      const dt=Math.max(1,event.timeStamp-g.lastT);
+      const instant=Math.hypot(event.clientX-g.lastX,event.clientY-g.lastY)/dt;
+      g.velocity=g.velocity?g.velocity*.5+instant*.5:instant;
+      g.lastX=event.clientX;g.lastY=event.clientY;g.lastT=event.timeStamp;
+      const r=pad.getBoundingClientRect();contact.style.left=Math.max(0,Math.min(r.width,event.clientX-r.left))+'px';contact.style.top=Math.max(0,Math.min(r.height,event.clientY-r.top))+'px';
+      if(!g.direction){
+        const direction=gestureMath.swipeDirection(dx,dy,gestureConfig.swipePx,gestureConfig.axisRatio);
+        if(!direction)return; // Ambiguous diagonal or too short stays inert.
+        g.direction=direction;g.steps=1;g.ax=event.clientX;g.ay=event.clientY;send('navigate',direction,'trackpad');return;
+      }
+      // Slow pull: steady steps while the finger creeps. Fast movement only moves the anchor.
+      const sx=event.clientX-g.ax,sy=event.clientY-g.ay;
+      if(g.velocity>gestureConfig.slowSpeed){g.ax=event.clientX;g.ay=event.clientY;return;}
+      const pull=gestureMath.pullStep(sx,sy,g.velocity,gestureConfig.slowSpeed,gestureConfig.pullPx);
+      if(!pull)return;
+      g.pulled=true;g.ax=event.clientX;g.ay=event.clientY;send('navigate',pull,'pull');
+    });
+    function finish(event,cancelled=false) {
+      const g=gesture; if(!g||g.id!==event.pointerId)return;
+      gesture=null;contact.classList.remove('touching');contact.style.left='';contact.style.top='';
+      if(cancelled)return;
+      markTrackUsed();
+      if(gestureMath.isTap(g.moved,event.timeStamp-g.startT,gestureConfig.tapMaxMs)){send('select',undefined,'trackpad');return;}
+      if(!g.direction||g.pulled)return;
+      const dx=event.clientX-g.x,dy=event.clientY-g.y;
+      const along={right:dx,left:-dx,down:dy,up:-dy}[g.direction];
+      let remaining=gestureMath.extraSteps(along,gestureConfig.heavyPx,gestureConfig.veryHeavyPx);
+      if(remaining)inertiaTimer=setInterval(()=>{if(remaining--<=0){clearInterval(inertiaTimer);return;}send('navigate',g.direction,'flick');},gestureConfig.extraIntervalMs);
+    }
+    panel.addEventListener('pointerup',event=>finish(event));
+    panel.addEventListener('pointercancel',event=>finish(event,true));
+    panel.addEventListener('lostpointercapture',event=>finish(event,true));
+    panel.addEventListener('keydown',event=>{
+      const mode=event.target.closest('.mode');
+      if(mode&&['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){
+        event.preventDefault();const next=['ArrowLeft','Home'].includes(event.key)?'trackpad':'dpad';setMode(root,next);$(`[data-mode="${next}"]`,root).focus();return;
+      }
+      if(event.target!==pad)return;
+      const direction={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'}[event.key];
+      if(direction){event.preventDefault();send('navigate',direction,'keyboard');}
+      if(event.key==='Enter'||event.key===' '){event.preventDefault();send('select',undefined,'keyboard');}
+    });
+  });
+  window.addEventListener('blur',cancelMotion);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelMotion();});
+  // Update only confirmed host state in adapter mode; never infer TV availability.
+  function setState(patch) {
+    if(patch.room && !state.rooms[patch.room])throw new Error('Unknown room');
+    if(patch.room && patch.room!==state.room)cancelMotion();
+    if(patch.room)state.room=patch.room;
+    if(patch.rooms) Object.entries(patch.rooms).forEach(([id,data])=>{
+      if(!state.rooms[id])throw new Error('Unknown room: '+id);
+      const next={...state.rooms[id],...copy(data)};
+      if(!Number.isFinite(next.volume))throw new Error('volume must be finite');
+      next.volume=Math.max(0,Math.min(100,Math.round(next.volume)));
+      state.rooms[id]=next;
+    });
+    if(typeof patch.voiceActive==='boolean')voiceActive=patch.voiceActive;
+    updateUI(true);
+  }
+  window.NexusRemote=Object.freeze({
+    version:'1.0.0',
+    setAdapter(fn){if(fn!==null&&typeof fn!=='function')throw new TypeError('Adapter must be a function or null');cancelMotion();adapter=fn;},
+    setState,
+    getState:()=>copy(state),
+    getCommands:()=>copy(commandLog),
+    clearCommands:()=>{commandLog.length=0;},
+    setMode(mode,index=0){const root=$$('.remote')[index];if(!root)throw new Error('Unknown remote index');setMode(root,mode);},
+    getModes:()=>Object.fromEntries(modes),
+    cancelMotion,
+    gestureConfig
+  });
+  updateUI();
+})();
+
+</script>
+</body>
+</html>
