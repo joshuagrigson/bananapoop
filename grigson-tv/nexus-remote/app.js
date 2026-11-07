@@ -16,7 +16,7 @@
     edit: '<path d="m4 16-1 5 5-1L21 7l-4-4zM14.5 5.5l4 4"/>',
     cable: '<rect x="2" y="6" width="20" height="12" rx="1.5"/><path d="M6 12h.1M15 12h.1M19 12h.1"/>',
     game: '<path d="M7 5h10q3 0 4 4l2 10q0 3-3 1l-4-4H8l-4 4q-3 2-3-1L3 9q1-4 4-4zM7 8v6M4 11h6M16 10h.1M19 13h.1"/>',
-    hdmi: '<path d="M2 6h20v7l-5 5H7l-5-5zM5 10h14"/>',
+    hdmi: '<rect x="1.5" y="7" width="21" height="10" rx="3"/><path d="M6 12h12"/>',
     back: '<path d="m8 5-6 6 6 6M2 11h13a5 5 0 0 1 0 10h-3"/>',
     home: '<path d="m1 11 11-9 11 9M4 9v13h6v-8h4v8h6V9"/>',
     mute: '<path d="m3 9 5 0 5-5v16l-5-5H3zM17 7a8 8 0 0 1 3 8M2 2l20 20"/>',
@@ -70,12 +70,12 @@
   }
   function dpadArt(id) {
     return `<svg class="dpad-art" viewBox="0 0 510 300" preserveAspectRatio="none" aria-hidden="true">
-      <defs><linearGradient id="plate-${id}" x1="0" y1="0" x2=".25" y2="1"><stop stop-color="#646768"/><stop offset=".25" stop-color="#383b3c"/><stop offset=".6" stop-color="#303334"/><stop offset="1" stop-color="#3f4243"/></linearGradient>
+      <defs><linearGradient id="plate-${id}" x1="0" y1="0" x2=".25" y2="1"><stop stop-color="#808384"/><stop offset=".25" stop-color="#4d5051"/><stop offset=".6" stop-color="#414445"/><stop offset="1" stop-color="#505354"/></linearGradient>
       <radialGradient id="void-${id}"><stop stop-color="#111314"/><stop offset="1" stop-color="#080a0a"/></radialGradient>
-      <filter id="glow-${id}" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="2"/></filter></defs>
+      <filter id="glow-${id}" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="3"/></filter></defs>
       <rect x="1" y="1" width="508" height="298" rx="22" fill="url(#void-${id})" stroke="#393c3d"/>
-      <path d="M184 1H326Q340 1 340 15V76Q340 90 354 90H495Q509 90 509 104V196Q509 210 495 210H354Q340 210 340 224V285Q340 299 326 299H184Q170 299 170 285V224Q170 210 156 210H15Q1 210 1 196V104Q1 90 15 90H156Q170 90 170 76V15Q170 1 184 1Z" fill="none" stroke="#dce1e2" stroke-width="3" filter="url(#glow-${id})" opacity=".6"/>
-      <path d="M184 1H326Q340 1 340 15V76Q340 90 354 90H495Q509 90 509 104V196Q509 210 495 210H354Q340 210 340 224V285Q340 299 326 299H184Q170 299 170 285V224Q170 210 156 210H15Q1 210 1 196V104Q1 90 15 90H156Q170 90 170 76V15Q170 1 184 1Z" fill="url(#plate-${id})" stroke="#e0e4e4" stroke-width="1.5"/>
+      <path d="M184 1H326Q340 1 340 15V76Q340 90 354 90H495Q509 90 509 104V196Q509 210 495 210H354Q340 210 340 224V285Q340 299 326 299H184Q170 299 170 285V224Q170 210 156 210H15Q1 210 1 196V104Q1 90 15 90H156Q170 90 170 76V15Q170 1 184 1Z" fill="none" stroke="#eef2f2" stroke-width="6" filter="url(#glow-${id})" opacity=".85"/>
+      <path d="M184 1H326Q340 1 340 15V76Q340 90 354 90H495Q509 90 509 104V196Q509 210 495 210H354Q340 210 340 224V285Q340 299 326 299H184Q170 299 170 285V224Q170 210 156 210H15Q1 210 1 196V104Q1 90 15 90H156Q170 90 170 76V15Q170 1 184 1Z" fill="url(#plate-${id})" stroke="#f0f3f3" stroke-width="2"/>
     </svg>`;
   }
   function markup(id) {
