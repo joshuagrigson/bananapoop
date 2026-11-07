@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Let the Xbox client ID be pasted in Settings (kept on the phone) instead of baked into the page.
+"""Post-NEXUS touch-ups: Xbox client ID pasted in Settings; centred "10" in the replay icon. Let the Xbox client ID be pasted in Settings (kept on the phone) instead of baked into the page.
 Run after nexus-patch.py: python3 xbox-id-patch.py <remote.html> [<remote.html> ...]"""
 import sys
 
@@ -31,6 +31,9 @@ def patch(path):
     var change=XBOX.CLIENT_ID?'':'<button class="app" style="height:40px;width:auto;padding:0 12px;font-size:12px" onclick="xbClearId()">Change ID</button>';
     b.innerHTML=r?'<div class="set-row"><span>Xbox'+(xb.console?' · '+xb.console.name:'')+'</span><button class="app" style="height:40px;width:auto;padding:0 14px" onclick="xbSignOut()">Sign out</button></div>'
       :'<div class="set-row"><span>Xbox</span><span style="display:flex;gap:8px">'+change+'<button class="app" style="height:40px;width:auto;padding:0 14px" onclick="xbSignIn()">Sign in</button></span></div>'})}""",'settings card')
+    # Smart row: the "10" sits dead centre of the replay ring (ring centre 12,12), with equal room all round.
+    rep('<path d="M4.6 13.5A7.6 7.6 0 1 0 7 5.9"/><path d="M7.4 2.6 6.6 6.2l3.6.9"/><text x="12.4" y="16.3" text-anchor="middle" font-size="8.2" font-weight="800" fill="currentColor" stroke="none"',
+        '<path d="M4.6 13.5A7.6 7.6 0 1 0 7 5.9"/><path d="M7.4 2.6 6.6 6.2l3.6.9"/><text x="12" y="12" text-anchor="middle" dominant-baseline="central" font-size="7.6" font-weight="800" fill="currentColor" stroke="none"','replay10')
     open(path,'w').write(s); print('patched',path)
 
 for p in sys.argv[1:]: patch(p)
