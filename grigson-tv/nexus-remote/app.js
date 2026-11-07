@@ -197,6 +197,10 @@
     if(event.target.closest('[data-repeat]')) {clearTimeout(holdDelay);clearInterval(holdTimer);event.target.closest('[data-repeat]').classList.remove('is-pressed');}
   }));
 
+  // The 'Swipe to navigate / Tap to select' copy shows until the trackpad has been used once on this device.
+  function trackUsed(){try{return localStorage.getItem('nexusTrackUsed')==='1';}catch(e){return false;}}
+  function markTrackUsed(){try{localStorage.setItem('nexusTrackUsed','1');}catch(e){}$$('.track-copy').forEach(p=>p.classList.add('used'));}
+  if(trackUsed())$$('.track-copy').forEach(p=>p.classList.add('used'));
   $$('.navigation').forEach(panel=>{
     let gesture=null;
     const root=panel.closest('.remote'); const pad=$('.track-surface',panel); const contact=$('.contact',panel);
@@ -234,6 +238,7 @@
         if(gestureMath.isEdgeSwitch(dx,dy,gestureConfig.edgeThreshold,gestureConfig.edgeAxisRatio)) setMode(root,modes.get(root.dataset.remote)==='trackpad'?'dpad':'trackpad');
         return;
       }
+      markTrackUsed();
       if(gestureMath.isTap(g.moved,event.timeStamp-g.startT,gestureConfig.tapMaxMs)){send('select',undefined,'trackpad');return;}
       const recent=event.timeStamp-g.lastT<100;
       if(g.steps&&g.direction&&recent&&g.velocity>=gestureConfig.flickMinVelocity){

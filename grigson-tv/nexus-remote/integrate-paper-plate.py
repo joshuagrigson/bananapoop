@@ -66,7 +66,7 @@ NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
  <div id="sInputs" class="nx-inputs" aria-label="TV inputs"></div><p id="nxHidden" class="nx-hidden-count"></p>
  <section id="nxNav" class="nx-navigation" aria-label="Navigation">
   <div class="nx-mode-selector" role="tablist" aria-label="Navigation mode"><button class="nx-mode" role="tab" data-mode="trackpad" aria-selected="true">Trackpad</button><button class="nx-mode" role="tab" data-mode="dpad" aria-selected="false">D-pad</button></div>
-  <div id="nxTrack" class="nx-track-surface" role="tabpanel"><span id="nxContact" class="nx-contact"></span><p class="nx-track-copy">Swipe to navigate<br>Tap to select</p><p class="nx-edge-hint">Swipe left from edge to switch</p></div>
+  <div id="nxTrack" class="nx-track-surface" role="tabpanel"><span id="nxContact" class="nx-contact"></span><p id="nxCopy" class="nx-track-copy">Swipe to navigate<br>Tap to select</p><p class="nx-edge-hint">Swipe left from edge to switch</p></div>
   <div id="nxDpad" class="nx-dpad" role="tabpanel" hidden>{DPAD_ART}{DIRS}<button class="nx-center-select" data-c="ok">SELECT</button></div>
   <div class="nx-edge-swipe" aria-hidden="true"></div>
  </section>
@@ -168,6 +168,7 @@ function nxSetMode(m){nxMode=m;lsSet('nxMode',m);
     if(cancelled)return;
     var dx=e.clientX-x.x,dy=e.clientY-x.y;
     if(x.edge){if(dx<=-EDGE&&Math.abs(dx)>Math.abs(dy)*EDGERATIO)nxSetMode(nxMode==='trackpad'?'dpad':'trackpad');return}
+    nxTrackUsed();
     if(!x.moved&&e.timeStamp-x.t0<=TAPMS){go('ok');return}
     var recent=e.timeStamp-x.lt<100;
     if(x.steps&&x.dir&&recent&&x.v>=FLICK){var left=Math.min(FLICKMAX,Math.floor(x.v/FLICK));
@@ -175,7 +176,10 @@ function nxSetMode(m){nxMode=m;lsSet('nxMode',m);
   panel.addEventListener('pointerup',function(e){finish(e,false)});
   panel.addEventListener('pointercancel',function(e){finish(e,true)});
   nxSetMode(ls('nxMode','trackpad')==='dpad'?'dpad':'trackpad');
+  if(ls('nxTrackUsed','0')==='1')nxTrackUsed();
 })();
+// The 'Swipe to navigate / Tap to select' copy shows until the trackpad has been used once on this phone.
+function nxTrackUsed(){lsSet('nxTrackUsed','1');var c=document.getElementById('nxCopy');if(c)c.classList.add('used')}
 """
 
 APPLY_LAYOUT_OLD = """function applyLayout(){var s=simpleOn();

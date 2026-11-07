@@ -68,9 +68,9 @@ button:active, button.is-pressed { filter: brightness(1.2); transform: scale(.98
 .mode[aria-selected=true] { background:radial-gradient(ellipse at 50% 20%,#9a9d9f,#555859); border:1px solid #f4f7f8; box-shadow:inset 0 0 8px #fff7,0 0 12px #e4ecec99; }
 .track-surface { position:absolute; inset:calc(62 * var(--u)) calc(26 * var(--u)) calc(13 * var(--u)); touch-action:none; cursor:grab; outline:none; }
 .track-surface:active { cursor:grabbing; }
-.contact { position:absolute; left:50%; top:27%; width:calc(15 * var(--u)); height:calc(15 * var(--u)); border-radius:50%; background:radial-gradient(circle at 35% 20%,#fff,#c4c8ca 65%,#888d91); border:1px solid #e4e8e8; box-shadow:0 0 18px 7px #e3eded70; transform:translate(-50%,-50%); pointer-events:none; }
-.contact::after { content:''; position:absolute; width:90%; height:calc(72 * var(--u)); top:75%; left:5%; background:linear-gradient(#d6dedfb3,#aab2b355 45%,transparent); clip-path:polygon(0 0,100% 0,50% 100%); filter:blur(4px); }
-.contact.touching { box-shadow:0 0 18px 8px #e3eded88; }
+.contact { position:absolute; left:50%; top:50%; width:calc(64 * var(--u)); height:calc(64 * var(--u)); border-radius:50%; background:radial-gradient(circle,#f1f5f5a6 0%,#d7dedf59 28%,#b9c2c31f 55%,transparent 72%); transform:translate(-50%,-50%); pointer-events:none; opacity:0; transition:opacity 160ms; }
+.contact.touching { opacity:1; transition:opacity 60ms; }
+.track-copy.used { display:none; }
 .track-copy { position:absolute; width:100%; bottom:calc(58 * var(--u)); text-align:center; margin:0; font-size:calc(21 * var(--u)); line-height:1.35; pointer-events:none; }
 .edge-hint { position:absolute; width:100%; bottom:calc(12 * var(--u)); text-align:center; margin:0; font-size:calc(16 * var(--u)); pointer-events:none; }
 .edge-swipe { position:absolute; z-index:4; right:0; top:calc(62 * var(--u)); bottom:calc(10 * var(--u)); width:24px; touch-action:none; cursor:ew-resize; }
@@ -356,6 +356,10 @@ dialog button.save { padding:10px 18px; border:1px solid #bec2c5; border-radius:
     if(event.target.closest('[data-repeat]')) {clearTimeout(holdDelay);clearInterval(holdTimer);event.target.closest('[data-repeat]').classList.remove('is-pressed');}
   }));
 
+  // The 'Swipe to navigate / Tap to select' copy shows until the trackpad has been used once on this device.
+  function trackUsed(){try{return localStorage.getItem('nexusTrackUsed')==='1';}catch(e){return false;}}
+  function markTrackUsed(){try{localStorage.setItem('nexusTrackUsed','1');}catch(e){}$$('.track-copy').forEach(p=>p.classList.add('used'));}
+  if(trackUsed())$$('.track-copy').forEach(p=>p.classList.add('used'));
   $$('.navigation').forEach(panel=>{
     let gesture=null;
     const root=panel.closest('.remote'); const pad=$('.track-surface',panel); const contact=$('.contact',panel);
@@ -393,6 +397,7 @@ dialog button.save { padding:10px 18px; border:1px solid #bec2c5; border-radius:
         if(gestureMath.isEdgeSwitch(dx,dy,gestureConfig.edgeThreshold,gestureConfig.edgeAxisRatio)) setMode(root,modes.get(root.dataset.remote)==='trackpad'?'dpad':'trackpad');
         return;
       }
+      markTrackUsed();
       if(gestureMath.isTap(g.moved,event.timeStamp-g.startT,gestureConfig.tapMaxMs)){send('select',undefined,'trackpad');return;}
       const recent=event.timeStamp-g.lastT<100;
       if(g.steps&&g.direction&&recent&&g.velocity>=gestureConfig.flickMinVelocity){
