@@ -23,7 +23,6 @@ for m in re.finditer(r'([^{}]+)\{([^{}]*)\}', re.sub(r'/\*.*?\*/','',css_src,fla
     sel=','.join('#simpleRemote '+s.strip() for s in sel.split(','))
     rules.append(sel+'{'+body+'}')
 OVERRIDES = """/* Layout 2 (Joshua 2026-11-07): rooms and the smart row at the bottom, shorter input tiles, bigger lower keys. Same 1192-unit stack. */
-#simpleRemote .nx-inputs-heading{height:calc(34 * var(--u))}
 #simpleRemote .nx-input-card{height:calc(72 * var(--u));font-size:calc(19 * var(--u));padding:calc(4 * var(--u)) calc(3 * var(--u))}
 #simpleRemote .nx-input-card > .nx-icon{width:calc(34 * var(--u));height:calc(22 * var(--u));margin-bottom:0}
 #simpleRemote .nx-input-card .nx-port{font-size:calc(14 * var(--u));margin-top:0}
@@ -45,8 +44,14 @@ OVERRIDES = """/* Layout 2 (Joshua 2026-11-07): rooms and the smart row at the b
 #simpleRemote .nx-status-source{overflow:hidden;text-overflow:ellipsis}
 #simpleRemote .nx-power{margin-left:0;height:100%;width:calc(130 * var(--u));font-size:calc(34 * var(--u));border-radius:calc(22 * var(--u));color:#ffcbc2;border:1px solid #ff978f;background:radial-gradient(ellipse at top,#a25751,#742b28 65%,#562421);box-shadow:inset 0 1px 3px #ffdfc080,0 0 15px #ff67565c,0 5px 12px #000a}
 #simpleRemote .nx-power[aria-pressed=false]{background:#342120;box-shadow:0 0 5px #ff675628,0 5px 12px #000a}
+/* Settings is one gear beside the room switch at the bottom; Edit is plain text in the INPUTS line. Power stands alone up top. */
+#simpleRemote .nx-foot{display:flex;gap:calc(12 * var(--u));margin-top:calc(10 * var(--u));height:calc(48 * var(--u))}
+#simpleRemote .nx-foot .nx-rooms{flex:1;min-width:0;margin-top:0;height:100%}
+#simpleRemote .nx-settings{width:calc(60 * var(--u));height:100%;padding:0;justify-content:center;border-radius:calc(24 * var(--u));font-size:calc(26 * var(--u))}
+#simpleRemote .nx-inputs-heading{height:calc(44 * var(--u))}
+#simpleRemote .nx-edit{height:100%;padding:0 calc(6 * var(--u));border:0;background:none;box-shadow:none;color:var(--muted);font-size:calc(19 * var(--u));gap:.4em;border-radius:0}
+#simpleRemote .nx-navigation{height:calc(366 * var(--u))}
 #simpleRemote #smartRow{margin-top:calc(12 * var(--u))}
-#simpleRemote .nx-rooms{margin-top:calc(10 * var(--u))}
 """
 NX_CSS = """/* ----- NEXUS layout (Smoky Silver / Black). Art units: --u = 1/558 of the remote's width. ----- */
 #simpleRemote{display:none;border-radius:20px;
@@ -87,9 +92,9 @@ CROSS="M184 1H326Q340 1 340 15V76Q340 90 354 90H495Q509 90 509 104V196Q509 210 4
 DPAD_ART=('<svg class="dpad-art" viewBox="0 0 510 300" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="plate-nx" x1="0" y1="0" x2=".3" y2="1"><stop stop-color="#9a9d9e"/><stop offset=".2" stop-color="#5e6263"/><stop offset=".6" stop-color="#424546"/><stop offset="1" stop-color="#353839"/></linearGradient><linearGradient id="bevel-nx" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".22"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient><radialGradient id="void-nx"><stop stop-color="#121415"/><stop offset="1" stop-color="#070909"/></radialGradient><filter id="bloom-nx" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="8"/></filter><filter id="glow-nx" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="2.5"/></filter><clipPath id="clip-nx"><path d="'+CROSS+'"/></clipPath></defs><rect x="1" y="1" width="508" height="298" rx="22" fill="url(#void-nx)" stroke="#2c2f30"/><g fill="#151717" stroke="#242727"><rect x="8" y="8" width="156" height="78" rx="16"/><rect x="346" y="8" width="156" height="78" rx="16"/><rect x="8" y="214" width="156" height="78" rx="16"/><rect x="346" y="214" width="156" height="78" rx="16"/></g><path d="'+CROSS+'" fill="none" stroke="#ffffff" stroke-width="13" filter="url(#bloom-nx)" opacity=".32"/><path d="'+CROSS+'" fill="none" stroke="#f4f7f7" stroke-width="3" filter="url(#glow-nx)" opacity=".7"/><path d="'+CROSS+'" fill="url(#plate-nx)" stroke="#f3f6f6" stroke-width="2"/><path d="'+CROSS+'" fill="url(#bevel-nx)"/><path d="'+CROSS+'" fill="none" stroke="#ffffff" stroke-width="5" opacity=".28" clip-path="url(#clip-nx)" filter="url(#glow-nx)"/></svg>').replace('class="dpad-art"','class="nx-dpad-art"')
 DIRS=''.join('<button class="nx-direction nx-%s" data-c="%s" data-repeat="1" aria-label="%s"><span class="nx-triangle">%s</span><span>%s</span></button>'%(d,d,d,g,d.upper()) for d,g in [('up','&#9650;'),('left','&#9664;'),('right','&#9654;'),('down','&#9660;')])
 NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
- <header class="nx-header"><h1 class="nx-brand">REMOTE</h1><button class="nx-settings nx-chrome" data-fn="openSettings">{icon('settings')}Settings</button></header>
+ <header class="nx-header"><h1 class="nx-brand">REMOTE</h1></header>
  <div id="nxStatus" class="nx-status"><div class="nx-status-bar nx-chrome"><span id="nxDot" class="nx-dot nx-off" aria-hidden="true"></span><span id="nxSource" class="nx-status-source">Connecting…</span><span id="nxAlias" class="nx-status-alias"></span></div><button id="sPower" class="nx-power nx-chrome" data-c="power" aria-label="Power" aria-pressed="false">{icon('power')}</button></div>
- <div class="nx-inputs-heading"><h2>INPUTS</h2><button class="nx-edit nx-chrome" data-fn="openInEdit">{icon('edit')}Edit</button></div>
+ <div class="nx-inputs-heading"><h2>INPUTS</h2><button class="nx-edit" data-fn="openInEdit">{icon('edit')}Edit</button></div>
  <div id="sInputs" class="nx-inputs" aria-label="TV inputs"></div><p id="nxHidden" class="nx-hidden-count"></p>
  <section id="nxNav" class="nx-navigation" aria-label="Navigation">
   <div class="nx-mode-selector" role="tablist" aria-label="Navigation mode"><button class="nx-mode" role="tab" data-mode="trackpad" aria-selected="true">Trackpad</button><button class="nx-mode" role="tab" data-mode="dpad" aria-selected="false">D-pad</button></div>
@@ -101,7 +106,7 @@ NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
  <div class="nx-playback"><button class="nx-chrome" data-c="rewind" aria-label="Rewind">{media('rewind')}</button><button class="nx-chrome" data-c="pause" aria-label="Play or pause">{media('play')}</button><button class="nx-chrome" data-c="fastForward" aria-label="Fast forward">{media('forward')}</button></div>
  <div class="nx-bottom"><button id="sMic" class="nx-voice" data-fn="talk">{icon('mic')}Say it</button><button class="nx-chrome" data-fn="openApps">{icon('apps')}Apps</button></div>
  <div id="nxSmart"></div>
- <div id="nxRooms" class="nx-rooms" role="group" aria-label="TV"><button class="nx-room" data-fn="nxLiving" data-tv="lg" aria-pressed="true">Living room</button><button class="nx-room" data-fn="nxOffice" data-tv="vizio" aria-pressed="false">Office</button></div>
+ <div class="nx-foot"><div id="nxRooms" class="nx-rooms" role="group" aria-label="TV"><button class="nx-room" data-fn="nxLiving" data-tv="lg" aria-pressed="true">Living room</button><button class="nx-room" data-fn="nxOffice" data-tv="vizio" aria-pressed="false">Office</button></div><button class="nx-settings nx-chrome" data-fn="openSettings" aria-label="Settings">{icon('settings')}</button></div>
 </div></div>
 """
 
