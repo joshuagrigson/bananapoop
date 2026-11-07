@@ -23,7 +23,7 @@ button { transition: filter var(--press-ms), transform var(--press-ms), box-shad
 button:active, button.is-pressed { filter: brightness(1.2); transform: scale(.98); }
 #remotes { display: grid; justify-content: center; padding: 6px 12px 34px; }
 #remotes.comparison { grid-template-columns: repeat(2,minmax(0,558px)); gap: 72px; padding: 6px 24px 44px; }
-.remote { width: min(558px,calc(100vw - 24px),calc((100dvh - 46px) * 558 / 1145)); container-type: inline-size; border-radius: 20px; background: radial-gradient(ellipse at 50% 45%,#0b0d0e 0%,#08090a 75%,#0b0c0d 100%); border: 1px solid #121416; box-shadow: 0 12px 40px #0007; }
+.remote { width: min(558px,calc(100vw - 24px)); container-type: inline-size; border-radius: 20px; background: radial-gradient(ellipse at 50% 45%,#0b0d0e 0%,#08090a 75%,#0b0c0d 100%); border: 1px solid #121416; box-shadow: 0 12px 40px #0007; }
 .comparison .remote { width: 100%; }
 .remote-inner { --u: calc(100cqw / 558); padding: calc(6 * var(--u)) calc(24 * var(--u)) calc(52 * var(--u)); font-size: calc(24 * var(--u)); }
 .icon { width: 1.1em; height: 1.1em; vertical-align: middle; flex-shrink: 0; stroke: currentColor; stroke-width: 1.65; fill: none; stroke-linecap: round; stroke-linejoin: round; }

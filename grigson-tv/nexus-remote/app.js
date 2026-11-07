@@ -107,6 +107,12 @@
     </div></article>`;
   }
   host.innerHTML=markup('first')+(comparison?markup('second'):'');
+  // One fixed size per load (and per width change), never a live function of the viewport height.
+  let fitWidth=0;
+  function fit(){if(comparison||window.innerWidth===fitWidth)return;fitWidth=window.innerWidth;
+    const w=Math.min(558,window.innerWidth-24,(window.innerHeight-46)*558/1145);
+    $$('.remote').forEach(r=>{r.style.width=Math.max(240,w).toFixed(1)+'px';});}
+  fit();window.addEventListener('resize',fit);window.addEventListener('orientationchange',()=>setTimeout(fit,80));
   function updateUI(rebuildInputs=false) {
     const s=current(); const active=s.inputs.find(i=>i.id===s.activeInput);
     $$('.remote').forEach(root=>{

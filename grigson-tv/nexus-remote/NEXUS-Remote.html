@@ -31,7 +31,7 @@ button { transition: filter var(--press-ms), transform var(--press-ms), box-shad
 button:active, button.is-pressed { filter: brightness(1.2); transform: scale(.98); }
 #remotes { display: grid; justify-content: center; padding: 6px 12px 34px; }
 #remotes.comparison { grid-template-columns: repeat(2,minmax(0,558px)); gap: 72px; padding: 6px 24px 44px; }
-.remote { width: min(558px,calc(100vw - 24px),calc((100dvh - 46px) * 558 / 1145)); container-type: inline-size; border-radius: 20px; background: radial-gradient(ellipse at 50% 45%,#0b0d0e 0%,#08090a 75%,#0b0c0d 100%); border: 1px solid #121416; box-shadow: 0 12px 40px #0007; }
+.remote { width: min(558px,calc(100vw - 24px)); container-type: inline-size; border-radius: 20px; background: radial-gradient(ellipse at 50% 45%,#0b0d0e 0%,#08090a 75%,#0b0c0d 100%); border: 1px solid #121416; box-shadow: 0 12px 40px #0007; }
 .comparison .remote { width: 100%; }
 .remote-inner { --u: calc(100cqw / 558); padding: calc(6 * var(--u)) calc(24 * var(--u)) calc(52 * var(--u)); font-size: calc(24 * var(--u)); }
 .icon { width: 1.1em; height: 1.1em; vertical-align: middle; flex-shrink: 0; stroke: currentColor; stroke-width: 1.65; fill: none; stroke-linecap: round; stroke-linejoin: round; }
@@ -262,6 +262,12 @@ dialog button.save { padding:10px 18px; border:1px solid #bec2c5; border-radius:
     </div></article>`;
   }
   host.innerHTML=markup('first')+(comparison?markup('second'):'');
+  // One fixed size per load (and per width change), never a live function of the viewport height.
+  let fitWidth=0;
+  function fit(){if(comparison||window.innerWidth===fitWidth)return;fitWidth=window.innerWidth;
+    const w=Math.min(558,window.innerWidth-24,(window.innerHeight-46)*558/1145);
+    $$('.remote').forEach(r=>{r.style.width=Math.max(240,w).toFixed(1)+'px';});}
+  fit();window.addEventListener('resize',fit);window.addEventListener('orientationchange',()=>setTimeout(fit,80));
   function updateUI(rebuildInputs=false) {
     const s=current(); const active=s.inputs.find(i=>i.id===s.activeInput);
     $$('.remote').forEach(root=>{

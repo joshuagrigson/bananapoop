@@ -24,9 +24,8 @@ for m in re.finditer(r'([^{}]+)\{([^{}]*)\}', re.sub(r'/\*.*?\*/','',css_src,fla
     rules.append(sel+'{'+body+'}')
 NX_CSS = """/* ----- NEXUS layout (Smoky Silver / Black). Art units: --u = 1/558 of the remote's width. ----- */
 #simpleRemote{display:none;border-radius:20px;
-/* One art unit = 1/558 of the remote's width, but never so big that the 1192-unit stack is taller than the screen. */
---u:min(calc((100vw - 32px) / 558),calc(400px / 558),calc((100vh - 30px) / 1192));
---u:min(calc((100vw - 32px) / 558),calc(400px / 558),calc((100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 30px) / 1192));
+/* One art unit = 1/558 of the remote's width. nxFit() pins --u once per launch so the 1192-unit stack fits the screen without ever re-flowing live. */
+--u:min(calc((100vw - 32px) / 558),calc(400px / 558));
 width:calc(558 * var(--u));max-width:100%;
 background:radial-gradient(ellipse at 50% 45%,#0b0d0e 0%,#08090a 75%,#0b0c0d 100%);border:1px solid #121416;box-shadow:0 12px 40px #0007;color:#f3f3f1;
 --page:#070809;--text:#f3f3f1;--muted:#b7b8b8;--silver:#c5c8ca;--silver-light:#eff1f1;--green:#19ee30;--voice:#04e58b;--coral:#ff8177;--press-ms:110ms}
@@ -138,6 +137,18 @@ function paintInputs(){var box=document.getElementById('sInputs');if(!box)return
   ['pointerup','pointercancel'].forEach(function(t){document.addEventListener(t,stop,{passive:true})});
   window.addEventListener('blur',stop);document.addEventListener('visibilitychange',function(){if(document.hidden)stop()});
 })();
+// Size: one fixed scale per launch (and per rotation), never a live function of the viewport.
+// A remote that re-flows with every viewport twitch feels loose; this one is measured once and pinned.
+function nxFit(){var el=document.getElementById('simpleRemote');if(!el)return;
+  var cs=getComputedStyle(document.body),pt=parseFloat(cs.paddingTop)||0,pb=parseFloat(cs.paddingBottom)||0;
+  var w=window.innerWidth,h=window.innerHeight;
+  var u=Math.min((w-32)/558,400/558,(h-pt-pb-4)/1192);
+  el.style.setProperty('--u',u.toFixed(4)+'px');el.style.width=(558*u).toFixed(1)+'px'}
+var nxFitW=0;
+function nxFitMaybe(){if(window.innerWidth!==nxFitW){nxFitW=window.innerWidth;nxFit()}}
+nxFitMaybe();
+window.addEventListener('orientationchange',function(){setTimeout(nxFitMaybe,80)});
+window.addEventListener('resize',nxFitMaybe);
 // Trackpad / D-pad. The selector switches only this panel.
 var nxMode='trackpad';
 function nxSetMode(m){nxMode=m;lsSet('nxMode',m);
