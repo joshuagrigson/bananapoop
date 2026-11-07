@@ -48,7 +48,7 @@ OVERRIDES = """/* Layout 2 (Joshua 2026-11-07): rooms and the smart row at the b
 #simpleRemote .nx-foot{display:flex;gap:calc(12 * var(--u));margin-top:calc(10 * var(--u));height:calc(48 * var(--u))}
 #simpleRemote .nx-foot .nx-rooms{flex:1;min-width:0;margin-top:0;height:100%}
 #simpleRemote .nx-settings{width:calc(60 * var(--u));height:100%;padding:0;justify-content:center;border-radius:calc(24 * var(--u));font-size:calc(26 * var(--u))}
-#simpleRemote .nx-inputs-heading{height:calc(44 * var(--u))}
+#simpleRemote .nx-inputs-heading{height:calc(44 * var(--u));justify-content:flex-start;gap:calc(18 * var(--u))}
 #simpleRemote .nx-edit{height:100%;padding:0 calc(6 * var(--u));border:0;background:none;box-shadow:none;color:var(--muted);font-size:calc(19 * var(--u));gap:.4em;border-radius:0}
 #simpleRemote .nx-navigation{height:calc(366 * var(--u))}
 #simpleRemote #smartRow{margin-top:calc(12 * var(--u))}
