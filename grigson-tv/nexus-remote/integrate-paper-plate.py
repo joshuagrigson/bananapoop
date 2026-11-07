@@ -23,10 +23,14 @@ for m in re.finditer(r'([^{}]+)\{([^{}]*)\}', re.sub(r'/\*.*?\*/','',css_src,fla
     sel=','.join('#simpleRemote '+s.strip() for s in sel.split(','))
     rules.append(sel+'{'+body+'}')
 NX_CSS = """/* ----- NEXUS layout (Smoky Silver / Black). Art units: --u = 1/558 of the remote's width. ----- */
-#simpleRemote{display:none;width:100%;max-width:400px;container-type:inline-size;border-radius:20px;
+#simpleRemote{display:none;border-radius:20px;
+/* One art unit = 1/558 of the remote's width, but never so big that the 1192-unit stack is taller than the screen. */
+--u:min(calc((100vw - 32px) / 558),calc(400px / 558),calc((100vh - 30px) / 1192));
+--u:min(calc((100vw - 32px) / 558),calc(400px / 558),calc((100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 30px) / 1192));
+width:calc(558 * var(--u));max-width:100%;
 background:radial-gradient(ellipse at 50% 45%,#0b0d0e 0%,#08090a 75%,#0b0c0d 100%);border:1px solid #121416;box-shadow:0 12px 40px #0007;color:#f3f3f1;
 --page:#070809;--text:#f3f3f1;--muted:#b7b8b8;--silver:#c5c8ca;--silver-light:#eff1f1;--green:#19ee30;--voice:#04e58b;--coral:#ff8177;--press-ms:110ms}
-#simpleRemote .nx-inner{--u:calc(100cqw / 558);padding:calc(6 * var(--u)) calc(24 * var(--u)) calc(40 * var(--u));font-size:calc(24 * var(--u))}
+#simpleRemote .nx-inner{padding:calc(6 * var(--u)) calc(24 * var(--u)) calc(40 * var(--u));font-size:calc(24 * var(--u))}
 #simpleRemote button{height:auto;min-height:0;border:0;border-radius:0;background:none;box-shadow:none;color:inherit;font:inherit;font-weight:400;letter-spacing:0;padding:0;touch-action:manipulation;transition:filter 110ms,transform 110ms,box-shadow 180ms}
 #simpleRemote button:active,#simpleRemote button.pressed{filter:brightness(1.2);transform:scale(.98)}
 #simpleRemote h1,#simpleRemote h2,#simpleRemote p{margin:0}
@@ -111,6 +115,7 @@ function paintNexus(d){
 // Input tiles: name, port, green dot when the TV says something is plugged in and on, "On screen" for the current one.
 function paintInputs(){var box=document.getElementById('sInputs');if(!box)return;
   var cur=nxCur(),all=inSaved(),list=all.filter(function(x){return x.show});
+  box.style.gridTemplateColumns='repeat('+Math.min(Math.max(list.length,1),4)+',minmax(0,1fr))';
   box.innerHTML='';
   list.forEach(function(x){var t=tvInputs&&tvInputs[x.n],on=!!(t&&t.connected),label=inLabel(x),sel=String(x.n)===String(cur),port='HDMI '+x.n;
     var b=document.createElement('button');b.className='nx-input-card nx-chrome';
