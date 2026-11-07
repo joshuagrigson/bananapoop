@@ -23,12 +23,12 @@ for m in re.finditer(r'([^{}]+)\{([^{}]*)\}', re.sub(r'/\*.*?\*/','',css_src,fla
     sel=','.join('#simpleRemote '+s.strip() for s in sel.split(','))
     rules.append(sel+'{'+body+'}')
 OVERRIDES = """/* Layout 2 (Joshua 2026-11-07): rooms and the smart row at the bottom, shorter input tiles, bigger lower keys. Same 1192-unit stack. */
-#simpleRemote .nx-inputs-heading{height:calc(40 * var(--u))}
+#simpleRemote .nx-inputs-heading{height:calc(34 * var(--u))}
 #simpleRemote .nx-input-card{height:calc(72 * var(--u));font-size:calc(19 * var(--u));padding:calc(4 * var(--u)) calc(3 * var(--u))}
 #simpleRemote .nx-input-card > .nx-icon{width:calc(34 * var(--u));height:calc(22 * var(--u));margin-bottom:0}
 #simpleRemote .nx-input-card .nx-port{font-size:calc(14 * var(--u));margin-top:0}
 #simpleRemote .nx-input-card .nx-state-line{height:calc(18 * var(--u));font-size:calc(13 * var(--u))}
-#simpleRemote .nx-hidden-count{height:calc(26 * var(--u));font-size:calc(15 * var(--u))}
+#simpleRemote .nx-hidden-count{height:calc(18 * var(--u));font-size:calc(14 * var(--u))}
 #simpleRemote .nx-primary{height:calc(78 * var(--u));margin-top:calc(14 * var(--u))}
 #simpleRemote .nx-primary button{font-size:calc(24 * var(--u))}
 #simpleRemote .nx-primary .nx-okay{font-size:calc(34 * var(--u))}
@@ -40,10 +40,10 @@ OVERRIDES = """/* Layout 2 (Joshua 2026-11-07): rooms and the smart row at the b
 #simpleRemote .nx-bottom{height:calc(92 * var(--u))}
 #simpleRemote .nx-bottom button{font-size:calc(28 * var(--u))}
 /* Power is its own pill, a clear gap from the info bar. */
-#simpleRemote .nx-status{background:none;border:0;box-shadow:none;padding:0;gap:calc(12 * var(--u))}
+#simpleRemote .nx-status{background:none;border:0;box-shadow:none;padding:0;gap:calc(14 * var(--u));height:calc(60 * var(--u))}
 #simpleRemote .nx-status-bar{flex:1;min-width:0;height:100%;display:flex;align-items:center;gap:calc(16 * var(--u));padding-left:calc(21 * var(--u));border-radius:calc(22 * var(--u))}
 #simpleRemote .nx-status-source{overflow:hidden;text-overflow:ellipsis}
-#simpleRemote .nx-power{margin-left:0;height:100%;width:calc(80 * var(--u));border-radius:calc(22 * var(--u));color:#ffcbc2;border:1px solid #ff978f;background:radial-gradient(ellipse at top,#a25751,#742b28 65%,#562421);box-shadow:inset 0 1px 3px #ffdfc080,0 0 15px #ff67565c,0 5px 12px #000a}
+#simpleRemote .nx-power{margin-left:0;height:100%;width:calc(130 * var(--u));font-size:calc(34 * var(--u));border-radius:calc(22 * var(--u));color:#ffcbc2;border:1px solid #ff978f;background:radial-gradient(ellipse at top,#a25751,#742b28 65%,#562421);box-shadow:inset 0 1px 3px #ffdfc080,0 0 15px #ff67565c,0 5px 12px #000a}
 #simpleRemote .nx-power[aria-pressed=false]{background:#342120;box-shadow:0 0 5px #ff675628,0 5px 12px #000a}
 #simpleRemote #smartRow{margin-top:calc(12 * var(--u))}
 #simpleRemote .nx-rooms{margin-top:calc(10 * var(--u))}
