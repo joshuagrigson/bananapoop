@@ -69,13 +69,20 @@
     }).join('');
   }
   function dpadArt(id) {
+    const cross='M184 1H326Q340 1 340 15V76Q340 90 354 90H495Q509 90 509 104V196Q509 210 495 210H354Q340 210 340 224V285Q340 299 326 299H184Q170 299 170 285V224Q170 210 156 210H15Q1 210 1 196V104Q1 90 15 90H156Q170 90 170 76V15Q170 1 184 1Z';
     return `<svg class="dpad-art" viewBox="0 0 510 300" preserveAspectRatio="none" aria-hidden="true">
-      <defs><linearGradient id="plate-${id}" x1="0" y1="0" x2=".25" y2="1"><stop stop-color="#808384"/><stop offset=".25" stop-color="#4d5051"/><stop offset=".6" stop-color="#414445"/><stop offset="1" stop-color="#505354"/></linearGradient>
-      <radialGradient id="void-${id}"><stop stop-color="#111314"/><stop offset="1" stop-color="#080a0a"/></radialGradient>
-      <filter id="glow-${id}" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="3"/></filter></defs>
-      <rect x="1" y="1" width="508" height="298" rx="22" fill="url(#void-${id})" stroke="#393c3d"/>
-      <path d="M184 1H326Q340 1 340 15V76Q340 90 354 90H495Q509 90 509 104V196Q509 210 495 210H354Q340 210 340 224V285Q340 299 326 299H184Q170 299 170 285V224Q170 210 156 210H15Q1 210 1 196V104Q1 90 15 90H156Q170 90 170 76V15Q170 1 184 1Z" fill="none" stroke="#eef2f2" stroke-width="6" filter="url(#glow-${id})" opacity=".85"/>
-      <path d="M184 1H326Q340 1 340 15V76Q340 90 354 90H495Q509 90 509 104V196Q509 210 495 210H354Q340 210 340 224V285Q340 299 326 299H184Q170 299 170 285V224Q170 210 156 210H15Q1 210 1 196V104Q1 90 15 90H156Q170 90 170 76V15Q170 1 184 1Z" fill="url(#plate-${id})" stroke="#f0f3f3" stroke-width="2"/>
+      <defs><linearGradient id="plate-${id}" x1="0" y1="0" x2=".3" y2="1"><stop stop-color="#9a9d9e"/><stop offset=".2" stop-color="#5e6263"/><stop offset=".6" stop-color="#424546"/><stop offset="1" stop-color="#353839"/></linearGradient>
+      <linearGradient id="bevel-${id}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".22"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+      <radialGradient id="void-${id}"><stop stop-color="#121415"/><stop offset="1" stop-color="#070909"/></radialGradient>
+      <filter id="bloom-${id}" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="8"/></filter>
+      <filter id="glow-${id}" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="2.5"/></filter>
+      <clipPath id="clip-${id}"><path d="${cross}"/></clipPath></defs>
+      <rect x="1" y="1" width="508" height="298" rx="22" fill="url(#void-${id})" stroke="#2c2f30"/><g fill="#151717" stroke="#242727"><rect x="8" y="8" width="156" height="78" rx="16"/><rect x="346" y="8" width="156" height="78" rx="16"/><rect x="8" y="214" width="156" height="78" rx="16"/><rect x="346" y="214" width="156" height="78" rx="16"/></g>
+      <path d="${cross}" fill="none" stroke="#ffffff" stroke-width="13" filter="url(#bloom-${id})" opacity=".32"/>
+      <path d="${cross}" fill="none" stroke="#f4f7f7" stroke-width="3" filter="url(#glow-${id})" opacity=".7"/>
+      <path d="${cross}" fill="url(#plate-${id})" stroke="#f3f6f6" stroke-width="2"/>
+      <path d="${cross}" fill="url(#bevel-${id})"/>
+      <path d="${cross}" fill="none" stroke="#ffffff" stroke-width="5" opacity=".28" clip-path="url(#clip-${id})" filter="url(#glow-${id})"/>
     </svg>`;
   }
   function markup(id) {

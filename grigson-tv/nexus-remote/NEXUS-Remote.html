@@ -35,7 +35,7 @@ button:active, button.is-pressed { filter: brightness(1.2); transform: scale(.98
 .comparison .remote { width: 100%; }
 .remote-inner { --u: calc(100cqw / 558); padding: calc(6 * var(--u)) calc(24 * var(--u)) calc(52 * var(--u)); font-size: calc(24 * var(--u)); }
 .icon { width: 1.1em; height: 1.1em; vertical-align: middle; flex-shrink: 0; stroke: currentColor; stroke-width: 1.65; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.chrome { background: linear-gradient(160deg,#5a5953 0%,#3a3935 28%,#232220 72%,#2d2c2a); border: 1px solid #8e8e8a8c; box-shadow: inset 0 1px 0 #ffffff26,inset 0 -1px 0 #0006,0 3px 7px #0006; }
+.chrome { background: linear-gradient(160deg,#5f5e58 0%,#3c3b37 26%,#242321 70%,#2f2e2c); border: 1px solid #94948f99; box-shadow: inset 0 1px 1px #ffffff38,inset 0 -2px 3px #0007,0 5px 12px #000a,0 1px 0 #ffffff10; }
 .header { height: calc(39 * var(--u)); display: flex; align-items: flex-start; justify-content: space-between; padding: 0 calc(8 * var(--u)); }
 .brand { font-size: calc(28 * var(--u)); letter-spacing: .055em; font-weight: 700; margin: calc(2 * var(--u)) 0 0; }
 .settings { display: flex; align-items: center; gap: .5em; padding: 0 calc(16 * var(--u)); height: calc(39 * var(--u)); border-radius: calc(22 * var(--u)); font-size: calc(21 * var(--u)); letter-spacing: .04em; }
@@ -62,7 +62,7 @@ button:active, button.is-pressed { filter: brightness(1.2); transform: scale(.98
 .on-screen { border-left:1px solid #a4a4a4; padding-left:calc(7 * var(--u)); color:#fff; }
 .input-card[aria-pressed=true] { background:radial-gradient(ellipse at 50% 0%,#8d8f90,#464848 45%,#2c2e2f 85%); border-color:#f1f4f5; box-shadow: inset 0 1px 4px #fffc,inset 0 0 10px #ffffff22,0 0 14px #f1f7f7cc,0 0 32px #d6dada55; }
 .hidden-count { text-align:center; height:calc(40 * var(--u)); display:grid; place-items:center; font-size:calc(17 * var(--u)); margin:0; }
-.navigation { position:relative; height:calc(378 * var(--u)); border-radius:calc(38 * var(--u)); border:calc(3 * var(--u)) solid #e3e6e6; padding:calc(17 * var(--u)) calc(9 * var(--u)) calc(8 * var(--u)); background:radial-gradient(ellipse at 50% 45%,#1a1b1b,#111212 60%,#1c1e1e); box-shadow:inset 0 0 0 calc(3 * var(--u)) #262828,inset 0 0 0 calc(5 * var(--u)) #a6a9a880,inset 0 2px 6px calc(5 * var(--u)) #0008,0 0 12px #ffffff38,0 0 2px #fff; overflow:hidden; }
+.navigation { position:relative; height:calc(378 * var(--u)); border-radius:calc(38 * var(--u)); border:calc(3 * var(--u)) solid #e3e6e6; padding:calc(17 * var(--u)) calc(9 * var(--u)) calc(8 * var(--u)); background:radial-gradient(ellipse at 50% 45%,#1a1b1b,#111212 60%,#1c1e1e); box-shadow:inset 0 0 0 calc(3 * var(--u)) #262828,inset 0 0 0 calc(5 * var(--u)) #b4b7b690,inset 0 2px 8px calc(5 * var(--u)) #000a,0 0 16px #ffffff45,0 0 3px #fff,0 8px 22px #000a; overflow:hidden; }
 .mode-selector { position:relative; z-index:3; display:flex; width:64%; height:calc(38 * var(--u)); margin:auto; border:1px solid #898b8b; background:linear-gradient(#454646,#292b2b); border-radius:calc(22 * var(--u)); }
 .mode { width:50%; border:0; background:transparent; border-radius:inherit; font-size:calc(20 * var(--u)); }
 .mode[aria-selected=true] { background:radial-gradient(ellipse at 50% 20%,#9a9d9f,#555859); border:1px solid #f4f7f8; box-shadow:inset 0 0 8px #fff7,0 0 12px #e4ecec99; }
@@ -78,17 +78,18 @@ button:active, button.is-pressed { filter: brightness(1.2); transform: scale(.98
 .dpad { position:absolute; inset:calc(66 * var(--u)) calc(10 * var(--u)) calc(10 * var(--u)); }
 .dpad-art { width:100%; height:100%; position:absolute; overflow:visible; pointer-events:none; }
 .direction { position:absolute; border:0; background:transparent; padding:0; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:calc(8 * var(--u)); border-radius:calc(12 * var(--u)); font-size:calc(19 * var(--u)); touch-action:none; }
-.direction .triangle { font-size:calc(29 * var(--u)); line-height:1; }
+.direction .triangle { font-size:calc(29 * var(--u)); line-height:1; text-shadow:0 0 8px #ffffff80; }
+.direction { text-shadow:0 1px 2px #000c; }
 .direction.up { top:0; left:33.333%; width:33.334%; height:30%; }
 .direction.down { bottom:0; left:33.333%; width:33.334%; height:30%; }
 .direction.left { top:30%; left:0; width:38%; height:40%; }
 .direction.right { top:30%; right:0; width:38%; height:40%; }
 .direction:active,.direction.is-pressed { background:#ffffff17; transform:none; box-shadow:inset 0 0 24px #ffffff1a; }
-.center-select { position:absolute; left:41%; top:31%; width:18%; height:29%; border-radius:calc(16 * var(--u)); font-size:calc(18 * var(--u)); border:calc(2 * var(--u)) solid #e8e9e6; background:linear-gradient(140deg,#505252,#292b2b 55%,#1d1f20); box-shadow:inset 0 0 0 2px #090a0b,inset 0 4px 5px #ffffff30,0 0 0 1px #090a0b; touch-action:none; }
+.center-select { position:absolute; left:41%; top:31%; width:18%; height:29%; border-radius:calc(16 * var(--u)); font-size:calc(18 * var(--u)); border:calc(2 * var(--u)) solid #e8e9e6; background:linear-gradient(140deg,#505252,#292b2b 55%,#1d1f20); box-shadow:inset 0 0 0 2px #090a0b,inset 0 4px 6px #ffffff40,inset 0 -3px 6px #0008,0 0 0 1px #090a0b,0 0 10px #ffffff30; touch-action:none; }
 [hidden] { display:none !important; }
 .primary { display:grid; grid-template-columns:1fr 1.13fr 1fr; gap:calc(12 * var(--u)); margin-top:calc(21 * var(--u)); height:calc(67 * var(--u)); }
 .primary button { border-radius:calc(24 * var(--u)); display:flex; align-items:center; justify-content:center; gap:calc(13 * var(--u)); font-size:calc(22 * var(--u)); }
-.primary .okay { font-size:calc(32 * var(--u)); font-weight:700; color:#090b0d; border:1px solid #eef0f0; background:radial-gradient(ellipse at 40% 0%,#f1f2f2,#bfc1c3 42%,#909497 90%); box-shadow:inset 0 1px 4px #fff,0 0 18px #e6ecec99,0 0 34px #c8d0d040; }
+.primary .okay { font-size:calc(32 * var(--u)); font-weight:700; color:#090b0d; border:1px solid #eef0f0; background:radial-gradient(ellipse at 40% 0%,#f1f2f2,#bfc1c3 42%,#909497 90%); box-shadow:inset 0 1px 4px #fff,inset 0 -3px 6px #00000030,0 0 20px #eef3f3b3,0 0 40px #c8d0d055,0 5px 12px #0008; }
 .volume-row { margin-top:calc(14 * var(--u)); display:grid; grid-template-columns:3.3fr 1fr; gap:calc(14 * var(--u)); height:calc(72 * var(--u)); }
 .volume-strip { display:grid; grid-template-columns:1fr 1.2fr 1fr; padding:calc(3 * var(--u)); border-radius:calc(25 * var(--u)); border:1px solid #79797591; background:linear-gradient(120deg,#292a28,#121414 70%); gap:calc(4 * var(--u)); }
 .volume-key { border-radius:calc(22 * var(--u)); font-size:calc(46 * var(--u)); line-height:1; touch-action:none; }
@@ -227,13 +228,20 @@ dialog button.save { padding:10px 18px; border:1px solid #bec2c5; border-radius:
     }).join('');
   }
   function dpadArt(id) {
+    const cross='M184 1H326Q340 1 340 15V76Q340 90 354 90H495Q509 90 509 104V196Q509 210 495 210H354Q340 210 340 224V285Q340 299 326 299H184Q170 299 170 285V224Q170 210 156 210H15Q1 210 1 196V104Q1 90 15 90H156Q170 90 170 76V15Q170 1 184 1Z';
     return `<svg class="dpad-art" viewBox="0 0 510 300" preserveAspectRatio="none" aria-hidden="true">
-      <defs><linearGradient id="plate-${id}" x1="0" y1="0" x2=".25" y2="1"><stop stop-color="#808384"/><stop offset=".25" stop-color="#4d5051"/><stop offset=".6" stop-color="#414445"/><stop offset="1" stop-color="#505354"/></linearGradient>
-      <radialGradient id="void-${id}"><stop stop-color="#111314"/><stop offset="1" stop-color="#080a0a"/></radialGradient>
-      <filter id="glow-${id}" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="3"/></filter></defs>
-      <rect x="1" y="1" width="508" height="298" rx="22" fill="url(#void-${id})" stroke="#393c3d"/>
-      <path d="M184 1H326Q340 1 340 15V76Q340 90 354 90H495Q509 90 509 104V196Q509 210 495 210H354Q340 210 340 224V285Q340 299 326 299H184Q170 299 170 285V224Q170 210 156 210H15Q1 210 1 196V104Q1 90 15 90H156Q170 90 170 76V15Q170 1 184 1Z" fill="none" stroke="#eef2f2" stroke-width="6" filter="url(#glow-${id})" opacity=".85"/>
-      <path d="M184 1H326Q340 1 340 15V76Q340 90 354 90H495Q509 90 509 104V196Q509 210 495 210H354Q340 210 340 224V285Q340 299 326 299H184Q170 299 170 285V224Q170 210 156 210H15Q1 210 1 196V104Q1 90 15 90H156Q170 90 170 76V15Q170 1 184 1Z" fill="url(#plate-${id})" stroke="#f0f3f3" stroke-width="2"/>
+      <defs><linearGradient id="plate-${id}" x1="0" y1="0" x2=".3" y2="1"><stop stop-color="#9a9d9e"/><stop offset=".2" stop-color="#5e6263"/><stop offset=".6" stop-color="#424546"/><stop offset="1" stop-color="#353839"/></linearGradient>
+      <linearGradient id="bevel-${id}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".22"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+      <radialGradient id="void-${id}"><stop stop-color="#121415"/><stop offset="1" stop-color="#070909"/></radialGradient>
+      <filter id="bloom-${id}" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="8"/></filter>
+      <filter id="glow-${id}" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="2.5"/></filter>
+      <clipPath id="clip-${id}"><path d="${cross}"/></clipPath></defs>
+      <rect x="1" y="1" width="508" height="298" rx="22" fill="url(#void-${id})" stroke="#2c2f30"/><g fill="#151717" stroke="#242727"><rect x="8" y="8" width="156" height="78" rx="16"/><rect x="346" y="8" width="156" height="78" rx="16"/><rect x="8" y="214" width="156" height="78" rx="16"/><rect x="346" y="214" width="156" height="78" rx="16"/></g>
+      <path d="${cross}" fill="none" stroke="#ffffff" stroke-width="13" filter="url(#bloom-${id})" opacity=".32"/>
+      <path d="${cross}" fill="none" stroke="#f4f7f7" stroke-width="3" filter="url(#glow-${id})" opacity=".7"/>
+      <path d="${cross}" fill="url(#plate-${id})" stroke="#f3f6f6" stroke-width="2"/>
+      <path d="${cross}" fill="url(#bevel-${id})"/>
+      <path d="${cross}" fill="none" stroke="#ffffff" stroke-width="5" opacity=".28" clip-path="url(#clip-${id})" filter="url(#glow-${id})"/>
     </svg>`;
   }
   function markup(id) {
