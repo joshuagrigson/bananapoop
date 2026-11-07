@@ -29,10 +29,10 @@ OVERRIDES = """/* Layout 2 (Joshua 2026-11-07): rooms and the smart row at the b
 #simpleRemote .nx-input-card .nx-port{font-size:calc(14 * var(--u));margin-top:0}
 #simpleRemote .nx-input-card .nx-state-line{height:calc(18 * var(--u));font-size:calc(13 * var(--u))}
 #simpleRemote .nx-hidden-count{height:calc(26 * var(--u));font-size:calc(15 * var(--u))}
-#simpleRemote .nx-primary{height:calc(78 * var(--u))}
+#simpleRemote .nx-primary{height:calc(78 * var(--u));margin-top:calc(14 * var(--u))}
 #simpleRemote .nx-primary button{font-size:calc(24 * var(--u))}
 #simpleRemote .nx-primary .nx-okay{font-size:calc(34 * var(--u))}
-#simpleRemote .nx-volume-row{height:calc(82 * var(--u))}
+#simpleRemote .nx-volume-row{height:calc(82 * var(--u));margin-top:calc(21 * var(--u))}
 #simpleRemote .nx-volume-key{font-size:calc(50 * var(--u))}
 #simpleRemote .nx-mute{font-size:calc(23 * var(--u))}
 #simpleRemote .nx-playback{height:calc(86 * var(--u))}
@@ -90,8 +90,8 @@ NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
   <div id="nxTrack" class="nx-track-surface" role="tabpanel"><span id="nxContact" class="nx-contact"></span><p id="nxCopy" class="nx-track-copy">Swipe to navigate<br>Tap to select</p></div>
   <div id="nxDpad" class="nx-dpad" role="tabpanel" hidden>{DPAD_ART}{DIRS}<button class="nx-center-select" data-c="ok">SELECT</button></div>
  </section>
- <div class="nx-primary"><button class="nx-chrome" data-c="back">{icon('back')}Back</button><button class="nx-okay" data-c="ok">OK</button><button class="nx-chrome" data-c="home">{icon('home')}Home</button></div>
  <div class="nx-volume-row"><div class="nx-volume-strip"><button class="nx-volume-key nx-chrome" data-c="volumeDown" data-repeat="1" aria-label="Volume down">&minus;</button><div class="nx-volume-readout"><div class="nx-volume-label">VOLUME<span id="nxVol" class="nx-volume-number">–</span></div><div class="nx-meter" role="meter" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="nxMeter" class="nx-meter-fill" style="width:0%"></div></div></div><button class="nx-volume-key nx-chrome" data-c="volumeUp" data-repeat="1" aria-label="Volume up">+</button></div><button id="nxMute" class="nx-mute nx-chrome" data-c="mute" aria-pressed="false">{icon('mute')}Mute</button></div>
+ <div class="nx-primary"><button class="nx-chrome" data-c="back">{icon('back')}Back</button><button class="nx-okay" data-c="ok">OK</button><button class="nx-chrome" data-c="home">{icon('home')}Home</button></div>
  <div class="nx-playback"><button class="nx-chrome" data-c="rewind" aria-label="Rewind">{media('rewind')}</button><button class="nx-chrome" data-c="pause" aria-label="Play or pause">{media('play')}</button><button class="nx-chrome" data-c="fastForward" aria-label="Fast forward">{media('forward')}</button></div>
  <div class="nx-bottom"><button id="sMic" class="nx-voice" data-fn="talk">{icon('mic')}Say it</button><button class="nx-chrome" data-fn="openApps">{icon('apps')}Apps</button></div>
  <div id="nxSmart"></div>
