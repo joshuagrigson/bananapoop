@@ -22,6 +22,26 @@ for m in re.finditer(r'([^{}]+)\{([^{}]*)\}', re.sub(r'/\*.*?\*/','',css_src,fla
         sel=re.sub(r'\.'+re.escape(n)+r'(?![\w-])','.nx-'+n,sel)
     sel=','.join('#simpleRemote '+s.strip() for s in sel.split(','))
     rules.append(sel+'{'+body+'}')
+OVERRIDES = """/* Layout 2 (Joshua 2026-11-07): rooms and the smart row at the bottom, shorter input tiles, bigger lower keys. Same 1192-unit stack. */
+#simpleRemote .nx-inputs-heading{height:calc(40 * var(--u))}
+#simpleRemote .nx-input-card{height:calc(72 * var(--u));font-size:calc(19 * var(--u));padding:calc(4 * var(--u)) calc(3 * var(--u))}
+#simpleRemote .nx-input-card > .nx-icon{width:calc(34 * var(--u));height:calc(22 * var(--u));margin-bottom:0}
+#simpleRemote .nx-input-card .nx-port{font-size:calc(14 * var(--u));margin-top:0}
+#simpleRemote .nx-input-card .nx-state-line{height:calc(18 * var(--u));font-size:calc(13 * var(--u))}
+#simpleRemote .nx-hidden-count{height:calc(26 * var(--u));font-size:calc(15 * var(--u))}
+#simpleRemote .nx-primary{height:calc(78 * var(--u))}
+#simpleRemote .nx-primary button{font-size:calc(24 * var(--u))}
+#simpleRemote .nx-primary .nx-okay{font-size:calc(34 * var(--u))}
+#simpleRemote .nx-volume-row{height:calc(82 * var(--u))}
+#simpleRemote .nx-volume-key{font-size:calc(50 * var(--u))}
+#simpleRemote .nx-mute{font-size:calc(23 * var(--u))}
+#simpleRemote .nx-playback{height:calc(86 * var(--u))}
+#simpleRemote .nx-media-icon{width:calc(70 * var(--u));height:calc(40 * var(--u))}
+#simpleRemote .nx-bottom{height:calc(92 * var(--u))}
+#simpleRemote .nx-bottom button{font-size:calc(28 * var(--u))}
+#simpleRemote #smartRow{margin-top:calc(12 * var(--u))}
+#simpleRemote .nx-rooms{margin-top:calc(10 * var(--u))}
+"""
 NX_CSS = """/* ----- NEXUS layout (Smoky Silver / Black). Art units: --u = 1/558 of the remote's width. ----- */
 #simpleRemote{display:none;border-radius:20px;
 /* One art unit = 1/558 of the remote's width. nxFit() pins --u once per launch so the 1192-unit stack fits the screen without ever re-flowing live. */
@@ -40,7 +60,7 @@ background:linear-gradient(160deg,#5a5953 0%,#3a3935 28%,#232220 72%,#2d2c2a);bo
 #simpleRemote #smartRow button[disabled]{opacity:.35}
 #simpleRemote .nx-voice.live{filter:brightness(1.35)}
 body.nx{background:radial-gradient(ellipse at 50% 30%,#111315 0%,#070809 65%)}
-""" + '\n'.join(rules) + '\n'
+""" + '\n'.join(rules) + '\n' + OVERRIDES
 
 # ---------- 2. HTML ----------
 ICON = {
@@ -62,9 +82,7 @@ DPAD_ART=('<svg class="dpad-art" viewBox="0 0 510 300" preserveAspectRatio="none
 DIRS=''.join('<button class="nx-direction nx-%s" data-c="%s" data-repeat="1" aria-label="%s"><span class="nx-triangle">%s</span><span>%s</span></button>'%(d,d,d,g,d.upper()) for d,g in [('up','&#9650;'),('left','&#9664;'),('right','&#9654;'),('down','&#9660;')])
 NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
  <header class="nx-header"><h1 class="nx-brand">REMOTE</h1><button class="nx-settings nx-chrome" data-fn="openSettings">{icon('settings')}Settings</button></header>
- <div id="nxRooms" class="nx-rooms" role="group" aria-label="TV"><button class="nx-room" data-fn="nxLiving" data-tv="lg" aria-pressed="true">Living room</button><button class="nx-room" data-fn="nxOffice" data-tv="vizio" aria-pressed="false">Office</button></div>
  <div id="nxStatus" class="nx-status nx-chrome"><span id="nxDot" class="nx-dot nx-off" aria-hidden="true"></span><span id="nxSource" class="nx-status-source">Connecting…</span><span id="nxAlias" class="nx-status-alias"></span><button id="sPower" class="nx-power" data-c="power" aria-label="Power" aria-pressed="false">{icon('power')}</button></div>
- <div id="nxSmart"></div>
  <div class="nx-inputs-heading"><h2>INPUTS</h2><button class="nx-edit nx-chrome" data-fn="openInEdit">{icon('edit')}Edit</button></div>
  <div id="sInputs" class="nx-inputs" aria-label="TV inputs"></div><p id="nxHidden" class="nx-hidden-count"></p>
  <section id="nxNav" class="nx-navigation" aria-label="Navigation">
@@ -76,6 +94,8 @@ NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
  <div class="nx-volume-row"><div class="nx-volume-strip"><button class="nx-volume-key nx-chrome" data-c="volumeDown" data-repeat="1" aria-label="Volume down">&minus;</button><div class="nx-volume-readout"><div class="nx-volume-label">VOLUME<span id="nxVol" class="nx-volume-number">–</span></div><div class="nx-meter" role="meter" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="nxMeter" class="nx-meter-fill" style="width:0%"></div></div></div><button class="nx-volume-key nx-chrome" data-c="volumeUp" data-repeat="1" aria-label="Volume up">+</button></div><button id="nxMute" class="nx-mute nx-chrome" data-c="mute" aria-pressed="false">{icon('mute')}Mute</button></div>
  <div class="nx-playback"><button class="nx-chrome" data-c="rewind" aria-label="Rewind">{media('rewind')}</button><button class="nx-chrome" data-c="pause" aria-label="Play or pause">{media('play')}</button><button class="nx-chrome" data-c="fastForward" aria-label="Fast forward">{media('forward')}</button></div>
  <div class="nx-bottom"><button id="sMic" class="nx-voice" data-fn="talk">{icon('mic')}Say it</button><button class="nx-chrome" data-fn="openApps">{icon('apps')}Apps</button></div>
+ <div id="nxSmart"></div>
+ <div id="nxRooms" class="nx-rooms" role="group" aria-label="TV"><button class="nx-room" data-fn="nxLiving" data-tv="lg" aria-pressed="true">Living room</button><button class="nx-room" data-fn="nxOffice" data-tv="vizio" aria-pressed="false">Office</button></div>
 </div></div>
 """
 
