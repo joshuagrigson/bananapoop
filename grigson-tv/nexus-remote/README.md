@@ -41,3 +41,12 @@ playPause/rewind/fastForward/back/home/input/room/voice/apps` onto the
 command strings `remote.html` already sends, and feed confirmed TV state back
 with `NexusRemote.setState`. Rooms are `living` (LG) and `office` (Vizio);
 the Vizio has no cursor, so the Trackpad tab should be hidden on Office.
+
+## Integration (done 2026-11-07, paper-plate branch `claude/nexus-remote`)
+
+`integrate-paper-plate.py` is the script that replaced the Simple layout in both
+`TVRemote/Web/remote.html` and `TVRemoteAndroid/app/src/main/assets/remote.html`
+with this design (run it with `styles.css` and the two pages as arguments). It
+keeps every existing command string and page function, moves the smart row under
+the status row, and leaves the full remote untouched. `previews/live-app-390.png`
+is the patched iPhone page rendered with a stubbed TV bridge.
