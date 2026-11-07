@@ -39,6 +39,12 @@ OVERRIDES = """/* Layout 2 (Joshua 2026-11-07): rooms and the smart row at the b
 #simpleRemote .nx-media-icon{width:calc(70 * var(--u));height:calc(40 * var(--u))}
 #simpleRemote .nx-bottom{height:calc(92 * var(--u))}
 #simpleRemote .nx-bottom button{font-size:calc(28 * var(--u))}
+/* Power is its own pill, a clear gap from the info bar. */
+#simpleRemote .nx-status{background:none;border:0;box-shadow:none;padding:0;gap:calc(12 * var(--u))}
+#simpleRemote .nx-status-bar{flex:1;min-width:0;height:100%;display:flex;align-items:center;gap:calc(16 * var(--u));padding-left:calc(21 * var(--u));border-radius:calc(22 * var(--u))}
+#simpleRemote .nx-status-source{overflow:hidden;text-overflow:ellipsis}
+#simpleRemote .nx-power{margin-left:0;height:100%;width:calc(80 * var(--u));border-radius:calc(22 * var(--u));color:#ffcbc2;border:1px solid #ff978f;background:radial-gradient(ellipse at top,#a25751,#742b28 65%,#562421);box-shadow:inset 0 1px 3px #ffdfc080,0 0 15px #ff67565c,0 5px 12px #000a}
+#simpleRemote .nx-power[aria-pressed=false]{background:#342120;box-shadow:0 0 5px #ff675628,0 5px 12px #000a}
 #simpleRemote #smartRow{margin-top:calc(12 * var(--u))}
 #simpleRemote .nx-rooms{margin-top:calc(10 * var(--u))}
 """
@@ -82,7 +88,7 @@ DPAD_ART=('<svg class="dpad-art" viewBox="0 0 510 300" preserveAspectRatio="none
 DIRS=''.join('<button class="nx-direction nx-%s" data-c="%s" data-repeat="1" aria-label="%s"><span class="nx-triangle">%s</span><span>%s</span></button>'%(d,d,d,g,d.upper()) for d,g in [('up','&#9650;'),('left','&#9664;'),('right','&#9654;'),('down','&#9660;')])
 NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
  <header class="nx-header"><h1 class="nx-brand">REMOTE</h1><button class="nx-settings nx-chrome" data-fn="openSettings">{icon('settings')}Settings</button></header>
- <div id="nxStatus" class="nx-status nx-chrome"><span id="nxDot" class="nx-dot nx-off" aria-hidden="true"></span><span id="nxSource" class="nx-status-source">Connecting…</span><span id="nxAlias" class="nx-status-alias"></span><button id="sPower" class="nx-power" data-c="power" aria-label="Power" aria-pressed="false">{icon('power')}</button></div>
+ <div id="nxStatus" class="nx-status"><div class="nx-status-bar nx-chrome"><span id="nxDot" class="nx-dot nx-off" aria-hidden="true"></span><span id="nxSource" class="nx-status-source">Connecting…</span><span id="nxAlias" class="nx-status-alias"></span></div><button id="sPower" class="nx-power nx-chrome" data-c="power" aria-label="Power" aria-pressed="false">{icon('power')}</button></div>
  <div class="nx-inputs-heading"><h2>INPUTS</h2><button class="nx-edit nx-chrome" data-fn="openInEdit">{icon('edit')}Edit</button></div>
  <div id="sInputs" class="nx-inputs" aria-label="TV inputs"></div><p id="nxHidden" class="nx-hidden-count"></p>
  <section id="nxNav" class="nx-navigation" aria-label="Navigation">
