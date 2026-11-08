@@ -22,6 +22,8 @@ def patch(path):
     rep(head, head + ' ' + TVS_CARD, 'settings header')
     rep("#glanceScreen{display:none;width:100%;max-width:400px;flex-direction:column;gap:10px}\n", "", 'glance css')
     rep("  if(!kid())b.push({l:'◉ ALL',fn:'openGlance'});\n", "", 'ALL key')
+    # UNDO key removed from the smart row (Joshua 2026-11-08); the snapshot logic stays dormant for smart_test.
+    rep("var b=[{l:'↶ UNDO',fn:'smartUndo',off:!smUndo.length}].concat(SMART.contextFor(key));", "var b=[].concat(SMART.contextFor(key));", 'UNDO key')
     m = re.search(r"function openGlance\(\)\{\n.*?\n\}\nfunction closeGlance\(\)\{[^\n]*\n[^\n]*\}\n", s, flags=re.S)
     if not m: raise SystemExit(path + ': openGlance/closeGlance not found')
     s = s[:m.start()] + ("// ALL now lives in Settings: opening it opens Settings, closing it closes Settings.\n"
