@@ -56,6 +56,18 @@ OVERRIDES = """/* Layout 2 (Joshua 2026-11-07): rooms and the smart row at the b
 #simpleRemote .nx-volume-readout{touch-action:none;cursor:ew-resize;transition:none}
 #simpleRemote .nx-volume-readout.nx-dragging .nx-volume-number{color:#fff;text-shadow:0 0 8px #fff8}
 #simpleRemote .nx-volume-readout.nx-dragging .nx-meter-fill{background:linear-gradient(#ffffff,#d9dddd);box-shadow:0 0 10px #ffffffa0}
+#simpleRemote .nx-status-bar{cursor:pointer}
+#simpleRemote .nx-chev{margin-left:auto;margin-right:calc(16 * var(--u));width:calc(20 * var(--u));height:calc(20 * var(--u));flex:0 0 auto;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+#simpleRemote .nx-sheet{position:fixed;inset:0;z-index:30;background:#000000b3;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}
+#simpleRemote .nx-sheet[hidden]{display:none}
+#simpleRemote .nx-sheet-card{width:min(400px,100%);background:radial-gradient(ellipse at 50% 0%,#191b1c,#0b0c0d 70%);border:1px solid #3a3d3e;border-radius:24px;padding:16px;box-shadow:0 20px 60px #000,inset 0 1px 0 #ffffff14}
+#simpleRemote .nx-sheet-head{display:flex;justify-content:space-between;align-items:center;font-size:13px;letter-spacing:.18em;color:var(--muted);margin:2px 4px 12px}
+#simpleRemote .nx-sheet-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#simpleRemote .nx-app-tile{height:88px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font-size:14px;padding:0 6px;min-width:0}
+#simpleRemote .nx-app-tile[aria-pressed=true]{background:radial-gradient(ellipse at 50% 0%,#8d8f90,#464848 45%,#2c2e2f 85%);border-color:#f1f4f5;box-shadow:inset 0 1px 4px #fffc,0 0 14px #f1f7f7cc}
+#simpleRemote .nx-app-ico{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#fff;background:#2c2c30;box-shadow:inset 0 1px 0 #ffffff30}
+#simpleRemote .nx-app-name{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#simpleRemote .nx-sheet-all{margin-top:12px;height:50px;width:100%;border-radius:16px;font-size:16px;display:flex;align-items:center;justify-content:center;gap:10px}
 #simpleRemote #smartRow{margin-top:calc(12 * var(--u))}
 """
 NX_CSS = """/* ----- NEXUS layout (Smoky Silver / Black). Art units: --u = 1/558 of the remote's width. ----- */
@@ -98,7 +110,7 @@ DPAD_ART=('<svg class="dpad-art" viewBox="0 0 510 300" preserveAspectRatio="none
 DIRS=''.join('<button class="nx-direction nx-%s" data-c="%s" data-repeat="1" aria-label="%s"><span class="nx-triangle">%s</span><span>%s</span></button>'%(d,d,d,g,d.upper()) for d,g in [('up','&#9650;'),('left','&#9664;'),('right','&#9654;'),('down','&#9660;')])
 NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
  <header class="nx-header"><h1 class="nx-brand">REMOTE</h1></header>
- <div id="nxStatus" class="nx-status"><div class="nx-status-bar nx-chrome"><span id="nxDot" class="nx-dot nx-off" aria-hidden="true"></span><span id="nxSource" class="nx-status-source">Connecting…</span><span id="nxAlias" class="nx-status-alias"></span></div><button id="sPower" class="nx-power nx-chrome" data-c="power" aria-label="Power" aria-pressed="false">{icon('power')}</button></div>
+ <div id="nxStatus" class="nx-status"><div class="nx-status-bar nx-chrome" role="button" data-fn="nxSwitch" aria-label="What is on. Tap to switch to a favourite app."><span id="nxDot" class="nx-dot nx-off" aria-hidden="true"></span><span id="nxSource" class="nx-status-source">Connecting…</span><span id="nxAlias" class="nx-status-alias"></span><svg class="nx-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div><button id="sPower" class="nx-power nx-chrome" data-c="power" aria-label="Power" aria-pressed="false">{icon('power')}</button></div>
  <div class="nx-inputs-heading"><h2>INPUTS</h2><button class="nx-edit" data-fn="openInEdit">{icon('edit')}Edit</button></div>
  <div id="sInputs" class="nx-inputs" aria-label="TV inputs"></div><p id="nxHidden" class="nx-hidden-count"></p>
  <section id="nxNav" class="nx-navigation" aria-label="Navigation">
@@ -110,6 +122,7 @@ NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
  <div class="nx-primary"><button class="nx-chrome" data-c="back">{icon('back')}Back</button><button class="nx-okay" data-c="ok">OK</button><button class="nx-chrome" data-c="home">{icon('home')}Home</button></div>
  <div class="nx-playback"><button class="nx-chrome" data-c="rewind" aria-label="Rewind">{media('rewind')}</button><button class="nx-chrome" data-c="pause" aria-label="Play or pause">{media('play')}</button><button class="nx-chrome" data-c="fastForward" aria-label="Fast forward">{media('forward')}</button></div>
  <div class="nx-bottom"><button id="sMic" class="nx-voice" data-fn="talk">{icon('mic')}Say it</button><button class="nx-chrome" data-fn="openApps">{icon('apps')}Apps</button></div>
+ <div id="nxSwitchSheet" class="nx-sheet" data-fn="nxCloseSwitch" hidden><div class="nx-sheet-card" data-fn="nxNoop"><div class="nx-sheet-head"><span>SWITCH TO</span><span id="nxSwitchTv"></span></div><div id="nxSwitchGrid" class="nx-sheet-grid"></div><button class="nx-sheet-all nx-chrome" data-fn="nxAllApps">{icon('apps')}All apps</button></div></div>
  <div id="nxSmart"></div>
  <div class="nx-foot"><div id="nxRooms" class="nx-rooms" role="group" aria-label="TV"><button class="nx-room" data-fn="nxLiving" data-tv="lg" aria-pressed="true">Living room</button><button class="nx-room" data-fn="nxOffice" data-tv="vizio" aria-pressed="false">Office</button></div><button class="nx-settings nx-chrome" data-fn="openSettings" aria-label="Settings">{icon('settings')}</button></div>
 </div></div>
@@ -137,9 +150,8 @@ function paintNexus(d){
   var vol=document.getElementById('nxVol'),met=document.getElementById('nxMeter');
   function volume(v,m){if(nxVolDrag)return;vol.textContent=v>=0?v:'–';met.style.width=Math.max(0,Math.min(100,v>=0?v:0))+'%';met.parentNode.setAttribute('aria-valuenow',v>=0?v:0);
     document.getElementById('nxMute').setAttribute('aria-pressed',m?'true':'false')}
-  if(d&&d.needPin){dot.className='nx-dot nx-off';src.textContent='Office TV: tap to pair';al.textContent='';st.onclick=function(){pinShown=false;openPin()};volume(-1,false);
+  if(d&&d.needPin){dot.className='nx-dot nx-off';src.textContent='Office TV: tap to pair';al.textContent='';volume(-1,false);
     document.getElementById('sPower').setAttribute('aria-pressed','false');return}
-  st.onclick=null;
   if(!d||!d.ok){dot.className='nx-dot nx-off';src.textContent=(tvKind==='vizio'?'Office TV':'TV')+' off or not on home Wi-Fi';al.textContent='';volume(-1,false);
     document.getElementById('sPower').setAttribute('aria-pressed','false');return}
   dot.className='nx-dot';document.getElementById('sPower').setAttribute('aria-pressed','true');
@@ -178,6 +190,30 @@ function paintInputs(){var box=document.getElementById('sInputs');if(!box)return
     doCmd('vol',[String(v)]).then(function(){nxVolDrag=false;pollStatus()},function(){nxVolDrag=false})}
   area.addEventListener('pointerup',end);area.addEventListener('pointercancel',function(e){if(g&&g.id===e.pointerId){g=null;nxVolDrag=false;area.classList.remove('nx-dragging');paintNexus(lastStatus)}});
 })();
+// SWITCH TO: tap the info bar for the six apps you use most on this TV (learned on the phone from
+// every launch), the one on screen marked, plus All apps. The Apps key is unchanged.
+function nxNoop(){}
+function nxUseKey(){return 'appUse:'+tvKind}
+function nxUse(){try{return JSON.parse(ls(nxUseKey(),'{}'))||{}}catch(e){return{}}}
+function nxBump(id){var u=nxUse();u[id]=(u[id]||0)+1;lsSet(nxUseKey(),JSON.stringify(u))}
+var __pickNx=pick;pick=function(id){nxBump(id);__pickNx(id)};
+function nxTopApps(){var src=allApps.length?allApps:FALLBACK_APPS;
+  if(kid()){var ok=kidApps();src=src.filter(function(a){return ok.indexOf(a.id)>=0})}
+  var u=nxUse(),order={};FALLBACK_APPS.forEach(function(a,i){order[a.id]=i});
+  function rank(a){return order[a.id]!==undefined?order[a.id]:99}
+  return src.slice().sort(function(a,b){return (u[b.id]||0)-(u[a.id]||0)||rank(a)-rank(b)||String(a.title).localeCompare(String(b.title))}).slice(0,6)}
+function nxPaintSwitch(){var g=document.getElementById('nxSwitchGrid');if(!g)return;var cur=lastStatus&&lastStatus.ok?lastStatus:null;g.innerHTML='';
+  document.getElementById('nxSwitchTv').textContent=tvKind==='vizio'?'Office':'Living room';
+  nxTopApps().forEach(function(a){var ic=iconFor(a.title),b=document.createElement('button');b.className='nx-app-tile nx-chrome';b.setAttribute('data-fn','nxLaunch');b.dataset.id=a.id;
+    var on=!!cur&&(cur.appId===a.id||cur.app===a.title);b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',a.title+(on?', on screen':''));
+    b.innerHTML='<span class="nx-app-ico"'+(ic[0]?' style="background:'+ic[0]+'"':'')+'></span><span class="nx-app-name"></span>';
+    b.querySelector('.nx-app-ico').textContent=ic[1];b.querySelector('.nx-app-name').textContent=a.title;g.appendChild(b)})}
+function nxSwitch(){if(lastStatus&&lastStatus.needPin){pinShown=false;openPin();return}
+  nxPaintSwitch();document.getElementById('nxSwitchSheet').hidden=false;
+  if(!allApps.length)go('getApps').then(function(d){if(d&&d.ok&&d.apps&&d.apps.length){allApps=d.apps;nxPaintSwitch()}})}
+function nxCloseSwitch(){document.getElementById('nxSwitchSheet').hidden=true}
+function nxLaunch(el){var id=el&&el.dataset?el.dataset.id:'';if(!id)return;nxBump(id);nxCloseSwitch();go('launch:'+id)}
+function nxAllApps(){nxCloseSwitch();openApps()}
 // Hold a direction or volume key: it repeats after 420 ms, every 120 ms, until the finger lifts.
 // The press itself still fires on release through tapGuard, unless the hold already fired.
 (function(){
@@ -291,7 +327,7 @@ def patch(path):
         'settings copy')
     # tapGuard: a held key already fired through the repeat timer
     rep("if(!t||e.pointerId!==t.id)return;var el=t.el;t=null;el.classList.remove('pressed');\n    if(el.dataset.c)go(el.dataset.c);",
-        "if(!t||e.pointerId!==t.id)return;var el=t.el;t=null;el.classList.remove('pressed');\n    if(el.dataset.held){delete el.dataset.held;return}\n    if(el.dataset.c)go(el.dataset.c);",'tapGuard')
+        "if(!t||e.pointerId!==t.id)return;var el=t.el;t=null;el.classList.remove('pressed');\n    if(el.dataset.held){delete el.dataset.held;return}\n    if(el.dataset.c)go(el.dataset.c);else if(el.dataset.fn&&window[el.dataset.fn]){window[el.dataset.fn](el);return}",'tapGuard')
     rep(APPLY_LAYOUT_OLD,APPLY_LAYOUT_NEW,'applyLayout')
     rep("function layoutToggle(on){lsSet('layout',on?'simple':'full');applyLayout();note(on?'Simple remote':'Full remote')}",
         "function layoutToggle(on){lsSet('layout',on?'simple':'full');applyLayout();note(on?'NEXUS remote':'Full remote')}",'layoutToggle')
