@@ -6,7 +6,7 @@ import re, sys
 TVS_CARD = ('<div id="glanceScreen" class="set-card"><div class="set-row"><span>TVs</span></div>'
             '<div id="glanceRows" style="display:flex;flex-direction:column;gap:10px"></div>'
             '<div class="set-sub">USE THIS TV points the remote at it. MOVE IT HERE opens the same app on this TV '
-            'and pauses the other one; you pick the show again.</div></div>\n')
+            'and pauses the other one; you pick the show again.</div><div id="nxTvAdd" style="display:flex;flex-direction:column;gap:8px"></div></div>\n')
 
 def patch(path):
     s = open(path).read()
@@ -30,9 +30,8 @@ def patch(path):
                          "function openGlance(){openSettings()}\nfunction closeGlance(){closeSettings()}\n") + s[m.end():]
     rep("paintXboxSet();\n// ===== XBOX END",
         "paintXboxSet();\n// Settings opens with every TV (and the Xbox card) on top, the way ALL used to.\n"
-        "var __setAll=openSettings;\nopenSettings=function(){__setAll();paintGlance(smOther,false);\n"
-        "  window.__ask('other:status').then(function(d){smOther=d&&d.ok?d:null;smOtherT=Date.now();if(smOther)smOtherFail=0;"
-        "paintGlance(smOther,!!(d&&d.needPair));paintSmart()},function(){})};\n// ===== XBOX END", 'settings glance')
+        "var __setAll=openSettings;\nopenSettings=function(){__setAll();paintGlance();\n"
+        "  pollOther(true).then(function(){paintGlance()},function(){})};\n// ===== XBOX END", 'settings glance')
     open(path, 'w').write(s); print('patched', path)
 
 for p in sys.argv[1:]: patch(p)

@@ -68,6 +68,10 @@ OVERRIDES = """/* Layout 2 (Joshua 2026-11-07): rooms and the smart row at the b
 #simpleRemote .nx-app-ico{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#fff;background:#2c2c30;box-shadow:inset 0 1px 0 #ffffff30}
 #simpleRemote .nx-app-name{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #simpleRemote .nx-sheet-all{margin-top:12px;height:50px;width:100%;border-radius:16px;font-size:16px;display:flex;align-items:center;justify-content:center;gap:10px}
+#simpleRemote .nx-rooms-many{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#simpleRemote .nx-rooms-many::-webkit-scrollbar{display:none}
+#simpleRemote .nx-rooms-many .nx-room{flex:0 0 auto;min-width:calc(150 * var(--u));padding:0 calc(18 * var(--u))}
+#simpleRemote .nx-room{white-space:nowrap}
 #simpleRemote #smartRow{margin-top:calc(12 * var(--u))}
 """
 NX_CSS = """/* ----- NEXUS layout (Smoky Silver / Black). Art units: --u = 1/558 of the remote's width. ----- */
@@ -124,7 +128,7 @@ NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
  <div class="nx-bottom"><button id="sMic" class="nx-voice" data-fn="talk">{icon('mic')}Say it</button><button class="nx-chrome" data-fn="openApps">{icon('apps')}Apps</button></div>
  <div id="nxSwitchSheet" class="nx-sheet" data-fn="nxCloseSwitch" hidden><div class="nx-sheet-card" data-fn="nxNoop"><div class="nx-sheet-head"><span>SWITCH TO</span><span id="nxSwitchTv"></span></div><div id="nxSwitchGrid" class="nx-sheet-grid"></div><button class="nx-sheet-all nx-chrome" data-fn="nxAllApps">{icon('apps')}All apps</button></div></div>
  <div id="nxSmart"></div>
- <div class="nx-foot"><div id="nxRooms" class="nx-rooms" role="group" aria-label="TV"><button class="nx-room" data-fn="nxLiving" data-tv="lg" aria-pressed="true">Living room</button><button class="nx-room" data-fn="nxOffice" data-tv="vizio" aria-pressed="false">Office</button></div><button class="nx-settings nx-chrome" data-fn="openSettings" aria-label="Settings">{icon('settings')}</button></div>
+ <div class="nx-foot"><div id="nxRooms" class="nx-rooms" role="group" aria-label="TV"></div><button class="nx-settings nx-chrome" data-fn="openSettings" aria-label="Settings">{icon('settings')}</button></div>
 </div></div>
 """
 
@@ -132,8 +136,14 @@ NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
 NX_JS = r"""// ===== NEXUS: the Smoky Silver remote (Joshua's 2026-11-07 design) in place of the old Simple layout.
 // Rooms, status, inputs, volume and mute are painted from the same TV status the strip used; every
 // button sends the same command strings as before (data-c) or calls the same page functions (data-fn).
-function nxLiving(){useTV('lg')}
-function nxOffice(){useTV('vizio')}
+// The rooms come from the app ("which" lists them); the Samsung joins the list once it's added.
+var tvList=[{id:'lg',label:'Living room'},{id:'vizio',label:'Office'}];
+function nxLabel(id){var t=tvList.filter(function(x){return x.id===(id||tvKind)})[0];return t?t.label:(id||tvKind)==='vizio'?'Office':(id||tvKind)==='lg'?'Living room':'TV'}
+function nxOthers(){return tvList.filter(function(t){return t.id!==tvKind})}
+function nxPaintRooms(){var box=document.getElementById('nxRooms');if(!box)return;box.innerHTML='';box.classList.toggle('nx-rooms-many',tvList.length>2);
+  tvList.forEach(function(t){var b=document.createElement('button');b.className='nx-room';b.setAttribute('data-fn','nxRoom');b.dataset.tv=t.id;
+    b.setAttribute('aria-pressed',t.id===tvKind?'true':'false');b.textContent=t.label;box.appendChild(b)})}
+function nxRoom(el){var id=el&&el.dataset?el.dataset.tv:'';if(id&&id!==tvKind)useTV(id)}
 var NX_ICONS={cable:'<rect x="2" y="6" width="20" height="12" rx="1.5"/><path d="M6 12h.1M15 12h.1M19 12h.1"/>',
   game:'<path d="M7 5h10q3 0 4 4l2 10q0 3-3 1l-4-4H8l-4 4q-3 2-3-1L3 9q1-4 4-4zM7 8v6M4 11h6M16 10h.1M19 13h.1"/>',
   stream:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m10 9 5 3-5 3z"/>',
@@ -152,7 +162,7 @@ function paintNexus(d){
     document.getElementById('nxMute').setAttribute('aria-pressed',m?'true':'false')}
   if(d&&d.needPin){dot.className='nx-dot nx-off';src.textContent='Office TV: tap to pair';al.textContent='';volume(-1,false);
     document.getElementById('sPower').setAttribute('aria-pressed','false');return}
-  if(!d||!d.ok){dot.className='nx-dot nx-off';src.textContent=(tvKind==='vizio'?'Office TV':'TV')+' off or not on home Wi-Fi';al.textContent='';volume(-1,false);
+  if(!d||!d.ok){dot.className='nx-dot nx-off';src.textContent=nxLabel()+(tvKind==='lg'?' TV':'')+' off or not on home Wi-Fi';al.textContent='';volume(-1,false);
     document.getElementById('sPower').setAttribute('aria-pressed','false');return}
   dot.className='nx-dot';document.getElementById('sPower').setAttribute('aria-pressed','true');
   var cur=nxCur(),named='';
@@ -203,7 +213,7 @@ function nxTopApps(){var src=allApps.length?allApps:FALLBACK_APPS;
   function rank(a){return order[a.id]!==undefined?order[a.id]:99}
   return src.slice().sort(function(a,b){return (u[b.id]||0)-(u[a.id]||0)||rank(a)-rank(b)||String(a.title).localeCompare(String(b.title))}).slice(0,6)}
 function nxPaintSwitch(){var g=document.getElementById('nxSwitchGrid');if(!g)return;var cur=lastStatus&&lastStatus.ok?lastStatus:null;g.innerHTML='';
-  document.getElementById('nxSwitchTv').textContent=tvKind==='vizio'?'Office':'Living room';
+  document.getElementById('nxSwitchTv').textContent=nxLabel();
   nxTopApps().forEach(function(a){var ic=iconFor(a.title),b=document.createElement('button');b.className='nx-app-tile nx-chrome';b.setAttribute('data-fn','nxLaunch');b.dataset.id=a.id;
     var on=!!cur&&(cur.appId===a.id||cur.app===a.title);b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',a.title+(on?', on screen':''));
     b.innerHTML='<span class="nx-app-ico"'+(ic[0]?' style="background:'+ic[0]+'"':'')+'></span><span class="nx-app-name"></span>';
@@ -214,6 +224,64 @@ function nxSwitch(){if(lastStatus&&lastStatus.needPin){pinShown=false;openPin();
 function nxCloseSwitch(){document.getElementById('nxSwitchSheet').hidden=true}
 function nxLaunch(el){var id=el&&el.dataset?el.dataset.id:'';if(!id)return;nxBump(id);nxCloseSwitch();go('launch:'+id)}
 function nxAllApps(){nxCloseSwitch();openApps()}
+// MANY TVS: the other TVs (for HERE and the Settings card) are asked one by one as other:<tv>:...
+var smOthersMap={},smOtherId=null;
+otherKind=function(){return smOtherId||(nxOthers()[0]||{}).id||'vizio'};
+otherLabel=function(){return nxLabel(otherKind())};
+pollOther=function(force){
+  if(document.hidden)return Promise.resolve(smOther);
+  var wait=smOtherFail>=3?300000:60000;
+  if(!force&&Date.now()-smOtherT<wait)return Promise.resolve(smOther);
+  smOtherT=Date.now();
+  return Promise.all(nxOthers().map(function(t){return window.__ask('other:'+t.id+':status').then(function(d){smOthersMap[t.id]=d&&d.ok?d:(d&&d.needPair?{needPair:true}:null)},function(){smOthersMap[t.id]=null})})).then(function(){
+    var live=nxOthers().filter(function(t){return smOthersMap[t.id]&&smOthersMap[t.id].ok});
+    var pick=live.filter(function(t){return SMART.movable(t.id,smOthersMap[t.id])})[0]||live[0];
+    smOther=pick?smOthersMap[pick.id]:null;smOtherId=pick?pick.id:null;smOtherFail=smOther?0:smOtherFail+1;paintSmart();return smOther});
+};
+moveHere=function(el){var id=el&&el.dataset&&el.dataset.tv?el.dataset.tv:otherKind();
+  pollOther(true).then(function(){var o=smOthersMap[id];var k=SMART.movable(id,o);
+    if(!k){note('Nothing playing on the '+nxLabel(id).toLowerCase()+' TV');return}
+    return doCmd('launch',[k]).then(function(){
+      return window.__ask('other:'+id+':run:'+JSON.stringify({cmd:'pause',args:[],text:''}))
+    }).then(function(){note(o.app+' is on here now. '+nxLabel(id)+' is paused.');closeGlance();pollStatus()});
+  });
+};
+glanceUse=function(el){var id=el&&el.dataset&&el.dataset.tv?el.dataset.tv:otherKind();closeGlance();useTV(id)};
+paintGlance=function(){var box=document.getElementById('glanceRows');if(!box)return;
+  var html=glanceRow(nxLabel(),lastStatus,true,false);
+  nxOthers().forEach(function(t){var st=smOthersMap[t.id];var pair=!!(st&&st.needPair);
+    html+=glanceRow(t.label,pair?null:st,false,pair).replace('data-fn="glanceUse"','data-fn="glanceUse" data-tv="'+t.id+'"').replace('data-fn="moveHere"','data-fn="moveHere" data-tv="'+t.id+'"')});
+  box.innerHTML=html;
+  var w=box.querySelectorAll('.gl-what');
+  w[0].textContent=lastStatus&&lastStatus.ok?(lastStatus.app||''):'Off or not on home Wi-Fi';
+  nxOthers().forEach(function(t,i){var st=smOthersMap[t.id];if(w[i+1])w[i+1].textContent=st&&st.needPair?'Not paired yet':st&&st.ok?(st.app||''):'Off or not on home Wi-Fi'});
+  nxPaintTvAdd();
+};
+// SAMSUNG: added from Settings. Scan the Wi-Fi, pick it, choose Allow on the TV, done.
+var nxFound=[];
+function nxHasSamsung(){return tvList.some(function(t){return t.id==='samsung'})}
+function nxPaintTvAdd(){var box=document.getElementById('nxTvAdd');if(!box)return;
+  if(nxHasSamsung()){box.innerHTML='<div class="set-row"><span>'+nxLabel('samsung')+' (Samsung)</span><span style="display:flex;gap:8px"><button class="app" style="height:40px;width:auto;padding:0 12px;font-size:12px" data-fn="nxSamsungRename">Rename</button><button class="app" style="height:40px;width:auto;padding:0 12px;font-size:12px" data-fn="nxSamsungForget">Remove</button></span></div><div id="nxSamsungName" style="display:none" class="type-row"><input id="nxSamsungNameBox" class="apps-search" maxlength="24" placeholder="Room name" autocomplete="off"><button class="app" style="height:44px;width:auto;padding:0 14px" data-fn="nxSamsungSaveName">Save</button></div>';return}
+  box.innerHTML='<button class="app" style="height:46px;width:100%" data-fn="nxSamsungScan">+ Add a Samsung TV</button><div id="nxSamsungList" style="display:flex;flex-direction:column;gap:8px"></div><div id="nxSamsungNote" class="set-sub"></div>';
+}
+function nxSamsungScan(){var list=document.getElementById('nxSamsungList'),n=document.getElementById('nxSamsungNote');if(!n)return;
+  n.textContent='Looking on your Wi-Fi… (about 5 seconds)';list.innerHTML='';
+  window.__ask('samsung:scan').then(function(d){nxFound=(d&&d.found)||[];
+    if(!d||!d.ok){n.textContent=(d&&d.say)||'Samsung setup is on the iPhone app for now';return}
+    if(!nxFound.length){n.textContent='No Samsung TV answered. Is it on, on the same Wi-Fi, with "IP remote" allowed in its settings?';return}
+    n.textContent='Tap yours:';
+    nxFound.forEach(function(f,i){var b=document.createElement('button');b.className='app';b.style.cssText='height:48px;width:100%;font-size:13px';b.setAttribute('data-fn','nxSamsungPick');b.dataset.i=i;
+      b.textContent=(f.name||'Samsung TV')+(f.model?' · '+f.model:'')+' · '+f.ip;list.appendChild(b)})},function(){n.textContent='Could not scan'})}
+function nxSamsungPick(el){var f=nxFound[+(el&&el.dataset?el.dataset.i:-1)];if(!f)return;var n=document.getElementById('nxSamsungNote');
+  n.textContent='Adding '+(f.name||f.ip)+'…';
+  window.__ask('samsung:add:'+f.ip).then(function(d){if(!d||!d.ok){n.textContent=(d&&d.say)||'Could not add it';return}
+    n.textContent='On the Samsung, choose ALLOW for Grigson TV (up to 30 seconds)…';
+    return window.__ask('samsung:pair').then(function(r){n.textContent=(r&&r.say)||'';
+      return window.__ask('which').then(function(w){applyTV(w);note(nxLabel('samsung')+' added');paintGlance()})})})}
+function nxSamsungRename(){var r=document.getElementById('nxSamsungName');if(r){r.style.display='flex';document.getElementById('nxSamsungNameBox').value=nxLabel('samsung');document.getElementById('nxSamsungNameBox').focus()}}
+function nxSamsungSaveName(){var v=(document.getElementById('nxSamsungNameBox').value||'').trim();if(!v)return;
+  window.__ask('samsung:name:'+v).then(function(){return window.__ask('which')}).then(function(w){applyTV(w);paintGlance();note('Renamed')})}
+function nxSamsungForget(){window.__ask('samsung:forget').then(function(d){if(d&&d.say)note(d.say);return window.__ask('which')}).then(function(w){applyTV(w);paintGlance()})}
 // Hold a direction or volume key: it repeats after 420 ms, every 120 ms, until the finger lifts.
 // The press itself still fires on release through tapGuard, unless the hold already fired.
 (function(){
@@ -338,9 +406,10 @@ def patch(path):
     m=re.search(r"// The Simple cursor pad: .*?\n\(function\(\)\{\n  var pad=document\.getElementById\('sPad'\).*?\n\}\)\(\);\n",s,flags=re.S); assert m, path+': old simple pad'
     s=s[:m.start()]+NX_JS+s[m.end():]
     rep("applyTV=function(d){__applyTVs(d);tvInputs=null;inT=0;applySimpleCaps();if(simpleOn())paintInputs()};",
-        "applyTV=function(d){__applyTVs(d);tvInputs=null;inT=0;\n  document.querySelectorAll('#nxRooms .nx-room').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.tv===tvKind?'true':'false')});\n  if(simpleOn()){paintNexus(null);paintInputs()}};",'applyTV override')
+        "applyTV=function(d){__applyTVs(d);tvInputs=null;inT=0;\n  if(d&&d.tvs&&d.tvs.length)tvList=d.tvs;nxPaintRooms();\n  if(simpleOn()){paintNexus(null);paintInputs()}};",'applyTV override')
     rep("applyKid=function(){__applyKidS();var p=document.getElementById('sPower');if(p)p.style.visibility=kid()?'hidden':''};",
         "applyKid=function(){__applyKidS();var k=kid();var p=document.getElementById('sPower');if(p)p.style.visibility=k?'hidden':'';\n  var r=document.getElementById('nxRooms');if(r)r.style.visibility=k?'hidden':'';if(simpleOn())document.getElementById('tvSeg').style.display='none'};",'applyKid override')
+    rep("document.getElementById('inTv').textContent=tvKind==='vizio'?'Office':'Living room';","document.getElementById('inTv').textContent=nxLabel();",'inTv label')
     rep("paintStatus=function(d){__paintS(d);if(simpleOn()){paintInputs();",
         "paintStatus=function(d){__paintS(d);if(simpleOn()){paintNexus(d);paintInputs();",'paintStatus override')
     rep("(function(){if(ls('layout',null)===null)lsSet('layout',ls('tvMode',null)===null?'simple':'full');\n  applySimpleCaps();applyLayout()})();",
