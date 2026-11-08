@@ -53,6 +53,9 @@ OVERRIDES = """/* Layout 2 (Joshua 2026-11-07): rooms and the smart row at the b
 #simpleRemote .nx-inputs-heading{height:calc(44 * var(--u));justify-content:flex-start;gap:calc(18 * var(--u))}
 #simpleRemote .nx-edit{height:100%;padding:0 calc(6 * var(--u));border:0;background:none;box-shadow:none;color:var(--muted);font-size:calc(19 * var(--u));gap:.4em;border-radius:0}
 #simpleRemote .nx-navigation{height:calc(366 * var(--u))}
+#simpleRemote .nx-volume-readout{touch-action:none;cursor:ew-resize;transition:none}
+#simpleRemote .nx-volume-readout.nx-dragging .nx-volume-number{color:#fff;text-shadow:0 0 8px #fff8}
+#simpleRemote .nx-volume-readout.nx-dragging .nx-meter-fill{background:linear-gradient(#ffffff,#d9dddd);box-shadow:0 0 10px #ffffffa0}
 #simpleRemote #smartRow{margin-top:calc(12 * var(--u))}
 """
 NX_CSS = """/* ----- NEXUS layout (Smoky Silver / Black). Art units: --u = 1/558 of the remote's width. ----- */
@@ -103,7 +106,7 @@ NX_HTML = f"""<div id="simpleRemote"><div class="nx-inner">
   <div id="nxTrack" class="nx-track-surface" role="tabpanel"><span id="nxContact" class="nx-contact"></span><p id="nxCopy" class="nx-track-copy">Swipe to navigate<br>Tap to select</p></div>
   <div id="nxDpad" class="nx-dpad" role="tabpanel" hidden>{DPAD_ART}{DIRS}<button class="nx-center-select" data-c="ok">SELECT</button></div>
  </section>
- <div class="nx-volume-row"><div class="nx-volume-strip"><button class="nx-volume-key nx-chrome" data-c="volumeDown" data-repeat="1" aria-label="Volume down">&minus;</button><div class="nx-volume-readout"><div class="nx-volume-label">VOLUME<span id="nxVol" class="nx-volume-number">–</span></div><div class="nx-meter" role="meter" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="nxMeter" class="nx-meter-fill" style="width:0%"></div></div></div><button class="nx-volume-key nx-chrome" data-c="volumeUp" data-repeat="1" aria-label="Volume up">+</button></div><button id="nxMute" class="nx-mute nx-chrome" data-c="mute" aria-pressed="false">{icon('mute')}Mute</button></div>
+ <div class="nx-volume-row"><div class="nx-volume-strip"><button class="nx-volume-key nx-chrome" data-c="volumeDown" data-repeat="1" aria-label="Volume down">&minus;</button><div id="nxReadout" class="nx-volume-readout" aria-label="Volume. Press and drag to set."><div class="nx-volume-label">VOLUME<span id="nxVol" class="nx-volume-number">–</span></div><div class="nx-meter" role="meter" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="nxMeter" class="nx-meter-fill" style="width:0%"></div></div></div><button class="nx-volume-key nx-chrome" data-c="volumeUp" data-repeat="1" aria-label="Volume up">+</button></div><button id="nxMute" class="nx-mute nx-chrome" data-c="mute" aria-pressed="false">{icon('mute')}Mute</button></div>
  <div class="nx-primary"><button class="nx-chrome" data-c="back">{icon('back')}Back</button><button class="nx-okay" data-c="ok">OK</button><button class="nx-chrome" data-c="home">{icon('home')}Home</button></div>
  <div class="nx-playback"><button class="nx-chrome" data-c="rewind" aria-label="Rewind">{media('rewind')}</button><button class="nx-chrome" data-c="pause" aria-label="Play or pause">{media('play')}</button><button class="nx-chrome" data-c="fastForward" aria-label="Fast forward">{media('forward')}</button></div>
  <div class="nx-bottom"><button id="sMic" class="nx-voice" data-fn="talk">{icon('mic')}Say it</button><button class="nx-chrome" data-fn="openApps">{icon('apps')}Apps</button></div>
@@ -127,11 +130,12 @@ var NX_ICONS={cable:'<rect x="2" y="6" width="20" height="12" rx="1.5"/><path d=
 function nxIcon(k){return '<svg class="nx-icon" viewBox="0 0 24 24" aria-hidden="true">'+(NX_ICONS[k]||NX_ICONS.other)+'</svg>'}
 function nxCur(){return lastStatus&&lastStatus.ok&&lastStatus.app?(String(lastStatus.app).match(/HDMI[ _-]?(\d)/i)||[])[1]||null:null}
 // Status row: dot, what's on (HDMI 2 | PS5), power. Volume and mute live in their own row.
+var nxVolDrag=false;
 function paintNexus(d){
   var dot=document.getElementById('nxDot'),src=document.getElementById('nxSource'),al=document.getElementById('nxAlias'),st=document.getElementById('nxStatus');
   if(!dot)return;
   var vol=document.getElementById('nxVol'),met=document.getElementById('nxMeter');
-  function volume(v,m){vol.textContent=v>=0?v:'–';met.style.width=Math.max(0,Math.min(100,v>=0?v:0))+'%';met.parentNode.setAttribute('aria-valuenow',v>=0?v:0);
+  function volume(v,m){if(nxVolDrag)return;vol.textContent=v>=0?v:'–';met.style.width=Math.max(0,Math.min(100,v>=0?v:0))+'%';met.parentNode.setAttribute('aria-valuenow',v>=0?v:0);
     document.getElementById('nxMute').setAttribute('aria-pressed',m?'true':'false')}
   if(d&&d.needPin){dot.className='nx-dot nx-off';src.textContent='Office TV: tap to pair';al.textContent='';st.onclick=function(){pinShown=false;openPin()};volume(-1,false);
     document.getElementById('sPower').setAttribute('aria-pressed','false');return}
@@ -159,6 +163,21 @@ function paintInputs(){var box=document.getElementById('sInputs');if(!box)return
     box.appendChild(b)});
   var hid=all.length-list.length;document.getElementById('nxHidden').textContent=hid?hid+' hidden':'';
 }
+// Volume: − and + are the keys. Press and drag across the meter to set a level; the number follows
+// the finger and ONE command goes out on release. A tap on the meter does nothing (no accidental blasts).
+(function(){
+  var area=document.getElementById('nxReadout'),met=document.getElementById('nxMeter'),num=document.getElementById('nxVol');if(!area)return;
+  var g=null;
+  function level(x){var r=met.parentNode.getBoundingClientRect();return Math.max(0,Math.min(100,Math.round((x-r.left)/r.width*100)))}
+  area.addEventListener('pointerdown',function(e){if(!e.isPrimary)return;area.setPointerCapture(e.pointerId);g={id:e.pointerId,x:e.clientX,v:null}},{passive:true});
+  area.addEventListener('pointermove',function(e){if(!g||g.id!==e.pointerId)return;
+    if(g.v===null&&Math.abs(e.clientX-g.x)<10)return;
+    g.v=level(e.clientX);nxVolDrag=true;area.classList.add('nx-dragging');num.textContent=g.v;met.style.width=g.v+'%'});
+  function end(e){if(!g||g.id!==e.pointerId)return;var v=g.v;g=null;area.classList.remove('nx-dragging');
+    if(v===null)return;
+    doCmd('vol',[String(v)]).then(function(){nxVolDrag=false;pollStatus()},function(){nxVolDrag=false})}
+  area.addEventListener('pointerup',end);area.addEventListener('pointercancel',function(e){if(g&&g.id===e.pointerId){g=null;nxVolDrag=false;area.classList.remove('nx-dragging');paintNexus(lastStatus)}});
+})();
 // Hold a direction or volume key: it repeats after 420 ms, every 120 ms, until the finger lifts.
 // The press itself still fires on release through tapGuard, unless the hold already fired.
 (function(){
