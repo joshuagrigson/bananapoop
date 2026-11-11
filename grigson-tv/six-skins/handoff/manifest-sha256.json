@@ -1,0 +1,14 @@
+{
+  "design-spec.json": "733220823a2c014d70e3fa00eb4f98c32a0df26878122907a84431c1134a53ee",
+  "designs/01-dark-mode.png": "dbad0739c1d4a5456a9410b870f62684fbcb0273e7690e4706299f83bae5974a",
+  "designs/02-light-mode.png": "46b49051caf032e0de360072bbc9f19b232be87889c38891a0e0499ac836f0dd",
+  "designs/03-ivory-mode.png": "f09a0e1ef94796f7927e00ed6568631a494cdf6469b5eece438b201e97d0aecb",
+  "designs/04-navy-mode.png": "b509faf0fbe3c7483cf0c51d954b5917b5c5a156a0b09029eea19372da0dc78d",
+  "designs/05-black-white-mode.png": "6cae3a7cfc7c6f4bf96e3c84878b4d7608293d4ec0241f3e6bf605a2ebf7cddd",
+  "designs/06-glass-mode.png": "b0c61fb8d0be5ce391456107df6ce9fbb72cc8f3277a40d0e890af7f1aa56f36",
+  "DEVELOPER-HANDOFF.md": "4cfbb817713fd0a956664312719563436760f8b238df0ec63dfd6e118060145a",
+  "generation-notes.md": "b6125cc9abb15bf85e385f8ba926cf58154acc6cbd938b858857f7e688e9a86b",
+  "README.txt": "24f3c1eebbd601dc3852bc848a9c28a77d358cd78c6836c65c7911daa45f4807",
+  "START-HERE.html": "12baa57c10778ca229cc192e6beed599d2b45772a389f383cbe2368393c79228",
+  "theme-tokens.css": "ea067321f5cbf39f03dd3e7d3e3b68ca615933a87cf8302523288389ce2e26eb"
+}
