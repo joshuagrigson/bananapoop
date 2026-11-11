@@ -52,3 +52,5 @@ the status row, and leaves the full remote untouched. `previews/live-app-390.png
 is the patched iPhone page rendered with a stubbed TV bridge.
 
 Patch order for a fresh rebuild from paper-plate d285b38: `integrate-paper-plate.py` (NEXUS layout), then `xbox-id-patch.py` (Xbox client ID in Settings, centred 10), then `all-in-settings-patch.py` (ALL screen inside Settings).
+
+**Stale since 2026-11-10.** Layouts 3 and 4 (paper-plate 10c85a3, 3ff9241, scripts in `TVRemote/ci/`) were applied on top of these scripts' output, so re-running them over the live pages will not reproduce the shipped remote. Later changes (`add-multi-tv.py`, `room-names-patch.py`) were applied to the live tree once; they are kept here as a record of what changed, not as a rebuild path. Edit the live pages in paper-plate directly.
