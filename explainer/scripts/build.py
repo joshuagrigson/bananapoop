@@ -5,7 +5,7 @@
               --> render.mjs (Playwright + ffmpeg) --> video.mp4 (silent)
               --> ffmpeg mux --> <name>.mp4   and   thumbnail.mjs --> <name>.png
 
-Usage: build.py script.json [--out DIR] [--scene explainer/scenes/editorial.html] [--fps 30] [--assets [qwen|flux|draft|final]]
+Usage: build.py script.json [--out DIR] [--scene explainer/scenes/editorial.html] [--fps 30] [--assets [qwen|flux|relay|draft|final]]
 """
 import argparse, json, os, subprocess, sys, shutil
 
@@ -21,10 +21,11 @@ ap.add_argument("--size", default="1080x1920", help="WxH; 1080x1920 for Reels/St
 ap.add_argument("--models", default=os.path.join(ROOT, ".models"))
 ap.add_argument("--name", default=None, help="output basename (default: script slug)")
 ap.add_argument("--reuse-audio", action="store_true", help="skip narration if work/timeline.json already exists")
-ap.add_argument("--assets", nargs="?", const="qwen", default=None, choices=["qwen", "flux", "draft", "final"],
+ap.add_argument("--assets", nargs="?", const="qwen", default=None, choices=["qwen", "flux", "relay", "draft", "final"],
                 help="paint one plate per block. qwen (default) / flux = free Hugging Face Space, "
                      "falls back to the local SDXL-Turbo 'final' tier if the Space or its quota fails; "
-                     "draft / final = local CPU model only")
+                     "relay = PAID fal.ai plates through the image relay (IMAGE_RELAY_URL + RELAY_PASS), "
+                     "missing plates fall back to qwen and then local; draft / final = local CPU model only")
 a = ap.parse_args()
 
 doc = json.load(open(a.script))
@@ -43,13 +44,21 @@ if not (a.reuse_audio and os.path.exists(timeline)):
 style = os.path.splitext(os.path.basename(a.scene))[0]
 if a.assets:
     adir = os.path.join(work, "assets")
-    if a.assets in ("qwen", "flux"):
-        cmd = [sys.executable, os.path.join(HERE, "hf_spaces.py"), a.script, style, adir, "--model", a.assets]
+    space = a.assets
+    if a.assets == "relay":
+        cmd = [sys.executable, os.path.join(HERE, "relay.py"), a.script, style, adir]
+        print("+", " ".join(cmd), flush=True)
+        space = None
+        if subprocess.run(cmd).returncode != 0:
+            print("!! relay did not paint every plate; the missing ones go to the free qwen Space", flush=True)
+            space = "qwen"
+    if space in ("qwen", "flux"):
+        cmd = [sys.executable, os.path.join(HERE, "hf_spaces.py"), a.script, style, adir, "--model", space]
         print("+", " ".join(cmd), flush=True)
         if subprocess.run(cmd).returncode != 0:
-            print(f"!! {a.assets} Space failed (quota or network); falling back to local SDXL-Turbo for the missing plates", flush=True)
+            print(f"!! {space} Space failed (quota or network); falling back to local SDXL-Turbo for the missing plates", flush=True)
             run([sys.executable, os.path.join(HERE, "assets.py"), a.script, style, adir, "--tier", "final"])
-    else:
+    elif a.assets in ("draft", "final"):
         run([sys.executable, os.path.join(HERE, "assets.py"), a.script, style, adir, "--tier", a.assets])
     plates = json.load(open(os.path.join(adir, style, "manifest.json")))
     tl = json.load(open(timeline))

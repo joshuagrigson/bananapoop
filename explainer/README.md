@@ -36,6 +36,26 @@ model load). `--assets draft` or `--assets final` skips the Space and uses only 
 The Space needs a Hugging Face token that reaches huggingface.co (an `HF_TOKEN` environment variable,
 or a proxy that injects it). A free account's ZeroGPU quota covers roughly one video's plates a day.
 
+**Paid plates (the image relay).** `--assets relay` paints through an image relay: a small Netlify
+function that holds a fal.ai key and forwards jobs to fal. Plates come back at the real 1080x1920
+frame size from `fal-ai/flux-2-pro`, with no daily quota and no watermark. It costs money on the
+relay owner's fal account: about 6 cents a plate, under 50 cents for a seven-block reel.
+
+```bash
+export IMAGE_RELAY_URL=https://<your-site>.netlify.app/generate
+export RELAY_PASS=...                      # never commit this
+python3 explainer/scripts/relay.py reel.json reel out/work/assets --dry-run    # prompts + cost, spends nothing
+python3 explainer/scripts/build.py reel.json --scene explainer/scenes/reel.html --assets relay
+python3 explainer/scripts/relay.py reel.json reel out/work/assets --blocks 2   # repaint one bad plate only
+```
+
+Plates that already exist are kept, so the relay only paints what is missing. If the relay fails, the
+missing plates fall back to the free Qwen Space and then the local model. Writing `scene` text for it:
+describe what is in the frame and never what should be absent ("no text" raises the odds of text; the
+relay painter drops such clauses); if the model ignores a placement instruction, change `--model`
+before rewriting the prompt; anything with legible words (labels, signs, box art) should be drawn by
+the scene page, never asked of the image model.
+
 `explainer/scripts/hf_spaces.py --animate plate.png out.mp4` turns a plate into a 3.5-second motion clip
 with Wan 2.2 on the same free quota (about 40 seconds).
 
@@ -85,6 +105,6 @@ Add a new style by copying it and keeping those two functions.
 
 ## Limits
 
-- Painted plates depend on a free Hugging Face quota, or on a slow CPU fallback; there is no paid tier wired in.
+- Free painted plates depend on a small Hugging Face quota or a slow CPU fallback; the paid tier (`--assets relay`) needs a deployed image relay and fal credit.
 - No lip-sync or on-screen presenter.
 - Kokoro voices are good broadcast-neutral narrators, not ElevenLabs-grade actors.

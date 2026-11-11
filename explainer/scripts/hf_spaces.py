@@ -15,7 +15,8 @@ Measured 2026-10-29 (portrait, cold queue): FLUX.1-schnell 768x1344 4 steps = 4 
 Qwen-Image-Fast 9:16 8 steps = 2.5-12 s/plate, Wan 2.2 3.5 s clip 480x832 = 39 s.
 """
 import argparse, json, os, sys, time, urllib.request
-from gradio_client import Client, handle_file
+# gradio_client is imported inside client()/animate() so pollinations.py and relay.py can read the
+# style tables below without it installed.
 
 # Same style tables as assets.py (that file parses argv at import, so it cannot be imported).
 STYLE_PREFIX = {
@@ -39,6 +40,7 @@ SPACES = {
 
 
 def client(space):
+    from gradio_client import Client
     tok = os.environ.get("HF_TOKEN")
     req = urllib.request.Request(f"https://huggingface.co/api/spaces/{space}/jwt",
                                  headers={"Authorization": f"Bearer {tok}"} if tok else {})
@@ -97,6 +99,7 @@ def _one(c, model, prompt, seed, portrait, path):
 
 
 def animate(image, out, motion, seconds, seed):
+    from gradio_client import handle_file
     c = client(SPACES["wan"]); t = time.time()
     r = c.predict(input_image=handle_file(image), prompt=motion, steps=6, duration_seconds=seconds,
                   guidance_scale=1, guidance_scale_2=1, seed=seed, randomize_seed=False,
