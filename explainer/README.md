@@ -39,7 +39,7 @@ or a proxy that injects it). A free account's ZeroGPU quota covers roughly one v
 **Paid plates (the image relay).** `--assets relay` paints through an image relay: a small Netlify
 function that holds a fal.ai key and forwards jobs to fal. Plates come back at the real 1080x1920
 frame size from `fal-ai/flux-2-pro`, with no daily quota and no watermark. It costs money on the
-relay owner's fal account: about 6 cents a plate, under 50 cents for a seven-block reel.
+relay owner's fal account: 4.5 cents a plate, about 32 cents for a seven-block reel (fal listing, 2026-11-11).
 
 ```bash
 export IMAGE_RELAY_URL=https://<your-site>.netlify.app/generate

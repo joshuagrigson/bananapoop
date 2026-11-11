@@ -12,9 +12,9 @@ Needs two environment variables. Neither is ever written to disk by this script:
   IMAGE_RELAY_URL   https://<your-site>.netlify.app/generate
   RELAY_PASS        the passphrase set on that site
 
-This is the paid tier: every plate costs real money on the relay owner's fal account (about
-$0.03 per megapixel on flux-2-pro in Aug 2026, so about 6 cents for a 1080x1920 plate and under
-50 cents for a seven-block reel). --dry-run prints the prompts and the estimate and spends nothing.
+This is the paid tier: every plate costs real money on the relay owner's fal account (4.5 cents
+for a 1080x1920 plate on flux-2-pro at the 2026-11-11 price, so about 32 cents for a seven-block
+reel). --dry-run prints the prompts and the estimate and spends nothing.
 
 Why it is built this way (rules learned from the relay's own notes):
   - Submit every job first, save the status/response URLs to relay_jobs.json, then poll. A loop
@@ -30,7 +30,13 @@ import argparse, io, json, os, sys, time, urllib.error, urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-USD_PER_MP = 0.03  # flux-2-pro, Aug 2026. An estimate for the printout only; check fal's listing.
+# flux-2-pro price read from fal's live listing on 2026-11-11: $0.03 for the first output megapixel,
+# $0.015 for each additional one, megapixels rounded up, 1 MP = 1024x1024. Printout estimate only.
+USD_FIRST_MP, USD_NEXT_MP, MP = 0.03, 0.015, 1024 * 1024
+
+
+def plate_cost(w, h):
+    return USD_FIRST_MP + USD_NEXT_MP * (max(1, -(-(w * h) // MP)) - 1)
 
 
 def positive(text):
@@ -113,9 +119,9 @@ def main():
     todo = [i for i in range(n) if i in forced or str(i) not in manifest]
     prompts = {i: build_prompt(doc["blocks"][i], prefix, suffix) for i in todo}
 
-    est = len(todo) * (w * h / 1e6) * USD_PER_MP
+    est = len(todo) * plate_cost(w, h)
     print(f"{len(todo)} plate(s) to paint at {w}x{h} on {a.model}; estimate ${est:.2f} "
-          f"(at ${USD_PER_MP}/MP, flux-2-pro Aug 2026 price)", flush=True)
+          f"(${plate_cost(w, h):.3f} a plate at flux-2-pro's 2026-11-11 price)", flush=True)
     for i in todo:
         print(f"  block {i+1:02d}: {prompts[i]}")
     if a.dry_run or not todo:
