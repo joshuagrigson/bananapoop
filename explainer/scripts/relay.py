@@ -47,6 +47,11 @@ def positive(text):
 
 
 def build_prompt(block, prefix, suffix):
+    # A block's own "plate_prompt" is sent as written. Use it when the style's setting fights the
+    # scene: the reel style says "rural East Texas home", so a hardware-store scene came back as a
+    # living room with a store through the doorway.
+    if block.get("plate_prompt"):
+        return positive(block["plate_prompt"])
     subject = block.get("scene") or block.get("headline") or block["narration"]
     return positive(f"{prefix}{subject}, {suffix}")
 

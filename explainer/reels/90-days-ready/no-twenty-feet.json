@@ -47,7 +47,8 @@
     "g|Look for UL 2201 or PGMA G300 on the box"
    ],
    "narration": "Buying a generator? Get one with carbon monoxide shutoff. Look for U.L. twenty-two oh one, or P.G.M.A. G three hundred, on the box.",
-   "scene": "a new portable generator in its cardboard box in a hardware store aisle, bright store lighting"
+   "scene": "a new portable generator in its cardboard box in a hardware store aisle, bright store lighting",
+   "plate_prompt": "photorealistic documentary photograph inside a small-town hardware store, a new portable generator in its cardboard box sitting on the concrete floor of an aisle, shelves of tools on both sides, bright fluorescent store lighting, shallow depth of field, 35mm film grain"
   },
   {
    "headline": "No yard? *Skip the gas.*",

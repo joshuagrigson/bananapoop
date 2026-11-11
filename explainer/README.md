@@ -53,7 +53,8 @@ Plates that already exist are kept, so the relay only paints what is missing. If
 missing plates fall back to the free Qwen Space and then the local model. Writing `scene` text for it:
 describe what is in the frame and never what should be absent ("no text" raises the odds of text; the
 relay painter drops such clauses); if the model ignores a placement instruction, change `--model`
-before rewriting the prompt; anything with legible words (labels, signs, box art) should be drawn by
+before rewriting the prompt; if the style's setting fights the scene (a store scene in the "home" reel
+style), give that block a `plate_prompt`, which is sent as written; anything with legible words (labels, signs, box art) should be drawn by
 the scene page, never asked of the image model.
 
 `explainer/scripts/hf_spaces.py --animate plate.png out.mp4` turns a plate into a 3.5-second motion clip
