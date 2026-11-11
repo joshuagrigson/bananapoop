@@ -39,7 +39,8 @@
     "y|Alarm goes off? Shut it down, get out"
    ],
    "narration": "Keep carbon monoxide alarms inside, battery or plug-in with a battery backup. If one goes off, shut the generator down and get everyone outside.",
-   "scene": "a white carbon monoxide alarm on a living room wall above a lamp, cozy small home, evening light"
+   "scene": "a white carbon monoxide alarm on a living room wall above a lamp, cozy small home, evening light",
+   "plate_prompt": "photorealistic documentary photograph, close view of a round white carbon monoxide alarm mounted on a plain painted living room wall, a table lamp glowing softly below it, cozy small rural home, evening light, shallow depth of field, 35mm film grain"
   },
   {
    "headline": "Buying one? Get *auto shutoff*.",
