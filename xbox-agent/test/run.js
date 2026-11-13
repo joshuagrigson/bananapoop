@@ -9,6 +9,7 @@ import { randomBytes } from 'node:crypto';
 import { run } from '../src/agent.js';
 import * as store from '../src/state.js';
 import { dueSlot, inQuiet } from '../src/jobs.js';
+import { modeFrom, parseList, parseBuild } from '../src/meta.js';
 import * as realIo from '../src/io.js';
 
 let pass = 0, fail = 0;
@@ -27,6 +28,13 @@ const json = (o, status = 200) => new Response(JSON.stringify(o), { status, head
 globalThis.fetch = async (url, opt = {}) => {
   const u = new URL(url); const body = opt.body;
   const f = typeof body === 'string' && body.includes('grant_type') ? Object.fromEntries(new URLSearchParams(body)) : null;
+  if (u.host === 'wzhub.gg') {
+    const tile = (tier, name, range) => `<article data-loadout-key="x" class="lo2-tile"><button type="button" aria-expanded="false" aria-label="${name}, ${range}" class="lo2-tile__toggle"></button><img src="/images/games/mw4.svg" alt="mw4" class="lo2-tile__game"></article>`;
+    if (u.pathname === '/loadouts') return new Response(`<section id="lo2-group-pure_meta" class="lo2-group">${tile(0, 'CRONEN OSPREY', 'Long ranges')}${tile(0, 'VEL 46', 'Close range')}</section><section id="lo2-group-meta">${tile(0, 'HAN 86', 'Long ranges')}</section>`);
+    if (u.pathname === '/mw4-loadouts') return new Response(`<section id="lo2-group-new">${tile(0, 'ISO NIGHTSHADE', 'Close range')}</section><section id="lo2-group-pure_meta">${tile(0, 'M4', 'All ranges')}</section>`);
+    if (u.pathname === '/loadouts/mw4-cronen-osprey') return new Response('<ul class="lo2-details__attachments"><li><span>Optic</span> <strong>Locus PX3 Canted</strong></li><li><span>Barrel</span> <strong>IO-556 Tac 18&quot;</strong></li></ul><span>LOADOUT CODE</span> <strong>A02-2TKF8-24ZCN-11</strong>');
+    return new Response('nope', { status: 404 });
+  }
   if (u.pathname.endsWith('/devicecode')) return json({ device_code: 'DC', user_code: 'ABCD-1234', verification_uri: 'https://microsoft.com/link', expires_in: 900, interval: 5 });
   if (u.pathname.endsWith('/token')) {
     if (f.grant_type.includes('device_code')) return ++W.devicePolls < 2 ? json({ error: 'authorization_pending' }, 400) : json({ access_token: 'AT0', refresh_token: 'RT0' });
@@ -38,7 +46,7 @@ globalThis.fetch = async (url, opt = {}) => {
   assert.equal(opt.headers.Authorization, 'XBL3.0 x=UHS;XT');
   if (u.pathname === '/lists/devices') return json({ result: [{ id: 'F400', name: 'Xbox', consoleType: 'XboxSeriesX', powerState: W.power }] });
   if (u.pathname === '/commands') { const b = JSON.parse(body); W.commands.push(`${b.type}/${b.command}${b.parameters[0].oneStoreProductId ? ':' + b.parameters[0].oneStoreProductId : ''}`); if (b.command === 'WakeUp') W.power = 'On'; if (b.command === 'TurnOff') W.power = 'ConnectedStandby'; return json({ status: { errorCode: 'OK' } }); }
-  if (u.host === 'userpresence.xboxlive.com') return json({ state: 'Online', devices: [{ type: 'Scarlett', titles: [{ id: '750323071', name: 'Home', placement: 'Background' }, ...(W.myGame ? [{ id: '1', name: W.myGame, placement: 'Full' }] : [])] }] });
+  if (u.host === 'userpresence.xboxlive.com') return json({ state: 'Online', devices: [{ type: 'Scarlett', titles: [{ id: '750323071', name: 'Home', placement: 'Background' }, ...(W.myGame ? [{ id: '1', name: W.myGame, placement: 'Full', activity: { richPresence: W.myDetail || '' } }] : [])] }] });
   if (u.host === 'peoplehub.xboxlive.com') return json({ people: W.friends });
   if (u.host === 'mediahub.xboxlive.com') return json({ values: W.clips });
   if (u.host === 'titlehub.xboxlive.com') return json({ titles: W.titles });
@@ -199,6 +207,49 @@ await t('expired sign-in: one "sign in again" ping per day, run fails loudly', a
   await assert.rejects(go('tick', '2026-11-23T12:30:00Z'));
   assert.equal(pings.filter((p) => p.title.includes('sign in again')).length, 1);
   W.refreshFails = false;
+});
+
+await t('meta: mode from Xbox rich presence text', () => {
+  assert.equal(modeFrom('Warzone: Resurgence Quads'), 'warzone');
+  assert.equal(modeFrom('Multiplayer: Hardpoint on Shipment'), 'mp');
+  assert.equal(modeFrom('DMZ: Exfil'), 'dmz');
+  assert.equal(modeFrom('In the menus'), null);
+});
+
+await t('meta: Warzone ping has the top build with attachments + code; no repeat; switches with mode', async () => {
+  W.refreshFails = false; W.power = 'On'; W.myGame = 'Call of Duty®'; W.myDetail = 'Warzone: Resurgence Quads';
+  pings.length = 0;
+  await go('tick', '2026-11-24T20:00:00Z');
+  let m = pings.filter((p) => p.tags?.includes('gun'));
+  assert.equal(m.length, 1);
+  assert.equal(m[0].title, 'Warzone meta right now');
+  assert.match(m[0].message, /CRONEN OSPREY \(Long ranges\)\n  Optic: Locus PX3 Canted · Barrel: IO-556 Tac 18"\n  Code: A02-2TKF8-24ZCN-11/);
+  pings.length = 0;
+  await go('tick', '2026-11-24T20:30:00Z');
+  assert.equal(pings.filter((p) => p.tags?.includes('gun')).length, 0, 'same mode, same day');
+  W.myDetail = 'Multiplayer: Hardpoint';
+  await go('tick', '2026-11-24T21:00:00Z');
+  m = pings.filter((p) => p.tags?.includes('gun'));
+  assert.equal(m.length, 1);
+  assert.match(m[0].message, /★ M4 \(All ranges\)/);
+});
+
+await t('meta: not playing CoD = nothing; unknown mode = Warzone list once a day, labelled', async () => {
+  W.myGame = 'Forza Horizon 6'; W.myDetail = ''; pings.length = 0;
+  await go('tick', '2026-11-25T20:00:00Z');
+  assert.equal(pings.filter((p) => p.tags?.includes('gun')).length, 0);
+  W.myGame = 'Call of Duty®'; W.myDetail = 'In the menus';
+  await go('tick', '2026-11-25T20:30:00Z');
+  await go('tick', '2026-11-25T21:00:00Z');
+  const m = pings.filter((p) => p.tags?.includes('gun'));
+  assert.equal(m.length, 1);
+  assert.match(m[0].title, /couldn't read your mode/);
+});
+
+await t('meta: manual command with a mode', async () => {
+  pings.length = 0;
+  await run('meta', 'mp', { env, io, now: at('2026-11-25T22:00:00Z'), sleep: async () => {}, log: () => {} });
+  assert.equal(pings.filter((p) => p.tags?.includes('gun'))[0].title, 'MW4 Multiplayer meta right now');
 });
 
 await t('real ffmpeg: landscape clip -> 1080x1920 vertical', () => {

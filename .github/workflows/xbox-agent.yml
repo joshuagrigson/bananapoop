@@ -10,9 +10,9 @@ on:
         description: 'What to do'
         type: choice
         default: tick
-        options: [tick, login, clips, digest, wake, off, launch, status]
+        options: [tick, meta, login, clips, digest, wake, off, launch, status]
       game:
-        description: 'For launch: part of the game name (blank = config warmup game)'
+        description: 'launch: part of the game name. meta: warzone, mp or dmz (blank = your current mode)'
         required: false
         default: ''
 

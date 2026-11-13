@@ -2,6 +2,7 @@
 // Logs never carry friend names, gamertags, or URLs: the repo and its Action logs are public.
 import { join } from 'node:path';
 import { unlinkSync } from 'node:fs';
+import { modeFrom, metaFor } from './meta.js';
 
 // ---------- time helpers (all schedule times are local, cfg.tz) ----------
 
@@ -221,4 +222,29 @@ export async function digest(ctx, { force = false } = {}) {
   await io.notify(env.NTFY_TOPIC, { title: 'Your Xbox week', message: lines.join('\n'), tags: ['bar_chart'] });
   ctx.log(`digest: ${hourList.length} games sampled, ${titles.length} titles, gs delta ${gsDelta}`);
   return { lines };
+}
+
+// ---------- 7. meta loadouts for the CoD mode he's in ----------
+// Fires when CoD is running and the mode changes (or once a day per mode). Unknown mode -> Warzone list, once a day.
+
+export async function meta(ctx, { force = false, mode: forced } = {}) {
+  const { cfg, state, env, io } = ctx;
+  let mode = forced || null;
+  if (!forced) {
+    const me = await ctx.x.myPresence();
+    if (!me.game || !/call of duty/i.test(me.game)) { state.metaMode = null; return { skipped: true }; }
+    mode = modeFrom(me.detail) || 'unknown';
+  }
+  const day = local(ctx.now(), cfg.tz).dateKey;
+  const key = `${mode}:${day}`;
+  if (!force && state.metaKey === key) return { skipped: true };
+  if (!force && mode === 'unknown' && (state.metaKey || '').endsWith(day)) return { skipped: true };
+  const m = await metaFor(mode === 'unknown' ? 'warzone' : mode);
+  state.metaKey = key;
+  await io.notify(env.NTFY_TOPIC, {
+    title: mode === 'unknown' ? `${m.title} (couldn't read your mode)` : m.title,
+    message: m.message, click: m.click, tags: ['gun'],
+  });
+  ctx.log(`meta: sent ${mode}`);
+  return { mode };
 }

@@ -216,7 +216,7 @@ export function parsePresence(j) {
     for (const t of d.titles || []) {
       // The dashboard ("Home") is a title too; anything with placement Full that isn't Home counts as a game.
       if (t.placement === 'Full' && t.name && !/^home$/i.test(t.name) && t.name !== 'Xbox App') {
-        return { state: j.state, game: t.name, titleId: t.id, device: d.type };
+        return { state: j.state, game: t.name, titleId: t.id, device: d.type, detail: (t.activity && t.activity.richPresence) || '' };
       }
     }
   }

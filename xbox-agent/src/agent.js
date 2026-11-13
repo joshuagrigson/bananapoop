@@ -5,6 +5,7 @@
 //   clips | digest   force that job now
 //   wake | off       power the console
 //   launch <name>    wake + launch a game from recently played (e.g. "Call of Duty")
+//   meta [mode]      meta loadouts now (warzone | mp | dmz; blank = whatever CoD mode you're in)
 //   status           console power + what's running (counts only in the log)
 // Env: XBOX_CLIENT_ID, XBOX_STATE_KEY, NTFY_TOPIC, DRIVE_DROP_URL, DRIVE_DROP_KEY, STATE_FILE
 import { readFileSync, mkdtempSync } from 'node:fs';
@@ -79,7 +80,9 @@ export async function run(cmd, arg, {
         await safe('warmup', () => jobs.warmup(ctx));
         await safe('clips', () => jobs.clips(ctx));
         await safe('digest', () => jobs.digest(ctx));
+        await safe('meta', () => jobs.meta(ctx));
         break;
+      case 'meta': await safe('meta', () => jobs.meta(ctx, { force: true, mode: arg || undefined })); break;
       case 'clips': await safe('clips', () => jobs.clips(ctx, { force: true })); break;
       case 'digest': await safe('digest', () => jobs.digest(ctx, { force: true })); break;
       case 'launch': await safe('warmup', () => jobs.warmup(ctx, { force: true, game: arg || undefined })); break;

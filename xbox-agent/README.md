@@ -34,6 +34,7 @@ A small agent that holds Joshua's Xbox sign-in and runs the console while he's a
 | bedtime | 23:30: powers off | School-night / kid schedule |
 | idle-off | On but parked on Home for ~1 h: powers off | The cloud-side stand-in for "off when the TV goes off" |
 | digest | Sunday: hours by game, titles played, gamerscore gained | Weekly look at play time |
+| meta | When CoD is running: reads the mode from Xbox rich presence and sends the current meta from wzhub.gg (Warzone: top builds with attachments and loadout code; MW4 MP: tier list; DMZ: link) | "What should I run?" answered when you load in |
 | ntfy | Every message to the phone | No email, no Slack, his own channel |
 
 ## Setup (one time)
@@ -55,7 +56,8 @@ All times are in `America/Chicago`. `days` uses 0 = Sunday. `friends.watch` is a
 - The Xbox endpoints are unofficial (the same ones the Xbox app and Home Assistant use) and can change. Nothing here has run against the real console yet.
 - It can't see the screen, play for you, or force a specific update.
 - Cron runs can be up to ~30 min late. Pings and the warmup land within that window.
+- Meta comes from wzhub.gg's pages; if they change their layout, the ping says the page changed instead of sending junk. Whether CoD's Xbox rich presence names the mode is unverified; if it doesn't, you get the Warzone list once a day, labelled "couldn't read your mode". Manual: Run workflow → `meta` with warzone / mp / dmz.
 - Clips over 36 MB after the 9:16 cut are skipped (an Apps Script request limit). The phone is told when one is skipped.
 - Your own gameplay clips are fine for TheGamerzFeed, but Content Rewards campaigns like the MW4 trailer allow only the campaign's own footage.
 
-`npm test` runs 17 offline checks against a fake Microsoft and Xbox Live, plus one real ffmpeg cut.
+`npm test` runs 21 offline checks against a fake Microsoft and Xbox Live, plus one real ffmpeg cut.
