@@ -1,0 +1,10 @@
+{
+  "tz": "America/Chicago",
+  "console": "",
+  "clips": { "at": "03:00", "max": 10, "backfillDays": 7, "folder": "TheGamerzFeed/Xbox clips" },
+  "friends": { "watch": [], "quiet": ["23:30", "08:00"] },
+  "warmup": { "days": [1, 2, 3, 4, 5], "at": "17:15", "game": "Call of Duty" },
+  "bedtime": [{ "days": [0, 1, 2, 3, 4, 5, 6], "at": "23:30" }],
+  "idleOff": { "ticks": 2, "graceMinutes": 90 },
+  "digest": { "day": 0, "at": "10:00" }
+}

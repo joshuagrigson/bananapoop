@@ -1,0 +1,8 @@
+{
+  "name": "xbox-agent",
+  "private": true,
+  "type": "module",
+  "description": "Parked Xbox agent: clip auto-pull, friend pings, warmup, bedtime, idle-off, weekly digest",
+  "scripts": { "test": "node test/run.js" },
+  "engines": { "node": ">=20" }
+}

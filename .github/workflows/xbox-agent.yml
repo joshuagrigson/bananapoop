@@ -1,0 +1,80 @@
+name: Xbox agent
+
+# Scheduled runs only fire from the repo's DEFAULT branch.
+on:
+  schedule:
+    - cron: '7,37 * * * *'   # every 30 min; each job decides from config.json whether it is due
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'What to do'
+        type: choice
+        default: tick
+        options: [tick, login, clips, digest, wake, off, launch, status]
+      game:
+        description: 'For launch: part of the game name (blank = config warmup game)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write   # only to append the sealed state file to the xbox-agent-state branch
+
+concurrency:
+  group: xbox-agent
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      XBOX_CLIENT_ID: ${{ secrets.XBOX_CLIENT_ID }}
+      XBOX_STATE_KEY: ${{ secrets.XBOX_STATE_KEY }}
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      DRIVE_DROP_URL: ${{ secrets.DRIVE_DROP_URL }}
+      DRIVE_DROP_KEY: ${{ secrets.DRIVE_DROP_KEY }}
+      STATE_FILE: ${{ github.workspace }}/st/state.enc
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip until set up
+        id: ready
+        run: |
+          if [ -z "$XBOX_CLIENT_ID" ] || [ -z "$XBOX_STATE_KEY" ]; then
+            echo "Xbox agent not set up yet (secrets missing); nothing to do."; echo "go=no" >> "$GITHUB_OUTPUT"
+          else echo "go=yes" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Load sealed state
+        if: steps.ready.outputs.go == 'yes'
+        run: |
+          mkdir -p st
+          if git ls-remote --exit-code --heads origin xbox-agent-state >/dev/null; then
+            git fetch -q --depth 1 origin xbox-agent-state
+            git show FETCH_HEAD:state.enc > st/state.enc
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.ready.outputs.go == 'yes'
+        with:
+          node-version: '22'
+
+      - name: Run
+        if: steps.ready.outputs.go == 'yes'
+        working-directory: xbox-agent
+        env:
+          CMD: ${{ github.event.inputs.command || 'tick' }}
+          GAME: ${{ github.event.inputs.game }}
+        run: node src/agent.js "$CMD" "$GAME"
+
+      - name: Save sealed state
+        if: always() && steps.ready.outputs.go == 'yes' && hashFiles('st/state.enc') != ''
+        run: |
+          W=$(mktemp -d)
+          git init -q "$W"; cd "$W"
+          git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+          if git fetch -q --depth 1 origin xbox-agent-state 2>/dev/null; then git checkout -q -B xbox-agent-state FETCH_HEAD; else git checkout -q --orphan xbox-agent-state; fi
+          cp "$STATE_FILE" state.enc
+          git add state.enc
+          if git diff --cached --quiet; then echo "state unchanged"; exit 0; fi
+          git -c user.name="xbox-agent" -c user.email="xbox-agent@users.noreply.github.com" commit -qm "state $(date -u +%FT%TZ)"
+          git push -q origin xbox-agent-state
