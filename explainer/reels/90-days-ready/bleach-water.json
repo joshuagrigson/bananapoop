@@ -1,0 +1,63 @@
+{
+ "title": "Bleach drops per gallon",
+ "brand": "Prepared at Home",
+ "slug": "pah-bleach-water",
+ "voice": "am_onyx",
+ "speed": 1.0,
+ "gap": 0.35,
+ "lead": 0.4,
+ "accent": "#f5c518",
+ "orientation": "portrait",
+ "blocks": [
+  {
+   "headline": "Tap water's out. How much *bleach* per gallon?",
+   "narration": "Boil notice, or no water at all? Here's exactly how much bleach makes a gallon safe to drink.",
+   "scene": "a row of clear gallon water jugs on a rustic kitchen counter, sunlight through a window"
+  },
+  {
+   "headline": "Plain, *unscented* bleach only.",
+   "lines": [
+    "b|No scented, color-safe or splash-less"
+   ],
+   "narration": "Use plain unscented household bleach. Skip the scented, color safe, or splash-less kinds.",
+   "scene": "a plain white jug of household bleach on a laundry room shelf, simple and clean"
+  },
+  {
+   "headline": "5–6% bleach: *8 drops* per gallon.",
+   "lines": [
+    "b|8.25% bleach: 6 drops per gallon",
+    "b|Check the label for the percent"
+   ],
+   "narration": "Regular five to six percent bleach is eight drops per gallon. The stronger eight percent kind is six drops.",
+   "scene": "a medicine dropper over a glass jug of clear water on a wooden table, close up, natural light"
+  },
+  {
+   "headline": "Cloudy? Filter it, then *double* it.",
+   "lines": [
+    "b|Let it settle, pour off the clear water",
+    "b|Strain through a clean cloth"
+   ],
+   "narration": "If the water is cloudy, let it settle, strain it through a clean cloth, then use double the drops.",
+   "scene": "water being poured through a clean cotton cloth into a large pot in a farmhouse kitchen"
+  },
+  {
+   "headline": "Stir. Wait *30 minutes*.",
+   "lines": [
+    "g|It should smell faintly of bleach",
+    "g|No smell? Repeat and wait 15 more"
+   ],
+   "narration": "Stir it and wait thirty minutes. It should smell faintly of bleach. If it doesn't, repeat the dose and wait fifteen more.",
+   "scene": "a kitchen timer beside a covered pot of water on a wooden counter, calm afternoon light"
+  },
+  {
+   "headline": "Comment *READY*",
+   "lines": [
+    "g|The 90-Day Home Readiness Kit",
+    "y|13 printable pages · $9"
+   ],
+   "cta": "COMMENT  READY",
+   "narration": "Comment ready, and we'll message you the ninety day kit. Thirteen printable pages, nine dollars.",
+   "scene": "a printed home emergency checklist on a clipboard on a kitchen table beside a mug of coffee and a pencil, morning window light"
+  }
+ ]
+}

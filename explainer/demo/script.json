@@ -1,0 +1,53 @@
+{
+  "title": "Your First Tour at Ocean Canyon",
+  "brand": "Ocean Canyon Resorts",
+  "slug": "ocr-first-tour-demo",
+  "voice": "am_onyx",
+  "speed": 1.0,
+  "gap": 0.5,
+  "accent": "#1f6f5f",
+  "blocks": [
+    {
+      "voice": "af_bella",
+      "icon": "map",
+      "headline": "Ninety minutes. One resort. No pressure.",
+      "lines": ["A guided drive through the resort", "See the sites, the pool, the clubhouse", "Ask anything you want"],
+      "narration": "Your first tour at Ocean Canyon is a ninety minute guided look at one resort. You'll see the camp sites, the pool, and the clubhouse, and you can ask anything you want."
+    },
+    {
+      "voice": "af_heart",
+      "icon": "clock",
+      "headline": "Arrive ten minutes early",
+      "lines": ["Check in at the welcome center", "Bring a photo ID", "Kids and pets are welcome on the drive"],
+      "narration": "Plan to arrive about ten minutes early and check in at the welcome center. Bring a photo ID. Kids and pets are welcome to ride along on the drive."
+    },
+    {
+      "voice": "am_adam",
+      "icon": "phone",
+      "headline": "Running late? Just call.",
+      "lines": ["Your rep's number is in your confirmation text", "We hold your spot for thirty minutes", "Reschedule once, no questions asked"],
+      "narration": "If you're running late, just call the number in your confirmation text. We'll hold your spot for thirty minutes, and you can reschedule once with no questions asked."
+    },
+    {
+      "voice": "am_onyx",
+      "icon": "key",
+      "headline": "What membership actually gets you",
+      "lines": ["Stay at any Ocean Canyon resort", "Book online, year round", "One flat annual fee"],
+      "narration": "Membership means you can stay at any Ocean Canyon resort, book online year round, and pay one flat annual fee instead of nightly rates."
+    },
+    {
+      "voice": "am_santa",
+      "icon": "star",
+      "headline": "The gift is yours either way",
+      "lines": ["Your tour gift does not depend on buying", "Pick it up at the front desk after the drive"],
+      "narration": "The gift you were promised is yours whether or not you join. Pick it up at the front desk right after the drive."
+    },
+    {
+      "voice": "bm_daniel",
+      "icon": "check",
+      "headline": "See you at the welcome center",
+      "lines": ["Confirm by replying YES to your text", "Questions? Call or text your rep anytime"],
+      "narration": "That's it. Reply yes to your confirmation text, and we'll see you at the welcome center. Questions before then? Call or text your rep anytime."
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+/* Shared design reference. Not a complete app. Geometry overrides raster differences. */
+.remote {
+  box-sizing: border-box;
+  width: min(100%, 504px);
+  padding: 24px;
+  color: var(--text);
+  background: var(--surface);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.remote *, .remote *::before, .remote *::after { box-sizing: border-box; }
+.remote-layout { display: flex; flex-direction: column; gap: 16px; }
+/* DOM order: header, source, volume, playback, mode, navigation, back-home-mute, voice-apps */
+.remote-navigation { width: 100%; aspect-ratio: 38 / 25; display: grid; place-items: center; }
+.remote-trackpad { width: 100%; height: 100%; border-radius: 28px; background: var(--control); touch-action: none; }
+.remote-dpad {
+  position: relative; width: 60.5263%; aspect-ratio: 1;
+  border-radius: 50%; background: var(--control);
+  box-shadow: 0 3px 7px rgb(0 0 0 / 18%), inset 0 1px 0 rgb(255 255 255 / 18%);
+}
+.remote-dpad-ok { width: 36%; aspect-ratio: 1; border-radius: 50%; box-shadow: 0 2px 5px rgb(0 0 0 / 18%); }
+/* Implement four accessible directional targets and open chevrons within the disc. */
+.remote-volume { width: 100%; }
+.remote-volume-line { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 8px; }
+.remote-volume input[type="range"] { width: 100%; min-width: 0; accent-color: var(--volume-accent, var(--accent)); }
+.remote-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.remote-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.remote button { min-height: 44px; min-width: 44px; }
+.remote button:focus-visible, .remote input:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+/* Apply to label/icon spans ONLY, never entire buttons. */
+.remote-voice-glyph { color: var(--voice); text-shadow: 0 0 5px rgb(69 204 107 / 24%); }
+.remote-voice-icon { color: var(--voice); filter: drop-shadow(0 0 3px rgb(69 204 107 / 24%)); }
+.remote-mute-glyph { color: var(--mute); text-shadow: 0 0 5px rgb(235 77 77 / 22%); }
+.remote-mute-icon { color: var(--mute); filter: drop-shadow(0 0 3px rgb(235 77 77 / 22%)); }
+[data-remote-theme="dark-mode"] {
+  --canvas: #080A0C;
+  --surface: #101316;
+  --control: #24282C;
+  --text: #F5F5F2;
+  --muted: #A8AFB6;
+  --accent: #4F9CF5;
+  --on-accent: #08121F;
+  --border: #383D43;
+  --voice: #C5F6CF;
+  --mute: #FFB7B7;
+}
+[data-remote-theme="light-mode"] {
+  --canvas: #F8FAFC;
+  --surface: #FFFFFF;
+  --control: #EAF0F5;
+  --text: #111827;
+  --muted: #526171;
+  --accent: #124CF0;
+  --on-accent: #FFFFFF;
+  --border: #CFD8E2;
+  --voice: #145C2B;
+  --mute: #A51B1B;
+}
+[data-remote-theme="ivory-mode"] {
+  --canvas: #E7DDD2;
+  --surface: #F7EFE3;
+  --control: #F4EBDD;
+  --text: #4C2A14;
+  --muted: #79604A;
+  --accent: #603317;
+  --on-accent: #FFF9F0;
+  --border: #DED0BE;
+  --voice: #245327;
+  --mute: #A01C18;
+}
+[data-remote-theme="navy-mode"] {
+  --canvas: #061127;
+  --surface: #0C1B33;
+  --control: #354F70;
+  --text: #F6F8FF;
+  --muted: #B8C7DC;
+  --accent: #B5E6FA;
+  --on-accent: #082137;
+  --border: #486787;
+  --voice: #C8FFE0;
+  --mute: #FFB8B8;
+}
+[data-remote-theme="black-white-mode"] {
+  --canvas: #FFFFFF;
+  --surface: #FFFFFF;
+  --control: #F5F6F7;
+  --text: #08090A;
+  --muted: #444B55;
+  --accent: #08090A;
+  --on-accent: #FFFFFF;
+  --border: #979FA9;
+  --voice: #135323;
+  --mute: #991515;
+}
+
+
+[data-remote-theme="dark-mode"] { --volume-accent: #1253FA; }
+
+[data-remote-theme="light-mode"] { --volume-accent: #1253FA; }
+
+[data-remote-theme="ivory-mode"] { --volume-accent: #603317; }
+
+[data-remote-theme="navy-mode"] { --volume-accent: #1253FA; }
+
+[data-remote-theme="black-white-mode"] { --volume-accent: #1253FA; }
+
+[data-remote-theme="glass-mode"] {
+  --canvas: #9DB2C6;
+  --surface: rgba(240,248,255,0.28);
+  --control: rgba(240,248,255,0.30);
+  --text: #172333;
+  --muted: #344456;
+  --accent: rgba(239,248,255,0.68);
+  --on-accent: #172333;
+  --border: rgba(255,255,255,0.68);
+  --voice: #17552B;
+  --mute: #9A3330;
+  --volume-accent: #1253FA;
+}
+.remote[data-remote-theme="glass-mode"] {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 55%), 0 6px 18px rgb(20 42 64 / 14%);
+}
+[data-remote-theme="glass-mode"] .remote-trackpad,
+[data-remote-theme="glass-mode"] .remote-dpad,
+[data-remote-theme="glass-mode"] .remote-dpad-ok {
+  background: var(--control);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 55%), 0 3px 7px rgb(20 42 64 / 15%);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .remote[data-remote-theme="glass-mode"] { background: #DCE7F0; }
+}
+/* Hook up this attribute to the application's reduced-transparency preference. */
+.remote[data-remote-theme="glass-mode"][data-reduced-transparency="true"] { background: #DCE7F0; backdrop-filter: none; -webkit-backdrop-filter: none; }

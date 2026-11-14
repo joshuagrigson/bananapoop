@@ -1,0 +1,225 @@
+{
+  "version": "2.0",
+  "date": "2026-11-11",
+  "purpose": "Developer design handoff; visual references and implementation specification, not a connected TV app.",
+  "precedence": "Shared geometry and behavior in this specification are authoritative. Generated concept images may contain small dimensional, shade, or spacing variations. Theme hex values are proposed implementation tokens rather than exact sampled/approved brand colors.",
+  "layout": {
+    "sharedAcrossAllThemes": true,
+    "order": [
+      "device-header",
+      "source-inputs",
+      "volume-slider",
+      "playback",
+      "navigation-mode",
+      "navigation-surface",
+      "back-home-mute",
+      "voice-apps"
+    ],
+    "referenceCardWidthPx": 504,
+    "referenceHorizontalPaddingPx": 24,
+    "contentWidthPx": 456,
+    "trackpad": {
+      "widthPx": 456,
+      "heightPx": 300,
+      "aspectRatio": "38 / 25",
+      "cornerRadiusPx": 28,
+      "responsive": "Width equals available content width; height equals width × 25 / 38. Use identical geometry in every theme."
+    },
+    "dpad": {
+      "style": "Ivory Mode raised circular disc (formerly Soft Hi-Fi)",
+      "referenceDiameterPx": 276,
+      "centerDiameterRatio": 0.36,
+      "chevrons": "Open line, four directions",
+      "quadrants": "Four fine diagonal radial dividers",
+      "shadow": "Small soft contact shadow under disc and raised center; no glow",
+      "placement": "Centered in the same navigation region as the trackpad"
+    },
+    "minimumInteractiveTargetPx": 44,
+    "spacingPx": [
+      8,
+      12,
+      16,
+      24
+    ],
+    "shortScreenPolicy": "Allow vertical scrolling and safe-area padding; do not shrink controls or clip content to force one-screen fit.",
+    "master": "Shared thumb-first layout, established by Navy Mode"
+  },
+  "volume": {
+    "width": "Entire content row",
+    "mutePlacement": "Back / Home / Mute row",
+    "exampleValue": 13,
+    "range": "Obtain actual limits and step from connected device; do not assume 0–100.",
+    "behavior": "Optimistic interaction with acknowledged device-state reconciliation; throttle drag requests and commit final value."
+  },
+  "glow": {
+    "voice": {
+      "targets": [
+        "label-glyphs",
+        "microphone-strokes"
+      ],
+      "color": "#45CC6B",
+      "opacity": 0.24,
+      "blurPx": 5
+    },
+    "mute": {
+      "targets": [
+        "label-glyphs",
+        "muted-speaker-strokes"
+      ],
+      "color": "#EB4D4D",
+      "opacity": 0.22,
+      "blurPx": 5
+    },
+    "rule": "Faint base styling only. No glow on button backgrounds or outlines. Actual listening/muted states must be conveyed separately through text and accessible state."
+  },
+  "themes": [
+    {
+      "id": "dark-mode",
+      "name": "Dark Mode",
+      "file": "01-dark-mode",
+      "canvas": "#080A0C",
+      "surface": "#101316",
+      "control": "#24282C",
+      "text": "#F5F5F2",
+      "muted": "#A8AFB6",
+      "accent": "#4F9CF5",
+      "onAccent": "#08121F",
+      "border": "#383D43",
+      "voice": "#C5F6CF",
+      "mute": "#FFB7B7",
+      "volumeAccent": "#1253FA"
+    },
+    {
+      "id": "light-mode",
+      "name": "Light Mode",
+      "file": "02-light-mode",
+      "canvas": "#F8FAFC",
+      "surface": "#FFFFFF",
+      "control": "#EAF0F5",
+      "text": "#111827",
+      "muted": "#526171",
+      "accent": "#124CF0",
+      "onAccent": "#FFFFFF",
+      "border": "#CFD8E2",
+      "voice": "#145C2B",
+      "mute": "#A51B1B",
+      "volumeAccent": "#1253FA"
+    },
+    {
+      "id": "ivory-mode",
+      "name": "Ivory Mode",
+      "file": "03-ivory-mode",
+      "canvas": "#E7DDD2",
+      "surface": "#F7EFE3",
+      "control": "#F4EBDD",
+      "text": "#4C2A14",
+      "muted": "#79604A",
+      "accent": "#603317",
+      "onAccent": "#FFF9F0",
+      "border": "#DED0BE",
+      "voice": "#245327",
+      "mute": "#A01C18",
+      "volumeAccent": "#603317"
+    },
+    {
+      "id": "navy-mode",
+      "name": "Navy Mode",
+      "file": "04-navy-mode",
+      "canvas": "#061127",
+      "surface": "#0C1B33",
+      "control": "#354F70",
+      "text": "#F6F8FF",
+      "muted": "#B8C7DC",
+      "accent": "#B5E6FA",
+      "onAccent": "#082137",
+      "border": "#486787",
+      "voice": "#C8FFE0",
+      "mute": "#FFB8B8",
+      "volumeAccent": "#1253FA"
+    },
+    {
+      "id": "black-white-mode",
+      "name": "Black/White Mode",
+      "file": "05-black-white-mode",
+      "canvas": "#FFFFFF",
+      "surface": "#FFFFFF",
+      "control": "#F5F6F7",
+      "text": "#08090A",
+      "muted": "#444B55",
+      "accent": "#08090A",
+      "onAccent": "#FFFFFF",
+      "border": "#979FA9",
+      "voice": "#135323",
+      "mute": "#991515",
+      "volumeAccent": "#1253FA"
+    },
+    {
+      "canvas": "#9DB2C6",
+      "surface": "rgba(240,248,255,0.28)",
+      "control": "rgba(240,248,255,0.30)",
+      "text": "#172333",
+      "muted": "#344456",
+      "accent": "rgba(239,248,255,0.68)",
+      "onAccent": "#172333",
+      "border": "rgba(255,255,255,0.68)",
+      "voice": "#17552B",
+      "mute": "#9A3330",
+      "id": "glass-mode",
+      "name": "Glass Mode",
+      "file": "06-glass-mode",
+      "volumeAccent": "#1253FA"
+    }
+  ],
+  "runtimeData": [
+    "selectedDevice",
+    "connectionStatus",
+    "currentSource",
+    "availableSources",
+    "volume",
+    "volumeRange",
+    "isMuted",
+    "playbackState",
+    "availableApps",
+    "capabilities",
+    "voiceState"
+  ],
+  "capabilities": [
+    "navigation",
+    "select",
+    "back",
+    "home",
+    "volumeSet",
+    "volumeStep",
+    "mute",
+    "playback",
+    "seek",
+    "power",
+    "sourceSelect",
+    "appLaunch",
+    "voice"
+  ],
+  "assets": "Six PNG boards, each with Trackpad and D-pad modes and combined Play/Pause button. Flattened artwork is not interactive UI.",
+  "requiresBeforeLaunch": [
+    "Choose mobile/web target platform",
+    "Identify TV models and protocol/adapter",
+    "Implement pairing/authentication",
+    "Connect commands and state updates",
+    "Test on real devices",
+    "Validate accessibility and responsive behavior"
+  ],
+  "playback": {
+    "visibleSymbol": "Combined right-pointing play triangle and two pause bars in ONE button",
+    "labelForBlackWhite": "Play/Pause",
+    "behavior": "Toggle playback using acknowledged current device state or a native toggle command; preserve the combined glyph.",
+    "accessibleState": "Expose current state and appropriate next action; report unsupported/failed commands."
+  },
+  "glass": {
+    "surfaceAlpha": 0.28,
+    "controlAlpha": 0.3,
+    "blurPx": 14,
+    "edge": "1 px translucent white rim",
+    "fallbackSurface": "#DCE7F0",
+    "backdrop": "Stable quiet slate-blue/gray",
+    "geometry": "Same as other themes"
+  }
+}

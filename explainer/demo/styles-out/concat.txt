@@ -1,0 +1,7 @@
+file 'labeled_whiteboard.mp4'
+file 'labeled_handdrawn.mp4'
+file 'labeled_pixel.mp4'
+file 'labeled_studio3d.mp4'
+file 'labeled_colorful3d.mp4'
+file 'labeled_mannequin.mp4'
+file 'labeled_mix3d.mp4'
