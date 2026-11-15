@@ -1,0 +1,185 @@
+{
+ "per_day": 2,
+ "remaining": [
+  {
+   "seq": 4,
+   "board_id": "669769844523894156",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r04-care.png",
+   "title": "Home safety checklist for seniors: fall prevention room by room",
+   "description": "Walk through the house the way your parent does: loose rugs, dark hallways, bathroom grab bars, stair rails, smoke and CO alarms, phone within reach. A printable home safety walkthrough for caregivers.",
+   "alt_text": "Printable home safety walkthrough checklist for elderly parents",
+   "link": "https://preparedathome.netlify.app/#first30?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=care-home-safety"
+  },
+  {
+   "seq": 5,
+   "board_id": "669769844523894156",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r05-care.png",
+   "title": "Caregiver binder printables: everything in one place for the family",
+   "description": "Contacts, medication list and log, appointments, documents, daily care log, home safety, holiday visit checklist and hospital discharge pages. Organize caring for a parent so anyone in the family can pick it up.",
+   "alt_text": "Printable caregiver binder pages for families caring for a parent",
+   "link": "https://preparedathome.netlify.app/#bundle?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=care-binder"
+  },
+  {
+   "seq": 8,
+   "board_id": "669769844523894162",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r08-talk.png",
+   "title": "The kitchen walk: signs of decline in an aging parent’s kitchen",
+   "description": "Expired milk, duplicate groceries, scorched pans, unopened pill bottles, a growing mail pile. What to look at in an elderly parent’s kitchen during a visit, and what each sign can mean.",
+   "alt_text": "Kitchen walk checklist for spotting changes in an aging parent",
+   "link": "https://preparedathome.netlify.app/#holidays?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=talk-kitchen"
+  },
+  {
+   "seq": 9,
+   "board_id": "669769844523894162",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r09-talk.png",
+   "title": "Caring for aging parents with siblings: a family meeting worksheet",
+   "description": "A one-page family debrief: what each sibling noticed (facts, not worry), where you agree, where you don’t, and three next steps with a name and a date. Works on the phone or in the car home.",
+   "alt_text": "Family meeting worksheet for siblings caring for aging parents",
+   "link": "https://preparedathome.netlify.app/#holidays?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=talk-siblings"
+  },
+  {
+   "seq": 10,
+   "board_id": "669769844523894162",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r10-talk.png",
+   "title": "When does an elderly parent need help? A green / yellow / red guide",
+   "description": "Green: enjoy the visit and start a baseline. Yellow: one conversation and a doctor visit within 60 days. Red: act this week. A simple decision guide for adult children after a holiday visit.",
+   "alt_text": "Green yellow red decision guide for when an aging parent needs help",
+   "link": "https://preparedathome.netlify.app/#holidays?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=talk-gyr"
+  },
+  {
+   "seq": 13,
+   "board_id": "669769844523894157",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r13-hosp.png",
+   "title": "How to prepare your home for a parent coming home from the hospital",
+   "description": "Recovery happens at home: clear the path, set up a downstairs bed if needed, bathroom safety, a medication station, a phone within reach, and night lights. A printable house setup checklist.",
+   "alt_text": "Checklist for setting up the home after a hospital stay",
+   "link": "https://preparedathome.netlify.app/#hospital?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=hosp-house"
+  },
+  {
+   "seq": 14,
+   "board_id": "669769844523894157",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r14-hosp.png",
+   "title": "First week home from the hospital: a 7-day plan to prevent readmission",
+   "description": "A default rhythm for the first seven days after discharge: medications, meals, walking, vitals, follow-up calls and the first doctor visit. Most readmissions start in this week.",
+   "alt_text": "Seven day plan for the first week home after a hospital stay",
+   "link": "https://preparedathome.netlify.app/#hospital?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=hosp-7-day"
+  },
+  {
+   "seq": 15,
+   "board_id": "669769844523894157",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r15-hosp.png",
+   "title": "Caregiver help schedule: dividing the first week after surgery or hospital",
+   "description": "Morning, midday, evening, overnight, rides and meals, seven days across. Fill it in before day 3, while people are still offering to help. If your name is in every row, that is the first problem to fix.",
+   "alt_text": "Help roster schedule for family helping after a hospital stay",
+   "link": "https://preparedathome.netlify.app/#hospital?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=hosp-roster"
+  },
+  {
+   "seq": 18,
+   "board_id": "669769844523894158",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r18-meds.png",
+   "title": "Weekly medication log printable for caregivers (pill tracker)",
+   "description": "A one-page weekly medication tracker: each medication, each dose, a box for every day. Anyone helping can see what was taken and what was missed. Part of a printable caregiver binder.",
+   "alt_text": "Weekly medication log tracker printable",
+   "link": "https://preparedathome.netlify.app/#first30?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=meds-weekly-log"
+  },
+  {
+   "seq": 19,
+   "board_id": "669769844523894158",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r19-meds.png",
+   "title": "Doctor appointment tracker printable for caregivers",
+   "description": "Date, provider, reason, what they said, next steps and follow-up date, plus three questions to ask before you leave the office. Keep every appointment for an aging parent in one place.",
+   "alt_text": "Appointment tracker printable for caregivers",
+   "link": "https://preparedathome.netlify.app/#first30?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=meds-appointments"
+  },
+  {
+   "seq": 20,
+   "board_id": "669769844523894158",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r20-meds.png",
+   "title": "Medication changes after hospital discharge: printable reconciliation sheet",
+   "description": "Mark every medication new, changed, same or stopped, with dose and purpose. Three questions for the pharmacist and a log of old bottles removed so there are never two medication lists in the house.",
+   "alt_text": "Medication changes sheet for after a hospital discharge",
+   "link": "https://preparedathome.netlify.app/#hospital?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=meds-changes"
+  },
+  {
+   "seq": 23,
+   "board_id": "669769844523894159",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r23-prep.png",
+   "title": "Two-week emergency supply checklist (free printable for families)",
+   "description": "Stage 2: a two-week supply for staying at home, as the American Red Cross suggests. Food you already eat, water, medications, hygiene and pet supplies, sized with a simple household calculator.",
+   "alt_text": "Two week emergency supply checklist printable",
+   "link": "https://preparedathome.netlify.app/#ready?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=prep-2-week"
+  },
+  {
+   "seq": 24,
+   "board_id": "669769844523894159",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r24-prep.png",
+   "title": "Family emergency plan template: free printable to fill in together",
+   "description": "Where to meet, out-of-town contact, school and work plans, who picks up the kids, pets, and who grabs what. A family emergency plan worksheet based on Ready.gov guidance.",
+   "alt_text": "Family emergency plan template printable",
+   "link": "https://preparedathome.netlify.app/#ready?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=prep-family-plan"
+  },
+  {
+   "seq": 25,
+   "board_id": "669769844523894159",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r25-prep.png",
+   "title": "What to do if the internet and phones go down: an offline emergency plan",
+   "description": "An outage, a cyberattack, a storm: write down phone numbers, keep some cash, pick a meeting time and place, and know which radio station to tune to. A printable offline plan for families.",
+   "alt_text": "Offline emergency plan for when internet and phones are down",
+   "link": "https://preparedathome.netlify.app/#ready?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=prep-offline"
+  },
+  {
+   "seq": 28,
+   "board_id": "669769844523894160",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r28-food.png",
+   "title": "Pantry inventory printable: food storage rotation log",
+   "description": "Track what is in your pantry and emergency food storage, best-by dates, and what to eat next. First in, first out, so stockpiling never means throwing food away.",
+   "alt_text": "Pantry inventory and rotation log printable",
+   "link": "https://preparedathome.netlify.app/#ready?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=food-pantry-log"
+  },
+  {
+   "seq": 29,
+   "board_id": "669769844523894160",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r29-food.png",
+   "title": "How much food to store for emergencies: a household needs calculator",
+   "description": "Write down what your household uses in two weeks, then scale it to 3, 14, 30 and 90 days. The simplest way to size emergency food storage around what you already eat.",
+   "alt_text": "Household needs calculator for emergency food storage",
+   "link": "https://preparedathome.netlify.app/#ready?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=food-calculator"
+  },
+  {
+   "seq": 30,
+   "board_id": "669769844523894160",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r30-food.png",
+   "title": "30-day emergency food supply checklist for families",
+   "description": "Stage 3 covers more than storms: a lost paycheck, a long illness, a price spike. A 30-day food and supply checklist built slowly from what you already buy.",
+   "alt_text": "30-day emergency food supply checklist",
+   "link": "https://preparedathome.netlify.app/#ready?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=food-30-day"
+  },
+  {
+   "seq": 33,
+   "board_id": "669769844523894161",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r33-power.png",
+   "title": "How to build a 90-day emergency supply slowly and on a budget",
+   "description": "The long game: grow your supply from 30 to 90 days a little each month, rotate it into everyday meals, and never buy food you won’t eat. Stage 4 of a free family readiness kit.",
+   "alt_text": "Ninety day emergency supply stage checklist",
+   "link": "https://preparedathome.netlify.app/#ready?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=power-90-day"
+  },
+  {
+   "seq": 34,
+   "board_id": "669769844523894161",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r34-power.png",
+   "title": "Emergency preparedness for beginners: 4 stages from 72 hours to 90 days",
+   "description": "Nobody builds 90 days of supplies in a weekend. Start with 72 hours, then 2 weeks, 30 days and 90 days, one paycheck at a time. A free printable starter guide for families.",
+   "alt_text": "Beginner emergency preparedness stages explained",
+   "link": "https://preparedathome.netlify.app/#ready?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=power-beginners"
+  },
+  {
+   "seq": 35,
+   "board_id": "669769844523894161",
+   "image_url": "https://raw.githubusercontent.com/joshuagrigson/bananapoop/refs/heads/pinterest-rebuild-1115/pinterest-rebuild/pins/r35-power.png",
+   "title": "Simple prepping habit: how to keep your emergency pantry stocked",
+   "description": "After the first two weeks are covered, preparedness is one habit: buy one extra of what you use, eat the oldest first, check the calendar monthly. The easiest way to stay ready.",
+   "alt_text": "Simple habit for keeping emergency supplies stocked",
+   "link": "https://preparedathome.netlify.app/#ready?utm_source=pinterest&utm_medium=pin&utm_campaign=rebuild-1115&utm_content=power-habit"
+  }
+ ]
+}

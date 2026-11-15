@@ -8,7 +8,7 @@ const L = (anchor, slug) => `${SITE}/#${anchor}?utm_source=pinterest&utm_medium=
 export const BOARDS = [
   { key: 'care', name: 'Caring for Aging Parents: Printable Checklists',
     desc: 'Printable checklists and planners for adult children caring for an aging parent: caregiver binder pages, emergency information sheet, important documents checklist, home safety checklist, and a 30-day plan for new family caregivers.' },
-  { key: 'talk', name: 'Signs Aging Parents Need Help & How to Talk About It',
+  { key: 'talk', name: 'Signs Aging Parents Need Help & How to Talk',
     desc: 'Signs an elderly parent may need more help, what to look for on a holiday visit, and word-for-word ways to start the conversation with aging parents and siblings without a fight.' },
   { key: 'hosp', name: 'Hospital Discharge Checklist & Recovery at Home',
     desc: 'Bringing a parent home from the hospital: discharge checklist, medication changes, when to call the doctor or 911, setting up the house for recovery, and a help roster for the first week home.' },
